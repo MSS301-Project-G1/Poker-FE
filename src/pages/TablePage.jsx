@@ -398,7 +398,7 @@ export default function TablePage() {
 </div>
 
 <div className={"flex-1 flex items-center gap-space-xs"}>
-<input className={"w-full h-2 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-primary"} id={"betSlider"} max={"1450000"} min={"100000"} step={"25000"} type={"range"} value={"480000"} />
+<input className={"w-full h-2 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-primary"} id={"betSlider"} max={"1450000"} min={"100000"} step={"25000"} type={"range"} defaultValue={"480000"} />
 </div>
 
 <div className={"flex items-center gap-1 bg-surface-container-high px-space-sm py-1 rounded-lg"}>
