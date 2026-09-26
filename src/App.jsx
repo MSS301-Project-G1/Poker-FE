@@ -83,8 +83,8 @@ function App() {
     if (page === '/table' && /fold|call|raise/i.test(label)) {
       setNotice(`${label.split(' ')[0]} selected in UI demo. Game actions need a backend.`)
     }
-    if (page === '/shop' && /buy now|unlock now/i.test(label)) {
-      setNotice('Shop checkout needs a backend. This screen is ready for integration.')
+    if (page === '/shop' && /top up to buy/i.test(label)) {
+      setNotice('Skin purchases need a payment backend. This screen is ready for integration.')
     }
   }
 

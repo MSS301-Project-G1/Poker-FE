@@ -29,6 +29,7 @@ The top navigation also includes Events and Mailbox placeholders; Stitch does no
 - `public/stitch-assets` contains English versions of the Stitch artwork. Original images with Vietnamese text remain in the local reference archive and are excluded from Git. Two unavailable source image links use local SVG logo/avatar placeholders.
 - `tailwind.config.js` mirrors the Stitch color, spacing, and typography tokens. Sora, Outfit, and Material Symbols are stored locally under `public/fonts`.
 - Routes use the browser History API through `src/App.jsx`. The sign-in, matchmaking, reward, table actions, and shop purchase interactions are frontend demos only; remaining controls are visual placeholders. No authentication, game server, wallet, or payment API is connected.
+- Product direction: players top up to buy cosmetic skins. There is no VIP tier, diamond balance, or Ruby currency. The shop shows no prices until payment and product data are defined.
 - Edit the React page components directly as the product grows.
 
 ## Suggested next work

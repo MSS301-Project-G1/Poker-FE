@@ -25,7 +25,7 @@ export default function AuthPage({ mode = 'sign-in' }) {
 <span className={"material-symbols-outlined text-tertiary-fixed text-4xl md:text-5xl filter drop-shadow-[0_0_12px_rgba(229,196,87,0.5)]"}>playing_cards</span>
 <h1 className={"font-display-hero text-3xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-primary-fixed via-primary to-secondary-fixed bg-clip-text text-transparent"}>POKER RANK</h1>
 </div>
-<p className={"mt-2 text-xs md:text-sm font-label-action tracking-widest text-on-surface-variant/90 uppercase"}>VIP HIGH ROLLER ARENA • CYBER POKER LOUNGE</p>
+<p className={"mt-2 text-xs md:text-sm font-label-action tracking-widest text-on-surface-variant/90 uppercase"}>HIGH ROLLER ARENA • CYBER POKER LOUNGE</p>
 </header>
 
 <main className={"w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch my-auto"}>
@@ -55,7 +55,7 @@ export default function AuthPage({ mode = 'sign-in' }) {
             </div>
 <p className={"text-xs text-on-surface-variant flex items-center gap-1.5"}>
 <span className={"material-symbols-outlined text-secondary text-sm"}>verified</span>
-              Receive Silver VIP Pass &amp; 10 Lucky Wheel Spins upon phone verification.
+              Create an account to join the tables and customize your look.
             </p>
 </div>
 
@@ -122,7 +122,7 @@ export default function AuthPage({ mode = 'sign-in' }) {
 </label>
 <div className={"relative"}>
 <span className={"material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-lg pointer-events-none"}>account_circle</span>
-<input className={"w-full bg-surface-container-lowest/90 border border-outline-variant/60 rounded-xl pl-11 pr-4 py-3 text-sm text-white placeholder-on-surface-variant/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all font-body-md"} placeholder={"player_poker_vip"} type={"text"} />
+<input className={"w-full bg-surface-container-lowest/90 border border-outline-variant/60 rounded-xl pl-11 pr-4 py-3 text-sm text-white placeholder-on-surface-variant/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all font-body-md"} placeholder={"player_poker_rank"} type={"text"} />
 </div>
 </div>
 
@@ -208,7 +208,7 @@ export default function AuthPage({ mode = 'sign-in' }) {
 </div>
 <div className={"inline-flex items-center gap-1.5"}>
 <span className={"material-symbols-outlined text-primary text-sm"}>support_agent</span>
-<span>24/7 VIP Concierge</span>
+<span>24/7 Player Support</span>
 </div>
 </footer>
 </div>

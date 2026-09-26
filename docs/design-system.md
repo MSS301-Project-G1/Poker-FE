@@ -139,7 +139,7 @@ spacing:
 ---
 
 ## Brand & Style
-This design system defines an elite online poker environment that merges high-stakes VIP casino prestige with refined esports cyber aesthetics. It deliberately abandons traditional green felt and generic casino tropes in favor of an immersive deep purple universe.
+This design system defines an elite online poker environment that merges high-stakes casino styling with refined esports cyber aesthetics. It deliberately abandons traditional green felt and generic casino tropes in favor of an immersive deep purple universe.
 
 The aesthetic blends **Glassmorphism** with subtle **Cyber-Luminescence**:
 - **Atmospheric Depth:** Deep obsidian purple and dark violet gradients evoke private high-roller lounges and futuristic stadium tables.
@@ -153,7 +153,7 @@ The palette is rooted in the spectral tiers of the provided reference: shifting 
 ### Core Hierarchy
 - **Primary (`#B0129B` / `#9A0B85`):** Cyber Magenta. Used for key call-to-actions, active player turn outlines, all-in indicators, and primary wins.
 - **Secondary (`#5E0F8B` / `#4C0970`):** Royal Violet. Anchors table felt gradients, interactive secondary buttons, and badge backplates.
-- **Tertiary (`#F6D365` / `#E5B83B`):** Imperial Gold. Reserved exclusively for high-value chips, pot values, tournament rank trophies, and VIP tiers.
+- **Tertiary (`#F6D365` / `#E5B83B`):** Imperial Gold. Reserved for high-value chips, pot values, and tournament rank trophies.
 - **Neutral Dark Canvas (`#0A0216` / `#120324` / `#230644`):** Obsidian Violet tiers. Replaces flat blacks and grays, serving as the canvas backdrop, table rail, and modal background.
 
 ### Semantic Tones
