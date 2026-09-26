@@ -1,0 +1,30 @@
+.app-shell { min-height: 100vh; }
+.app-shell header { z-index: 60; }
+.checkin-closed #dailyModal { display: none; }
+.register-mode .auth-tabs button:first-child { background: transparent; color: #dabfcf; box-shadow: none; }
+.register-mode .auth-tabs button:last-child { background: #b0129b; color: white; box-shadow: 0 4px 10px #0a021688; }
+.demo-notice {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 2rem;
+  z-index: 100;
+  max-width: min(28rem, calc(100vw - 3rem));
+  padding: 0.85rem 1.2rem;
+  border: 1px solid #b0129b;
+  border-radius: 0.75rem;
+  background: #28183a;
+  color: #efdbff;
+  box-shadow: 0 12px 32px #0a0216bb;
+}
+.placeholder-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: radial-gradient(circle at top, #432255, #160628 70%);
+  text-align: center;
+}
+.placeholder-screen h1 { font: 700 2rem Sora, sans-serif; }
+.placeholder-screen button { padding: 0.75rem 1.5rem; border-radius: 0.5rem; background: #b0129b; }
