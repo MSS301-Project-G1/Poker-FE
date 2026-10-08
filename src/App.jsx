@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import AuthPage from './pages/AuthPage'
 import LobbyPage from './pages/LobbyPage'
 import RankedPage from './pages/RankedPage'
-import TablePage from './pages/TablePage'
+import { resolveGameTableRoute } from './features/game-table/routes'
+import { resolveMatchSettingsRoute } from './features/admin/match-settings/routes'
 import ShopPage from './pages/ShopPage'
 import './App.css'
 
@@ -11,7 +12,6 @@ const routes = {
   '/auth': AuthPage,
   '/lobby': LobbyPage,
   '/ranked': RankedPage,
-  '/table': TablePage,
   '/shop': ShopPage,
 }
 
@@ -44,7 +44,7 @@ function App() {
   const navigate = (path) => {
     if (path === page) return
     window.history.pushState({}, '', path)
-    setPage(path)
+    setPage(new URL(path, window.location.origin).pathname)
     setNotice('')
     window.scrollTo(0, 0)
   }
@@ -80,9 +80,6 @@ function App() {
       if (/sign in/i.test(label)) setAuthMode('sign-in')
       if (/guest play/i.test(label)) navigate('/lobby')
     }
-    if (page === '/table' && /fold|call|raise/i.test(label)) {
-      setNotice(`${label.split(' ')[0]} selected in UI demo. Game actions need a backend.`)
-    }
     if (page === '/shop' && /top up to buy/i.test(label)) {
       setNotice('Skin purchases need a payment backend. This screen is ready for integration.')
     }
@@ -93,7 +90,8 @@ function App() {
     if (page === '/' || page === '/auth') navigate('/lobby')
   }
 
-  const Page = routes[page]
+  const featureRoute = resolveGameTableRoute(page) || resolveMatchSettingsRoute(page)
+  const Page = featureRoute?.Page || routes[page]
   if (!Page) {
     return (
       <div className="placeholder-screen">
@@ -106,7 +104,7 @@ function App() {
 
   return (
     <div className={`app-shell ${page === '/lobby' && !checkInOpen ? 'checkin-closed' : ''} ${authMode === 'register' ? 'register-mode' : ''}`} onClick={handleClick} onSubmit={handleSubmit}>
-      <Page mode={authMode} />
+      <Page key={`${page}:${window.location.search}`} mode={authMode} navigate={navigate} {...featureRoute?.props} />
       {notice && <div className="demo-notice" role="status">{notice}</div>}
     </div>
   )
