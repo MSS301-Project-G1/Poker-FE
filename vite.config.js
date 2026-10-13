@@ -10,6 +10,10 @@ export default defineConfig({
       '/api/admin/match-settings': 'http://127.0.0.1:8082',
       '/dev/tables': 'http://127.0.0.1:8082',
       '/ws/game': { target: 'ws://127.0.0.1:8082', ws: true },
+      '/api/ranking': 'http://127.0.0.1:8086',
+      '/api/seasons': 'http://127.0.0.1:8086',
+      '/api/rooms': 'http://127.0.0.1:8087',
+      '/api/tournaments': 'http://127.0.0.1:8087',
     },
   },
 })

@@ -4,6 +4,8 @@ import LobbyPage from './pages/LobbyPage'
 import RankedPage from './pages/RankedPage'
 import { resolveGameTableRoute } from './features/game-table/routes'
 import { resolveMatchSettingsRoute } from './features/admin/match-settings/routes'
+import { resolveRankingRoute } from './features/ranking/routes'
+import { resolveCustomRoomRoute } from './features/custom-room/routes'
 import ShopPage from './pages/ShopPage'
 import './App.css'
 
@@ -18,6 +20,7 @@ const routes = {
 const routeFromButton = (label, page) => {
   if (page === '/lobby' && /find match/i.test(label)) return '/ranked'
   if (page === '/lobby' && /quick play/i.test(label)) return '/table'
+  if (page === '/lobby' && /create private room/i.test(label)) return '/rooms'
   if (page === '/ranked' && /ready to join table/i.test(label)) return '/table'
   if (page === '/ranked' && /cancel queue/i.test(label)) return '/lobby'
   return null
@@ -91,6 +94,7 @@ function App() {
   }
 
   const featureRoute = resolveGameTableRoute(page) || resolveMatchSettingsRoute(page)
+    || resolveRankingRoute(page) || resolveCustomRoomRoute(page)
   const Page = featureRoute?.Page || routes[page]
   if (!Page) {
     return (
