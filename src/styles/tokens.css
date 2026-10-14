@@ -1,0 +1,114 @@
+/*
+ * Design tokens: the ONLY place where raw design values (colors, fonts, sizes) are written.
+ *
+ * - Tailwind reads these variables (see tailwind.config.js), so `bg-primary`, `text-tertiary/80`… use them.
+ * - CSS Modules read them directly: `color: rgb(var(--color-primary))`, `rgb(var(--color-primary) / 0.4)`.
+ * - Colors are stored as RGB channels (no `rgb()` wrapper) so both Tailwind opacity modifiers
+ *   and plain CSS can apply alpha. The hex value is kept in a comment for reference.
+ *
+ * Need a new value? Add a token here first, then use it. Never hardcode hex/rgba elsewhere.
+ * Palette source: Stitch "Royal Cyber Violet Poker" (see docs/design-system.md).
+ */
+:root {
+  /* Background & surfaces */
+  --color-background:                27 11 45;     /* #1b0b2d */
+  --color-on-background:             239 219 255;  /* #efdbff */
+  --color-surface:                   27 11 45;     /* #1b0b2d */
+  --color-surface-dim:               27 11 45;     /* #1b0b2d */
+  --color-surface-bright:            67 50 85;     /* #433255 */
+  --color-surface-container-lowest:  22 6 40;      /* #160628 */
+  --color-surface-container-low:     36 20 54;     /* #241436 */
+  --color-surface-container:         40 24 58;     /* #28183a */
+  --color-surface-container-high:    51 34 69;     /* #332245 */
+  --color-surface-container-highest: 62 45 81;     /* #3e2d51 */
+  --color-surface-variant:           62 45 81;     /* #3e2d51 */
+  --color-surface-tint:              255 172 231;  /* #fface7 */
+  --color-on-surface:                239 219 255;  /* #efdbff */
+  --color-on-surface-variant:        218 191 207;  /* #dabfcf */
+  --color-inverse-surface:           239 219 255;  /* #efdbff */
+  --color-inverse-on-surface:        58 41 76;     /* #3a294c */
+
+  /* Outlines */
+  --color-outline:         162 138 152;  /* #a28a98 */
+  --color-outline-variant: 84 65 78;     /* #54414e */
+
+  /* Primary: cyber magenta */
+  --color-primary:                  255 172 231;  /* #fface7 */
+  --color-on-primary:               94 0 82;      /* #5e0052 */
+  --color-primary-container:        176 18 155;   /* #b0129b */
+  --color-on-primary-container:     255 208 238;  /* #ffd0ee */
+  --color-inverse-primary:          172 10 152;   /* #ac0a98 */
+  --color-primary-fixed:            255 215 240;  /* #ffd7f0 */
+  --color-primary-fixed-dim:        255 172 231;  /* #fface7 */
+  --color-on-primary-fixed:         58 0 50;      /* #3a0032 */
+  --color-on-primary-fixed-variant: 133 0 117;    /* #850075 */
+
+  /* Secondary: royal violet */
+  --color-secondary:                  229 181 255;  /* #e5b5ff */
+  --color-on-secondary:               78 0 120;     /* #4e0078 */
+  --color-secondary-container:        108 35 153;   /* #6c2399 */
+  --color-on-secondary-container:     220 161 255;  /* #dca1ff */
+  --color-secondary-fixed:            244 217 255;  /* #f4d9ff */
+  --color-secondary-fixed-dim:        229 181 255;  /* #e5b5ff */
+  --color-on-secondary-fixed:         48 0 75;      /* #30004b */
+  --color-on-secondary-fixed-variant: 105 32 150;   /* #692096 */
+
+  /* Tertiary: imperial gold */
+  --color-tertiary:                  229 196 87;   /* #e5c457 */
+  --color-on-tertiary:               60 47 0;      /* #3c2f00 */
+  --color-tertiary-container:        200 168 63;   /* #c8a83f */
+  --color-on-tertiary-container:     78 62 0;      /* #4e3e00 */
+  --color-tertiary-fixed:            255 224 132;  /* #ffe084 */
+  --color-tertiary-fixed-dim:        229 196 87;   /* #e5c457 */
+  --color-on-tertiary-fixed:         35 27 0;      /* #231b00 */
+  --color-on-tertiary-fixed-variant: 87 69 0;      /* #574500 */
+
+  /* Feedback */
+  --color-error:              255 180 171;  /* #ffb4ab */
+  --color-on-error:           105 0 5;      /* #690005 */
+  --color-error-container:    147 0 10;     /* #93000a */
+  --color-on-error-container: 255 218 214;  /* #ffdad6 */
+  /* Typography: families */
+  --font-display: 'Sora', sans-serif;   /* headlines, numbers, action labels */
+  --font-body: 'Outfit', sans-serif;    /* body copy, forms, chat */
+  --font-icon: 'Material Symbols Outlined';
+
+  /* Typography: scale (size / line-height / weight) */
+  --text-display-hero-size: 56px;        --text-display-hero-leading: 64px;        --text-display-hero-weight: 800;
+  --text-display-hero-mobile-size: 36px; --text-display-hero-mobile-leading: 44px; --text-display-hero-mobile-weight: 800;
+  --text-headline-xl-size: 40px;         --text-headline-xl-leading: 48px;         --text-headline-xl-weight: 700;
+  --text-headline-xl-mobile-size: 28px;  --text-headline-xl-mobile-leading: 36px;  --text-headline-xl-mobile-weight: 700;
+  --text-headline-lg-size: 30px;         --text-headline-lg-leading: 38px;         --text-headline-lg-weight: 700;
+  --text-headline-md-size: 24px;         --text-headline-md-leading: 32px;         --text-headline-md-weight: 600;
+  --text-headline-sm-size: 20px;         --text-headline-sm-leading: 28px;         --text-headline-sm-weight: 600;
+  --text-body-lg-size: 18px;             --text-body-lg-leading: 26px;             --text-body-lg-weight: 400;
+  --text-body-md-size: 15px;             --text-body-md-leading: 22px;             --text-body-md-weight: 400;
+  --text-body-sm-size: 13px;             --text-body-sm-leading: 18px;             --text-body-sm-weight: 400;
+  --text-label-numeric-lg-size: 22px;    --text-label-numeric-lg-leading: 26px;    --text-label-numeric-lg-weight: 700;
+  --text-label-numeric-md-size: 16px;    --text-label-numeric-md-leading: 20px;    --text-label-numeric-md-weight: 700;
+  --text-label-action-size: 14px;        --text-label-action-leading: 16px;        --text-label-action-weight: 700;
+  --text-label-micro-size: 11px;         --text-label-micro-leading: 14px;         --text-label-micro-weight: 600;
+
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-gutter: 1.25rem;
+  --space-gutter-mobile: 0.75rem;
+  --space-margin: 2rem;
+  --space-margin-mobile: 1rem;
+
+  /* Radius (names match Tailwind: rounded, rounded-lg, rounded-xl, rounded-full) */
+  --radius-default: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
+
+  /* Stacking order: pick a layer instead of inventing z-index numbers */
+  --z-dropdown: 40;
+  --z-header: 60;
+  --z-modal: 80;
+  --z-toast: 100;
+}

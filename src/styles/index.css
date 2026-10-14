@@ -1,0 +1,12 @@
+/*
+ * Global stylesheet entry, imported once by src/app/main.jsx.
+ * Order: font files -> design tokens -> element defaults -> Tailwind layers.
+ * Feature styles live next to their components as *.module.css, never here.
+ */
+@import './fonts.css';
+@import './tokens.css';
+@import './base.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

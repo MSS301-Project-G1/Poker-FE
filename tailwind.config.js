@@ -1,1 +1,66 @@
-export default {content: ['./index.html', './src/**/*.{js,jsx}'],darkMode:"class",theme:{extend:{colors:{"secondary-fixed":"#f4d9ff","on-error":"#690005","surface-container-lowest":"#160628","surface-container-highest":"#3e2d51","on-background":"#efdbff","surface-tint":"#fface7","on-primary-fixed":"#3a0032","secondary-fixed-dim":"#e5b5ff","primary-container":"#b0129b","outline-variant":"#54414e","tertiary":"#e5c457","secondary-container":"#6c2399","inverse-on-surface":"#3a294c","inverse-surface":"#efdbff","on-primary-container":"#ffd0ee","on-tertiary":"#3c2f00","on-secondary-container":"#dca1ff","background":"#1b0b2d","tertiary-container":"#c8a83f","surface-dim":"#1b0b2d","primary":"#fface7","outline":"#a28a98","surface":"#1b0b2d","secondary":"#e5b5ff","tertiary-fixed-dim":"#e5c457","on-primary-fixed-variant":"#850075","on-secondary":"#4e0078","on-tertiary-fixed-variant":"#574500","error":"#ffb4ab","on-error-container":"#ffdad6","on-primary":"#5e0052","primary-fixed":"#ffd7f0","tertiary-fixed":"#ffe084","on-secondary-fixed":"#30004b","surface-bright":"#433255","primary-fixed-dim":"#fface7","on-tertiary-fixed":"#231b00","surface-container-high":"#332245","error-container":"#93000a","inverse-primary":"#ac0a98","on-secondary-fixed-variant":"#692096","surface-container":"#28183a","surface-container-low":"#241436","on-surface":"#efdbff","on-surface-variant":"#dabfcf","surface-variant":"#3e2d51","on-tertiary-container":"#4e3e00"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"margin-mobile":"1rem","gutter-mobile":"0.75rem","space-sm":"0.5rem","space-xl":"2.5rem","space-lg":"1.5rem","space-xs":"0.25rem","space-md":"1rem","gutter":"1.25rem","margin":"2rem"},fontFamily:{"headline-md":["Sora"],"display-hero":["Sora"],"headline-xl":["Sora"],"headline-sm":["Sora"],"body-md":["Outfit"],"label-numeric-md":["Sora"],"display-hero-mobile":["Sora"],"label-micro":["Outfit"],"body-sm":["Outfit"],"body-lg":["Outfit"],"label-numeric-lg":["Sora"],"headline-lg":["Sora"],"label-action":["Sora"],"headline-xl-mobile":["Sora"]},fontSize:{"headline-md":["24px",{"lineHeight":"32px","fontWeight":"600"}],"display-hero":["56px",{"lineHeight":"64px","fontWeight":"800"}],"headline-xl":["40px",{"lineHeight":"48px","fontWeight":"700"}],"headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],"body-md":["15px",{"lineHeight":"22px","fontWeight":"400"}],"label-numeric-md":["16px",{"lineHeight":"20px","fontWeight":"700"}],"display-hero-mobile":["36px",{"lineHeight":"44px","fontWeight":"800"}],"label-micro":["11px",{"lineHeight":"14px","fontWeight":"600"}],"body-sm":["13px",{"lineHeight":"18px","fontWeight":"400"}],"body-lg":["18px",{"lineHeight":"26px","fontWeight":"400"}],"label-numeric-lg":["22px",{"lineHeight":"26px","fontWeight":"700"}],"headline-lg":["30px",{"lineHeight":"38px","fontWeight":"700"}],"label-action":["14px",{"lineHeight":"16px","fontWeight":"700"}],"headline-xl-mobile":["28px",{"lineHeight":"36px","fontWeight":"700"}]}}}}
+// Tailwind only maps class names to the CSS variables in src/styles/tokens.css.
+// Do not write raw values here: add the token to tokens.css, then register its name below.
+
+const colorNames = [
+  'background', 'on-background',
+  'surface', 'surface-dim', 'surface-bright', 'surface-container-lowest', 'surface-container-low',
+  'surface-container', 'surface-container-high', 'surface-container-highest', 'surface-variant', 'surface-tint',
+  'on-surface', 'on-surface-variant', 'inverse-surface', 'inverse-on-surface',
+  'outline', 'outline-variant',
+  'primary', 'on-primary', 'primary-container', 'on-primary-container', 'inverse-primary',
+  'primary-fixed', 'primary-fixed-dim', 'on-primary-fixed', 'on-primary-fixed-variant',
+  'secondary', 'on-secondary', 'secondary-container', 'on-secondary-container',
+  'secondary-fixed', 'secondary-fixed-dim', 'on-secondary-fixed', 'on-secondary-fixed-variant',
+  'tertiary', 'on-tertiary', 'tertiary-container', 'on-tertiary-container',
+  'tertiary-fixed', 'tertiary-fixed-dim', 'on-tertiary-fixed', 'on-tertiary-fixed-variant',
+  'error', 'on-error', 'error-container', 'on-error-container',
+]
+
+const displayText = ['display-hero', 'display-hero-mobile', 'headline-xl', 'headline-xl-mobile', 'headline-lg',
+  'headline-md', 'headline-sm', 'label-numeric-lg', 'label-numeric-md', 'label-action']
+const bodyText = ['body-lg', 'body-md', 'body-sm', 'label-micro']
+
+const map = (names, toValue) => Object.fromEntries(names.map(name => [name, toValue(name)]))
+const textStyle = name => [`var(--text-${name}-size)`, {
+  lineHeight: `var(--text-${name}-leading)`,
+  fontWeight: `var(--text-${name}-weight)`,
+}]
+
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,jsx}'],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: map(colorNames, name => `rgb(var(--color-${name}) / <alpha-value>)`),
+      fontFamily: {
+        ...map(displayText, () => 'var(--font-display)'),
+        ...map(bodyText, () => 'var(--font-body)'),
+      },
+      fontSize: map([...displayText, ...bodyText], textStyle),
+      spacing: {
+        'space-xs': 'var(--space-xs)',
+        'space-sm': 'var(--space-sm)',
+        'space-md': 'var(--space-md)',
+        'space-lg': 'var(--space-lg)',
+        'space-xl': 'var(--space-xl)',
+        gutter: 'var(--space-gutter)',
+        'gutter-mobile': 'var(--space-gutter-mobile)',
+        margin: 'var(--space-margin)',
+        'margin-mobile': 'var(--space-margin-mobile)',
+      },
+      borderRadius: {
+        DEFAULT: 'var(--radius-default)',
+        lg: 'var(--radius-lg)',
+        xl: 'var(--radius-xl)',
+        full: 'var(--radius-full)',
+      },
+      zIndex: {
+        dropdown: 'var(--z-dropdown)',
+        header: 'var(--z-header)',
+        modal: 'var(--z-modal)',
+        toast: 'var(--z-toast)',
+      },
+    },
+  },
+}
