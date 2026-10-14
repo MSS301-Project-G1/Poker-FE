@@ -1,0 +1,13 @@
+.page { min-height: 100vh; max-width: 1200px; margin: auto; padding: 45px 30px; color: rgb(var(--color-on-surface)); }
+.header { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.header h1 { font: 700 32px var(--font-display); margin: 10px 0; }
+.intro { color: rgb(var(--color-on-surface-variant)); font-size: 14px; margin-bottom: 30px; }
+.error { color: rgb(var(--color-error)); font-size: 13px; margin: 15px 0; }
+.error button { margin-left: 15px; }
+.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
+
+@media (max-width: 700px) {
+  .page { padding: 25px 15px; }
+  .grid { grid-template-columns: 1fr; }
+  .header h1 { font-size: 24px; }
+}
