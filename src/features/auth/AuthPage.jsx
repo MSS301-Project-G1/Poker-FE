@@ -1,6 +1,20 @@
 // Adapted from the Poker Rank Stitch design.
 // UI copy and image assets are in English; edit this component for product work.
-export default function AuthPage({ mode = 'sign-in' }) {
+import { useState } from 'react'
+import { useNavigate } from 'react-router'
+import { paths } from '@/shared/config/paths'
+
+const tabClass = active => `flex-1 py-2.5 rounded-lg text-xs md:text-sm font-label-action transition-all flex items-center justify-center gap-1.5 ${
+  active ? 'text-white bg-primary-container shadow-md' : 'text-on-surface-variant hover:text-white'}`
+
+export default function AuthPage() {
+  const [mode, setMode] = useState('sign-in')
+  const navigate = useNavigate()
+  const enterLobby = event => {
+    event.preventDefault()
+    navigate(paths.lobby)
+  }
+
   return <div className={"bg-background text-on-surface min-h-screen relative overflow-x-hidden font-body-md selection:bg-primary-container selection:text-white"}>
 
 
@@ -104,17 +118,17 @@ export default function AuthPage({ mode = 'sign-in' }) {
 <section className={"lg:col-span-6 rounded-2xl bg-surface-container-low/95 border border-outline-variant/50 p-6 md:p-8 shadow-2xl backdrop-blur-xl flex flex-col justify-between"}>
 <div>
 
-<div className={"flex items-center rounded-xl bg-surface-container-lowest p-1 mb-6 border border-outline-variant/30 auth-tabs"}>
-<button className={"flex-1 py-2.5 rounded-lg text-xs md:text-sm font-label-action text-white bg-primary-container shadow-md transition-all flex items-center justify-center gap-1.5"}>
+<div className={"flex items-center rounded-xl bg-surface-container-lowest p-1 mb-6 border border-outline-variant/30"}>
+<button className={tabClass(mode === 'sign-in')} type="button" onClick={() => setMode('sign-in')}>
 <span className={"material-symbols-outlined text-sm"}>login</span>
               Sign In
             </button>
-<button className={"flex-1 py-2.5 rounded-lg text-xs md:text-sm font-label-action text-on-surface-variant hover:text-white transition-all flex items-center justify-center gap-1.5"}>
+<button className={tabClass(mode === 'register')} type="button" onClick={() => setMode('register')}>
 <span className={"material-symbols-outlined text-sm"}>person_add</span>
               Create Account
             </button>
 </div>
-<form action={"#"} className={"space-y-4"}>
+<form className={"space-y-4"} onSubmit={enterLobby}>
 
 <div>
 <label className={"block text-xs font-label-action text-on-surface mb-1.5 tracking-wider uppercase"}>
@@ -131,7 +145,7 @@ export default function AuthPage({ mode = 'sign-in' }) {
 <label className={"text-xs font-label-action text-on-surface tracking-wider uppercase"}>
                   PASSWORD <span className={"text-primary"}>*</span>
 </label>
-<a className={"text-xs font-label-action text-primary hover:text-primary-fixed underline transition-colors"} href={"#"}>Forgot password?</a>
+<button className={"text-xs font-label-action text-primary hover:text-primary-fixed underline transition-colors"} type="button">Forgot password?</button>
 </div>
 <div className={"relative"}>
 <span className={"material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-lg pointer-events-none"}>lock</span>
@@ -171,19 +185,19 @@ export default function AuthPage({ mode = 'sign-in' }) {
 
 <div className={"grid grid-cols-4 gap-2.5 mb-4"}>
 
-<button className={"py-2.5 px-2 rounded-xl bg-surface-container-lowest border border-outline-variant/40 hover:border-primary/40 hover:bg-surface-container-high transition-all flex items-center justify-center gap-1 text-xs font-semibold text-white"} title={"Sign in with Google"}>
+<button className={"py-2.5 px-2 rounded-xl bg-surface-container-lowest border border-outline-variant/40 hover:border-primary/40 hover:bg-surface-container-high transition-all flex items-center justify-center gap-1 text-xs font-semibold text-white"} title={"Sign in with Google"} type="button">
 <span className={"font-bold text-sm"}>G</span>
 </button>
 
-<button className={"py-2.5 px-2 rounded-xl bg-surface-container-lowest border border-outline-variant/40 hover:border-primary/40 hover:bg-surface-container-high transition-all flex items-center justify-center gap-1 text-xs font-semibold text-white"} title={"Sign in with Facebook"}>
+<button className={"py-2.5 px-2 rounded-xl bg-surface-container-lowest border border-outline-variant/40 hover:border-primary/40 hover:bg-surface-container-high transition-all flex items-center justify-center gap-1 text-xs font-semibold text-white"} title={"Sign in with Facebook"} type="button">
 <span className={"font-bold text-sm"}>f</span>
 </button>
 
-<button className={"py-2.5 px-2 rounded-xl bg-surface-container-lowest border border-outline-variant/40 hover:border-primary/40 hover:bg-surface-container-high transition-all flex items-center justify-center gap-1 text-xs font-semibold text-white"} title={"Sign in with Apple"}>
+<button className={"py-2.5 px-2 rounded-xl bg-surface-container-lowest border border-outline-variant/40 hover:border-primary/40 hover:bg-surface-container-high transition-all flex items-center justify-center gap-1 text-xs font-semibold text-white"} title={"Sign in with Apple"} type="button">
 <span className={"material-symbols-outlined text-sm"}>terminal</span>
 </button>
 
-<button className={"py-2.5 px-2 rounded-xl bg-surface-container-lowest border border-outline-variant/40 hover:border-tertiary/40 hover:bg-surface-container-high transition-all flex items-center justify-center gap-1 text-xs font-semibold text-tertiary"} title={"Play as Guest"}>
+<button className={"py-2.5 px-2 rounded-xl bg-surface-container-lowest border border-outline-variant/40 hover:border-tertiary/40 hover:bg-surface-container-high transition-all flex items-center justify-center gap-1 text-xs font-semibold text-tertiary"} title={"Play as Guest"} type="button" onClick={enterLobby}>
 <span className={"material-symbols-outlined text-sm"}>person</span>
 </button>
 </div>

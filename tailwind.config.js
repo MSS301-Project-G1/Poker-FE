@@ -14,6 +14,10 @@ const colorNames = [
   'tertiary', 'on-tertiary', 'tertiary-container', 'on-tertiary-container',
   'tertiary-fixed', 'tertiary-fixed-dim', 'on-tertiary-fixed', 'on-tertiary-fixed-variant',
   'error', 'on-error', 'error-container', 'on-error-container',
+  // Extended palette
+  'obsidian', 'border', 'border-gold', 'raised', 'primary-deep', 'primary-rim', 'call-deep', 'raise-bright', 'allin',
+  'page-glow', 'page-base', 'felt', 'felt-edge', 'rail', 'card-face', 'card-face-shade', 'card-ink', 'card-red',
+  'card-gold', 'card-back', 'card-back-stripe', 'success',
 ]
 
 const displayText = ['display-hero', 'display-hero-mobile', 'headline-xl', 'headline-xl-mobile', 'headline-lg',
@@ -55,12 +59,8 @@ export default {
         xl: 'var(--radius-xl)',
         full: 'var(--radius-full)',
       },
-      zIndex: {
-        dropdown: 'var(--z-dropdown)',
-        header: 'var(--z-header)',
-        modal: 'var(--z-modal)',
-        toast: 'var(--z-toast)',
-      },
+      zIndex: map(['footer', 'overlay', 'header', 'popover', 'modal', 'toast'], name => `var(--z-${name})`),
+      boxShadow: map(['header', 'footer', 'raised', 'popover', 'dialog', 'glow-primary'], name => `var(--shadow-${name})`),
     },
   },
 }

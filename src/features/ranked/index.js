@@ -1,1 +1,1 @@
-export { default } from './RankedPage'
+export { default as RankedPage } from './RankedPage'

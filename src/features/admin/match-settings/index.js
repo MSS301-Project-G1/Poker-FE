@@ -1,1 +1,1 @@
-export { resolveMatchSettingsRoute } from './routes'
+export { default as MatchSettingsPage } from './MatchSettingsPage'

@@ -1,7 +1,20 @@
 // Adapted from the Poker Rank Stitch design.
 // UI copy and image assets are in English; edit this component for product work.
+import { Link, useNavigate } from 'react-router'
+import { paths } from '@/shared/config/paths'
+import { useToast } from '@/shared/ui'
+import { useDailyCheckIn } from './hooks/useDailyCheckIn'
+
 export default function LobbyPage() {
-  return <div className={"bg-surface-container-lowest text-on-surface font-body-md text-body-md min-h-screen flex flex-col selection:bg-primary selection:text-on-primary"}><header className={"fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/85 backdrop-blur-2xl shadow-[0_4px_24px_rgba(22,6,40,0.85)]"}><div className={"h-20 w-full px-margin flex items-center justify-between gap-space-md"}><div className={"flex items-center gap-space-lg"}><div className={"flex items-center gap-space-sm"}><img alt={"Poker Rank Logo"} className={"h-9 w-auto object-contain rounded-md"} src={"/stitch-assets/logo.svg"} /><span className={"font-headline-sm text-headline-sm uppercase tracking-wider text-primary"}>POKER RANK</span></div><nav className={"hidden lg:flex items-center gap-space-xs"} data-active-classes={"bg-primary-container text-on-primary-container rounded-lg"}><a aria-current={"page"} className={"px-space-md py-space-sm font-label-action transition-all bg-primary-container text-on-primary-container rounded-lg"} data-path={"lobby"} href={"/lobby"}>Lobby</a><a className={"px-space-md py-space-sm font-label-action text-label-action text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all"} data-path={"ranked"} href={"/ranked"}>Ranked</a><a className={"px-space-md py-space-sm font-label-action text-label-action text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all"} data-path={"shop"} href={"/shop"}>Shop</a><a className={"px-space-md py-space-sm font-label-action text-label-action text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all"} data-path={"events"} href={"/events"}>Events</a><a className={"px-space-md py-space-sm font-label-action text-label-action text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all"} data-path={"mail"} href={"/mailbox"}>Mailbox</a></nav></div><div className={"flex items-center gap-space-md"}><div className={"hidden sm:flex items-center bg-surface-container-low px-space-md py-space-xs rounded-full gap-space-xs shadow-inner"}><span className={"material-symbols-outlined text-tertiary text-lg"}>toll</span><span className={"font-label-numeric-md text-label-numeric-md text-tertiary"}>1,250,000</span></div><div className={"flex items-center gap-space-xs"}><button className={"w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"} title={"Audio"}><span className={"material-symbols-outlined text-lg"}>volume_up</span></button><button className={"w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"} title={"Settings"}><span className={"material-symbols-outlined text-lg"}>settings</span></button></div><div className={"flex items-center gap-space-xs cursor-pointer"}><img alt={"Profile"} className={"w-8 h-8 rounded-full object-cover ring-2 ring-primary/40"} src={"/stitch-assets/avatar.svg"} /></div></div></div></header>
+  const navigate = useNavigate()
+  const notify = useToast()
+  const [checkInOpen, setCheckInOpen] = useDailyCheckIn()
+  const claimReward = () => {
+    setCheckInOpen(false)
+    notify('Daily reward claimed in UI demo. Connect a backend to save it.')
+  }
+
+  return <div className={"bg-surface-container-lowest text-on-surface font-body-md text-body-md min-h-screen flex flex-col selection:bg-primary selection:text-on-primary"}><header className={"fixed top-0 left-0 right-0 z-header bg-surface-container-lowest/85 backdrop-blur-2xl shadow-[0_4px_24px_rgba(22,6,40,0.85)]"}><div className={"h-20 w-full px-margin flex items-center justify-between gap-space-md"}><div className={"flex items-center gap-space-lg"}><div className={"flex items-center gap-space-sm"}><img alt={"Poker Rank Logo"} className={"h-9 w-auto object-contain rounded-md"} src={"/stitch-assets/logo.svg"} /><span className={"font-headline-sm text-headline-sm uppercase tracking-wider text-primary"}>POKER RANK</span></div><nav className={"hidden lg:flex items-center gap-space-xs"} data-active-classes={"bg-primary-container text-on-primary-container rounded-lg"}><Link aria-current={"page"} className={"px-space-md py-space-sm font-label-action transition-all bg-primary-container text-on-primary-container rounded-lg"} data-path={"lobby"} to={"/lobby"}>Lobby</Link><Link className={"px-space-md py-space-sm font-label-action text-label-action text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all"} data-path={"ranked"} to={"/ranked"}>Ranked</Link><Link className={"px-space-md py-space-sm font-label-action text-label-action text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all"} data-path={"shop"} to={"/shop"}>Shop</Link><Link className={"px-space-md py-space-sm font-label-action text-label-action text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all"} data-path={"events"} to={"/events"}>Events</Link><Link className={"px-space-md py-space-sm font-label-action text-label-action text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all"} data-path={"mail"} to={"/mailbox"}>Mailbox</Link></nav></div><div className={"flex items-center gap-space-md"}><div className={"hidden sm:flex items-center bg-surface-container-low px-space-md py-space-xs rounded-full gap-space-xs shadow-inner"}><span className={"material-symbols-outlined text-tertiary text-lg"}>toll</span><span className={"font-label-numeric-md text-label-numeric-md text-tertiary"}>1,250,000</span></div><div className={"flex items-center gap-space-xs"}><button className={"w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"} title={"Audio"}><span className={"material-symbols-outlined text-lg"}>volume_up</span></button><button className={"w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"} title={"Settings"}><span className={"material-symbols-outlined text-lg"}>settings</span></button></div><div className={"flex items-center gap-space-xs cursor-pointer"}><img alt={"Profile"} className={"w-8 h-8 rounded-full object-cover ring-2 ring-primary/40"} src={"/stitch-assets/avatar.svg"} /></div></div></div></header>
 <main className={"w-full pt-20 flex-1 bg-surface-container-lowest"}><div className={"flex flex-col w-full relative pb-16 px-margin"}>
 <div className={"w-full max-w-7xl mx-auto pt-6 flex flex-col gap-space-lg"}>
 
@@ -25,7 +38,7 @@ export default function LobbyPage() {
 </div>
 </div>
 <div className={"flex items-center gap-space-sm w-full md:w-auto justify-end z-10"}>
-<button className={"flex items-center gap-space-xs px-space-md py-space-sm bg-gradient-to-r from-primary-container to-secondary-container rounded-lg text-on-primary font-label-action text-label-action shadow-md hover:brightness-110 active:scale-98 transition-all"} id={"openDailyBtn"}>
+<button className={"flex items-center gap-space-xs px-space-md py-space-sm bg-gradient-to-r from-primary-container to-secondary-container rounded-lg text-on-primary font-label-action text-label-action shadow-md hover:brightness-110 active:scale-98 transition-all"} onClick={() => setCheckInOpen(true)}>
 <span className={"material-symbols-outlined text-tertiary text-lg animate-bounce"} style={{"fontVariationSettings": "'FILL' 1"}}>calendar_month</span>
 <span>7-Day Check-in</span>
 <span className={"w-2.5 h-2.5 rounded-full bg-tertiary animate-pulse ml-1"}></span>
@@ -60,7 +73,7 @@ export default function LobbyPage() {
 </div>
 </div>
 <div className={"flex flex-col sm:flex-row items-center gap-space-sm w-full md:w-auto shrink-0"}>
-<button className={"w-full sm:w-auto px-space-xl py-space-md bg-gradient-to-r from-primary-container to-secondary-container hover:from-primary hover:to-secondary-container text-on-primary font-label-action text-label-action rounded-lg shadow-xl shadow-primary-container/30 active:scale-95 transition-all flex items-center justify-center gap-space-xs"}>
+<button className={"w-full sm:w-auto px-space-xl py-space-md bg-gradient-to-r from-primary-container to-secondary-container hover:from-primary hover:to-secondary-container text-on-primary font-label-action text-label-action rounded-lg shadow-xl shadow-primary-container/30 active:scale-95 transition-all flex items-center justify-center gap-space-xs"} onClick={() => navigate(paths.ranked)}>
 <span className={"material-symbols-outlined"}>swords</span>
 <span>FIND MATCH NOW</span>
 </button>
@@ -112,7 +125,7 @@ export default function LobbyPage() {
 <span className={"material-symbols-outlined text-secondary"}>group_add</span>
 <span>Create Private Room</span>
 </button>
-<button className={"flex items-center gap-space-xs px-space-lg py-space-sm bg-secondary-container hover:bg-primary-container text-on-secondary-container hover:text-on-primary-container font-label-action text-label-action rounded-lg shadow-md transition-all"}>
+<button className={"flex items-center gap-space-xs px-space-lg py-space-sm bg-secondary-container hover:bg-primary-container text-on-secondary-container hover:text-on-primary-container font-label-action text-label-action rounded-lg shadow-md transition-all"} onClick={() => navigate(paths.table)}>
 <span className={"material-symbols-outlined text-lg"}>bolt</span>
 <span>QUICK PLAY</span>
 </button>
@@ -261,7 +274,7 @@ export default function LobbyPage() {
 
 
 
-<div className={"fixed inset-0 z-50 flex items-center justify-center p-space-md bg-surface-container-lowest/80 backdrop-blur-xl"} id={"dailyModal"}>
+{checkInOpen && <div className={"fixed inset-0 z-overlay flex items-center justify-center p-space-md bg-surface-container-lowest/80 backdrop-blur-xl"} role="dialog" aria-modal="true" aria-label="7-day check-in">
 
 <div className={"relative w-full max-w-4xl bg-surface-container-low/95 rounded-2xl shadow-2xl p-space-lg flex flex-col gap-space-md overflow-hidden animate-in fade-in zoom-in-95 duration-200"}>
 
@@ -282,7 +295,7 @@ export default function LobbyPage() {
 </div>
 </div>
 
-<button aria-label={"Close"} className={"w-10 h-10 rounded-full bg-surface-container-high hover:bg-surface-variant text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors"} id={"closeDailyBtn"}>
+<button aria-label={"Close"} className={"w-10 h-10 rounded-full bg-surface-container-high hover:bg-surface-variant text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors"} onClick={() => setCheckInOpen(false)}>
 <span className={"material-symbols-outlined text-2xl"}>close</span>
 </button>
 </div>
@@ -334,7 +347,7 @@ export default function LobbyPage() {
 <span className={"material-symbols-outlined text-5xl text-tertiary drop-shadow-md animate-pulse"} style={{"fontVariationSettings": "'FILL' 1"}}>monetization_on</span>
 </div>
 <span className={"font-label-numeric-md text-label-numeric-md text-tertiary font-bold"}>250K Chips</span>
-<button className={"mt-2 w-full py-1 bg-gradient-to-r from-tertiary to-tertiary-container hover:brightness-110 text-on-tertiary font-label-action text-label-action rounded-md shadow-md active:scale-95 transition-all text-xs uppercase tracking-wide"} id={"claimDay4Btn"}>
+<button className={"mt-2 w-full py-1 bg-gradient-to-r from-tertiary to-tertiary-container hover:brightness-110 text-on-tertiary font-label-action text-label-action rounded-md shadow-md active:scale-95 transition-all text-xs uppercase tracking-wide"} onClick={claimReward}>
             CLAIM NOW
           </button>
 </div>
@@ -388,17 +401,17 @@ export default function LobbyPage() {
 <span>Check-in streak resets if missed 1 day.</span>
 </div>
 <div className={"flex items-center gap-space-sm w-full sm:w-auto"}>
-<button className={"w-1/2 sm:w-auto px-space-lg py-space-sm bg-surface-container-high hover:bg-surface-variant text-on-surface-variant rounded-lg font-label-action text-label-action transition-all"} id={"closeDailyBtnSec"}>
+<button className={"w-1/2 sm:w-auto px-space-lg py-space-sm bg-surface-container-high hover:bg-surface-variant text-on-surface-variant rounded-lg font-label-action text-label-action transition-all"} onClick={() => setCheckInOpen(false)}>
             Later
           </button>
-<button className={"w-1/2 sm:w-auto px-space-xl py-space-sm bg-gradient-to-r from-primary-container via-primary to-secondary-container text-on-primary font-label-action text-label-action rounded-lg shadow-xl shadow-primary-container/40 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-space-xs"} id={"claimBigBtn"}>
+<button className={"w-1/2 sm:w-auto px-space-xl py-space-sm bg-gradient-to-r from-primary-container via-primary to-secondary-container text-on-primary font-label-action text-label-action rounded-lg shadow-xl shadow-primary-container/40 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-space-xs"} onClick={claimReward}>
 <span className={"material-symbols-outlined text-tertiary"}>card_giftcard</span>
 <span>CLAIM TODAY'S REWARD</span>
 </button>
 </div>
 </div>
 </div>
-</div>
+</div>}
 </div>
 </main>
 <footer className={"fixed bottom-0 left-0 right-0 z-40 bg-surface-container-lowest/90 backdrop-blur-md shadow-[0_-4px_20px_rgba(22,6,40,0.7)]"}><div className={"h-10 w-full px-margin flex items-center justify-between text-label-micro font-label-micro"}><div className={"flex items-center gap-space-sm overflow-hidden text-ellipsis whitespace-nowrap"}><div className={"flex items-center gap-space-xs text-tertiary font-bold shrink-0"}><span className={"material-symbols-outlined text-sm"}>campaign</span><span>COSMIC JACKPOT:</span></div><span className={"text-tertiary font-label-numeric-md text-label-numeric-md font-bold shrink-0"}>848,290,000 CHIPS</span><span className={"text-outline shrink-0"}>•</span><div className={"flex items-center gap-space-xs text-on-surface-variant overflow-hidden text-ellipsis whitespace-nowrap"}><span>Congrats player</span><span className={"text-primary font-bold"}>ShadowAce</span><span>on winning</span><span className={"text-tertiary font-bold"}>+45,000,000 Chips</span><span>at High Roller table #07</span></div></div><div className={"hidden md:flex items-center gap-space-md text-on-surface-variant shrink-0"}><div className={"flex items-center gap-space-xs"}><span className={"w-2 h-2 rounded-full bg-tertiary animate-pulse"}></span><span>Online: 14,892</span></div><span>|</span><span>Ping: 18ms</span></div></div></footer></div>

@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
+import { paths } from '@/shared/config/paths'
 import { devIdentity } from '@/shared/lib/devIdentity'
 import { fetchMatchSettings, updateMatchSettings } from './api/matchSettingsApi'
 import './match-settings.css'
@@ -6,7 +8,8 @@ import './match-settings.css'
 const emptyToken = async () => null
 const fields = [ ['smallBlind', 'Small blind', 1, 1000000000000], ['bigBlind', 'Big blind', 2, 1000000000000], ['startingChips', 'Starting chips', 1, 1000000000000], ['turnTimeSeconds', 'Turn time (seconds)', 1, 300], ['minPlayers', 'Minimum players', 2, 10], ['maxPlayers', 'Maximum players', 2, 10] ]
 
-export default function MatchSettingsPage({ navigate, getAccessToken = emptyToken }) {
+export default function MatchSettingsPage({ getAccessToken = emptyToken }) {
+  const navigate = useNavigate()
   const [settings, setSettings] = useState(null)
   const [error, setError] = useState('')
   const [version, setVersion] = useState(0)
@@ -23,7 +26,7 @@ export default function MatchSettingsPage({ navigate, getAccessToken = emptyToke
     return () => { disposed = true; abort.abort() }
   }, [version, getAccessToken])
 
-  return <main className="match-settings-page"><header><div><p>GAME ADMINISTRATION</p><h1>Match settings</h1></div><button onClick={() => navigate('/lobby')}>Back to lobby</button></header>
+  return <main className="match-settings-page"><header><div><p>GAME ADMINISTRATION</p><h1>Match settings</h1></div><button onClick={() => navigate(paths.lobby)}>Back to lobby</button></header>
     <p className="match-settings-intro">Configure the next match. Tables already running keep their original settings.</p>
     {error && <div role="alert" className="match-settings-error">{error}<button onClick={() => setVersion(value => value + 1)}>Retry</button></div>}
     {!settings && !error && <p role="status">Loading match settings…</p>}
