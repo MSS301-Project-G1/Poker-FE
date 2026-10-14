@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router'
 import { paths } from '@/shared/config/paths'
+import { MainLayout } from '@/shared/layout'
 import { MatchSettingsPage } from '@/features/admin/match-settings'
 import { AuthPage } from '@/features/auth'
 import { EventsPage } from '@/features/events'
@@ -15,9 +16,11 @@ export default function AppRoutes() {
   return <Routes>
     <Route path={paths.home} element={<AuthPage />} />
     <Route path={paths.auth} element={<AuthPage />} />
-    <Route path={paths.lobby} element={<LobbyPage />} />
-    <Route path={paths.ranked} element={<RankedPage />} />
-    <Route path={paths.shop} element={<ShopPage />} />
+    <Route element={<MainLayout />}>
+      <Route path={paths.lobby} element={<LobbyPage />} />
+      <Route path={paths.ranked} element={<RankedPage />} />
+      <Route path={paths.shop} element={<ShopPage />} />
+    </Route>
     <Route path={paths.events} element={<EventsPage />} />
     <Route path={paths.mailbox} element={<MailboxPage />} />
     <Route path={paths.table} element={<GameTablePage />} />
