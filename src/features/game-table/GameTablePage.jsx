@@ -1,14 +1,14 @@
 import { useContext, useState } from 'react'
 import { TableTheme } from '../../shared/skin'
 import { GameRuntimeContext, devIdentity, gameDevMode } from './runtime'
-import { useGameSession } from './useGameSession'
+import { useGameSession } from './hooks/useGameSession'
 import Board from './components/Board'
 import PlayerSeat from './components/PlayerSeat'
 import ActionDock from './components/ActionDock'
 import TurnTimer from './components/TurnTimer'
 import MatchResult from './components/MatchResult'
 import HandGuide from './components/HandGuide'
-import DevLauncher from './DevLauncher'
+import DevLauncher from './components/DevLauncher'
 import './game-table.css'
 
 export default function GameTablePage({ tableId, navigate }) {

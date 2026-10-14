@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import AuthPage from './pages/AuthPage'
-import LobbyPage from './pages/LobbyPage'
-import RankedPage from './pages/RankedPage'
-import { resolveGameTableRoute } from './features/game-table/routes'
-import { resolveMatchSettingsRoute } from './features/admin/match-settings/routes'
-import ShopPage from './pages/ShopPage'
+import AuthPage from '../features/auth'
+import LobbyPage from '../features/lobby'
+import RankedPage from '../features/ranked'
+import { resolveGameTableRoute } from '../features/game-table'
+import { resolveMatchSettingsRoute } from '../features/admin/match-settings'
+import ShopPage from '../features/shop'
 import './App.css'
 
 const routes = {

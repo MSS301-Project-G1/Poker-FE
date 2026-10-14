@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useRef } from 'react'
 import { Client } from '@stomp/stompjs'
-import { gameRequest, gameSocketUrl } from './gameApi'
+import { gameRequest, gameSocketUrl } from '../api/gameApi'
 
 const initial = { snapshot: null, tableId: null, phase: 'loading', connection: 'connecting', error: '', pending: false }
 

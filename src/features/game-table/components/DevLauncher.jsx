@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { gameRequest } from './gameApi'
+import { gameRequest } from '../api/gameApi'
 
 export default function DevLauncher({ navigate }) {
   const [humans, setHumans] = useState(1)

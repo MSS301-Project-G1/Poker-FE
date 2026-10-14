@@ -1,0 +1,1 @@
+export { resolveMatchSettingsRoute } from './routes'
