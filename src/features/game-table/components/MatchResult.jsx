@@ -1,4 +1,4 @@
-import { VictoryEffect } from '../../../shared/skin'
+import { VictoryEffect } from '@/shared/skin'
 
 export default function MatchResult({ mode, placements, accountId, profiles, rewards, onExit }) {
   const sorted = [...placements].sort((a, b) => a.place - b.place)

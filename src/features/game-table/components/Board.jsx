@@ -1,4 +1,4 @@
-import { PlayingCard } from '../../../shared/skin'
+import { PlayingCard } from '@/shared/skin'
 
 export default function Board({ cards, pot, distribution }) {
   const lastPot = distribution?.pots.reduce((total, item) => total + item.amount, 0)

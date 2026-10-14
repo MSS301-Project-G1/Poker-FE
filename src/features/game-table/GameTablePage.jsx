@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react'
-import { TableTheme } from '../../shared/skin'
+import { TableTheme } from '@/shared/skin'
 import { GameRuntimeContext, devIdentity, gameDevMode } from './runtime'
 import { useGameSession } from './hooks/useGameSession'
 import Board from './components/Board'

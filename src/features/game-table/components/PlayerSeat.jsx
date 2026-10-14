@@ -1,4 +1,4 @@
-import { AvatarFrame, Dealer, PlayingCard } from '../../../shared/skin'
+import { AvatarFrame, Dealer, PlayingCard } from '@/shared/skin'
 
 export default function PlayerSeat({ player, profile, isYou, active, dealer, smallBlind, bigBlind, winner }) {
   const name = profile?.displayName || `Player ${player.accountId.slice(-6)}`
