@@ -1,0 +1,8 @@
+/*
+ * Small global helpers shared by many screens. Keep this file short:
+ * a style used by one component belongs in that component's *.module.css.
+ */
+@layer components {
+  /* Filled variant of a Material Symbols icon (see shared/ui/Icon). */
+  .icon-filled { font-variation-settings: 'FILL' 1; }
+}
