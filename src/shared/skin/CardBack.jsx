@@ -1,3 +1,5 @@
-export default function CardBack() {
-  return <div className="game-card game-card-back" aria-label="Hidden card"><span>♠</span></div>
+import styles from './skin.module.css'
+
+export default function CardBack({ size = 'md' }) {
+  return <div className={`${styles.card} ${styles[size]} ${styles.back}`} aria-label="Hidden card"><span>♠</span></div>
 }

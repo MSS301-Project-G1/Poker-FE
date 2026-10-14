@@ -1,0 +1,40 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(var(--color-obsidian) / 0.7);
+  backdrop-filter: blur(10px);
+  overflow: auto;
+}
+
+.dialog {
+  width: min(560px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  padding: 35px;
+  text-align: center;
+  background: radial-gradient(at top, rgb(var(--color-raised)), rgb(var(--color-surface-container-low)) 60%);
+  border: 1px solid rgb(var(--color-border-gold));
+  border-radius: 24px;
+  box-shadow: var(--shadow-dialog);
+}
+.dialog h1 { font: 700 28px var(--font-display); }
+
+.dialog .trophy { color: rgb(var(--color-tertiary)); font-size: 58px; }
+.muted { color: rgb(var(--color-on-surface-variant)); font-size: 13px; }
+
+.standings { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; margin-top: 25px; }
+.standings th { color: rgb(var(--color-outline)); font-size: 10px; font-weight: 500; text-transform: uppercase; }
+.standings td, .standings th { padding: 12px 8px; border-bottom: 1px solid rgb(var(--color-border) / 0.27); }
+.standings th:last-child, .standings td:last-child { text-align: right; color: rgb(var(--color-tertiary)); }
+.you { background: rgb(var(--color-primary-container) / 0.13); }
+
+.rewards { padding: 20px 0; font-size: 12px; color: rgb(var(--color-on-surface-variant)); display: grid; gap: 8px; }
+
+@media (max-width: 500px) {
+  .dialog { padding: 25px 15px; }
+  .dialog h1 { font-size: 22px; }
+}

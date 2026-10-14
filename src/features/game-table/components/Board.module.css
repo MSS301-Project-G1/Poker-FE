@@ -1,0 +1,31 @@
+.pot { display: grid; gap: 6px; margin-bottom: 13px; }
+.pot > span { color: rgb(var(--color-on-surface-variant)); font: 500 9px var(--font-display); letter-spacing: 3px; }
+.pot strong { color: rgb(var(--color-tertiary)); font: 700 27px var(--font-display); text-shadow: 0 0 16px rgb(var(--color-tertiary) / 0.13); }
+.pot small { font-size: 10px; font-weight: 400; }
+
+.community { display: flex; gap: 7px; justify-content: center; }
+.slot { width: 60px; height: 86px; border: 1px solid rgb(var(--color-on-surface-variant) / 0.23); border-radius: 6px; background: rgb(var(--color-page-base) / 0.19); }
+
+.awards { color: rgb(var(--color-tertiary)); font-size: 10px; margin-top: 8px; white-space: nowrap; position: relative; }
+.awards summary { cursor: pointer; }
+.awards > div {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 22px;
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid rgb(var(--color-border-gold));
+  border-radius: 8px;
+  background: rgb(var(--color-surface-container-low));
+  z-index: 5;
+  box-shadow: 0 8px 24px rgb(var(--color-obsidian) / 0.73);
+}
+
+@media (max-width: 500px) {
+  .community { gap: 5px; }
+  .slot { width: 43px; height: 64px; }
+  .pot strong { font-size: 22px; }
+  .awards { font-size: 8px; }
+}

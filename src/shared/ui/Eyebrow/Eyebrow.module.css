@@ -1,0 +1,5 @@
+.eyebrow {
+  color: rgb(var(--color-tertiary));
+  font: 600 10px var(--font-display);
+  letter-spacing: 2px;
+}

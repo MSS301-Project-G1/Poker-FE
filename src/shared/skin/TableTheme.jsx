@@ -1,3 +1,5 @@
-export default function TableTheme({ children }) {
-  return <div className="game-felt">{children}</div>
+import styles from './skin.module.css'
+
+export default function TableTheme({ className = '', children }) {
+  return <div className={`${styles.felt} ${className}`}>{children}</div>
 }

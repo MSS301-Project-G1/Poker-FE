@@ -12,6 +12,9 @@
   body { margin: 0; }
   button { cursor: pointer; }
 
+  /* Keyboard focus ring for every interactive element. Tailwind focus:outline-none still overrides it. */
+  :focus-visible { outline: 2px solid rgb(var(--color-tertiary)); outline-offset: 4px; }
+
   /* Icon font: <span className="material-symbols-outlined">settings</span> */
   .material-symbols-outlined {
     font-family: var(--font-icon);
