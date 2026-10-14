@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { gameRequest } from '../api/gameApi'
+import { rememberDevIdentity } from '@/shared/lib/devIdentity'
+import { createDevTable } from '../api/gameApi'
 
 export default function DevLauncher({ navigate }) {
   const [humans, setHumans] = useState(1)
@@ -14,8 +15,8 @@ export default function DevLauncher({ navigate }) {
     setBusy(true)
     setError('')
     try {
-      const created = await gameRequest(`/dev/tables?humans=${humans}&bots=${bots}`, { method: 'POST' })
-      sessionStorage.setItem('poker.game.devUser', created.humanIds[0])
+      const created = await createDevTable({ humans, bots })
+      rememberDevIdentity(created.humanIds[0])
       setTable(created)
     } catch (failure) { setError(failure.message) }
     finally { setBusy(false) }

@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { devIdentity } from '@/shared/lib/devIdentity'
+import { fetchMatchSettings, updateMatchSettings } from './api/matchSettingsApi'
 import './match-settings.css'
 
 const emptyToken = async () => null
@@ -8,30 +10,12 @@ export default function MatchSettingsPage({ navigate, getAccessToken = emptyToke
   const [settings, setSettings] = useState(null)
   const [error, setError] = useState('')
   const [version, setVersion] = useState(0)
-  const request = async (path, options = {}) => {
-    const accessToken = await getAccessToken()
-    const devUser = import.meta.env.DEV && import.meta.env.VITE_GAME_DEV_MODE === 'true'
-      ? new URLSearchParams(window.location.search).get('devUser') || sessionStorage.getItem('poker.game.devUser') : null
-    const response = await fetch(`${import.meta.env.VITE_GAME_API_BASE_URL || ''}/api/admin/match-settings${path}`, {
-      ...options, headers: { 'Content-Type': 'application/json', ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}), ...(devUser ? { 'X-Dev-User': devUser } : {}) },
-    })
-    const body = await response.json().catch(() => null)
-    if (!response.ok) throw new Error(body?.message || 'Unable to load match settings.')
-    return body
-  }
-
   useEffect(() => {
     let disposed = false
     const abort = new AbortController()
     async function load() {
       try {
-        const accessToken = await getAccessToken()
-        const devUser = import.meta.env.DEV && import.meta.env.VITE_GAME_DEV_MODE === 'true'
-          ? new URLSearchParams(window.location.search).get('devUser') || sessionStorage.getItem('poker.game.devUser') : null
-        const response = await fetch(`${import.meta.env.VITE_GAME_API_BASE_URL || ''}/api/admin/match-settings`, { signal: abort.signal,
-          headers: { ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}), ...(devUser ? { 'X-Dev-User': devUser } : {}) } })
-        const body = await response.json().catch(() => null)
-        if (!response.ok) throw new Error(body?.message || 'Unable to load match settings.')
+        const body = await fetchMatchSettings({ accessToken: await getAccessToken(), devUser: devIdentity(), signal: abort.signal })
         if (!disposed) { setSettings(body); setError('') }
       } catch (failure) { if (!disposed && failure.name !== 'AbortError') setError(failure.message) }
     }
@@ -45,7 +29,7 @@ export default function MatchSettingsPage({ navigate, getAccessToken = emptyToke
     {!settings && !error && <p role="status">Loading match settings…</p>}
     {settings?.length === 0 && <p>No match settings are available.</p>}
     <div className="match-settings-grid">{settings?.map(setting => <SettingsForm key={`${setting.mode}:${version}`} setting={setting} save={async payload => {
-      const updated = await request(`/${setting.mode}`, { method: 'PUT', body: JSON.stringify(payload) })
+      const updated = await updateMatchSettings(setting.mode, payload, { accessToken: await getAccessToken(), devUser: devIdentity() })
       setSettings(current => current.map(item => item.mode === updated.mode ? updated : item))
     }} />)}</div>
   </main>

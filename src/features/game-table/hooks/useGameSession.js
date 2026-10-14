@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useRef } from 'react'
 import { Client } from '@stomp/stompjs'
-import { gameRequest, gameSocketUrl } from '../api/gameApi'
+import { fetchActiveTable, fetchTable, gameSocketUrl } from '../api/gameApi'
 
 const initial = { snapshot: null, tableId: null, phase: 'loading', connection: 'connecting', error: '', pending: false }
 
@@ -42,9 +42,9 @@ export function useGameSession({ tableId, devUser, getAccessToken }) {
           return
         }
         const identity = { accessToken, devUser, signal: abort.signal }
-        const id = tableId || (await gameRequest('/api/game/me/active-table', identity))?.tableId
+        const id = tableId || (await fetchActiveTable(identity))?.tableId
         if (!id) { dispatch({ value: { phase: 'empty', connection: 'offline' } }); return }
-        const snapshot = await gameRequest(`/api/game/tables/${id}`, identity)
+        const snapshot = await fetchTable(id, identity)
         if (disposed) return
         dispatch({ type: 'snapshot', value: snapshot })
         dispatch({ value: { tableId: id } })
