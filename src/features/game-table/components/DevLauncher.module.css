@@ -1,0 +1,35 @@
+.panel {
+  max-width: 520px;
+  width: 100%;
+  margin-top: 20px;
+  padding: 25px;
+  border: 1px dashed rgb(var(--color-border));
+  border-radius: 17px;
+  background: rgb(var(--color-surface-container-low));
+  text-align: left;
+}
+.panel h2 { font: 600 20px var(--font-display); }
+.panel p { font-size: 13px; }
+.error { color: rgb(var(--color-error)); }
+
+.form { display: flex; gap: 12px; align-items: end; margin-top: 20px; }
+.form label { font-size: 12px; flex: 1; }
+.form input {
+  display: block;
+  width: 100%;
+  border: 1px solid rgb(var(--color-border));
+  border-radius: 8px;
+  padding: 8px;
+  background: rgb(var(--color-surface-container-lowest));
+  color: rgb(var(--color-on-surface));
+  margin-top: 7px;
+}
+
+.links { display: grid; gap: 12px; margin-top: 20px; }
+.links a { color: rgb(var(--color-primary)); font-size: 12px; }
+
+@media (max-width: 500px) {
+  .panel { padding: 20px; }
+  .form { flex-wrap: wrap; }
+  .panel .fullWidth { width: 100%; }
+}

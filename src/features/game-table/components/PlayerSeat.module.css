@@ -1,0 +1,53 @@
+.seat {
+  align-self: start;
+  padding: 12px;
+  background: rgb(var(--color-surface-container-low) / 0.93);
+  border: 1px solid rgb(var(--color-border));
+  border-radius: 15px;
+  box-shadow: var(--shadow-raised);
+  min-width: 0;
+  position: relative;
+  z-index: 2;
+}
+.active { border-color: rgb(var(--color-primary)); box-shadow: 0 0 0 2px rgb(var(--color-primary-container) / 0.47), 0 0 28px rgb(var(--color-primary-container) / 0.4); }
+.winner { border-color: rgb(var(--color-tertiary)); box-shadow: 0 0 25px rgb(var(--color-tertiary) / 0.2); }
+.folded { opacity: 0.55; }
+
+.info { display: flex; gap: 10px; align-items: center; }
+.info > div:nth-child(2) { flex: 1; min-width: 0; }
+.info strong { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+.info small { color: rgb(var(--color-primary)); font-size: 9px; }
+.stack { display: block; color: rgb(var(--color-tertiary)); font: 600 12px var(--font-display); margin-top: 4px; font-variant-numeric: tabular-nums; }
+
+.badges { display: flex; gap: 3px; flex-wrap: wrap; max-width: 48px; }
+.badge {
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  background: rgb(var(--color-raised));
+  color: rgb(var(--color-on-surface-variant));
+  font: 600 9px var(--font-display);
+}
+
+.footer { display: flex; justify-content: space-between; font-size: 10px; margin-top: 8px; color: rgb(var(--color-on-surface-variant)); }
+.bet { color: rgb(var(--color-primary)); }
+.holeCards { display: flex; gap: 4px; justify-content: center; margin: 8px 0 -6px; }
+.handRank { display: block; margin-top: 9px; text-align: center; color: rgb(var(--color-tertiary)); font: 600 8px var(--font-display); letter-spacing: 0.5px; }
+
+@media (max-width: 800px) {
+  .seat { padding: 10px 7px; }
+  .info { gap: 6px; }
+  .badges { max-width: 22px; }
+}
+
+@media (max-width: 500px) {
+  .seat { padding: 8px 5px; border-radius: 10px; }
+  .info { gap: 3px; flex-wrap: wrap; }
+  .info strong { font-size: 10px; line-height: 1.1; }
+  .stack { font-size: 9px; line-height: 1.1; margin-top: 3px; }
+  .badge { width: 15px; height: 15px; font-size: 7px; }
+  .footer { font-size: 8px; line-height: 1.2; margin-top: 4px; }
+  .holeCards { gap: 3px; }
+}

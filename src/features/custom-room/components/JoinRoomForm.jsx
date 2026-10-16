@@ -1,4 +1,9 @@
 import { useState } from 'react'
+import { Button, Eyebrow } from '@/shared/ui'
+import Field from './Field'
+import Message from './Message'
+import Panel from './Panel'
+import styles from './JoinRoomForm.module.css'
 
 export default function JoinRoomForm({ disabled, onJoin }) {
   const [code, setCode] = useState('')
@@ -8,7 +13,6 @@ export default function JoinRoomForm({ disabled, onJoin }) {
 
   const submit = async event => {
     event.preventDefault()
-    event.stopPropagation()
     setBusy(true)
     setError('')
     try { await onJoin(code.trim().toUpperCase(), password || null) }
@@ -16,11 +20,13 @@ export default function JoinRoomForm({ disabled, onJoin }) {
     finally { setBusy(false) }
   }
 
-  return <form className="room-card room-form" aria-label="Join with a code" onSubmit={submit}>
-    <span className="room-eyebrow">GOT AN INVITE?</span><h2>Join with a code</h2>
-    <label>Room code<input className="room-code-input" required minLength={4} maxLength={16} autoComplete="off" spellCheck="false" value={code} onChange={event => setCode(event.target.value.toUpperCase())} placeholder="ABC123" /></label>
-    <label>Password <small>(if the room has one)</small><input type="password" autoComplete="off" value={password} onChange={event => setPassword(event.target.value)} /></label>
-    {error && <p className="room-error" role="alert">{error}</p>}
-    <button className="room-primary" disabled={disabled || busy || !code.trim()}>{busy ? 'Joining…' : 'Join room'}</button>
-  </form>
+  return <Panel as="form" className={styles.form} aria-label="Join with a code" onSubmit={submit}>
+    <div><Eyebrow>GOT AN INVITE?</Eyebrow><h2 className={styles.title}>Join with a code</h2></div>
+    <Field label="Room code" controlClassName={styles.code} required minLength={4} maxLength={16} autoComplete="off" spellCheck="false"
+      value={code} onChange={event => setCode(event.target.value.toUpperCase())} placeholder="ABC123" />
+    <Field label="Password" hint="(if the room has one)" type="password" autoComplete="off"
+      value={password} onChange={event => setPassword(event.target.value)} />
+    {error && <Message tone="error">{error}</Message>}
+    <Button variant="primary" type="submit" disabled={disabled || busy || !code.trim()}>{busy ? 'Joining…' : 'Join room'}</Button>
+  </Panel>
 }

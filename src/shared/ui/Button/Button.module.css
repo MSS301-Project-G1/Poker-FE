@@ -1,0 +1,27 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: 10px 18px;
+  border: 1px solid rgb(var(--color-border));
+  border-radius: var(--radius-xl);
+  color: rgb(var(--color-on-surface));
+  transition: background 0.15s, transform 0.15s;
+}
+
+.button:disabled { opacity: 0.38; cursor: not-allowed; }
+.button:not(:disabled):active { transform: translateY(1px); }
+
+.primary {
+  background: linear-gradient(120deg, rgb(var(--color-primary-container)), rgb(var(--color-primary-deep)));
+  border-color: rgb(var(--color-primary-rim));
+  box-shadow: 0 5px 25px rgb(var(--color-primary-container) / 0.2);
+  font-weight: 600;
+}
+
+.secondary { background: rgb(var(--color-surface-container-high)); }
+
+@media (prefers-reduced-motion: reduce) {
+  .button { transition: none; }
+}

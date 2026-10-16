@@ -1,0 +1,37 @@
+.table { width: 100%; border-collapse: collapse; }
+
+.head {
+  padding: 0 12px 12px;
+  border-bottom: 1px solid rgb(var(--color-outline-variant));
+  color: rgb(var(--color-outline));
+  font: 600 10px var(--font-display);
+  letter-spacing: 1.5px;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.cell { padding: 12px; border-bottom: 1px solid rgb(var(--color-outline-variant) / 0.6); font-size: 14px; }
+.row:last-child .cell { border-bottom: none; }
+.you .cell { background: rgb(var(--color-primary-container) / 0.12); }
+.youTag { color: rgb(var(--color-primary)); }
+.number { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+
+.place {
+  display: inline-grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 6px;
+  border-radius: 9px;
+  background: rgb(var(--color-surface));
+  font: 700 13px var(--font-display);
+}
+
+.place1 { background: rgb(var(--color-tertiary)); color: rgb(var(--color-on-tertiary)); }
+.place2 { background: rgb(var(--color-card-face-shade)); color: rgb(var(--color-card-ink)); }
+.place3 { background: rgb(var(--color-border-gold)); color: rgb(var(--color-on-tertiary-fixed)); }
+
+@media (max-width: 760px) {
+  .optional { display: none; }
+  .cell, .head { padding-left: 6px; padding-right: 6px; }
+}

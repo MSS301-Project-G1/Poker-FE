@@ -1,0 +1,13 @@
+.toast {
+  position: fixed;
+  right: var(--space-lg);
+  bottom: var(--space-margin);
+  z-index: var(--z-toast);
+  max-width: min(28rem, calc(100vw - 3rem));
+  padding: 0.85rem 1.2rem;
+  border: 1px solid rgb(var(--color-primary-container));
+  border-radius: var(--radius-xl);
+  background: rgb(var(--color-surface-container));
+  color: rgb(var(--color-on-surface));
+  box-shadow: 0 12px 32px rgb(var(--color-obsidian) / 0.73);
+}

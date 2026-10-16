@@ -5,17 +5,18 @@ legal actions and personal snapshots, and never calculates wallet/Elo rewards.
 
 ## App integration
 
-`features/game-table/routes.js` provides `/table` and `/table/:tableId` routes.
+`src/app/router.jsx` maps `/table` and `/table/:tableId` to `GameTablePage`.
 The first loads `/api/game/me/active-table`; the second loads the specified
 table, with server membership enforcement. `features/game-table/index.js`
-exports the table components for Tutorial: `Board`, `PlayerSeat`, `ActionDock`,
-`TurnTimer`, `MatchResult`, `HandGuide`. They take props, while `GameTablePage`
-owns the network session.
+exports the page and the table components for Tutorial: `Board`, `PlayerSeat`,
+`ActionDock`, `TurnTimer`, `MatchResult`, `HandGuide`. They take props, while
+`GameTablePage` owns the network session (`hooks/useGameSession.js`, REST calls
+in `api/gameApi.js` through `@/shared/api/httpClient`).
 
 The app shell should wrap the game route in `GameRuntimeContext.Provider`:
 
 ```jsx
-import { GameRuntimeContext } from '../features/game-table/runtime'
+import { GameRuntimeContext } from '@/features/game-table'
 
 <GameRuntimeContext.Provider value={{
   getAccessToken, // async function from shared auth; must return a fresh token
@@ -23,12 +24,12 @@ import { GameRuntimeContext } from '../features/game-table/runtime'
   ChatPanel,     // shared chat component, receives conversationId = matchId
   rewards,       // authoritative result from ranking/wallet; null while pending
 }}>
-  <GameTablePage tableId={tableId} navigate={navigate} />
+  <AppRoutes />
 </GameRuntimeContext.Provider>
 ```
 
-The context is an integration port; the current app does not invent auth/chat
-implementations. Review the chat conversation identifier with Duy before wiring.
+Add the provider in `src/app/App.jsx`. The context is an integration port; the
+current app does not invent auth/chat implementations. Review the chat conversation identifier with Duy before wiring.
 `shared/skin` supplies default renderers until Tùng integrates owned cosmetics.
 Admin is an independent feature: mount `MatchSettingsPage` with a shared
 `getAccessToken` prop. The backend requires ADMIN outside dev; disabling buttons

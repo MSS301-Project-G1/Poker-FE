@@ -1,0 +1,11 @@
+.panel {
+  padding: 22px;
+  border: 1px solid rgb(var(--color-border) / 0.6);
+  border-radius: 18px;
+  background: linear-gradient(130deg, rgb(var(--color-surface-container-high)), rgb(var(--color-surface-container-low)));
+  box-shadow: var(--shadow-raised);
+}
+
+@media (max-width: 760px) {
+  .panel { padding: 16px; }
+}

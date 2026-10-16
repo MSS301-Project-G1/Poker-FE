@@ -1,6 +1,17 @@
 import { useState } from 'react'
+import { Button, Eyebrow } from '@/shared/ui'
+import Field from './Field'
+import Message from './Message'
+import Panel from './Panel'
+import styles from './CreateRoomForm.module.css'
 
+const visibilities = [
+  { value: 'PUBLIC', label: 'Public', hint: 'Listed for everyone' },
+  { value: 'PRIVATE', label: 'Private', hint: 'Join by code only' },
+]
+const seatOptions = [2, 3, 4, 5, 6].map(count => ({ value: count, label: `${count} players` }))
 const blinds = [[10, 20], [25, 50], [50, 100], [100, 200]]
+const blindOptions = blinds.map(([small, big], index) => ({ value: index, label: `${small} / ${big}` }))
 
 export default function CreateRoomForm({ disabled, onCreate }) {
   const [visibility, setVisibility] = useState('PUBLIC')
@@ -12,7 +23,6 @@ export default function CreateRoomForm({ disabled, onCreate }) {
 
   const submit = async event => {
     event.preventDefault()
-    event.stopPropagation()
     setBusy(true)
     setError('')
     try {
@@ -22,18 +32,23 @@ export default function CreateRoomForm({ disabled, onCreate }) {
     finally { setBusy(false) }
   }
 
-  return <form className="room-card room-form" aria-label="Create a room" onSubmit={submit}>
-    <span className="room-eyebrow">HOST A TABLE</span><h2>Create a room</h2>
-    <fieldset className="room-segmented"><legend>Visibility</legend>
-      {[['PUBLIC', 'Public', 'Listed for everyone'], ['PRIVATE', 'Private', 'Join by code only']].map(([value, label, hint]) =>
-        <label key={value} className={visibility === value ? 'room-selected' : ''}><input type="radio" name="visibility" value={value} checked={visibility === value} onChange={() => setVisibility(value)} /><strong>{label}</strong><small>{hint}</small></label>)}
+  return <Panel as="form" className={styles.form} aria-label="Create a room" onSubmit={submit}>
+    <div><Eyebrow>HOST A TABLE</Eyebrow><h2 className={styles.title}>Create a room</h2></div>
+    <fieldset className={styles.segmented}>
+      <legend className={styles.legend}>Visibility</legend>
+      {visibilities.map(option => <label key={option.value} className={`${styles.choice} ${visibility === option.value ? styles.selected : ''}`}>
+        <input className={styles.radio} type="radio" name="visibility" value={option.value}
+          checked={visibility === option.value} onChange={() => setVisibility(option.value)} />
+        <strong className={styles.choiceLabel}>{option.label}</strong><small>{option.hint}</small>
+      </label>)}
     </fieldset>
-    <div className="room-fields">
-      <label>Seats<select value={maxPlayers} onChange={event => setMaxPlayers(Number(event.target.value))}>{[2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{n} players</option>)}</select></label>
-      <label>Blinds<select value={blindIndex} onChange={event => setBlindIndex(Number(event.target.value))}>{blinds.map(([small, big], index) => <option key={small} value={index}>{small} / {big}</option>)}</select></label>
+    <div className={styles.pair}>
+      <Field label="Seats" options={seatOptions} value={maxPlayers} onChange={event => setMaxPlayers(Number(event.target.value))} />
+      <Field label="Blinds" options={blindOptions} value={blindIndex} onChange={event => setBlindIndex(Number(event.target.value))} />
     </div>
-    <label>Password <small>(optional, 4–32 characters)</small><input type="password" autoComplete="new-password" minLength={4} maxLength={32} value={password} onChange={event => setPassword(event.target.value)} placeholder="Leave empty for an open room" /></label>
-    {error && <p className="room-error" role="alert">{error}</p>}
-    <button className="room-primary" disabled={disabled || busy}>{busy ? 'Creating…' : 'Create room'}</button>
-  </form>
+    <Field label="Password" hint="(optional, 4–32 characters)" type="password" autoComplete="new-password" minLength={4} maxLength={32}
+      value={password} onChange={event => setPassword(event.target.value)} placeholder="Leave empty for an open room" />
+    {error && <Message tone="error">{error}</Message>}
+    <Button variant="primary" type="submit" disabled={disabled || busy}>{busy ? 'Creating…' : 'Create room'}</Button>
+  </Panel>
 }
