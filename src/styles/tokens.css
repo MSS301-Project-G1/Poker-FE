@@ -93,8 +93,9 @@
   --color-success:          52 211 153;   /* #34d399 online and secure indicators */
 
   /* Typography: families */
-  --font-display: 'Sora', sans-serif;   /* headlines, numbers, action labels */
-  --font-body: 'Outfit', sans-serif;    /* body copy, forms, chat */
+  --font-display: 'Plus Jakarta Sans', 'Outfit', sans-serif;   /* headlines, numbers, action labels */
+  --font-body: 'Plus Jakarta Sans', 'Outfit', sans-serif;      /* body copy, forms, chat */
+  --font-headline: 'Plus Jakarta Sans', 'Outfit', sans-serif;  /* high-impact titles */
   --font-icon: 'Material Symbols Outlined';
 
   /* Typography: scale (size / line-height / weight) */

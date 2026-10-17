@@ -6,4 +6,5 @@ export const env = {
   gameSocketUrl: import.meta.env.VITE_GAME_WS_URL || '/ws/game',
   // Local bot tables and ?devUser identities. Never enabled in production builds.
   gameDevMode: import.meta.env.DEV && import.meta.env.VITE_GAME_DEV_MODE === 'true',
+  isDev: Boolean(import.meta.env.DEV),
 }
