@@ -11,6 +11,31 @@ npm run dev
 
 Open the URL printed by Vite. Run `npm run build` and `npm run lint` before a PR.
 
+## Run with Docker
+
+Requires Docker Desktop. The backend is not part of this compose file: start it from
+Poker-BE (or run game-service on the host); containers reach it through `host.docker.internal`.
+
+```bash
+# Production build served by nginx -> http://localhost:3000
+docker compose up --build
+
+# Vite dev server in game mode, hot reload from ./src -> http://localhost:5173
+docker compose --profile dev up --build dev
+```
+
+| Service | What it is | Backend it talks to |
+| --- | --- | --- |
+| `web` | `npm run build` + nginx, SPA fallback | `/api/*` → API gateway (`API_GATEWAY_URL`, default host `:8080`); `/ws/*` → game-service (`GAME_SERVICE_URL`, default host `:8082`) |
+| `dev` | `npm run dev:game` with the repo bind-mounted | Vite proxy → game-service (`GAME_SERVICE_URL`, default host `:8082`) |
+
+- Local bot tables and `?devUser` only work in `dev`: the production build disables them, so `/table`
+  in `web` needs the shared auth integration.
+- Override ports/URLs with environment variables or a `.env` file next to `compose.yml`
+  (`WEB_PORT`, `DEV_PORT`, `API_GATEWAY_URL`, `GAME_SERVICE_URL`; `VITE_GAME_API_BASE_URL`/`VITE_GAME_WS_URL` are baked into `web` at build time).
+- After changing `package.json`, rebuild and renew the `node_modules` volume:
+  `docker compose --profile dev up --build -V dev`.
+
 ## Screens
 
 | Route | Screen | Source component |

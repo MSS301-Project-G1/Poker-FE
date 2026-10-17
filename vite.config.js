@@ -1,3 +1,4 @@
+import process from 'node:process'
 import { fileURLToPath, URL } from 'node:url'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
@@ -21,6 +22,7 @@ function proxyLoggerPlugin() {
   }
 }
 
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), proxyLoggerPlugin()],
@@ -29,6 +31,8 @@ export default defineConfig({
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
   server: {
+    // Docker bind mounts on Windows/macOS do not forward file events, so the container polls.
+    watch: process.env.WATCH_POLLING === 'true' ? { usePolling: true, interval: 300 } : undefined,
     proxy: {
       '/api/game': 'http://127.0.0.1:8082',
       '/api/admin/match-settings': 'http://127.0.0.1:8082',
@@ -39,6 +43,7 @@ export default defineConfig({
       '/api/payments': 'http://127.0.0.1:8088',
       '/api/inventory': 'http://127.0.0.1:8088',
       '/api/wallet': 'http://127.0.0.1:8089',
+
     },
   },
 })
