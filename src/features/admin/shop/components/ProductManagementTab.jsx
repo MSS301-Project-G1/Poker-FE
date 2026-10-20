@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Icon, Button, useToast } from '@/shared/ui'
 import { getTierBadge, formatVipCoin, formatVnd } from '../utils/adminFormatters'
-import { isCardProduct } from '@/features/shop/utils/shopFormatters'
+import { isCardProduct } from '@/features/shop'
 import DeckSkinZipModal from './DeckSkinZipModal'
 
 export default function ProductManagementTab({

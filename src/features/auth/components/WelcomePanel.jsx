@@ -22,7 +22,7 @@ export default function WelcomePanel() {
     <div>
       <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-tertiary/15 border border-tertiary/30 text-tertiary-fixed text-xs font-label-action tracking-wider uppercase mb-5">
         <Icon name="stars" className="text-sm" />
-        EXCLUSIVE ROOKIE REWARD 2025
+        SECURE PLAYER IDENTITY
       </div>
       <h2 className="font-headline-xl text-3xl md:text-4xl font-bold tracking-tight text-white mb-3">Poker Reborn</h2>
       <p className="text-body-md text-on-surface-variant leading-relaxed mb-6">Step into the premier cyber arena. Compete in high-stakes No-Limit Hold&apos;em &amp; Omaha alongside top global players.</p>
@@ -32,15 +32,15 @@ export default function WelcomePanel() {
           <Icon name="casino" className="text-8xl text-primary" />
         </div>
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-xs font-label-action uppercase tracking-wider text-primary font-bold">Welcome Bonus</span>
-          <span className="px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider rounded bg-primary-container/40 text-primary-fixed border border-primary/30">Instant Unlock</span>
+          <span className="text-xs font-label-action uppercase tracking-wider text-primary font-bold">Verified Account</span>
+          <span className="px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider rounded bg-primary-container/40 text-primary-fixed border border-primary/30">Protected Access</span>
         </div>
         <div className="font-headline-lg text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-tertiary-fixed via-tertiary to-tertiary-fixed tracking-tight mb-2">
-          +1,000,000 CHIPS
+          ONE ACCOUNT. EVERY TABLE.
         </div>
         <p className="text-xs text-on-surface-variant flex items-center gap-1.5">
           <Icon name="verified" className="text-secondary text-sm" />
-          Create an account to join the tables and customize your look.
+          Verify your email, restore your session securely, and keep your player identity consistent.
         </p>
       </div>
 
