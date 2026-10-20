@@ -15,9 +15,11 @@ CMD ["npm", "run", "dev:game", "--", "--host", "0.0.0.0", "--port", "5173", "--s
 
 # ---- build: static bundle; VITE_* values are baked in at build time ----
 FROM deps AS build
+ARG VITE_API_BASE_URL=""
 ARG VITE_GAME_API_BASE_URL=""
 ARG VITE_GAME_WS_URL=""
-ENV VITE_GAME_API_BASE_URL=$VITE_GAME_API_BASE_URL \
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL \
+    VITE_GAME_API_BASE_URL=$VITE_GAME_API_BASE_URL \
     VITE_GAME_WS_URL=$VITE_GAME_WS_URL
 COPY . .
 RUN npm run build

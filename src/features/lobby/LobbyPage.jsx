@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router'
+import { useAuth } from '@/features/auth'
 import { paths } from '@/shared/config/paths'
-import { useToast } from '@/shared/ui'
 import CasualTablesCard from './components/CasualTablesCard'
 import ChampionshipBanner from './components/ChampionshipBanner'
 import DailyCheckInModal from './components/DailyCheckInModal'
@@ -11,16 +11,12 @@ import { useDailyCheckIn } from './hooks/useDailyCheckIn'
 
 export default function LobbyPage() {
   const navigate = useNavigate()
-  const notify = useToast()
+  const { user } = useAuth()
   const [checkInOpen, setCheckInOpen] = useDailyCheckIn()
-  const claimReward = () => {
-    setCheckInOpen(false)
-    notify('Daily reward claimed in UI demo. Connect a backend to save it.')
-  }
 
   return <div className="flex flex-col w-full relative pb-16 px-margin">
     <div className="w-full max-w-7xl mx-auto pt-6 flex flex-col gap-space-lg">
-      <PlayerSummary onOpenCheckIn={() => setCheckInOpen(true)} />
+      <PlayerSummary player={{ ...user?.profile, email: user?.email }} onOpenCheckIn={() => setCheckInOpen(true)} />
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
         <div className="lg:col-span-8 flex flex-col gap-gutter">
           <RankedBanner onFindMatch={() => navigate(paths.ranked)} />
@@ -30,6 +26,6 @@ export default function LobbyPage() {
         <Leaderboard />
       </div>
     </div>
-    {checkInOpen && <DailyCheckInModal onClose={() => setCheckInOpen(false)} onClaim={claimReward} />}
+    {checkInOpen && <DailyCheckInModal onClose={() => setCheckInOpen(false)} />}
   </div>
 }

@@ -32,7 +32,8 @@ docker compose --profile dev up --build dev
 - Local bot tables and `?devUser` only work in `dev`: the production build disables them, so `/table`
   in `web` needs the shared auth integration.
 - Override ports/URLs with environment variables or a `.env` file next to `compose.yml`
-  (`WEB_PORT`, `DEV_PORT`, `API_GATEWAY_URL`, `GAME_SERVICE_URL`; `VITE_GAME_API_BASE_URL`/`VITE_GAME_WS_URL` are baked into `web` at build time).
+  (`WEB_PORT`, `DEV_PORT`, `API_GATEWAY_URL`, `GAME_SERVICE_URL`; `VITE_API_BASE_URL`,
+  `VITE_GAME_API_BASE_URL` and `VITE_GAME_WS_URL` are baked into `web` at build time).
 - After changing `package.json`, rebuild and renew the `node_modules` volume:
   `docker compose --profile dev up --build -V dev`.
 
@@ -69,7 +70,7 @@ Dependencies only point downwards (`app → features → shared → styles`); ES
 - `docs/design-system.md` records the Stitch palette and visual direction. Pages compose section components from their feature's `components/` folder.
 - `public/stitch-assets` contains English versions of the Stitch artwork. Original images with Vietnamese text remain in the local reference archive and are excluded from Git. Two unavailable source image links use local SVG logo/avatar placeholders.
 - `src/styles/tokens.css` defines the Stitch color, spacing, typography, shadow and z-index tokens as CSS variables; `tailwind.config.js` only maps class names to them, and CSS Modules read them directly. Sora, Outfit, and Material Symbols are stored locally under `public/fonts`.
-- Routing uses React Router (`src/app/router.jsx`). Game table actions and Admin Match Settings connect to the game service. Sign-in, matchmaking, reward and shop interactions remain frontend demos; shared authentication, profiles, chat, skins and reward sources require their owners' integration.
+- Routing uses React Router (`src/app/router.jsx`). Registration, email verification, cookie sessions and sign-in connect to auth through the API gateway. Game table actions and Admin Match Settings connect to the game service. Matchmaking, reward and some shop interactions remain frontend demos; full profiles, chat, skins and reward sources require their later integration phases.
 - Product direction: players top up to buy cosmetic skins. There is no VIP tier, diamond balance, or Ruby currency. The shop shows no prices until payment and product data are defined.
 
 ## Suggested next work

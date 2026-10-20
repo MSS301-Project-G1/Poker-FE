@@ -1,1 +1,7 @@
 export { default as AuthPage } from './AuthPage'
+export { default as AuthProvider } from './AuthProvider'
+export { default as AuthStatusScreen } from './components/AuthStatusScreen'
+export { default as PasswordField } from './components/PasswordField'
+export { changePassword } from './api/authApi'
+export { displayNameError, loginPasswordError, newPasswordError } from './utils/authValidation'
+export { useAuth } from './useAuth'
