@@ -29,6 +29,7 @@ export default function AppRoutes() {
       <Route path={paths.shopProductDetail(':id')} element={<ProductDetailPage />} />
       <Route element={<AdminOnlyRoute />}>
         <Route path={paths.adminAvatars} element={<AdminAvatarsPage />} />
+        <Route path={paths.adminShop} element={<AdminShopPage />} />
       </Route>
     </Route>
     <Route path={paths.events} element={<EventsPage />} />
@@ -36,7 +37,6 @@ export default function AppRoutes() {
     <Route path={paths.table} element={<GameTablePage />} />
     <Route path={paths.tableById(':tableId')} element={<GameTablePage />} />
     <Route path={paths.adminMatchSettings} element={<MatchSettingsPage />} />
-    <Route path={paths.adminShop} element={<AdminShopPage />} />
     <Route path="*" element={<NotFoundPage />} />
   </Routes>
 }

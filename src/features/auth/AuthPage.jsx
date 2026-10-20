@@ -31,7 +31,11 @@ export default function AuthPage() {
   const [verification, setVerification] = useState({ email: '', otpExpiresAt: null, resendAvailableAt: null })
   const [recovery, setRecovery] = useState({ email: '', resendAvailableAt: null })
   const from = location.state?.from
-  const destination = from?.pathname ? `${from.pathname}${from.search || ''}` : paths.lobby
+  const resolveDestination = user => {
+    if (from?.pathname) return `${from.pathname}${from.search || ''}`
+    return user?.role === 'ADMIN' ? paths.adminShop : paths.lobby
+  }
+  const destination = resolveDestination(auth.user)
 
   if (auth.status === 'loading') return <AuthStatusScreen />
   if (auth.status === 'error') return <AuthStatusScreen error={auth.error} onRetry={auth.bootstrap} />
@@ -50,8 +54,8 @@ export default function AuthPage() {
 
   const login = values => run(async () => {
     try {
-      await auth.login(values)
-      navigate(destination, { replace: true })
+      const user = await auth.login(values)
+      navigate(resolveDestination(user), { replace: true })
     } catch (failure) {
       if (failure.code === 'AUTH_EMAIL_VERIFICATION_PENDING') {
         setVerification({ email: values.email, otpExpiresAt: null, resendAvailableAt: null })

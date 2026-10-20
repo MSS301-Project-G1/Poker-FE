@@ -37,7 +37,10 @@ export default function AppHeader({ user, onLogout, logoutPending }) {
         </div>
         <div className="flex items-center gap-space-xs">
           <button className={iconButton} title="Audio" type="button"><span className="material-symbols-outlined text-lg">volume_up</span></button>
-          {user?.role === 'ADMIN' && <NavLink className={iconButton} title="Manage avatars" aria-label="Manage avatars" to={paths.adminAvatars}><Icon name="admin_panel_settings" className="text-lg" /></NavLink>}
+          {user?.role === 'ADMIN' && <>
+            <NavLink className={iconButton} title="Admin shop" aria-label="Admin shop" to={paths.adminShop}><Icon name="storefront" className="text-lg" /></NavLink>
+            <NavLink className={iconButton} title="Manage avatars" aria-label="Manage avatars" to={paths.adminAvatars}><Icon name="admin_panel_settings" className="text-lg" /></NavLink>
+          </>}
           <NavLink className={iconButton} title="Account settings" aria-label="Account settings" to={paths.account}><Icon name="settings" className="text-lg" /></NavLink>
         </div>
         <div className="flex items-center gap-space-xs">
