@@ -38,12 +38,14 @@ export default function LeaderboardPage() {
         <Eyebrow>{season ? `${season.name.toUpperCase()} · ${daysLeft} DAYS LEFT` : 'RANKED SEASON'}</Eyebrow>
         <h1 className={styles.title}>Leaderboard</h1>
         <p className={styles.muted}>Players are ranked by Elo. Finish in the top three of a ranked table to climb and extend your streak.</p>
-        <Button className={styles.rewards} onClick={() => navigate(paths.seasons)}><Icon name="card_giftcard" />Season rewards</Button>
       </div>
       <StandingCard standing={me} signedIn={Boolean(devUser || me)} loading={state.phase === 'loading'} />
     </section>
 
-    <BoardTabs view={view} onChange={show} />
+    <div className={styles.toolbar}>
+      <BoardTabs view={view} onChange={show} />
+      <Button onClick={() => navigate(paths.seasons)}><Icon name="card_giftcard" />Season rewards</Button>
+    </div>
     <div id="board-panel" role="tabpanel" aria-labelledby={`board-tab-${view}`}>
       {view === 'season'
         ? <SeasonBoard state={state} page={page} onPage={setPage} onRetry={retry} onFindMatch={() => navigate(paths.ranked)}
