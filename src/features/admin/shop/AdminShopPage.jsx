@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router'
 import { Icon, Button } from '@/shared/ui'
 import AdminSidebar from './components/AdminSidebar'
 import ProductManagementTab from './components/ProductManagementTab'
+import AddProductControlPanel from './components/AddProductControlPanel'
 import BundleManagementTab from './components/BundleManagementTab'
 import { useAdminProducts } from './hooks/useAdminProducts'
 import { useAdminBundles } from './hooks/useAdminBundles'
 
 export default function AdminShopPage() {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('PRODUCTS')
+  const [activeTab, setActiveTab] = useState('PRODUCTS') // 'PRODUCTS' | 'ADD_PRODUCT' | 'BUNDLES'
 
   // Products state & actions
   const {
@@ -20,6 +21,7 @@ export default function AdminShopPage() {
     createProduct,
     deleteProduct,
     uploadDeckSkinZip,
+    uploadDeckSkinFiles,
   } = useAdminProducts()
 
   // Bundles state & actions
@@ -74,17 +76,35 @@ export default function AdminShopPage() {
           />
 
           <main className="flex-grow min-w-0 w-full">
-            {activeTab === 'PRODUCTS' ? (
+            {activeTab === 'PRODUCTS' && (
               <ProductManagementTab
                 products={products}
                 categories={categories}
                 loading={productsLoading}
-                createProduct={createProduct}
                 deleteProduct={deleteProduct}
                 uploadDeckSkinZip={uploadDeckSkinZip}
                 onRefresh={refreshProducts}
+                onOpenAddProduct={type => {
+                  setActiveTab('ADD_PRODUCT')
+                }}
               />
-            ) : (
+            )}
+
+            {activeTab === 'ADD_PRODUCT' && (
+              <AddProductControlPanel
+                categories={categories}
+                createProduct={createProduct}
+                uploadDeckSkinZip={uploadDeckSkinZip}
+                uploadDeckSkinFiles={uploadDeckSkinFiles}
+                onSuccess={() => {
+                  refreshProducts()
+                  setActiveTab('PRODUCTS')
+                }}
+                onCancel={() => setActiveTab('PRODUCTS')}
+              />
+            )}
+
+            {activeTab === 'BUNDLES' && (
               <BundleManagementTab
                 bundles={bundles}
                 loading={bundlesLoading}

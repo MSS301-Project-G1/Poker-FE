@@ -1,12 +1,13 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router'
+import { paths } from '@/shared/config/paths'
 import { Icon, useToast } from '@/shared/ui'
 import ShopSidebar from './components/ShopSidebar'
 import FeaturedBundle from './components/FeaturedBundle'
 import ProductCard from './components/ProductCard'
 import InventoryGrid from './components/InventoryGrid'
+import WalletOverviewTab from './components/WalletOverviewTab'
 import ConfirmPurchaseModal from './components/ConfirmPurchaseModal'
-import DevAccountSwitcher from './components/DevAccountSwitcher'
 import { Button } from './shared/ui'
 import { useShopCatalog } from './hooks/useShopCatalog'
 import { useWallet } from './hooks/useWallet'
@@ -19,8 +20,8 @@ export default function ShopPage() {
   const notify = useToast()
   const [purchaseModalProduct, setPurchaseModalProduct] = useState(null)
 
-  // 1. User Wallet (VIP Coin & Coin)
-  const { vipCoin, refreshWallet } = useWallet()
+  // 1. User Wallet (VIP Coin & Coin & Login State)
+  const { wallet, isLoggedIn, vipCoin, refreshWallet } = useWallet()
 
   // 2. User Inventory & Equip/Unequip state
   const {
@@ -54,12 +55,27 @@ export default function ShopPage() {
 
   // Equip handler for owned items
   const handleEquipProduct = async product => {
+    if (!isLoggedIn) {
+      notify('Vui lòng đăng nhập để thực hiện thao tác này.', { type: 'info' })
+      navigate(paths.auth)
+      return
+    }
     try {
       await equipItem(product.id)
       notify(`Đã trang bị "${product.name}".`, { type: 'success' })
     } catch (err) {
       notify(err.message || 'Không thể trang bị vật phẩm', { type: 'error' })
     }
+  }
+
+  // Buy click handler: Redirect guest to login
+  const handleBuyProduct = product => {
+    if (!isLoggedIn) {
+      notify('Vui lòng đăng nhập để mua vật phẩm này.', { type: 'info' })
+      navigate(paths.auth)
+      return
+    }
+    setPurchaseModalProduct(product)
   }
 
   // Handle purchase confirmation from modal
@@ -78,6 +94,10 @@ export default function ShopPage() {
     return Boolean(invItem?.isEquipped)
   }
 
+  const handleSelectCategory = useCallback(categoryCode => {
+    setActiveCategory(categoryCode)
+  }, [setActiveCategory])
+
   return (
     <div className={styles.pageWrapper}>
       {/* Background ambient lighting */}
@@ -86,35 +106,58 @@ export default function ShopPage() {
 
       {/* Fluid Widescreen Container */}
       <div className={styles.container}>
-        {/* Top Bar: Dev Switcher, VIP Coin Balance & Top Up */}
+        {/* Top Bar: VIP Coin Balance / Guest Sign-in */}
         <div className={styles.topBar}>
           <div className={styles.pageHeading}>
             <h1 className={styles.pageTitle}>Cửa Hàng Vật Phẩm & Skin</h1>
           </div>
 
           <div className={styles.topBarActions}>
-            <DevAccountSwitcher />
+            {isLoggedIn ? (
+              <>
+                {/* VIP Coin Pill - Click to open wallet tab */}
+                <div
+                  className={styles.vipCoinPill}
+                  onClick={() => handleSelectCategory('MY_WALLET')}
+                  title="Nhấn để xem chi tiết ví và lịch sử biến động số dư"
+                  role="button"
+                  tabIndex={0}
+                >
+                  <span className={styles.coinIcon}>
+                    <Icon name="paid" />
+                  </span>
+                  <div className={styles.coinTextCol}>
+                    <span className={styles.coinLabel}>Số dư VIP Coin (Xem ví)</span>
+                    <span className={styles.coinValue}>{formatVipCoin(vipCoin)}</span>
+                  </div>
+                </div>
 
-            {/* VIP Coin Pill */}
-            <div className={styles.vipCoinPill}>
-              <span className={styles.coinIcon}>
-                <Icon name="paid" />
-              </span>
-              <div className={styles.coinTextCol}>
-                <span className={styles.coinLabel}>Số dư VIP Coin</span>
-                <span className={styles.coinValue}>{formatVipCoin(vipCoin)}</span>
+                {/* Top Up CTA */}
+                <Button
+                  variant="gold"
+                  size="sm"
+                  icon="add_circle"
+                  onClick={() => navigate('/shop/bundles')}
+                >
+                  Nạp VIP Coin
+                </Button>
+              </>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-white/70">
+                  <Icon name="visibility" className="text-sm text-amber-400" />
+                  <span>Chế độ xem khách</span>
+                </span>
+                <Button
+                  variant="gold"
+                  size="sm"
+                  icon="login"
+                  onClick={() => navigate(paths.auth)}
+                >
+                  Đăng nhập
+                </Button>
               </div>
-            </div>
-
-            {/* Top Up CTA */}
-            <Button
-              variant="gold"
-              size="sm"
-              icon="add_circle"
-              onClick={() => navigate('/shop/bundles')}
-            >
-              Nạp VIP Coin
-            </Button>
+            )}
           </div>
         </div>
 
@@ -123,43 +166,72 @@ export default function ShopPage() {
           <ShopSidebar
             categories={categories}
             activeCategory={activeCategory}
-            onSelectCategory={setActiveCategory}
+            onSelectCategory={handleSelectCategory}
             inventoryCount={inventoryItems.length}
+            isLoggedIn={isLoggedIn}
           />
 
           {/* Right Main Content */}
           <main className={styles.contentArea}>
             {activeCategory === 'MY_INVENTORY' ? (
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h3 className="font-headline font-bold text-xl text-white">
-                      Túi Đồ Trang Trí Của Bạn
-                    </h3>
-                    <p className="text-xs text-white/60">
-                      Quản lý và kích hoạt các mặt bài, bàn chơi và avatar bạn đã sở hữu.
-                    </p>
+              !isLoggedIn ? (
+                <div className="flex flex-col items-center justify-center py-20 px-4 text-center rounded-3xl bg-white/[0.02] border border-white/10 shadow-2xl my-4">
+                  <div className="w-16 h-16 rounded-2xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 mb-4 shadow-lg shadow-amber-400/10">
+                    <Icon name="lock" className="text-3xl" />
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => refreshInventory()}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 text-xs font-semibold hover:bg-white/10 transition-colors border border-white/10"
+                  <h3 className="font-headline font-bold text-2xl text-white mb-2">
+                    Túi Đồ Trang Trí Cá Nhân
+                  </h3>
+                  <p className="text-sm text-white/60 max-w-md mb-6 leading-relaxed">
+                    Bạn đang ở chế độ xem khách. Vui lòng đăng nhập tài khoản để quản lý, xem lịch sử và kích hoạt trang bị các mặt bài, bàn chơi và avatar của bạn.
+                  </p>
+                  <Button
+                    variant="gold"
+                    size="md"
+                    icon="login"
+                    onClick={() => navigate(paths.auth)}
                   >
-                    <Icon name="refresh" className="text-sm" /> Làm mới
-                  </button>
+                    Đăng Nhập Ngay
+                  </Button>
                 </div>
+              ) : (
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h3 className="font-headline font-bold text-xl text-white">
+                        Túi Đồ Trang Trí Của Bạn
+                      </h3>
+                      <p className="text-xs text-white/60">
+                        Quản lý và kích hoạt các mặt bài, bàn chơi và avatar bạn đã sở hữu.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => refreshInventory()}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 text-xs font-semibold hover:bg-white/10 transition-colors border border-white/10"
+                    >
+                      <Icon name="refresh" className="text-sm" /> Làm mới
+                    </button>
+                  </div>
 
-                <InventoryGrid
-                  items={inventoryItems}
-                  loading={inventoryLoading}
-                  actionInProgressId={actionInProgressId}
-                  onEquip={equipItem}
-                  onUnequip={unequipItem}
-                  onSelectProduct={item => {
-                    if (item.productId) navigate(`/shop/products/${item.productId}`)
-                  }}
-                />
-              </div>
+                  <InventoryGrid
+                    items={inventoryItems}
+                    loading={inventoryLoading}
+                    actionInProgressId={actionInProgressId}
+                    onEquip={equipItem}
+                    onUnequip={unequipItem}
+                    onSelectProduct={item => {
+                      if (item.productId) navigate(`/shop/products/${item.productId}`)
+                    }}
+                  />
+                </div>
+              )
+            ) : activeCategory === 'MY_WALLET' ? (
+              <WalletOverviewTab
+                wallet={wallet}
+                isLoggedIn={isLoggedIn}
+                onRefreshWallet={refreshWallet}
+              />
             ) : (
               <>
                 {/* Featured Promo Banner */}
@@ -204,7 +276,7 @@ export default function ShopPage() {
                         isEquipped={isProductEquipped(product.id)}
                         isEquipping={actionInProgressId !== null}
                         onSelect={() => navigate(`/shop/products/${product.id}`)}
-                        onBuy={p => setPurchaseModalProduct(p)}
+                        onBuy={handleBuyProduct}
                         onEquip={handleEquipProduct}
                       />
                     ))}

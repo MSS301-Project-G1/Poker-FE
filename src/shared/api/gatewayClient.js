@@ -65,8 +65,9 @@ async function send(path, {
   retryCsrf = true,
 } = {}) {
   const upperMethod = method.toUpperCase()
+  const isFormData = typeof FormData !== 'undefined' && body instanceof FormData
   const requestHeaders = {
-    ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+    ...(body !== undefined && !isFormData ? { 'Content-Type': 'application/json' } : {}),
     ...(needsCsrf(upperMethod, path) ? { 'X-XSRF-TOKEN': await loadCsrf() } : {}),
     ...headers,
   }
@@ -75,7 +76,7 @@ async function send(path, {
     credentials: 'include',
     signal,
     headers: requestHeaders,
-    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+    ...(body !== undefined ? { body: isFormData ? body : JSON.stringify(body) } : {}),
   })
   const payload = await readPayload(response)
   if (response.ok) return payload

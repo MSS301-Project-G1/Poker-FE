@@ -1,18 +1,23 @@
 import { useNavigate } from 'react-router'
+import { paths } from '@/shared/config/paths'
 import { Icon, useToast } from '@/shared/ui'
 import { Button } from './shared/ui'
 import { useBundleTopup } from './hooks/useBundleTopup'
 import { useWallet } from './hooks/useWallet'
 import { formatVipCoin, formatVnd } from './utils/shopFormatters'
-import DevAccountSwitcher from './components/DevAccountSwitcher'
 
 export default function BundlePage() {
   const navigate = useNavigate()
   const notify = useToast()
   const { bundles, loading, error, orderingBundleId, purchaseBundle } = useBundleTopup()
-  const { vipCoin } = useWallet()
+  const { vipCoin, isLoggedIn } = useWallet()
 
   const handleSelectBundle = async bundle => {
+    if (!isLoggedIn) {
+      notify('Vui lòng đăng nhập để nạp VIP Coin qua PayOS.', { type: 'info' })
+      navigate(paths.auth)
+      return
+    }
     try {
       await purchaseBundle(bundle.id)
     } catch (err) {
@@ -52,22 +57,31 @@ export default function BundlePage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <DevAccountSwitcher />
-
-            {/* Current Balance */}
-            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-surface-container-high/90 border border-tertiary/40 shadow-lg">
-              <span className="w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center text-slate-950 shadow-sm">
-                <Icon name="paid" className="text-base" />
-              </span>
-              <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-bold text-tertiary tracking-wider leading-none">
-                  Số Dư Hiện Tại
+            {isLoggedIn ? (
+              /* Current Balance */
+              <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-surface-container-high/90 border border-tertiary/40 shadow-lg">
+                <span className="w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center text-slate-950 shadow-sm">
+                  <Icon name="paid" className="text-base" />
                 </span>
-                <span className="text-sm font-black text-on-surface font-mono leading-tight">
-                  {formatVipCoin(vipCoin)} VIP Coin
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-[10px] uppercase font-bold text-tertiary tracking-wider leading-none">
+                    Số Dư Hiện Tại
+                  </span>
+                  <span className="text-sm font-black text-on-surface font-mono leading-tight">
+                    {formatVipCoin(vipCoin)} VIP Coin
+                  </span>
+                </div>
               </div>
-            </div>
+            ) : (
+              <Button
+                variant="gold"
+                size="sm"
+                icon="login"
+                onClick={() => navigate(paths.auth)}
+              >
+                Đăng nhập để nạp
+              </Button>
+            )}
           </div>
         </div>
 

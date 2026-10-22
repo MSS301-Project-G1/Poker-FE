@@ -1,16 +1,29 @@
 import { useState, useEffect } from 'react'
+import { useAuth } from '@/features/auth/useAuth'
 import * as walletService from '../services/walletService'
 
 export function useWallet() {
-  const [wallet, setWallet] = useState({ vipCoin: 0, coin: 0, status: 'ACTIVE' })
-  const [loading, setLoading] = useState(true)
+  const { status } = useAuth()
+  const isAuth = status === 'authenticated'
+
+  const [wallet, setWallet] = useState(null)
+  const [loading, setLoading] = useState(isAuth)
   const [error, setError] = useState(null)
   const [reloadTrigger, setReloadTrigger] = useState(0)
 
   useEffect(() => {
     let disposed = false
+
+    if (!isAuth) {
+      setWallet(null)
+      setLoading(false)
+      setError(null)
+      return
+    }
+
     async function load() {
       try {
+        setLoading(true)
         const res = await walletService.getMyWallet()
         if (!disposed && res?.data) {
           setWallet(res.data)
@@ -19,8 +32,8 @@ export function useWallet() {
         }
       } catch (err) {
         if (!disposed) {
-          console.warn('Failed to fetch wallet info:', err)
-          setError(err.message || 'Không thể lấy thông tin ví')
+          setWallet(null)
+          setError(err.status === 401 ? 'UNAUTHORIZED' : (err.message || 'Chưa đăng nhập'))
           setLoading(false)
         }
       }
@@ -28,21 +41,16 @@ export function useWallet() {
 
     void load()
 
-    const handleAccountChange = () => {
-      setReloadTrigger(v => v + 1)
-    }
-    window.addEventListener('dev_user_changed', handleAccountChange)
-
     return () => {
       disposed = true
-      window.removeEventListener('dev_user_changed', handleAccountChange)
     }
-  }, [reloadTrigger])
+  }, [isAuth, reloadTrigger])
 
   return {
     wallet,
-    vipCoin: wallet?.vipCoin ?? 0,
-    coin: wallet?.coin ?? 0,
+    isLoggedIn: isAuth,
+    vipCoin: wallet?.vipCoin ?? (isAuth ? 0 : null),
+    coin: wallet?.coin ?? (isAuth ? 0 : null),
     loading,
     error,
     refreshWallet: () => setReloadTrigger(v => v + 1),

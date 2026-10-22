@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router'
+import { paths } from '@/shared/config/paths'
 import { Icon, useToast } from '@/shared/ui'
 import { Button } from './shared/ui'
 import * as productService from './services/productService'
@@ -33,7 +34,7 @@ export default function ProductDetailPage() {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
   const [isPurchasing, setIsPurchasing] = useState(false)
 
-  const { vipCoin, refreshWallet } = useWallet()
+  const { vipCoin, isLoggedIn, refreshWallet } = useWallet()
   const { items: inventoryItems, equipItem, refreshInventory } = useInventory()
 
   // Fetch product detail
@@ -101,8 +102,23 @@ export default function ProductDetailPage() {
     }
   }
 
+  // Handle Buy Click
+  const handleBuyClick = () => {
+    if (!isLoggedIn) {
+      notify('Vui lòng đăng nhập để mua vật phẩm này.', { type: 'info' })
+      navigate(paths.auth)
+      return
+    }
+    setIsConfirmModalOpen(true)
+  }
+
   // Handle Equip
   const handleEquip = async () => {
+    if (!isLoggedIn) {
+      notify('Vui lòng đăng nhập để thực hiện thao tác này.', { type: 'info' })
+      navigate(paths.auth)
+      return
+    }
     try {
       await equipItem(id)
       notify(`Đã trang bị skin "${product.name}".`, { type: 'success' })
@@ -328,7 +344,7 @@ export default function ProductDetailPage() {
                     variant="gold"
                     size="lg"
                     icon="shopping_bag"
-                    onClick={() => setIsConfirmModalOpen(true)}
+                    onClick={handleBuyClick}
                   >
                     Mua Ngay Bằng VIP Coin
                   </Button>

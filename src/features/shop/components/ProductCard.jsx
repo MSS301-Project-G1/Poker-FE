@@ -84,6 +84,22 @@ export default function ProductCard({
           suit="S"
         />
         <span className={styles.categoryTag}>{product.categoryName || 'Vật phẩm'}</span>
+
+        {/* Floating Eye / 52-Card Badge for Deck Skins */}
+        {isDeckSkin && (
+          <button
+            type="button"
+            title="Xem trọn bộ 52 lá bài"
+            onClick={e => {
+              e.stopPropagation()
+              navigate(`/shop/products/${product.id}`)
+            }}
+            className={styles.previewInspectBadge}
+          >
+            <Icon name="visibility" className="text-xs" />
+            <span>Xem 52 Lá</span>
+          </button>
+        )}
       </div>
 
       {/* Info: Name & Description */}
@@ -114,22 +130,6 @@ export default function ProductCard({
         )}
 
         <div className={styles.actionsGroup}>
-          {/* Detail Link for 52-Card Decks */}
-          {isDeckSkin && (
-            <button
-              type="button"
-              title="Xem trọn bộ 52 lá bài"
-              onClick={e => {
-                e.stopPropagation()
-                navigate(`/shop/products/${product.id}`)
-              }}
-              className={styles.inspectBtn}
-            >
-              <Icon name="visibility" className={styles.inspectIcon} />
-              <span>52 Lá</span>
-            </button>
-          )}
-
           {isEquipped ? (
             <Button variant="secondary" size="sm" disabled>
               Đang dùng

@@ -1,4 +1,4 @@
-import { request } from '@/shared/api/httpClient'
+import { gatewayRequest } from '@/shared/api/gatewayClient'
 
 /**
  * Raw HTTP Service for Shop Catalog & Products
@@ -20,22 +20,25 @@ export async function getProducts({
   params.append('size', String(size))
   params.append('sort', sort)
 
-  return request(`/api/shop/products?${params.toString()}`, {
+  return gatewayRequest(`/api/shop/products?${params.toString()}`, {
     signal,
+    auth: false,
     errorMessage: 'Không thể tải danh sách sản phẩm',
   })
 }
 
 export async function getCategories({ signal } = {}) {
-  return request('/api/shop/categories', {
+  return gatewayRequest('/api/shop/categories', {
     signal,
+    auth: false,
     errorMessage: 'Không thể tải danh mục sản phẩm',
   })
 }
 
 export async function getProductDetail(productId, { signal } = {}) {
-  return request(`/api/shop/products/${productId}`, {
+  return gatewayRequest(`/api/shop/products/${productId}`, {
     signal,
+    auth: false,
     errorMessage: 'Không thể tải thông tin sản phẩm',
   })
 }
@@ -45,7 +48,7 @@ export async function getProductDetail(productId, { signal } = {}) {
  * Anti-bypass: Only sends productId in path. Never sends userId, price, or isOwned.
  */
 export async function purchaseProduct(productId) {
-  return request(`/api/shop/products/${productId}/purchase`, {
+  return gatewayRequest(`/api/shop/products/${productId}/purchase`, {
     method: 'POST',
     errorMessage: 'Giao dịch mua vật phẩm không thành công',
   })

@@ -2,7 +2,7 @@
 
 .sidebar {
   position: sticky;
-  top: 6rem;
+  top: 5.5rem;
   z-index: 30;
   display: flex;
   flex-direction: column;
@@ -15,19 +15,24 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
   padding: 1.125rem 0.75rem;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
-  /* Sits between the fixed header (5rem) and footer (2.5rem) with 1rem air on each side. */
-  max-height: calc(100vh - 9.5rem);
+  max-height: calc(100vh - 8rem);
+  min-height: 500px;
   overflow-y: auto;
   flex-shrink: 0;
   user-select: none;
+  align-self: flex-start;
 }
 
 .sidebarExpanded {
   width: 290px;
+  min-width: 290px;
+  max-width: 290px;
 }
 
 .sidebarCollapsed {
   width: 76px;
+  min-width: 76px;
+  max-width: 76px;
   align-items: center;
 }
 
@@ -170,6 +175,23 @@
   color: #0b0514;
   font-weight: 800;
   box-shadow: 0 4px 16px rgba(var(--color-tertiary), 0.35);
+}
+
+.navItemWallet {
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.navItemWallet:hover {
+  background: rgba(56, 189, 248, 0.15);
+  color: #7dd3fc;
+}
+
+.navItemWalletActive {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.9) 0%, rgba(56, 189, 248, 0.8) 100%);
+  color: #0b0514;
+  font-weight: 800;
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.35);
 }
 
 .navIcon {

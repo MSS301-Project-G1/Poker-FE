@@ -1,14 +1,16 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { useNavigate } from 'react-router'
+import { paths } from '@/shared/config/paths'
 import { Icon } from '@/shared/ui'
 import { getCategoryIcon } from '../utils/shopFormatters'
 import styles from './ShopSidebar.module.css'
 
-export default function ShopSidebar({
+const ShopSidebar = memo(function ShopSidebar({
   categories = [],
   activeCategory = 'ALL',
   onSelectCategory,
   inventoryCount = 0,
+  isLoggedIn = false,
 }) {
   const navigate = useNavigate()
   // Fixed expanded by default, user can toggle collapse as an explicit option
@@ -104,23 +106,42 @@ export default function ShopSidebar({
             </>
           )}
         </button>
+
+        {/* My Wallet & Transactions Tab */}
+        <button
+          type="button"
+          onClick={() => onSelectCategory('MY_WALLET')}
+          title="Ví & Lịch Sử Giao Dịch"
+          className={`${styles.navItem} ${styles.navItemWallet} ${
+            isCollapsed ? styles.navItemCollapsed : ''
+          } ${activeCategory === 'MY_WALLET' ? styles.navItemWalletActive : ''}`}
+        >
+          <span className={styles.navIcon}>
+            <Icon name="account_balance_wallet" filled={activeCategory === 'MY_WALLET'} />
+          </span>
+          {!isCollapsed && (
+            <span className={styles.navLabel}>Ví & Lịch Sử GD</span>
+          )}
+        </button>
       </div>
 
       {/* Bottom Sidebar Action: Nạp VIP Coin */}
       <div className={styles.bottomArea}>
         <button
           type="button"
-          onClick={() => navigate('/shop/bundles')}
-          title="Nạp VIP Coin (PayOS)"
+          onClick={() => navigate(isLoggedIn ? '/shop/bundles' : paths.auth)}
+          title={isLoggedIn ? 'Nạp VIP Coin (PayOS)' : 'Đăng nhập để nạp VIP Coin'}
           className={`${styles.topupBtn} ${isCollapsed ? styles.topupBtnCollapsed : ''}`}
         >
           <span className={styles.navIcon}>
             <Icon name="paid" />
           </span>
-          {!isCollapsed && <span>Nạp VIP Coin</span>}
+          {!isCollapsed && <span>{isLoggedIn ? 'Nạp VIP Coin' : 'Đăng nhập để nạp'}</span>}
         </button>
       </div>
     </aside>
   )
-}
+})
+
+export default ShopSidebar
 

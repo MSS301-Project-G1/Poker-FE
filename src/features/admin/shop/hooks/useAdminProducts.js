@@ -51,5 +51,6 @@ export function useAdminProducts() {
     updateProduct: adminService.updateProduct,
     deleteProduct: adminService.deleteProduct,
     uploadDeckSkinZip: adminService.uploadDeckSkinZip,
+    uploadDeckSkinFiles: adminService.uploadDeckSkinFiles,
   }
 }

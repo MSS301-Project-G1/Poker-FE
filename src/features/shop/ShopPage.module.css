@@ -102,6 +102,15 @@
   background: rgba(23, 12, 42, 0.95);
   border: 1px solid rgba(var(--color-tertiary), 0.4);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vipCoinPill:hover {
+  background: rgba(36, 18, 66, 0.95);
+  border-color: rgba(var(--color-tertiary), 0.75);
+  box-shadow: 0 6px 18px rgba(var(--color-tertiary), 0.25);
+  transform: translateY(-1px);
 }
 
 .coinIcon {
@@ -147,12 +156,16 @@
   gap: 1.75rem;
   align-items: flex-start;
   width: 100%;
+  min-height: calc(100vh - 10rem);
 }
 
 .contentArea {
   flex-grow: 1;
   min-width: 0;
   width: 100%;
+  min-height: calc(100vh - 12rem);
+  display: flex;
+  flex-direction: column;
 }
 
 /* Section Header */
@@ -185,43 +198,19 @@
   font-weight: 600;
 }
 
-/* Locked 5-item-per-row grid on desktop, smooth responsive adaptation */
+/* Fluid responsive grid that flexes smoothly without crushing items */
 .productsGrid {
   display: grid;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1.25rem;
   width: 100%;
-}
-
-@media (min-width: 600px) {
-  .productsGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 960px) {
-  .productsGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1300px) {
-  .productsGrid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1.25rem;
-  }
-}
-
-@media (min-width: 1600px) {
-  .productsGrid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 1.35rem;
-  }
+  min-height: 420px;
+  align-content: start;
 }
 
 /* Feedback States */
 .loadingState {
-  padding: 6rem 0;
+  min-height: 420px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -250,13 +239,21 @@
 }
 
 .errorState {
-  padding: 3rem 0;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   color: #fb7185;
 }
 
 .emptyState {
-  padding: 4rem 0;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   color: rgba(255, 255, 255, 0.6);
   font-size: 0.875rem;
