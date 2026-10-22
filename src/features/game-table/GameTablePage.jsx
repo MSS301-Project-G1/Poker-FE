@@ -10,6 +10,7 @@ import { devIdentity } from '@/shared/lib/devIdentity'
 import { Button, Eyebrow, PlaceholderScreen } from '@/shared/ui'
 import { GameRuntimeContext } from './runtime'
 import { useGameSession } from './hooks/useGameSession'
+import { useSeatProfiles } from './hooks/useSeatProfiles'
 import Board from './components/Board'
 import PlayerSeat from './components/PlayerSeat'
 import ActionDock from './components/ActionDock'
@@ -42,8 +43,11 @@ function GameSession({ tableId, retry }) {
   const auth = useAuth()
   const navigate = useNavigate()
   const runtime = useContext(GameRuntimeContext)
-  const session = useGameSession({ tableId, devUser: devIdentity(), getAccessToken: runtime.getAccessToken })
+  const devUser = devIdentity()
+  const session = useGameSession({ tableId, devUser, getAccessToken: runtime.getAccessToken })
   const { snapshot } = session
+  const signedIn = auth.status === 'authenticated' && !devUser
+  const seatProfiles = useSeatProfiles(snapshot?.seats.map(seat => seat.accountId) || [], signedIn)
   useEffect(() => {
     if (!snapshot) return
     const previous = previousSnapshot.current
@@ -54,7 +58,7 @@ function GameSession({ tableId, retry }) {
     else if (snapshot.pot > previous.pot) play('chip')
     previousSnapshot.current = snapshot
   }, [snapshot, play])
-  const profiles = runtime.profiles
+  const profiles = { ...seatProfiles, ...runtime.profiles }
   const ChatPanel = runtime.ChatPanel
   const finished = snapshot?.street === 'FINISHED'
   const winners = snapshot?.distribution?.pots.flatMap(pot => pot.winnerSeats) || []
