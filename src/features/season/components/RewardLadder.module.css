@@ -1,0 +1,24 @@
+.ladder { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+
+.step {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr) auto;
+  align-items: center;
+  justify-items: start;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid rgb(var(--color-outline-variant));
+  border-radius: 12px;
+  background: rgb(var(--color-surface));
+}
+
+.done { border-color: rgb(var(--color-tertiary) / 0.45); background: rgb(var(--color-tertiary) / 0.06); }
+.status { justify-self: end; display: inline-flex; align-items: center; gap: 4px; color: rgb(var(--color-outline)); font: 600 11px var(--font-display); white-space: nowrap; }
+.done .status { color: rgb(var(--color-tertiary)); }
+.statusIcon { font-size: 16px; }
+.muted { margin: 0; color: rgb(var(--color-on-surface-variant)); font-size: 14px; }
+
+@media (max-width: 560px) {
+  .step { grid-template-columns: minmax(0, 1fr) auto; }
+  .rewards { grid-column: 1 / -1; grid-row: 2; }
+}

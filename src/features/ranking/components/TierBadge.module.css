@@ -1,0 +1,27 @@
+/* --tier holds the RGB channels of the tier color; every tone reuses an existing token. */
+.badge {
+  --tier: var(--color-outline);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px 4px 7px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgb(var(--tier) / 0.45);
+  background: rgb(var(--tier) / 0.14);
+  color: rgb(var(--tier));
+  font: 600 11px var(--font-display);
+  white-space: nowrap;
+}
+
+.icon { font-size: 15px; }
+
+.newbie { --tier: var(--color-outline); }
+.iron { --tier: var(--color-on-surface-variant); }
+.bronze { --tier: var(--color-border-gold); }
+.silver { --tier: var(--color-card-face-shade); }
+.gold { --tier: var(--color-tertiary); }
+.platinum { --tier: var(--color-success); }
+.diamond { --tier: var(--color-on-secondary-container); }
+.champion { --tier: var(--color-primary); }
+.grandChampion { --tier: var(--color-secondary); }
+.cardGod { --tier: var(--color-tertiary-fixed); }
