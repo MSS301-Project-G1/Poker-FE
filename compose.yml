@@ -11,11 +11,15 @@ services:
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-}
         VITE_GAME_API_BASE_URL: ${VITE_GAME_API_BASE_URL:-}
         VITE_GAME_WS_URL: ${VITE_GAME_WS_URL:-}
+        VITE_SOCIAL_WS_URL: ${VITE_SOCIAL_WS_URL:-}
+        VITE_CHAT_WS_URL: ${VITE_CHAT_WS_URL:-}
     ports:
       - "${WEB_PORT:-3000}:80"
     environment:
       API_GATEWAY_URL: ${API_GATEWAY_URL:-http://host.docker.internal:8080}
       GAME_SERVICE_URL: ${GAME_SERVICE_URL:-http://host.docker.internal:8082}
+      SOCIAL_SERVICE_URL: ${SOCIAL_SERVICE_URL:-http://host.docker.internal:8084}
+      CHAT_SERVICE_URL: ${CHAT_SERVICE_URL:-http://host.docker.internal:8085}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped

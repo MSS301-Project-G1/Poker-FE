@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Navigate, useLocation, useNavigate } from 'react-router'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router'
 import { paths } from '@/shared/config/paths'
 import { Icon, useToast } from '@/shared/ui'
 import { useAuth } from './useAuth'
@@ -139,6 +139,7 @@ export default function AuthPage() {
     </div>
     <div className="min-h-screen flex flex-col justify-between items-center px-4 py-8 md:py-12 relative z-10 max-w-7xl mx-auto">
       <AuthHeader />
+      <Link to={paths.demo} className="my-space-md inline-flex items-center gap-space-sm rounded-xl border border-primary/40 bg-primary-container/20 px-space-lg py-space-gutter-mobile text-primary font-label-action text-label-action"><Icon name="smart_toy" />Chơi thử 1 người với bot · Không cần tài khoản</Link>
       <main className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch my-auto">
         <WelcomePanel />
         <AuthPanel mode={mode} pending={pending} error={error} verification={verification} recovery={recovery}

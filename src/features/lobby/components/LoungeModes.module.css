@@ -1,0 +1,22 @@
+.section { display: grid; gap: var(--space-md); }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-gutter); }
+.card { position: relative; display: flex; flex-direction: column; gap: var(--space-md); padding: var(--space-lg); border: 1px solid rgb(var(--color-outline-variant)); border-radius: var(--radius-xl); background: radial-gradient(ellipse at 90% 0%, rgb(var(--color-primary-container) / .2), transparent 70%), rgb(var(--color-surface-container-low) / .84); box-shadow: var(--shadow-raised); overflow: hidden; backdrop-filter: blur(14px); }
+.rank { background: radial-gradient(ellipse at 90% 0%, rgb(var(--color-tertiary) / .12), transparent 70%), rgb(var(--color-surface-container-low) / .84); }
+.modeIcon { display: grid; place-items: center; width: 56px; height: 56px; border: 1px solid rgb(var(--color-primary) / .3); border-radius: var(--radius-xl); background: rgb(var(--color-primary-container) / .2); color: rgb(var(--color-primary)); }
+.modeIcon > span { font-size: 30px; }
+.rank .modeIcon { color: rgb(var(--color-tertiary)); background: rgb(var(--color-tertiary) / .1); border-color: rgb(var(--color-tertiary) / .3); }
+.eyebrow { font-size: 11px; line-height: 14px; letter-spacing: .16em; font-weight: 700; color: rgb(var(--color-on-surface-variant)); }
+.card h2 { font: 700 30px/38px var(--font-display); }
+.card p { color: rgb(var(--color-on-surface-variant)); font-size: 15px; line-height: 22px; }
+.card ul { display: grid; gap: var(--space-sm); list-style: none; margin: 0 0 var(--space-sm); padding: 0; flex: 1; font-size: 13px; color: rgb(var(--color-on-surface-variant)); }
+.card li::before { content: '·'; color: rgb(var(--color-primary)); font-weight: 700; margin-right: var(--space-sm); }
+.card button { min-height: 46px; }
+.card small { color: rgb(var(--color-tertiary)); font-size: 13px; }
+.resume { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-md); padding: var(--space-lg); border: 1px solid rgb(var(--color-primary) / .4); border-radius: var(--radius-xl); background: rgb(var(--color-surface-container-low)); }
+.resume div { flex: 1; }
+.resume h2 { font-weight: 600; }
+.resume p { font-size: 13px; color: rgb(var(--color-on-surface-variant)); }
+.pulse { width: 10px; height: 10px; border-radius: 50%; background: rgb(var(--color-primary)); box-shadow: var(--shadow-glow-primary); }
+.error { color: rgb(var(--color-error)); font-size: 13px; }
+.error button { text-decoration: underline; }
+@media(max-width: 639px) { .grid { grid-template-columns: minmax(0, 1fr); } .card { padding: var(--space-md); } }

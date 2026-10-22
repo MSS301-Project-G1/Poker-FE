@@ -1,10 +1,10 @@
 import { NavLink } from 'react-router'
 import { paths } from '@/shared/config/paths'
 import { Icon } from '@/shared/ui'
+import { useSound } from '@/shared/audio'
 
 const navItems = [
   { to: paths.lobby, label: 'Lobby' },
-  { to: paths.ranked, label: 'Ranked' },
   { to: paths.shop, label: 'Shop' },
   { to: paths.events, label: 'Events' },
   { to: paths.mailbox, label: 'Mailbox' },
@@ -17,6 +17,7 @@ const navClass = ({ isActive }) => `px-space-md py-space-sm font-label-action tr
 const iconButton = 'w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors'
 
 export default function AppHeader({ user, onLogout, logoutPending }) {
+  const { enabled: soundEnabled, toggle: toggleSound } = useSound()
   const displayName = user?.profile?.displayName || user?.email || 'Player'
   const avatarUrl = user?.profile?.avatarUrl || '/stitch-assets/avatar.svg'
   return <header className="fixed top-0 left-0 right-0 z-header bg-surface-container-lowest/85 backdrop-blur-2xl shadow-header">
@@ -36,7 +37,7 @@ export default function AppHeader({ user, onLogout, logoutPending }) {
           <span className="font-label-numeric-md text-label-numeric-md text-tertiary">1,250,000</span>
         </div>
         <div className="flex items-center gap-space-xs">
-          <button className={iconButton} title="Audio" type="button"><span className="material-symbols-outlined text-lg">volume_up</span></button>
+          <button className={iconButton} title={soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh'} aria-label={soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh'} aria-pressed={soundEnabled} onClick={toggleSound} type="button"><span className="material-symbols-outlined text-lg">{soundEnabled ? 'volume_up' : 'volume_off'}</span></button>
           {user?.role === 'ADMIN' && <>
             <NavLink className={iconButton} title="Admin shop" aria-label="Admin shop" to={paths.adminShop}><Icon name="storefront" className="text-lg" /></NavLink>
             <NavLink className={iconButton} title="Manage avatars" aria-label="Manage avatars" to={paths.adminAvatars}><Icon name="admin_panel_settings" className="text-lg" /></NavLink>

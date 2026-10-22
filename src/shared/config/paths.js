@@ -2,6 +2,7 @@
 export const paths = {
   home: '/',
   auth: '/auth',
+  demo: '/demo',
   lobby: '/lobby',
   account: '/account',
   ranked: '/ranked',

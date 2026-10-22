@@ -1,4 +1,6 @@
 import { Button, Icon } from '@/shared/ui'
+import { Link } from 'react-router'
+import { paths } from '@/shared/config/paths'
 
 export default function AuthStatusScreen({ error, onRetry }) {
   return <main className="min-h-screen bg-background text-on-surface flex items-center justify-center p-6">
@@ -10,6 +12,7 @@ export default function AuthStatusScreen({ error, onRetry }) {
       </p>
       {error?.requestId && <p className="mt-2 text-xs text-outline">Reference: {error.requestId}</p>}
       {error && <Button variant="primary" className="mt-5" onClick={onRetry}>Try again</Button>}
+      <Link className="mt-space-lg block text-primary underline underline-offset-4" to={paths.demo}>Chơi thử 1 người với bot</Link>
     </section>
   </main>
 }

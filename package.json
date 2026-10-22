@@ -10,13 +10,17 @@
     "preview": "vite preview",
     "dev:game": "vite --mode game",
     "test:e2e": "playwright test",
-    "test:matchmaking": "playwright test --config playwright.matchmaking.config.js"
+    "test:matchmaking": "playwright test --config playwright.matchmaking.config.js",
+    "test:community": "playwright test --config playwright.community.config.js",
+    "test:solo-demo": "playwright test --config playwright.demo.config.js"
   },
   "dependencies": {
     "@stomp/stompjs": "^7.3.0",
+    "lil-gui": "^0.21.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-router": "^7.18.4"
+    "react-router": "^7.18.4",
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

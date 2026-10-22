@@ -1,8 +1,11 @@
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
+import { useSound } from '@/shared/audio'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { TableTheme } from '@/shared/skin'
 import { env } from '@/shared/config/env'
 import { paths } from '@/shared/config/paths'
+import { MatchChat } from '@/features/community'
+import { useAuth } from '@/features/auth'
 import { devIdentity } from '@/shared/lib/devIdentity'
 import { Button, Eyebrow, PlaceholderScreen } from '@/shared/ui'
 import { GameRuntimeContext } from './runtime'
@@ -34,10 +37,23 @@ export default function GameTablePage() {
 }
 
 function GameSession({ tableId, retry }) {
+  const { play } = useSound()
+  const previousSnapshot = useRef(null)
+  const auth = useAuth()
   const navigate = useNavigate()
   const runtime = useContext(GameRuntimeContext)
   const session = useGameSession({ tableId, devUser: devIdentity(), getAccessToken: runtime.getAccessToken })
   const { snapshot } = session
+  useEffect(() => {
+    if (!snapshot) return
+    const previous = previousSnapshot.current
+    if (!previous || previous.handNumber !== snapshot.handNumber) play('shuffle')
+    else if (snapshot.street === 'FINISHED' && previous.street !== 'FINISHED') play('win')
+    else if (snapshot.board.length !== previous.board.length) play('card')
+    else if (snapshot.actorSeat !== previous.actorSeat && snapshot.seats.some(seat => seat.accountId === snapshot.accountId && seat.seatIndex === snapshot.actorSeat)) play('turn')
+    else if (snapshot.pot > previous.pot) play('chip')
+    previousSnapshot.current = snapshot
+  }, [snapshot, play])
   const profiles = runtime.profiles
   const ChatPanel = runtime.ChatPanel
   const finished = snapshot?.street === 'FINISHED'
@@ -62,7 +78,7 @@ function GameSession({ tableId, retry }) {
           isYou={player.accountId === snapshot.accountId} active={player.seatIndex === snapshot.actorSeat} dealer={player.seatIndex === snapshot.dealerSeat}
           smallBlind={player.seatIndex === snapshot.smallBlindSeat} bigBlind={player.seatIndex === snapshot.bigBlindSeat} winner={winners.includes(player.seatIndex)} />)}</div>
       </TableTheme>
-      <div className={styles.bottom}><section className={styles.chatSlot} aria-label="Table chat">{ChatPanel ? <ChatPanel conversationId={snapshot.matchId} /> : <><Eyebrow>TABLE CHAT</Eyebrow><p>Chat will appear when the table conversation is ready.</p></>}</section>
+      <div className={styles.bottom}><section className={styles.chatSlot} aria-label="Table chat">{ChatPanel ? <ChatPanel conversationId={snapshot.matchId} /> : auth.status === 'authenticated' && snapshot.matchId ? <MatchChat key={snapshot.matchId} matchId={snapshot.matchId} finished={finished} /> : <><Eyebrow>TABLE CHAT</Eyebrow><p>Sign in to open the match conversation.</p></>}</section>
         <div><p className={styles.turnCaption} role="status">{session.pending ? 'Sending your action…' : snapshot.street === 'HAND_FINISHED' ? 'Hand complete. Next hand starts shortly.' : snapshot.legalActions.length ? 'Your move. Make it count.' : 'Waiting for the next action.'}</p>
           <ActionDock key={snapshot.actionSequence} legalActions={snapshot.legalActions} callAmount={snapshot.callAmount} minRaiseTo={snapshot.minRaiseTo} maxRaiseTo={snapshot.maxRaiseTo} pot={snapshot.pot}
             disabled={session.pending || session.connection !== 'connected'} onAction={session.send} /></div>

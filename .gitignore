@@ -38,3 +38,7 @@ preview-*.png
 # Game browser verification artifacts.
 playwright-report/
 test-results/
+
+# Community UI browser verification screenshots.
+artifacts/community-*.png
+artifacts/solo-demo-*.png

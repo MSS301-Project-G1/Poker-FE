@@ -4,6 +4,8 @@ import { AuthStatusScreen, useAuth } from '@/features/auth'
 import { MainLayout } from '@/shared/layout'
 import { paths } from '@/shared/config/paths'
 import { useToast } from '@/shared/ui'
+import { CommunityDock } from '@/features/community'
+import { MatchmakingCard } from '@/features/ranked'
 
 export default function AuthenticatedLayout() {
   const auth = useAuth()
@@ -24,5 +26,5 @@ export default function AuthenticatedLayout() {
     } finally { setLogoutPending(false) }
   }
 
-  return <MainLayout user={auth.user} onLogout={logout} logoutPending={logoutPending} />
+  return <><MainLayout user={auth.user} onLogout={logout} logoutPending={logoutPending} /><MatchmakingCard /><CommunityDock showLauncher={location.pathname !== paths.lobby} /></>
 }

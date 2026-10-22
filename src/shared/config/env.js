@@ -6,6 +6,8 @@ export const env = {
   gameApiBaseUrl: import.meta.env.VITE_GAME_API_BASE_URL || '',
   // STOMP endpoint of the game service; relative URLs resolve against the current page.
   gameSocketUrl: import.meta.env.VITE_GAME_WS_URL || '/ws/game',
+  socialSocketUrl: import.meta.env.VITE_SOCIAL_WS_URL || '/ws/social',
+  chatSocketUrl: import.meta.env.VITE_CHAT_WS_URL || '/ws/chat',
   // Local bot tables and ?devUser identities. Never enabled in production builds.
   gameDevMode: import.meta.env.DEV && import.meta.env.VITE_GAME_DEV_MODE === 'true',
   isDev: Boolean(import.meta.env.DEV),

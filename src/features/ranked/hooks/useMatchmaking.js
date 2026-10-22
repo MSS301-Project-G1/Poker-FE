@@ -8,8 +8,10 @@ export function useMatchmaking(mode) {
   const [acceptedId, setAcceptedId] = useState(null)
   const actionBusy = useRef(false)
   const revision = useRef(0)
+  const alive = useRef(true)
 
   useEffect(() => {
+    alive.current = true
     const controller = new AbortController()
     let timer
     async function poll() {
@@ -26,7 +28,7 @@ export function useMatchmaking(mode) {
       }
     }
     void poll()
-    return () => { controller.abort(); clearTimeout(timer) }
+    return () => { alive.current = false; controller.abort(); clearTimeout(timer) }
   }, [mode])
 
   const run = useCallback(async (operation, after) => {
@@ -37,15 +39,17 @@ export function useMatchmaking(mode) {
     setError('')
     try {
       await operation()
+      if (!alive.current) return false
       if (after) after()
-      setQueue(await fetchQueueStatus(mode))
+      const next = await fetchQueueStatus(mode)
+      if (alive.current) setQueue(next)
       return true
     } catch (failure) {
-      setError(failure.message)
+      if (alive.current) setError(failure.message)
       return false
     } finally {
       actionBusy.current = false
-      setPending(false)
+      if (alive.current) setPending(false)
     }
   }, [mode])
 

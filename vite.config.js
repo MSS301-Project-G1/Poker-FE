@@ -26,6 +26,14 @@ function proxyLoggerPlugin() {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), proxyLoggerPlugin()],
+  build: {
+    rolldownOptions: {
+      input: {
+        app: fileURLToPath(new URL('./index.html', import.meta.url)),
+        demo: fileURLToPath(new URL('./demo/poker.html', import.meta.url)),
+      },
+    },
+  },
   resolve: {
     // `@/shared/ui` instead of `../../../shared/ui`. Keep in sync with jsconfig.json.
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },

@@ -5,6 +5,7 @@ import { AdminAvatarsPage } from '@/features/admin/avatars'
 import { MatchSettingsPage } from '@/features/admin/match-settings'
 import { AdminShopPage } from '@/features/admin/shop'
 import { AuthPage } from '@/features/auth'
+import { DemoPage } from '@/features/demo'
 import { RoomLobbyPage, RoomsPage } from '@/features/custom-room'
 import { EventsPage } from '@/features/events'
 import { GameTablePage } from '@/features/game-table'
@@ -23,6 +24,7 @@ export default function AppRoutes() {
   return <Routes>
     <Route path={paths.home} element={<AuthPage />} />
     <Route path={paths.auth} element={<AuthPage />} />
+    <Route path={paths.demo} element={<DemoPage />} />
     <Route element={<AuthenticatedLayout />}>
       <Route path={paths.lobby} element={<LobbyPage />} />
       <Route path={paths.account} element={<AccountPage />} />

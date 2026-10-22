@@ -3,6 +3,9 @@ import { test, expect } from '@playwright/test'
 const proposalId = '00000000-0000-0000-0000-000000000010'
 const tableId = '00000000-0000-0000-0000-000000000020'
 test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => sessionStorage.setItem('poker.lobby.checkInDismissed', 'true'))
+  await page.route('**/api/party/me', route => route.fulfill({ json: null }))
+  await page.route('**/api/matchmaking/*/status', route => route.fulfill({ json: { status: 'NONE' } }))
   await page.route('**/api/auth/csrf', route => route.fulfill({ json: { result: { token: 'test-csrf' } } }))
   await page.route('**/api/auth/me', route => route.fulfill({ json: { result: { accountId: 'player', email: 'test@example.com', role: 'USER' } } }))
 })
@@ -23,12 +26,12 @@ test('Rank join, accept and ready navigate to the exact table', async ({ page })
     return route.fulfill({ json: queue })
   })
   await page.goto('/ranked')
-  await page.getByRole('button', { name: 'Find match' }).click()
-  await expect(page.getByRole('heading', { name: 'Looking for players' })).toBeVisible()
+  await page.getByRole('button', { name: 'Tìm trận', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Đang tìm người chơi' })).toBeVisible()
   expect(joinHeaders['x-xsrf-token']).toBe('test-csrf')
   expect(joinHeaders['x-user-id']).toBeUndefined()
-  queue = { status: 'PROPOSED', proposalId, acceptDeadline: new Date(Date.now() + 10000).toISOString() }
-  await page.getByRole('button', { name: 'Accept match' }).click()
+  queue = { status: 'PROPOSED', proposalId, acceptDeadline: new Date(Date.now() + 20000).toISOString() }
+  await page.getByRole('button', { name: 'Chấp nhận trận' }).click()
   await expect(page).toHaveURL(new RegExp(`/table/${tableId}$`))
   expect(accepted).toBe(true)
 })
@@ -47,8 +50,8 @@ test('Normal queue cancels through DELETE before returning to the lobby', async 
     return route.fulfill({ status: 204 })
   })
   await page.goto('/ranked?mode=NORMAL')
-  await page.getByRole('button', { name: 'Find match' }).click()
-  await page.getByRole('button', { name: 'Cancel queue' }).click()
+  await page.getByRole('button', { name: 'Tìm trận', exact: true }).click()
+  await page.getByRole('button', { name: 'Hủy tìm trận' }).click()
   await expect(page).toHaveURL(/\/lobby$/)
   expect(cancelled).toBe(true)
 })
@@ -58,5 +61,5 @@ test('Expired proposal disables accept using the server deadline', async ({ page
     status: 'PROPOSED', proposalId, acceptDeadline: new Date(Date.now() - 1000).toISOString(),
   } }))
   await page.goto('/ranked')
-  await expect(page.getByRole('button', { name: 'Accept match' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Chấp nhận trận' })).toBeDisabled()
 })
