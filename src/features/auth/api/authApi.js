@@ -7,6 +7,10 @@ function resultOf(payload) {
 
 export const initializeAuth = () => loadCsrf()
 
+export const fetchWebSocketToken = () => gatewayRequest('/api/auth/ws-token', {
+  errorMessage: 'Unable to authorize the game connection',
+}).then(resultOf)
+
 export const registerAccount = body => gatewayRequest('/api/auth/register', {
   method: 'POST', body, auth: false, errorMessage: 'Unable to create the account',
 }).then(resultOf)

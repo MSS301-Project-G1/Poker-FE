@@ -1,52 +1,65 @@
-import { useNavigate } from 'react-router'
+import { useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router'
 import { paths } from '@/shared/config/paths'
-import MatchRadar from './components/MatchRadar'
-import PerformanceCard from './components/PerformanceCard'
-import QueueActions from './components/QueueActions'
-import QueueHeader from './components/QueueHeader'
-import TableGathering from './components/TableGathering'
+import { Button, Icon } from '@/shared/ui'
+import { useMatchmaking } from './hooks/useMatchmaking'
 
-// Blurred skeleton of the lobby behind the matchmaking panel.
-function LobbyBackdrop() {
-  return <div className="absolute inset-0 pointer-events-none opacity-35 filter blur-md select-none">
-    <div className="w-full h-full p-margin grid grid-cols-12 gap-gutter">
-      <div className="col-span-12 lg:col-span-8 flex flex-col gap-space-md">
-        <div className="h-44 rounded-xl bg-surface-container-high relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-surface-container-lowest via-secondary-container/40 to-transparent"></div>
-        </div>
-        <div className="grid grid-cols-3 gap-space-md">
-          <div className="h-32 rounded-lg bg-surface-container-low"></div>
-          <div className="h-32 rounded-lg bg-surface-container-low"></div>
-          <div className="h-32 rounded-lg bg-surface-container-low"></div>
-        </div>
-      </div>
-      <div className="hidden lg:flex col-span-4 flex-col gap-space-md">
-        <div className="h-80 rounded-xl bg-surface-container-low"></div>
-        <div className="h-40 rounded-xl bg-surface-container-low"></div>
-      </div>
-    </div>
-  </div>
+const labels = {
+  NONE: 'Ready to find a match', WAITING: 'Looking for players', COUNTDOWN: 'Gathering the table',
+  MATCHING: 'Preparing your match', PROPOSED: 'Match found', CREATING_TABLE: 'Creating your table', READY: 'Table ready',
 }
 
 export default function RankedPage() {
+  const [params] = useSearchParams()
+  const mode = params.get('mode') === 'NORMAL' ? 'NORMAL' : 'RANK'
+  return <QueuePanel key={mode} mode={mode} />
+}
+
+function QueuePanel({ mode }) {
   const navigate = useNavigate()
+  const { queue, error, pending, accepted, join, leave, accept, decline } = useMatchmaking(mode)
+  const [now, setNow] = useState(Date.now)
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 250)
+    return () => clearInterval(timer)
+  }, [])
+  useEffect(() => {
+    if (queue?.status === 'READY' && queue.tableId) navigate(paths.tableById(queue.tableId), { replace: true })
+  }, [queue, navigate])
 
-  return <div className="flex flex-col w-full">
-    <div className="relative w-full min-h-[calc(100vh-7.5rem)] flex items-center justify-center p-space-sm sm:p-space-lg overflow-hidden">
-      <LobbyBackdrop />
-      <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[720px] h-[720px] bg-primary-container/20 rounded-full blur-[140px] pointer-events-none"></div>
-      <div className="absolute -bottom-28 right-1/4 w-[480px] h-[480px] bg-secondary-container/25 rounded-full blur-[120px] pointer-events-none"></div>
+  const status = queue?.status
+  const proposed = status === 'PROPOSED'
+  const deadline = proposed ? queue.acceptDeadline : queue?.matchStartDeadline
+  const seconds = deadline ? Math.max(0, Math.ceil((Date.parse(deadline) - now) / 1000)) : null
+  const canLeave = status === 'WAITING' || status === 'COUNTDOWN'
+  const idle = status === 'NONE'
 
-      <div className="relative z-10 w-full max-w-5xl bg-surface-container-lowest/95 backdrop-blur-2xl rounded-xl shadow-[0_24px_80px_rgb(var(--color-obsidian)/0.95)] overflow-hidden flex flex-col">
-        <div className="w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-85"></div>
-        <QueueHeader />
-        <div className="px-space-md sm:px-space-xl py-space-md grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-center">
-          <MatchRadar />
-          <PerformanceCard />
-        </div>
-        <TableGathering />
-        <QueueActions onCancel={() => navigate(paths.lobby)} onReady={() => navigate(paths.table)} />
+  const cancel = async () => { if (await leave()) navigate(paths.lobby) }
+  return <div className="flex min-h-[70vh] items-center justify-center p-space-lg">
+    <section className="w-full max-w-2xl rounded-xl bg-surface-container-low p-space-lg shadow-dialog" aria-labelledby="queue-title">
+      <div className="flex items-center gap-space-sm text-primary">
+        <Icon name={mode === 'RANK' ? 'military_tech' : 'groups'} />
+        <span>{mode === 'RANK' ? 'Ranked matchmaking' : 'Normal matchmaking'}</span>
       </div>
-    </div>
+      <h1 id="queue-title" className="mt-space-md font-headline-lg text-headline-lg">{queue ? labels[status] || status : 'Checking your queue...'}</h1>
+      <div role="status" aria-live="polite" className="my-space-lg flex flex-col gap-space-sm text-on-surface-variant">
+        {queue?.playerCount != null && <p>{queue.playerCount} players waiting · Table size {queue.minPlayers}–{queue.maxPlayers}</p>}
+        {queue?.position != null && <p>Your queue position: {queue.position}</p>}
+        {seconds != null && <p>{proposed ? 'Accept within' : 'Filling the table for'} {seconds}s</p>}
+        {proposed && <p>{accepted ? 'Accepted. Waiting for the other players.' : 'All players must accept before the deadline.'}</p>}
+        {status === 'CREATING_TABLE' && <p>Preparing your table. This page will open it when ready.</p>}
+        {idle && <p>{mode === 'RANK' ? 'Players are matched by Elo. The entry fee is collected after everyone accepts.' : 'Join solo or queue with your party. No entry fee or acceptance is required.'}</p>}
+      </div>
+      {error && <p role="alert" className="mb-space-md text-error">{error}</p>}
+      <div className="flex flex-wrap gap-space-sm">
+        {idle && <Button variant="primary" disabled={pending} onClick={join}>Find match</Button>}
+        {canLeave && <Button disabled={pending} onClick={cancel}>Cancel queue</Button>}
+        {proposed && <>
+          <Button variant="primary" disabled={pending || accepted || seconds === 0} onClick={accept}>{accepted ? 'Accepted' : 'Accept match'}</Button>
+          <Button disabled={pending || seconds === 0} onClick={decline}>Decline match</Button>
+        </>}
+        {(idle || !queue) && <Button onClick={() => navigate(paths.lobby)}>Back to lobby</Button>}
+      </div>
+    </section>
   </div>
 }
