@@ -10,12 +10,12 @@ function proxyLoggerPlugin() {
       server.httpServer?.once('listening', () => {
         setTimeout(() => {
           console.log('\n  📡 Active Dev Proxies:')
-          console.log('  ➜  /api/shop       -> http://127.0.0.1:8088')
-          console.log('  ➜  /api/admin      -> http://127.0.0.1:8088 (Shop Admin)')
-          console.log('  ➜  /api/payments   -> http://127.0.0.1:8088')
-          console.log('  ➜  /api/inventory  -> http://127.0.0.1:8088')
-          console.log('  ➜  /api/wallet     -> http://127.0.0.1:8089')
-          console.log('  ➜  /api/game       -> http://127.0.0.1:8082\n')
+          for (const [path, proxy] of Object.entries(server.config.server.proxy ?? {})) {
+            const target = typeof proxy === 'string' ? proxy : proxy.target
+            const websocket = typeof proxy === 'object' && proxy.ws ? ' (WebSocket)' : ''
+            console.log(`  ➜  ${path.padEnd(26)} -> ${target}${websocket}`)
+          }
+          console.log()
         }, 100)
       })
     },
@@ -42,6 +42,13 @@ export default defineConfig({
       '/api/admin': 'http://127.0.0.1:8088',
       '/dev/tables': 'http://127.0.0.1:8082',
       '/ws/game': { target: 'ws://127.0.0.1:8082', ws: true },
+      '/api/matchmaking': 'http://127.0.0.1:8083',
+      '/api/party': 'http://127.0.0.1:8083',
+      '/api/friends': 'http://127.0.0.1:8084',
+      '/api/blocks': 'http://127.0.0.1:8084',
+      '/ws/social': { target: 'ws://127.0.0.1:8084', ws: true },
+      '/api/chat': 'http://127.0.0.1:8085',
+      '/ws/chat': { target: 'ws://127.0.0.1:8085', ws: true },
       '/api/ranking': 'http://127.0.0.1:8086',
       '/api/seasons': 'http://127.0.0.1:8086',
       '/api/tutorial': 'http://127.0.0.1:8086',
