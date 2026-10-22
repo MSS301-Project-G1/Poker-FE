@@ -114,7 +114,7 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="w-full min-h-screen py-32 flex flex-col items-center justify-center gap-3">
+      <div className="w-full py-32 flex flex-col items-center justify-center gap-3">
         <span className="w-10 h-10 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
         <span className="text-sm text-white/70 font-medium">Đang tải thông tin vật phẩm...</span>
       </div>
@@ -136,7 +136,7 @@ export default function ProductDetailPage() {
   const tierInfo = getTierBadge(product.tier)
 
   return (
-    <div className="relative w-full min-h-screen pb-24 overflow-hidden font-body-md text-white">
+    <div className="relative w-full pb-space-lg overflow-hidden font-body-md text-white">
       {/* Background ambient lighting */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
         <div className="absolute -top-32 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[140px]" />
