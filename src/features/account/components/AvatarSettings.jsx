@@ -49,9 +49,9 @@ export default function AvatarSettings({ currentAvatarUrl, displayName, onChange
   }
 
   return <section className={panelClass}>
-    <div className="mb-space-lg flex flex-wrap items-center justify-between gap-space-md">
-      <div className="flex items-center gap-space-md">
-        <img className="h-16 w-16 rounded-xl object-cover ring-2 ring-primary/40" src={currentAvatarUrl || '/stitch-assets/avatar.svg'} alt={displayName || 'Player'}
+    <div className="mb-space-sm flex flex-wrap items-center justify-between gap-space-md">
+      <div className="flex min-w-0 flex-1 items-center gap-space-md">
+        <img className="h-12 w-12 rounded-xl object-cover ring-2 ring-primary/40" src={currentAvatarUrl || '/stitch-assets/avatar.svg'} alt={displayName || 'Player'}
           onError={event => { event.currentTarget.src = '/stitch-assets/avatar.svg' }} />
         <div><h2 className="font-headline-md text-headline-md">Avatar</h2><p className="text-body-sm text-on-surface-variant">Choose a preset or upload PNG/JPEG up to 2 MB.</p></div>
       </div>
@@ -63,9 +63,9 @@ export default function AvatarSettings({ currentAvatarUrl, displayName, onChange
     {!loading && presets.length === 0 && <div className="rounded-xl border border-dashed border-outline-variant p-space-lg text-center text-sm text-on-surface-variant">
       No preset avatars are available. You can still upload your own image.
     </div>}
-    <div className="grid grid-cols-3 gap-space-sm sm:grid-cols-5 md:grid-cols-7">
+    <div className="grid grid-cols-4 gap-space-sm sm:grid-cols-7">
       {presets.map(preset => <button key={preset.avatarId} type="button" onClick={() => choose(preset.avatarId)} disabled={pending}
-        className="group rounded-xl border border-outline-variant/50 bg-surface-container p-2 hover:border-primary disabled:opacity-50">
+        className="group rounded-xl border border-outline-variant/50 bg-surface-container p-1.5 hover:border-primary disabled:opacity-50">
         <img src={preset.avatarUrl} alt={preset.name} className="aspect-square w-full rounded-lg object-cover" onError={event => { event.currentTarget.src = '/stitch-assets/avatar.svg' }} />
         <span className="mt-1 block truncate text-xs text-on-surface-variant group-hover:text-on-surface">{preset.name}</span>
       </button>)}

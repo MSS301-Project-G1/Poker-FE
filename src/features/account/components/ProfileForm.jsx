@@ -55,11 +55,11 @@ export default function ProfileForm({ profile, pending, onSave }) {
   }
 
   return <section className={panelClass}>
-    <div className="mb-space-lg flex items-center gap-space-sm">
+    <div className="mb-space-md flex items-center gap-space-sm">
       <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-container/30"><Icon name="person" className="text-primary" /></span>
       <div><h2 className="font-headline-md text-headline-md">Personal profile</h2><p className="text-body-sm text-on-surface-variant">Update the information shown on your account.</p></div>
     </div>
-    <form className="grid grid-cols-1 gap-space-md md:grid-cols-2" onSubmit={submit} noValidate>
+    <form className="grid grid-cols-1 gap-x-space-md gap-y-gutter-mobile md:grid-cols-2 xl:grid-cols-3" onSubmit={submit} noValidate>
       <Field id="profile-display-name" label="Display name" required error={errors.displayName}>
         <input id="profile-display-name" className={inputClass} value={values.displayName} onChange={update('displayName')} maxLength={100} disabled={pending} />
       </Field>
@@ -86,12 +86,12 @@ export default function ProfileForm({ profile, pending, onSave }) {
       <Field id="profile-city" label="City" error={errors.city}>
         <input id="profile-city" className={inputClass} value={values.city} onChange={update('city')} maxLength={100} autoComplete="address-level2" disabled={pending} />
       </Field>
-      <div className="md:col-span-2">
+      <div className="md:col-span-2 xl:col-span-3">
         <label className={labelClass} htmlFor="profile-bio">Bio</label>
-        <textarea id="profile-bio" className={`${inputClass} min-h-28 resize-y`} value={values.bio} onChange={update('bio')} maxLength={500} disabled={pending} />
+        <textarea id="profile-bio" className={`${inputClass} min-h-16 resize-y`} value={values.bio} onChange={update('bio')} maxLength={500} disabled={pending} />
         <div className="mt-1 flex justify-between text-xs"><span className={errorClass}>{errors.bio}</span><span className="text-outline">{values.bio.length}/500</span></div>
       </div>
-      <div className="md:col-span-2 flex justify-end"><Button variant="primary" type="submit" disabled={pending}>{pending ? 'Saving…' : 'Save profile'}</Button></div>
+      <div className="md:col-span-2 xl:col-span-3 flex justify-end"><Button variant="primary" type="submit" disabled={pending}>{pending ? 'Saving…' : 'Save profile'}</Button></div>
     </form>
   </section>
 }
