@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router'
+import { env } from '@/shared/config/env'
 import { paths } from '@/shared/config/paths'
 import { AccountPage } from '@/features/account'
 import { AdminAvatarsPage } from '@/features/admin/avatars'
@@ -39,13 +40,15 @@ export default function AppRoutes() {
       <Route element={<AdminOnlyRoute />}>
         <Route path={paths.adminAvatars} element={<AdminAvatarsPage />} />
         <Route path={paths.adminShop} element={<AdminShopPage />} />
+        {!env.gameDevMode && <Route path={paths.adminMatchSettings} element={<MatchSettingsPage />} />}
       </Route>
     </Route>
     <Route path={paths.events} element={<EventsPage />} />
     <Route path={paths.mailbox} element={<MailboxPage />} />
     <Route path={paths.table} element={<GameTablePage />} />
     <Route path={paths.tableById(':tableId')} element={<GameTablePage />} />
-    <Route path={paths.adminMatchSettings} element={<MatchSettingsPage />} />
+    {/* Local game tooling only: ?devUser identities exercise Admin settings without a gateway session. */}
+    {env.gameDevMode && <Route path={paths.adminMatchSettings} element={<MatchSettingsPage />} />}
     <Route path="*" element={<NotFoundPage />} />
   </Routes>
 }

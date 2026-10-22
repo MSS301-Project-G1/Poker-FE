@@ -41,7 +41,7 @@ export function useGameSession({ tableId, devUser, getAccessToken }) {
           dispatch({ value: { phase: 'empty', connection: 'offline', error: 'Sign in to reconnect to your table.' } })
           return
         }
-        const identity = { accessToken, devUser, signal: abort.signal }
+        const identity = { devUser, signal: abort.signal }
         const id = tableId || (await fetchActiveTable(identity))?.tableId
         if (!id) { dispatch({ value: { phase: 'empty', connection: 'offline' } }); return }
         const snapshot = await fetchTable(id, identity)
