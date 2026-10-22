@@ -1,4 +1,4 @@
-import { request } from '@/shared/api/httpClient'
+import { gatewayRequest } from '@/shared/api/gatewayClient'
 
 /**
  * Raw HTTP Service for Admin Shop Management
@@ -12,14 +12,15 @@ export async function getAdminProducts({ category, tier, page = 0, size = 50, si
   params.append('page', String(page))
   params.append('size', String(size))
 
-  return request(`/api/shop/products?${params.toString()}`, {
+  return gatewayRequest(`/api/shop/products?${params.toString()}`, {
     signal,
+    auth: false,
     errorMessage: 'Không thể tải danh sách sản phẩm',
   })
 }
 
 export async function createProduct(payload) {
-  return request('/api/admin/products', {
+  return gatewayRequest('/api/admin/products', {
     method: 'POST',
     body: payload,
     errorMessage: 'Không thể tạo sản phẩm mới',
@@ -27,7 +28,7 @@ export async function createProduct(payload) {
 }
 
 export async function updateProduct(id, payload) {
-  return request(`/api/admin/products/${id}`, {
+  return gatewayRequest(`/api/admin/products/${id}`, {
     method: 'PUT',
     body: payload,
     errorMessage: 'Không thể cập nhật sản phẩm',
@@ -35,7 +36,7 @@ export async function updateProduct(id, payload) {
 }
 
 export async function deleteProduct(id) {
-  return request(`/api/admin/products/${id}`, {
+  return gatewayRequest(`/api/admin/products/${id}`, {
     method: 'DELETE',
     errorMessage: 'Không thể xóa sản phẩm',
   })
@@ -48,29 +49,46 @@ export async function uploadDeckSkinZip(productId, file) {
   const formData = new FormData()
   formData.append('file', file)
 
-  return request(`/api/admin/products/${productId}/deck-skin/upload-zip`, {
+  return gatewayRequest(`/api/admin/products/${productId}/deck-skin/upload-zip`, {
     method: 'POST',
     body: formData,
     errorMessage: 'Tải lên file ZIP thất bại',
   })
 }
 
+/**
+ * Upload multiple individual card images to MinIO / S3 via Admin API
+ */
+export async function uploadDeckSkinFiles(productId, files) {
+  const formData = new FormData()
+  Array.from(files).forEach(file => {
+    formData.append('files', file)
+  })
+
+  return gatewayRequest(`/api/admin/products/${productId}/deck-skin/upload-files`, {
+    method: 'POST',
+    body: formData,
+    errorMessage: 'Tải lên danh sách ảnh skin thất bại',
+  })
+}
+
 export async function getCategories({ signal } = {}) {
-  return request('/api/shop/categories', {
+  return gatewayRequest('/api/shop/categories', {
     signal,
+    auth: false,
     errorMessage: 'Không thể tải danh mục sản phẩm',
   })
 }
 
 export async function getAdminBundles({ signal } = {}) {
-  return request('/api/admin/bundles', {
+  return gatewayRequest('/api/admin/bundles', {
     signal,
     errorMessage: 'Không thể tải danh sách gói nạp',
   })
 }
 
 export async function createBundle(payload) {
-  return request('/api/admin/bundles', {
+  return gatewayRequest('/api/admin/bundles', {
     method: 'POST',
     body: payload,
     errorMessage: 'Không thể tạo gói nạp mới',
@@ -78,7 +96,7 @@ export async function createBundle(payload) {
 }
 
 export async function updateBundle(id, payload) {
-  return request(`/api/admin/bundles/${id}`, {
+  return gatewayRequest(`/api/admin/bundles/${id}`, {
     method: 'PUT',
     body: payload,
     errorMessage: 'Không thể cập nhật gói nạp',
@@ -86,7 +104,7 @@ export async function updateBundle(id, payload) {
 }
 
 export async function toggleBundleActive(id, isActive) {
-  return request(`/api/admin/bundles/${id}/active?isActive=${isActive}`, {
+  return gatewayRequest(`/api/admin/bundles/${id}/active?isActive=${isActive}`, {
     method: 'PATCH',
     errorMessage: 'Không thể thay đổi trạng thái mở bán gói nạp',
   })

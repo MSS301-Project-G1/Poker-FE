@@ -52,11 +52,27 @@ export default function AdminSidebar({
                 <span className={styles.navIcon}>
                   <Icon name="inventory_2" />
                 </span>
-                <span className={styles.navLabel}>Sản Phẩm & Skin Bài</span>
+                <span className={styles.navLabel}>Quản Lý Kho Hàng</span>
               </div>
               {productCount > 0 && (
                 <span className={styles.badge}>{productCount}</span>
               )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onSelectTab('ADD_PRODUCT')}
+              className={`${styles.navItem} ${activeTab === 'ADD_PRODUCT' ? styles.navItemActiveGold : ''}`}
+            >
+              <div className={styles.navItemLeft}>
+                <span className={styles.navIcon}>
+                  <Icon name="add_circle" />
+                </span>
+                <span className={styles.navLabel}>Thêm Vật Phẩm & Skin</span>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-amber-400 text-slate-950 shadow-sm">
+                + Thêm
+              </span>
             </button>
           </div>
         </div>

@@ -1,17 +1,30 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useAuth } from '@/features/auth/useAuth'
 import * as inventoryService from '../services/inventoryService'
 
 export function useInventory() {
+  const { status } = useAuth()
+  const isAuth = status === 'authenticated'
+
   const [items, setItems] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(isAuth)
   const [error, setError] = useState(null)
   const [actionInProgressId, setActionInProgressId] = useState(null)
   const [reloadTrigger, setReloadTrigger] = useState(0)
 
   useEffect(() => {
     let disposed = false
+
+    if (!isAuth) {
+      setItems([])
+      setLoading(false)
+      setError(null)
+      return
+    }
+
     async function load() {
       try {
+        setLoading(true)
         const res = await inventoryService.getMyInventory()
         if (!disposed && res?.data) {
           setItems(res.data)
@@ -20,8 +33,8 @@ export function useInventory() {
         }
       } catch (err) {
         if (!disposed) {
-          console.warn('Failed to fetch inventory:', err)
-          setError(err.message || 'Không thể tải túi đồ')
+          setItems([])
+          setError(err.status === 401 ? 'UNAUTHORIZED' : (err.message || 'Không thể tải túi đồ'))
           setLoading(false)
         }
       }
@@ -29,16 +42,10 @@ export function useInventory() {
 
     void load()
 
-    const handleAccountChange = () => {
-      setReloadTrigger(v => v + 1)
-    }
-    window.addEventListener('dev_user_changed', handleAccountChange)
-
     return () => {
       disposed = true
-      window.removeEventListener('dev_user_changed', handleAccountChange)
     }
-  }, [reloadTrigger])
+  }, [isAuth, reloadTrigger])
 
   // Fast set lookup for owned products
   const ownedProductIds = useMemo(() => {

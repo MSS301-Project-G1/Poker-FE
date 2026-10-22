@@ -39,6 +39,10 @@ export function useShopCatalog({ ownedProductIds = new Set(), onPurchaseSuccess 
 
   // 2. Fetch Products with Redis-friendly query params
   useEffect(() => {
+    if (activeCategory === 'MY_INVENTORY' || activeCategory === 'MY_WALLET') {
+      return
+    }
+
     let disposed = false
     const controller = new AbortController()
 
