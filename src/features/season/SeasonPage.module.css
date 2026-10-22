@@ -1,0 +1,26 @@
+.page {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-margin);
+  display: grid;
+  gap: var(--space-lg);
+  align-content: start;
+  color: rgb(var(--color-on-surface));
+}
+
+.hero { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--space-lg); flex-wrap: wrap; }
+.intro { display: grid; gap: 8px; min-width: 0; }
+.title { margin: 2px 0 0; font: 700 40px var(--font-display); letter-spacing: -1px; }
+.muted { margin: 0; max-width: 68ch; color: rgb(var(--color-on-surface-variant)); font-size: 14px; line-height: 1.5; }
+.actions { display: flex; align-items: flex-end; gap: var(--space-md); flex-wrap: wrap; }
+.tier { display: grid; gap: 4px; }
+.label { color: rgb(var(--color-outline)); font: 600 9px var(--font-display); letter-spacing: 1px; text-transform: uppercase; }
+.sectionTitle { margin: 0 0 6px; font: 600 20px var(--font-display); }
+.claims { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+
+@media (max-width: 760px) {
+  .page { padding: var(--space-lg) var(--space-margin-mobile); }
+  .title { font-size: 30px; }
+  .claims { grid-template-columns: 1fr; }
+}

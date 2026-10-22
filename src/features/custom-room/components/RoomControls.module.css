@@ -1,0 +1,4 @@
+.controls { display: grid; gap: 14px; align-content: start; }
+.wide { width: 100%; padding: 14px 18px; font-size: 15px; }
+.leave { width: 100%; }
+.muted { margin: 0; color: rgb(var(--color-on-surface-variant)); font-size: 14px; line-height: 1.5; }

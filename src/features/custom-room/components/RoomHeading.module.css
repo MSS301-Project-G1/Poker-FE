@@ -1,0 +1,23 @@
+.heading { display: grid; gap: 8px; }
+.title { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0; font: 700 40px var(--font-display); letter-spacing: -1px; }
+.muted { margin: 0; color: rgb(var(--color-on-surface-variant)); font-size: 14px; line-height: 1.5; }
+
+.code {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 14px;
+  border: 1px solid rgb(var(--color-border));
+  border-radius: 12px;
+  background: rgb(var(--color-surface));
+  color: rgb(var(--color-tertiary));
+  font: 700 34px var(--font-display);
+  letter-spacing: 6px;
+}
+
+.copyIcon { color: rgb(var(--color-on-surface-variant)); font-size: 20px; letter-spacing: 0; }
+
+@media (max-width: 560px) {
+  .title { font-size: 28px; }
+  .code { font-size: 26px; letter-spacing: 4px; }
+}

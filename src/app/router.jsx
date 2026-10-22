@@ -5,11 +5,14 @@ import { AdminAvatarsPage } from '@/features/admin/avatars'
 import { MatchSettingsPage } from '@/features/admin/match-settings'
 import { AdminShopPage } from '@/features/admin/shop'
 import { AuthPage } from '@/features/auth'
+import { RoomLobbyPage, RoomsPage } from '@/features/custom-room'
 import { EventsPage } from '@/features/events'
 import { GameTablePage } from '@/features/game-table'
 import { LobbyPage } from '@/features/lobby'
 import { MailboxPage } from '@/features/mailbox'
 import { RankedPage } from '@/features/ranked'
+import { LeaderboardPage } from '@/features/ranking'
+import { SeasonPage } from '@/features/season'
 import { ShopPage, BundlePage, ProductDetailPage } from '@/features/shop'
 import AdminOnlyRoute from './AdminOnlyRoute'
 import NotFoundPage from './NotFoundPage'
@@ -27,6 +30,10 @@ export default function AppRoutes() {
       <Route path={paths.shop} element={<ShopPage />} />
       <Route path={paths.shopBundles} element={<BundlePage />} />
       <Route path={paths.shopProductDetail(':id')} element={<ProductDetailPage />} />
+      <Route path={paths.ranking} element={<LeaderboardPage />} />
+      <Route path={paths.seasons} element={<SeasonPage />} />
+      <Route path={paths.rooms} element={<RoomsPage />} />
+      <Route path={paths.roomByCode(':roomCode')} element={<RoomLobbyPage />} />
       <Route element={<AdminOnlyRoute />}>
         <Route path={paths.adminAvatars} element={<AdminAvatarsPage />} />
         <Route path={paths.adminShop} element={<AdminShopPage />} />

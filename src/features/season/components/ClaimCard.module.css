@@ -1,0 +1,22 @@
+.card {
+  display: grid;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px solid rgb(var(--color-tertiary) / 0.45);
+  border-radius: 14px;
+  background: rgb(var(--color-surface));
+}
+
+.claimed { border-color: rgb(var(--color-outline-variant)); }
+.header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.title { margin: 4px 0 0; font: 600 18px var(--font-display); }
+.final { display: grid; justify-items: end; gap: 4px; }
+.label { color: rgb(var(--color-outline)); font: 600 9px var(--font-display); letter-spacing: 1px; text-transform: uppercase; }
+.footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.total { color: rgb(var(--color-on-surface-variant)); font: 600 13px var(--font-display); font-variant-numeric: tabular-nums; }
+.done { color: rgb(var(--color-outline)); font: 600 12px var(--font-display); }
+.error { margin: 0; color: rgb(var(--color-error)); font-size: 13px; }
+
+@media (max-width: 560px) {
+  .final { justify-items: start; }
+}

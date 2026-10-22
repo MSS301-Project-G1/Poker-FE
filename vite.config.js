@@ -36,9 +36,17 @@ export default defineConfig({
     proxy: {
       '/api/game': 'http://127.0.0.1:8082',
       '/api/admin/match-settings': 'http://127.0.0.1:8082',
+      // Must stay above the '/api/admin' catch-all: Vite uses the first matching prefix.
+      '/api/admin/seasons': 'http://127.0.0.1:8086',
+      '/api/admin/tournaments': 'http://127.0.0.1:8087',
       '/api/admin': 'http://127.0.0.1:8088',
       '/dev/tables': 'http://127.0.0.1:8082',
       '/ws/game': { target: 'ws://127.0.0.1:8082', ws: true },
+      '/api/ranking': 'http://127.0.0.1:8086',
+      '/api/seasons': 'http://127.0.0.1:8086',
+      '/api/tutorial': 'http://127.0.0.1:8086',
+      '/api/rooms': 'http://127.0.0.1:8087',
+      '/api/tournaments': 'http://127.0.0.1:8087',
       '/api/shop': 'http://127.0.0.1:8088',
       '/api/payments': 'http://127.0.0.1:8088',
       '/api/inventory': 'http://127.0.0.1:8088',
