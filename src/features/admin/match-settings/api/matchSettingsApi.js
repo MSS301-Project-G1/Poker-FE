@@ -1,11 +1,16 @@
+import { gatewayRequest } from '@/shared/api/gatewayClient'
 import { request } from '@/shared/api/httpClient'
 import { env } from '@/shared/config/env'
 
-const base = `${env.gameApiBaseUrl}/api/admin/match-settings`
+const base = '/api/admin/match-settings'
 const errorMessage = 'Unable to load match settings'
+// Admins use the gateway session (cookie + CSRF); local ?devUser identities call the dev game directly.
+const call = (path, { devUser, ...options } = {}) => devUser
+  ? request(`${env.gameApiBaseUrl}${path}`, { errorMessage, devUser, ...options })
+  : gatewayRequest(path, { errorMessage, ...options })
 
-/** @param {{ accessToken?: string, devUser?: string, signal?: AbortSignal }} identity */
-export const fetchMatchSettings = identity => request(base, { errorMessage, ...identity })
+/** @param {{ devUser?: string, signal?: AbortSignal }} identity */
+export const fetchMatchSettings = identity => call(base, identity)
 
 export const updateMatchSettings = (mode, payload, identity) =>
-  request(`${base}/${mode}`, { method: 'PUT', body: payload, errorMessage, ...identity })
+  call(`${base}/${mode}`, { method: 'PUT', body: payload, ...identity })
