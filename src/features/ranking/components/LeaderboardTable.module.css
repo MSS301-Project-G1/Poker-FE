@@ -15,6 +15,7 @@
 .you .cell { background: rgb(var(--color-primary-container) / 0.12); }
 .youTag { color: rgb(var(--color-primary)); }
 .number { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+.unranked { color: rgb(var(--color-outline)); font-size: 12px; }
 
 .place {
   display: inline-grid;

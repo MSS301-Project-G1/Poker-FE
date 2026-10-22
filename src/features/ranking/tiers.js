@@ -12,3 +12,6 @@ export const tiers = {
   GRAND_CHAMPION: { label: 'Grand Champion', tone: 'grandChampion' },
   CARD_GOD: { label: 'Card God', tone: 'cardGod' },
 }
+
+/** Tier codes from lowest to highest, the order season rewards accumulate in. */
+export const tierOrder = Object.keys(tiers)

@@ -11,6 +11,7 @@ import { LobbyPage } from '@/features/lobby'
 import { MailboxPage } from '@/features/mailbox'
 import { RankedPage } from '@/features/ranked'
 import { LeaderboardPage } from '@/features/ranking'
+import { SeasonPage } from '@/features/season'
 import { ShopPage, BundlePage, ProductDetailPage } from '@/features/shop'
 import NotFoundPage from './NotFoundPage'
 
@@ -26,6 +27,7 @@ export default function AppRoutes() {
       <Route path={paths.shopBundles} element={<BundlePage />} />
       <Route path={paths.shopProductDetail(':id')} element={<ProductDetailPage />} />
       <Route path={paths.ranking} element={<LeaderboardPage />} />
+      <Route path={paths.seasons} element={<SeasonPage />} />
       <Route path={paths.rooms} element={<RoomsPage />} />
       <Route path={paths.roomByCode(':roomCode')} element={<RoomLobbyPage />} />
     </Route>

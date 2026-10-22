@@ -12,3 +12,7 @@ export const fetchLeaderboard = (page, size, identity) =>
 
 /** Own standing; position is null before the first ranked match of the season. */
 export const fetchMyStanding = identity => call('/api/ranking/me', identity)
+
+/** The player and their friends: [{ rank, position, accountId, elo, tier, winStreak, matchesPlayed, you }]. */
+export const fetchFriendsLeaderboard = identity =>
+  request(`${env.gameApiBaseUrl}/api/ranking/friends`, { errorMessage: 'Unable to load your friends', ...identity })

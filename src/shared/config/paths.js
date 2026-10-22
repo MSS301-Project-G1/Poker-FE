@@ -12,6 +12,7 @@ export const paths = {
   table: '/table',
   tableById: tableId => `/table/${tableId}`,
   ranking: '/ranking',
+  seasons: '/seasons',
   rooms: '/rooms',
   roomByCode: roomCode => `/rooms/${roomCode}`,
   adminMatchSettings: '/admin/match-settings',
