@@ -2,15 +2,17 @@
   width: 100%;
   max-width: 1100px;
   margin: 0 auto;
-  padding: var(--space-xl) var(--space-margin);
+  padding: var(--space-lg) var(--space-margin);
   display: grid;
-  gap: var(--space-lg);
+  gap: var(--space-md);
   color: rgb(var(--color-on-surface));
 }
 
-.title { margin: 10px 0 8px; font: 700 40px var(--font-display); letter-spacing: -1px; }
+.title { margin: 6px 0 4px; font: 700 36px var(--font-display); letter-spacing: -1px; }
 .muted { margin: 0; color: rgb(var(--color-on-surface-variant)); font-size: 14px; line-height: 1.5; }
-.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-lg); }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-md); }
+/* Join form above the public room list; the list fills the rest of the row and scrolls inside. */
+.side { display: flex; flex-direction: column; gap: var(--space-md); min-width: 0; }
 
 @media (max-width: 860px) {
   .grid { grid-template-columns: 1fr; }

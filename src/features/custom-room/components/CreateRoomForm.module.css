@@ -1,4 +1,4 @@
-.form { display: grid; gap: 16px; align-content: start; }
+.form { display: grid; gap: 14px; align-content: start; }
 .title { margin: 6px 0 0; font: 600 20px var(--font-display); }
 .pair { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
 
@@ -8,7 +8,7 @@
   position: relative;
   display: grid;
   gap: 2px;
-  padding: 12px 14px;
+  padding: 10px 14px;
   border: 1px solid rgb(var(--color-border));
   border-radius: 12px;
   background: rgb(var(--color-surface));

@@ -60,9 +60,11 @@ export default function RoomsPage() {
     {signedOut && <Message tone="notice">Sign in to create or join rooms.</Message>}
     <div className={styles.grid}>
       <CreateRoomForm disabled={signedOut} onCreate={create} />
-      <JoinRoomForm disabled={signedOut} onJoin={join} />
+      <div className={styles.side}>
+        <JoinRoomForm disabled={signedOut} onJoin={join} />
+        <PublicRooms result={rooms} error={listError} page={page} disabled={signedOut} onPage={setPage}
+          onRefresh={() => setVersion(value => value + 1)} onJoin={join} />
+      </div>
     </div>
-    <PublicRooms result={rooms} error={listError} page={page} disabled={signedOut} onPage={setPage}
-      onRefresh={() => setVersion(value => value + 1)} onJoin={join} />
   </div>
 }
