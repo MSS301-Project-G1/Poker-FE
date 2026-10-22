@@ -24,17 +24,20 @@ export default function LobbyPage() {
   }, [legacyMode, open, setParams])
   const [checkInOpen, setCheckInOpen] = useDailyCheckIn()
 
-  return <div className="flex flex-col w-full relative pb-28 px-margin-mobile lg:px-margin">
+  // One flat grid so every block lines up with its row neighbours. From xl the leaderboard takes the
+  // right column across all rows and the party panel sits beside the two mode cards.
+  return <div className="flex flex-col w-full relative py-space-md px-margin-mobile lg:px-margin">
     <LobbyBackdrop />
-    <div className="relative z-10 w-full max-w-7xl mx-auto pt-6 flex flex-col gap-space-lg">
+    <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col gap-space-md">
       <CommunityToolbar />
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
-        <div className="lg:col-span-8 flex flex-col gap-gutter">
+      <div className="grid grid-cols-12 gap-space-md">
+        <div className="col-span-12 xl:col-span-9 grid">
           <PlayerSummary player={{ ...user?.profile, email: user?.email }} onOpenCheckIn={() => setCheckInOpen(true)} />
-          <LoungeModes />
-          <ChampionshipBanner />
         </div>
-        <aside className="lg:col-span-4 flex min-w-0 flex-col gap-gutter"><PartyPanel /><Leaderboard /></aside>
+        <div className="col-span-12 lg:col-span-8 xl:col-span-6 grid"><LoungeModes /></div>
+        <div className="col-span-12 lg:col-span-4 xl:col-span-3 grid min-w-0"><PartyPanel /></div>
+        <div className="col-span-12 xl:col-span-9 grid"><ChampionshipBanner /></div>
+        <aside className="col-span-12 xl:col-span-3 xl:col-start-10 xl:row-start-1 xl:row-span-3 grid min-w-0"><Leaderboard /></aside>
       </div>
     </div>
     {checkInOpen && <DailyCheckInModal onClose={() => setCheckInOpen(false)} />}

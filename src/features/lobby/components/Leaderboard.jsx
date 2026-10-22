@@ -15,7 +15,7 @@ const players = [
 ]
 
 export default function Leaderboard() {
-  return <div className="lg:col-span-4 flex flex-col gap-space-md bg-surface-container-low/80 backdrop-blur-xl p-space-md rounded-xl shadow-xl">
+  return <div className="h-full flex flex-col gap-space-md bg-surface-container-low/80 backdrop-blur-xl p-space-md rounded-xl shadow-xl">
     <div className="flex items-center justify-between pb-space-xs">
       <div className="flex items-center gap-space-xs">
         <Icon name="military_tech" filled className="text-tertiary text-xl" />
@@ -24,8 +24,8 @@ export default function Leaderboard() {
       <span className="text-label-micro font-label-micro uppercase tracking-wider text-primary bg-primary-container/30 px-2 py-0.5 rounded-full">This Week</span>
     </div>
 
-    <div className="flex flex-col gap-space-xs">
-      {players.map((player, index) => <div key={player.name} className={`flex items-center justify-between p-space-sm rounded-lg ${player.row} hover:bg-surface-variant transition-all`}>
+    <div className="flex-1 flex flex-col gap-space-xs">
+      {players.map((player, index) => <div key={player.name} className={`flex-1 flex items-center justify-between p-space-sm rounded-lg ${player.row} hover:bg-surface-variant transition-all`}>
         <div className="flex items-center gap-space-sm">
           <div className={`w-7 h-7 rounded-full ${player.badge} flex items-center justify-center font-label-numeric-md text-label-numeric-md`}>{index + 1}</div>
           <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0">
@@ -43,7 +43,7 @@ export default function Leaderboard() {
       </div>)}
     </div>
 
-    <div className="mt-space-xs p-space-sm bg-primary-container/20 rounded-lg flex items-center justify-between">
+    <div className="p-space-sm bg-primary-container/20 rounded-lg flex items-center justify-between">
       <div className="flex items-center gap-space-xs">
         <span className="font-label-numeric-md text-label-numeric-md text-primary">Rank #128</span>
         <span className="text-body-sm font-body-sm text-on-surface-variant">(You)</span>

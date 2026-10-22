@@ -3,11 +3,11 @@ import { Icon } from '@/shared/ui'
 export default function PlayerSummary({ player, onOpenCheckIn }) {
   const displayName = player?.displayName || player?.email || 'Player'
   const avatarUrl = player?.avatarUrl || '/stitch-assets/avatar.svg'
-  return <div className="flex flex-col md:flex-row items-center justify-between gap-space-md bg-surface-container-low/70 backdrop-blur-xl p-space-md rounded-xl shadow-lg relative overflow-hidden">
+  return <div className="flex flex-col md:flex-row items-center justify-between gap-space-md bg-surface-container-low/70 backdrop-blur-xl px-space-md py-space-sm rounded-xl shadow-lg relative overflow-hidden">
     <div className="absolute -top-12 -left-12 w-48 h-48 bg-primary/10 rounded-full blur-2xl pointer-events-none"></div>
     <div className="flex items-center gap-space-md z-10 w-full md:w-auto">
       <div className="relative shrink-0">
-        <img alt={displayName} className="w-14 h-14 rounded-xl object-cover shadow-md" src={avatarUrl}
+        <img alt={displayName} className="w-12 h-12 rounded-xl object-cover shadow-md" src={avatarUrl}
           onError={event => { event.currentTarget.src = '/stitch-assets/avatar.svg' }} />
       </div>
       <div className="flex flex-col min-w-0">
