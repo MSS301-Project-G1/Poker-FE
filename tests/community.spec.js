@@ -33,7 +33,7 @@ test('lobby ports the lounge controls and party membership from the server', asy
   await page.route('**/api/party/create', route => {
     expect(route.request().headers()['x-xsrf-token']).toBe('csrf-test')
     expect(route.request().headers()['x-user-id']).toBeUndefined()
-    party = { partyId: 'party-test', partyCode: 'AB12CD34', leaderId: self, memberIds: [self] }
+    party = { partyId: 'party-test', partyCode: 'AB12CD34', password: '482913', leaderId: self, memberIds: [self] }
     return route.fulfill({ json: party })
   })
   await page.goto('/lobby')
@@ -41,9 +41,32 @@ test('lobby ports the lounge controls and party membership from the server', asy
   await expect(page.getByRole('heading', { name: 'Chơi thường', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Tạo nhóm', exact: true }).click()
   await expect(page.getByText('AB12CD34', { exact: true })).toBeVisible()
+  await expect(page.getByText('482913', { exact: true })).toBeVisible()
+  await expect(page.getByPlaceholder('UUID của người chơi')).toHaveCount(0)
   await expect(page.getByRole('link', { name: 'Ranked', exact: true })).toHaveCount(0)
   await expect(page.getByTestId('lobby-3d-scene')).toHaveAttribute('data-render-status', 'ready', { timeout: 20000 })
   await page.screenshot({ path: 'artifacts/community-lobby-desktop.png', fullPage: true })
+})
+
+test('party is joined with the shared code and password', async ({ page }) => {
+  let party = null
+  let joinBody = null
+  await page.route('**/api/party/me', route => route.fulfill({ json: party }))
+  await page.route('**/api/party/join', route => {
+    joinBody = route.request().postDataJSON()
+    party = { partyId: 'party-test', partyCode: 'AB12CD34', password: '482913', leaderId: friend, memberIds: [friend, self] }
+    return route.fulfill({ json: party })
+  })
+  await page.goto('/lobby')
+  const join = page.getByRole('button', { name: 'Vào nhóm', exact: true })
+  await page.getByLabel('Tham gia bằng mã nhóm').fill('ab12-cd34')
+  await page.getByLabel('Mật khẩu', { exact: true }).fill('48a29')
+  await expect(join).toBeDisabled()
+  await page.getByLabel('Mật khẩu', { exact: true }).fill(' 482 913 ')
+  await join.click()
+  await expect(page.getByText('Đã tham gia nhóm.')).toBeVisible()
+  expect(joinBody).toEqual({ partyCode: 'AB12CD34', password: '482913' })
+  await expect(page.getByText('482913', { exact: true })).toBeVisible()
 })
 
 test('matchmaking stays on the 3D lobby and the floating card can be minimized and restored', async ({ page }) => {

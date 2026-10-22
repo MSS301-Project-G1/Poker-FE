@@ -7,7 +7,8 @@ import { useResource } from '../hooks/useResource'
 import { Avatar, Empty, ErrorNotice, Name } from './CommunityUI'
 import styles from '../Community.module.css'
 
-const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const partyCodePattern = /^[A-Z0-9]{8}$/
+const partyPasswordPattern = /^\d{6}$/
 
 export default function PartyPanel() {
   const { user, loadProfiles } = useCommunity()
@@ -20,7 +21,8 @@ export default function PartyPanel() {
   const [failure, setFailure] = useState('')
   const [message, setMessage] = useState('')
   const [code, setCode] = useState('')
-  const [invitee, setInvitee] = useState('')
+  const [password, setPassword] = useState('')
+  const canJoin = partyCodePattern.test(code) && partyPasswordPattern.test(password)
   const party = data?.party
   const leader = party?.leaderId === user?.accountId
   const locked = Boolean(data?.queue?.status && !['NONE', 'FAILED'].includes(data.queue.status))
@@ -38,16 +40,19 @@ export default function PartyPanel() {
     {loading ? <Empty>Đang kiểm tra nhóm…</Empty> : !data ? null : !party ? <>
       <p className={styles.muted}>Rủ bạn bè vào cùng bàn Chơi thường. Cùng nhóm, cùng cuộc vui.</p>
       <Button variant="primary" className={styles.full} disabled={busy || locked} onClick={() => run(api.createParty, 'Đã tạo nhóm.')}>Tạo nhóm</Button>
-      <form className={styles.form} onSubmit={event => { event.preventDefault(); if (/^[A-Z0-9]{8}$/.test(code)) void run(() => api.joinParty(code), 'Đã tham gia nhóm.') }}>
-        <label htmlFor="party-code">Tham gia bằng mã</label>
-        <div className={styles.inline}><input id="party-code" className={styles.input} value={code} maxLength={8} placeholder="8 ký tự, ví dụ AB12CD34" onChange={event => setCode(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} /><Button type="submit" disabled={busy || locked || code.length !== 8}>Vào nhóm</Button></div>
-        <small className={styles.muted}>Bạn cần được trưởng nhóm mời trước khi nhập mã.</small>
+      <form className={styles.form} onSubmit={event => { event.preventDefault(); if (canJoin) void run(() => api.joinParty(code, password), 'Đã tham gia nhóm.') }}>
+        <label htmlFor="party-code">Tham gia bằng mã nhóm</label>
+        <input id="party-code" className={styles.input} value={code} autoComplete="off" placeholder="8 ký tự, ví dụ AB12CD34" onChange={event => setCode(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8))} />
+        <label htmlFor="party-password">Mật khẩu</label>
+        <div className={styles.inline}><input id="party-password" className={styles.input} value={password} inputMode="numeric" autoComplete="off" placeholder="6 chữ số" onChange={event => setPassword(event.target.value.replace(/\D/g, '').slice(0, 6))} /><Button type="submit" disabled={busy || locked || !canJoin}>Vào nhóm</Button></div>
+        <small className={styles.muted}>Nhập mã và mật khẩu do thành viên trong nhóm chia sẻ.</small>
       </form>
     </> : <>
       <div className={styles.partyCode}><span className={styles.muted}>Mã nhóm</span><code>{party.partyCode}</code><button type="button" className={styles.iconButton} aria-label="Sao chép mã nhóm" onClick={() => run(() => navigator.clipboard.writeText(party.partyCode), 'Đã sao chép mã nhóm.')}><Icon name="content_copy" /></button></div>
+      {party.password && <div className={styles.partyCode}><span className={styles.muted}>Mật khẩu</span><code>{party.password}</code><button type="button" className={styles.iconButton} aria-label="Sao chép mật khẩu nhóm" onClick={() => run(() => navigator.clipboard.writeText(party.password), 'Đã sao chép mật khẩu nhóm.')}><Icon name="content_copy" /></button></div>}
+      <p className={styles.hint}><Icon name="share" />Gửi mã và mật khẩu cho bạn bè để họ vào nhóm.</p>
       {locked && <p className={styles.hint}><Icon name="lock" />Nhóm đang tìm trận — tạm khóa thành viên.</p>}
-      <ul className={styles.list}>{party.memberIds.map(id => <li className={styles.row} key={id}><Avatar id={id} /><span className={styles.person}><strong><Name id={id} /></strong>{id === user?.accountId && <small className={styles.muted}>Bạn</small>}</span>{id === party.leaderId && <span className={styles.leader} title="Trưởng nhóm"><Icon name="crown" /></span>}{leader && id !== user?.accountId && <button className={styles.iconButton} type="button" aria-label="Mời thành viên rời nhóm" disabled={busy || locked} onClick={() => { if (window.confirm('Mời người chơi này rời nhóm?')) void run(() => api.kick(id), 'Đã cập nhật thành viên.') }}><Icon name="person_remove" /></button>}</li>)}</ul>
-      {leader && <form className={styles.form} onSubmit={event => { event.preventDefault(); if (uuid.test(invitee.trim())) void run(() => api.invite(invitee.trim()), 'Đã mời. Hãy chia sẻ mã nhóm cho người chơi.') }}><label htmlFor="party-invite">Mời bằng account ID</label><input className={styles.input} id="party-invite" value={invitee} onChange={event => setInvitee(event.target.value)} placeholder="UUID của người chơi" /><Button disabled={busy || locked || !uuid.test(invitee.trim())} type="submit">Gửi lời mời</Button></form>}
+      <ul className={styles.list}>{party.memberIds.map(id => <li className={styles.row} key={id}><Avatar id={id} /><span className={styles.person}><strong><Name id={id} /></strong>{id === user?.accountId && <small className={styles.muted}>Bạn</small>}</span>{id === party.leaderId && <span className={styles.leader} title="Trưởng nhóm"><Icon name="crown" /></span>}{leader && id !== user?.accountId && <button className={styles.iconButton} type="button" aria-label="Mời thành viên rời nhóm" disabled={busy || locked} onClick={() => { if (window.confirm('Mời người chơi này rời nhóm?')) void run(() => api.kick(id), 'Đã mời người chơi rời nhóm. Mật khẩu nhóm đã được đổi.') }}><Icon name="person_remove" /></button>}</li>)}</ul>
       <Button className={styles.full} disabled={busy || locked} onClick={() => { if (window.confirm('Bạn muốn rời nhóm?')) void run(api.leaveParty, 'Đã rời nhóm.') }}>Rời nhóm</Button>
     </>}
   </section>
