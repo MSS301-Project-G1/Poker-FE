@@ -1,39 +1,64 @@
-import { Icon } from '@/shared/ui'
+import { useNavigate } from 'react-router'
+import { Button } from '../shared/ui'
+import styles from './FeaturedBundle.module.css'
 
-export default function FeaturedBundle({ onBuy }) {
-  return <section className="w-full mt-space-sm mb-space-xl">
-    <div className="relative rounded-2xl bg-gradient-to-r from-surface-container via-surface-container-low to-surface-container p-space-lg md:p-space-xl overflow-hidden shadow-2xl">
-      <div className="absolute -right-16 -top-20 w-80 h-80 bg-primary/20 rounded-full blur-2xl"></div>
-      <div className="absolute left-1/3 bottom-0 w-64 h-32 bg-tertiary/10 rounded-full blur-xl"></div>
-      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-center">
-        <div className="lg:col-span-7 flex flex-col gap-space-sm">
-          <div className="flex items-center gap-space-xs">
-            <span className="px-space-sm py-0.5 rounded-full bg-primary-container/40 text-primary font-label-micro text-label-micro uppercase tracking-wider font-bold">Featured Cosmetic</span>
-          </div>
-          <h2 className="font-headline-lg text-headline-lg text-on-surface">Royal Amethyst Violet Bundle</h2>
-          <p className="font-body-md text-body-md text-on-surface-variant max-w-xl">
-            Customize your table with reflective amethyst felt and a 20-piece animated emoji pack with spatial audio.
-          </p>
-          <div className="flex flex-wrap items-center gap-space-md pt-space-xs">
-            <button type="button" onClick={onBuy} className="px-space-lg py-space-sm rounded-xl bg-gradient-to-r from-primary-container to-secondary-container text-on-primary font-label-action text-label-action hover:brightness-110 shadow-glow-primary transition-all flex items-center gap-space-xs">
-              <Icon name="bolt" className="text-lg" />
-              <span>Top Up to Buy</span>
-            </button>
-          </div>
-        </div>
+export default function FeaturedBundle() {
+  const navigate = useNavigate()
 
-        <div className="lg:col-span-5 flex items-center justify-center">
-          <div className="relative w-full max-w-sm h-48 rounded-xl overflow-hidden shadow-lg bg-surface-container-lowest flex items-center justify-center p-space-sm">
-            <img alt="Royal Amethyst Violet Bundle" className="w-full h-full object-cover rounded-lg" src="/stitch-assets/shop-bundle-poker-rank.png" />
-            <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/80 via-transparent to-transparent flex items-end p-space-md">
-              <div className="flex items-center justify-between w-full">
-                <span className="text-tertiary font-label-action text-label-action">Royal Table Felt + 20 Emojis</span>
-                <span className="bg-primary/20 backdrop-blur-md px-2 py-0.5 rounded text-primary font-label-micro text-label-micro font-bold">MYTHIC BUNDLE</span>
+  return (
+    <section className={styles.bannerSection}>
+      <div className={styles.bannerCard}>
+        <div className={styles.glowTopRight} />
+        <div className={styles.glowBottomLeft} />
+
+        <div className={styles.contentGrid}>
+          <div className={styles.textColumn}>
+            <div className={styles.tagGroup}>
+              <span className={styles.tagPromo}>Ưu Đãi Đặc Biệt</span>
+              <span className={styles.tagBonus}>+30% Bonus Coin</span>
+            </div>
+
+            <h2 className={styles.bannerTitle}>Gói Nạp Khuyến Mãi VIP Coin</h2>
+
+            <p className={styles.bannerDescription}>
+              Nhận thêm tới 30% VIP Coin thưởng khi nạp qua PayOS. Sử dụng VIP Coin để sở hữu các bộ
+              bài Hoàng Gia, hiệu ứng All-In Rồng Lửa và khung avatar danh giá.
+            </p>
+
+            <div className={styles.ctaRow}>
+              <Button
+                variant="gold"
+                size="md"
+                icon="bolt"
+                onClick={() => navigate('/shop/bundles')}
+              >
+                Khám Phá Gói Nạp PayOS
+              </Button>
+            </div>
+          </div>
+
+          <div className={styles.imageColumn}>
+            <div className={styles.previewFrame}>
+              <img
+                alt="Gói Nạp VIP Coin"
+                className={styles.bannerImage}
+                src="/stitch-assets/shop-bundle-poker-rank.png"
+                onError={e => {
+                  e.currentTarget.onerror = null
+                  e.currentTarget.src =
+                    'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 24 24" fill="%23b0129b"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'
+                }}
+              />
+              <div className={styles.imageOverlay}>
+                <div className={styles.overlayInfo}>
+                  <span className={styles.payosTag}>PayOS Cổng Thanh Toán</span>
+                  <span className={styles.hotTag}>HOT DEALS</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  )
 }

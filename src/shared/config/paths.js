@@ -5,6 +5,8 @@ export const paths = {
   lobby: '/lobby',
   ranked: '/ranked',
   shop: '/shop',
+  shopBundles: '/shop/bundles',
+  shopProductDetail: id => `/shop/products/${id}`,
   events: '/events',
   mailbox: '/mailbox',
   table: '/table',
@@ -13,4 +15,5 @@ export const paths = {
   rooms: '/rooms',
   roomByCode: roomCode => `/rooms/${roomCode}`,
   adminMatchSettings: '/admin/match-settings',
+  adminShop: '/admin/shop',
 }

@@ -1,0 +1,20 @@
+node_modules
+dist
+dist-ssr
+.git
+.idea
+.vscode
+.npm-cache
+*.log
+*.local
+
+# Local design references and verification artifacts are not part of the app.
+design
+test-results
+playwright-report
+.edge-*
+preview-*.png
+
+Dockerfile
+compose*.yml
+.dockerignore
