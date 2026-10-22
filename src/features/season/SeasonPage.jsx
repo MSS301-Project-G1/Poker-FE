@@ -44,6 +44,7 @@ export default function SeasonPage() {
       </div>
     </section>
 
+    <div className={styles.columns}>
     <Panel aria-labelledby="ladder-title">
       <header>
         <h2 id="ladder-title" className={styles.sectionTitle}>Tier rewards</h2>
@@ -56,7 +57,8 @@ export default function SeasonPage() {
       {current.phase === 'ready' && <RewardLadder rewards={current.rewards} currentTier={current.me?.tier} />}
     </Panel>
 
-    <Panel aria-labelledby="mine-title">
+    <div className={styles.side}>
+    <Panel className={styles.mine} aria-labelledby="mine-title">
       <header>
         <h2 id="mine-title" className={styles.sectionTitle}>Your season rewards{unclaimed > 0 ? ` · ${unclaimed} to claim` : ''}</h2>
         <p className={styles.muted}>Rewards from ended seasons stay here until you claim them.</p>
@@ -71,5 +73,7 @@ export default function SeasonPage() {
         {mine.items.map(item => <ClaimCard key={item.seasonId} item={item} onClaim={claim} />)}
       </div>}
     </Panel>
+    </div>
+    </div>
   </div>
 }

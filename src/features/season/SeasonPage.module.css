@@ -1,26 +1,37 @@
 .page {
   width: 100%;
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: var(--space-xl) var(--space-margin);
+  padding: var(--space-lg) var(--space-margin);
   display: grid;
-  gap: var(--space-lg);
+  gap: var(--space-md);
   align-content: start;
   color: rgb(var(--color-on-surface));
 }
 
 .hero { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--space-lg); flex-wrap: wrap; }
 .intro { display: grid; gap: 8px; min-width: 0; }
-.title { margin: 2px 0 0; font: 700 40px var(--font-display); letter-spacing: -1px; }
+.title { margin: 2px 0 0; font: 700 36px var(--font-display); letter-spacing: -1px; }
 .muted { margin: 0; max-width: 68ch; color: rgb(var(--color-on-surface-variant)); font-size: 14px; line-height: 1.5; }
 .actions { display: flex; align-items: flex-end; gap: var(--space-md); flex-wrap: wrap; }
 .tier { display: grid; gap: 4px; }
 .label { color: rgb(var(--color-outline)); font: 600 9px var(--font-display); letter-spacing: 1px; text-transform: uppercase; }
 .sectionTitle { margin: 0 0 6px; font: 600 20px var(--font-display); }
-.claims { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.claims { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 12px; }
+
+/* Tier ladder beside the player's own rewards. The side panel is taken out of flow so a long claim
+   history scrolls inside it instead of stretching the row. */
+.columns { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--space-md); }
+.side { position: relative; min-height: 280px; }
+.mine { position: absolute; inset: 0; overflow-y: auto; }
+
+@media (max-width: 960px) {
+  .columns { grid-template-columns: minmax(0, 1fr); }
+  .side { min-height: 0; }
+  .mine { position: static; }
+}
 
 @media (max-width: 760px) {
   .page { padding: var(--space-lg) var(--space-margin-mobile); }
   .title { font-size: 30px; }
-  .claims { grid-template-columns: 1fr; }
 }
