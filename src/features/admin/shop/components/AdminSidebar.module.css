@@ -2,7 +2,11 @@
 
 .sidebar {
   width: 300px;
-  min-height: calc(100vh - 100px);
+  /* Sticky between the fixed header (5rem) and footer (2.5rem); the menu scrolls inside when taller. */
+  position: sticky;
+  top: 6rem;
+  max-height: calc(100vh - 9.5rem);
+  overflow-y: auto;
   background: rgba(18, 9, 34, 0.96);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -234,4 +238,9 @@
   background: rgba(255, 255, 255, 0.06);
   color: #ffffff;
   border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Stacked above the content on small screens: scroll with the page instead of sticking over it. */
+@media (max-width: 767px) {
+  .sidebar { position: static; max-height: none; overflow-y: visible; }
 }

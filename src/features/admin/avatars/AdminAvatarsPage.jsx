@@ -54,10 +54,10 @@ export default function AdminAvatarsPage() {
     } catch (failure) { setError(messageOf(failure) || 'Unable to update the avatar preset.') } finally { setPendingId('') }
   }
 
-  return <div className="w-full px-margin pb-20 pt-space-lg">
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-space-lg">
+  return <div className="w-full px-margin pb-space-lg pt-space-md">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-space-md">
       <header className="flex flex-wrap items-center justify-between gap-space-md">
-        <div><p className="font-label-action text-label-action uppercase tracking-widest text-primary">Administration</p><h1 className="font-headline-xl text-headline-xl">Avatar presets</h1></div>
+        <div><p className="font-label-action text-label-action uppercase tracking-widest text-primary">Administration</p><h1 className="font-headline-lg text-headline-lg">Avatar presets</h1></div>
         <Button onClick={() => navigate(paths.lobby)}><Icon name="arrow_back" />Back to lobby</Button>
       </header>
       {error && <div className="rounded-xl border border-error/35 bg-error-container/20 p-3 text-sm text-on-error-container" role="alert">{error}</div>}

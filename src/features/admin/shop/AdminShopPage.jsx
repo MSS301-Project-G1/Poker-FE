@@ -32,7 +32,7 @@ export default function AdminShopPage() {
   } = useAdminBundles()
 
   return (
-    <div className="relative w-full min-h-screen pb-20 text-white font-body-md">
+    <div className="relative w-full pb-space-lg text-white font-body-md">
       {/* Background ambient lighting */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
         <div className="absolute -top-32 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[140px]" />
@@ -41,7 +41,7 @@ export default function AdminShopPage() {
 
       <div className="w-full px-4 md:px-8 xl:px-12 pt-6">
         {/* Top Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-white/10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-space-md mb-space-lg border-b border-white/10">
           <div className="flex items-center gap-3">
             <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center font-black shadow-lg">
               <Icon name="admin_panel_settings" className="text-xl" />
