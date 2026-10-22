@@ -11,9 +11,10 @@ table, with server membership enforcement. `features/game-table/index.js`
 exports the page and the table components for Tutorial: `Board`, `PlayerSeat`,
 `ActionDock`, `TurnTimer`, `MatchResult`, `HandGuide`. They take props, while
 `GameTablePage` owns the network session (`hooks/useGameSession.js`, REST calls
-in `api/gameApi.js` through `@/shared/api/httpClient`).
+in `api/gameApi.js` through `@/shared/api/gatewayClient`).
 
-The app shell should wrap the game route in `GameRuntimeContext.Provider`:
+The app shell wraps the routes in `GameRuntimeContext.Provider`
+(`src/app/GameRuntimeBridge.jsx`):
 
 ```jsx
 import { GameRuntimeContext } from '@/features/game-table'
@@ -28,19 +29,26 @@ import { GameRuntimeContext } from '@/features/game-table'
 </GameRuntimeContext.Provider>
 ```
 
-Add the provider in `src/app/App.jsx`. The context is an integration port; the
-current app does not invent auth/chat implementations. Review the chat conversation identifier with Duy before wiring.
+The context is an integration port: `getAccessToken` returns the in-memory
+`/api/auth/ws-token` JWT for STOMP only. Seat names and avatars come from
+`fetchProfilesByIds` (public API of `features/account`); `runtime.profiles`
+overrides them. Without a `ChatPanel`, the table shows Duy's `MatchChat`.
 `shared/skin` supplies default renderers until Tùng integrates owned cosmetics.
-Admin is an independent feature: mount `MatchSettingsPage` with a shared
-`getAccessToken` prop. The backend requires ADMIN outside dev; disabling buttons
-in the browser does not grant or enforce a role.
+`/admin/match-settings` sits inside `AdminOnlyRoute`; only `npm run dev:game`
+registers it outside the guard for `?devUser` testing. The backend requires ADMIN
+outside dev; the route guard does not grant or enforce a role.
 
-HTTP uses Bearer tokens through the authenticated gateway. STOMP `/ws/game`
+HTTP uses the gateway session cookie (`gatewayRequest`, CSRF on writes); the
+browser never sends Bearer tokens or identity headers to REST. A `?devUser`
+identity in game dev mode calls the dev game directly. STOMP `/ws/game`
 uses Authorization in CONNECT and subscribes only to user queues. Reconnect
 automatically requests a fresh snapshot; periodic sync and sequence checks
 discard stale updates and prevent duplicate actions. The server controls turn
-deadlines, raises and pots. Rank rewards show only for RANK games and only from
-the supplied reward source. Table chips never become wallet coins here.
+deadlines, raises and pots. Rank rewards show only for RANK games: a finished
+match polls `GET /api/ranking/me/matches/{matchId}` (every 3 s, 10 attempts,
+since ranking returns 404 until it processes `match.finished`) and shows the
+applied Elo change and coins; `runtime.rewards` overrides it. Table chips never
+become wallet coins here.
 
 ## Local development
 
@@ -66,5 +74,5 @@ product copy follows the existing English design.
 `npm audit fix --ignore-scripts` applied compatible updates. Seven dev dependency
 advisories remain in the existing Tailwind 3 toolchain (5 high, 2 moderate);
 fixing them requires a reviewed Tailwind 4 migration. Production dependencies
-have no advisories in the checked audit. Shared auth/profiles/chat/rewards and
-production gateway integration are still external dependencies.
+have no advisories in the checked audit. Still external: a gateway `/ws/game`
+route (STOMP currently reaches game-service through the Vite and nginx proxies).
