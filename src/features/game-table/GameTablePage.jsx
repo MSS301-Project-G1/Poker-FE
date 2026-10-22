@@ -11,6 +11,7 @@ import { Button, Eyebrow, PlaceholderScreen } from '@/shared/ui'
 import { GameRuntimeContext } from './runtime'
 import { useGameSession } from './hooks/useGameSession'
 import { useSeatProfiles } from './hooks/useSeatProfiles'
+import { useMatchRewards } from './hooks/useMatchRewards'
 import Board from './components/Board'
 import PlayerSeat from './components/PlayerSeat'
 import ActionDock from './components/ActionDock'
@@ -48,6 +49,7 @@ function GameSession({ tableId, retry }) {
   const { snapshot } = session
   const signedIn = auth.status === 'authenticated' && !devUser
   const seatProfiles = useSeatProfiles(snapshot?.seats.map(seat => seat.accountId) || [], signedIn)
+  const matchRewards = useMatchRewards(snapshot?.matchId, signedIn && snapshot?.mode === 'RANK' && snapshot?.street === 'FINISHED')
   useEffect(() => {
     if (!snapshot) return
     const previous = previousSnapshot.current
@@ -87,7 +89,7 @@ function GameSession({ tableId, retry }) {
           <ActionDock key={snapshot.actionSequence} legalActions={snapshot.legalActions} callAmount={snapshot.callAmount} minRaiseTo={snapshot.minRaiseTo} maxRaiseTo={snapshot.maxRaiseTo} pot={snapshot.pot}
             disabled={session.pending || session.connection !== 'connected'} onAction={session.send} /></div>
       </div>
-      {finished && <MatchResult mode={snapshot.mode} placements={snapshot.placements} accountId={snapshot.accountId} profiles={profiles} rewards={runtime.rewards} onExit={() => navigate(paths.lobby)} />}
+      {finished && <MatchResult mode={snapshot.mode} placements={snapshot.placements} accountId={snapshot.accountId} profiles={profiles} rewards={runtime.rewards || matchRewards} onExit={() => navigate(paths.lobby)} />}
     </main>}
     <footer className={styles.footer}><span>NO-LIMIT TEXAS HOLD’EM</span><span>Table chips stay in this match.</span></footer>
   </div>
