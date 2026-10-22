@@ -4,11 +4,13 @@ import { env } from '@/shared/config/env'
 // Feature code calls its own api/*.js functions, which call request(); components never call fetch directly.
 
 export class ApiError extends Error {
-  constructor(message, { status, code } = {}) {
+  constructor(message, { status, code, requestId, payload } = {}) {
     super(message)
     this.name = 'ApiError'
     this.status = status
     this.code = code
+    this.requestId = requestId
+    this.payload = payload
   }
 }
 

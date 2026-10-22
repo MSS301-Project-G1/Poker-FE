@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router'
 import { paths } from '@/shared/config/paths'
+import { Icon } from '@/shared/ui'
 
 const navItems = [
   { to: paths.lobby, label: 'Lobby' },
@@ -15,7 +16,9 @@ const navClass = ({ isActive }) => `px-space-md py-space-sm font-label-action tr
 
 const iconButton = 'w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors'
 
-export default function AppHeader() {
+export default function AppHeader({ user, onLogout, logoutPending }) {
+  const displayName = user?.profile?.displayName || user?.email || 'Player'
+  const avatarUrl = user?.profile?.avatarUrl || '/stitch-assets/avatar.svg'
   return <header className="fixed top-0 left-0 right-0 z-header bg-surface-container-lowest/85 backdrop-blur-2xl shadow-header">
     <div className="h-20 w-full px-margin flex items-center justify-between gap-space-md">
       <div className="flex items-center gap-space-lg">
@@ -34,10 +37,19 @@ export default function AppHeader() {
         </div>
         <div className="flex items-center gap-space-xs">
           <button className={iconButton} title="Audio" type="button"><span className="material-symbols-outlined text-lg">volume_up</span></button>
-          <button className={iconButton} title="Settings" type="button"><span className="material-symbols-outlined text-lg">settings</span></button>
+          {user?.role === 'ADMIN' && <>
+            <NavLink className={iconButton} title="Admin shop" aria-label="Admin shop" to={paths.adminShop}><Icon name="storefront" className="text-lg" /></NavLink>
+            <NavLink className={iconButton} title="Manage avatars" aria-label="Manage avatars" to={paths.adminAvatars}><Icon name="admin_panel_settings" className="text-lg" /></NavLink>
+          </>}
+          <NavLink className={iconButton} title="Account settings" aria-label="Account settings" to={paths.account}><Icon name="settings" className="text-lg" /></NavLink>
         </div>
-        <div className="flex items-center gap-space-xs cursor-pointer">
-          <img alt="Profile" className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/40" src="/stitch-assets/avatar.svg" />
+        <div className="flex items-center gap-space-xs">
+          <img alt={displayName} className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/40" src={avatarUrl}
+            onError={event => { event.currentTarget.src = '/stitch-assets/avatar.svg' }} />
+          <span className="hidden xl:block max-w-36 truncate text-sm font-semibold text-on-surface">{displayName}</span>
+          <button className={iconButton} title="Sign out" aria-label="Sign out" type="button" onClick={onLogout} disabled={logoutPending}>
+            <Icon name="logout" className="text-lg" />
+          </button>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ export const paths = {
   home: '/',
   auth: '/auth',
   lobby: '/lobby',
+  account: '/account',
   ranked: '/ranked',
   shop: '/shop',
   shopBundles: '/shop/bundles',
@@ -15,6 +16,7 @@ export const paths = {
   seasons: '/seasons',
   rooms: '/rooms',
   roomByCode: roomCode => `/rooms/${roomCode}`,
+  adminAvatars: '/admin/avatars',
   adminMatchSettings: '/admin/match-settings',
   adminShop: '/admin/shop',
 }

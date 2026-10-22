@@ -1,4 +1,5 @@
 import { BrowserRouter } from 'react-router'
+import { AuthProvider } from '@/features/auth'
 import { ToastProvider } from '@/shared/ui'
 import AppRoutes from './router'
 import ScrollToTop from './ScrollToTop'
@@ -7,8 +8,10 @@ import ScrollToTop from './ScrollToTop'
 export default function App() {
   return <BrowserRouter>
     <ScrollToTop />
-    <ToastProvider>
-      <AppRoutes />
-    </ToastProvider>
+    <AuthProvider>
+      <ToastProvider>
+        <AppRoutes />
+      </ToastProvider>
+    </AuthProvider>
   </BrowserRouter>
 }
