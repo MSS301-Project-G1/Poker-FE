@@ -14,7 +14,7 @@ export default function AuthPanel({ mode, pending, error, verification, recovery
   const recovering = mode === 'forgot' || mode === 'reset'
   return <section className="lg:col-span-6 rounded-2xl bg-surface-container-low/95 border border-outline-variant/50 p-6 md:p-8 shadow-2xl backdrop-blur-xl flex flex-col justify-between">
     <div>
-      {!verifying && !recovering && <div className="flex items-center rounded-xl bg-surface-container-lowest p-1 mb-6 border border-outline-variant/30">
+      {!verifying && !recovering && <div className="flex items-center rounded-xl bg-surface-container-lowest p-1 mb-5 border border-outline-variant/30">
         <button className={tabClass(mode === 'sign-in')} type="button" onClick={() => onModeChange('sign-in')} disabled={pending}>
           <Icon name="login" className="text-sm" /> Sign In
         </button>

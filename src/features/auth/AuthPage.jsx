@@ -137,16 +137,16 @@ export default function AuthPage() {
       <div className="absolute -bottom-20 -right-20 w-[32rem] h-[32rem] bg-tertiary-container/15 rounded-full blur-[120px]"></div>
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary-container/10 via-background to-surface-container-lowest"></div>
     </div>
-    <div className="min-h-screen flex flex-col justify-between items-center px-4 py-8 md:py-12 relative z-10 max-w-7xl mx-auto">
+    <div className="min-h-screen flex flex-col justify-center items-center gap-space-md px-4 py-space-md relative z-10 max-w-7xl mx-auto">
       <AuthHeader />
-      <Link to={paths.demo} className="my-space-md inline-flex items-center gap-space-sm rounded-xl border border-primary/40 bg-primary-container/20 px-space-lg py-space-gutter-mobile text-primary font-label-action text-label-action"><Icon name="smart_toy" />Chơi thử 1 người với bot · Không cần tài khoản</Link>
-      <main className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch my-auto">
+      <Link to={paths.demo} className="inline-flex items-center gap-space-sm rounded-xl border border-primary/40 bg-primary-container/20 px-space-lg py-space-sm text-primary font-label-action text-label-action hover:bg-primary-container/35 transition-colors"><Icon name="smart_toy" />Chơi thử 1 người với bot · Không cần tài khoản</Link>
+      <main className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <WelcomePanel />
         <AuthPanel mode={mode} pending={pending} error={error} verification={verification} recovery={recovery}
           onModeChange={changeMode} onLogin={login} onRegister={register} onVerify={verify} onResend={resend}
           onForgotPassword={requestRecovery} onResetPassword={completeRecovery} onResendRecovery={resendRecovery} />
       </main>
-      <footer className="w-full max-w-4xl mt-8 pt-4 border-t border-outline-variant/20 flex flex-wrap items-center justify-center gap-6 md:gap-10 text-xs text-on-surface-variant">
+      <footer className="w-full max-w-4xl flex flex-wrap items-center justify-center gap-6 md:gap-10 text-xs text-on-surface-variant">
         {trustBadges.map(badge => <div key={badge.label} className="inline-flex items-center gap-1.5">
           <Icon name={badge.icon} className={`${badge.color} text-sm`} /><span>{badge.label}</span>
         </div>)}

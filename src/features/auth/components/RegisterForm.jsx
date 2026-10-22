@@ -35,10 +35,12 @@ export default function RegisterForm({ pending, onSubmit }) {
         onChange={event => update('displayName')(event.target.value)} autoComplete="nickname" maxLength={100} disabled={pending} aria-invalid={Boolean(errors.displayName)} />
       {errors.displayName && <p className={fieldErrorClass}>{errors.displayName}</p>}
     </div>
-    <PasswordField id="register-password" label="Password" value={values.password} onChange={update('password')}
-      error={errors.password} autoComplete="new-password" disabled={pending} />
-    <PasswordField id="register-confirm-password" label="Confirm password" value={values.confirmPassword}
-      onChange={update('confirmPassword')} error={errors.confirmPassword} autoComplete="new-password" disabled={pending} />
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <PasswordField id="register-password" label="Password" value={values.password} onChange={update('password')}
+        error={errors.password} autoComplete="new-password" disabled={pending} />
+      <PasswordField id="register-confirm-password" label="Confirm password" value={values.confirmPassword}
+        onChange={update('confirmPassword')} error={errors.confirmPassword} autoComplete="new-password" disabled={pending} />
+    </div>
     <button className={submitClass} type="submit" disabled={pending}>
       <span>{pending ? 'CREATING ACCOUNT…' : 'CREATE ACCOUNT'}</span><Icon name="person_add" className="text-base" />
     </button>
