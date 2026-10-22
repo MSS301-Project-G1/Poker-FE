@@ -12,6 +12,7 @@ import { GameRuntimeContext } from './runtime'
 import { useGameSession } from './hooks/useGameSession'
 import { useSeatProfiles } from './hooks/useSeatProfiles'
 import { useMatchRewards } from './hooks/useMatchRewards'
+import { confirmLeaveMatch, leaveTable } from './api/gameApi'
 import Board from './components/Board'
 import PlayerSeat from './components/PlayerSeat'
 import ActionDock from './components/ActionDock'
@@ -63,13 +64,31 @@ function GameSession({ tableId, retry }) {
   const profiles = { ...seatProfiles, ...runtime.profiles }
   const ChatPanel = runtime.ChatPanel
   const finished = snapshot?.street === 'FINISHED'
+  const me = snapshot?.seats.find(seat => seat.accountId === snapshot.accountId)
+  // While the player is still in play, the header offers no way out except an explicit forfeit.
+  const inMatch = Boolean(snapshot) && !finished && !me?.eliminated && !me?.leftEarly
+  const [leaving, setLeaving] = useState(false)
+  const [leaveError, setLeaveError] = useState('')
+  async function leave() {
+    if (!confirmLeaveMatch()) return
+    setLeaving(true)
+    setLeaveError('')
+    try {
+      await leaveTable(snapshot.tableId, { devUser })
+      navigate(paths.lobby)
+    } catch (error) {
+      setLeaveError(error.message)
+      setLeaving(false)
+    }
+  }
   const winners = snapshot?.distribution?.pots.flatMap(pot => pot.winnerSeats) || []
   const seatCount = snapshot?.seats.length
   const seatsClass = [styles.seats, styles[`seats${seatCount}`], seatCount >= 7 && styles.crowded].filter(Boolean).join(' ')
   return <div className={styles.page}>
-    <header className={styles.header}><Link to={paths.lobby} className={styles.brand}><span>♠</span> POKER<span>RANK</span></Link>
+    <header className={styles.header}>{inMatch ? <span className={styles.brand}><span>♠</span> POKER<span>RANK</span></span> : <Link to={paths.lobby} className={styles.brand}><span>♠</span> POKER<span>RANK</span></Link>}
       <div className={styles.tableLabel}><Eyebrow>{snapshot?.mode || 'TEXAS HOLD’EM'}</Eyebrow><strong>{snapshot ? `Table ${snapshot.tableId.slice(-6)} · Hand ${snapshot.handNumber}` : 'Your next hand awaits'}</strong></div>
-      <nav className={styles.headerNav}><HandGuide /><Button className={styles.compactButton} onClick={() => navigate(paths.lobby)}>Lobby</Button></nav></header>
+      <nav className={styles.headerNav}><HandGuide />{!inMatch && <Button className={styles.compactButton} onClick={() => navigate(paths.lobby)}>Lobby</Button>}
+        {inMatch && snapshot.mode === 'NORMAL' && <Button className={styles.compactButton} disabled={leaving} onClick={leave}>Rời ván</Button>}</nav></header>
     {session.phase === 'loading' && <div className={styles.state} role="status"><div className={styles.spinner} /><h1>Finding your table…</h1></div>}
     {session.phase === 'empty' && <main className={styles.state}><span className={styles.stateIcon}>♠</span><h1>No active table</h1><p>{session.error || 'Join a match from the lobby. Your active table will appear here.'}</p><Button variant="primary" onClick={() => navigate(paths.lobby)}>Go to lobby</Button>{env.gameDevMode && <DevLauncher />}</main>}
     {session.phase === 'error' && <main className={styles.state}><span className={styles.stateIcon}>♠</span><h1>Unable to open this table</h1><p className={styles.error} role="alert">{session.error}</p><Button variant="primary" onClick={retry}>Try again</Button>{env.gameDevMode && <DevLauncher />}</main>}
@@ -78,6 +97,7 @@ function GameSession({ tableId, retry }) {
         <span>{snapshot.street.replaceAll('_', ' ')}</span>{!finished && <TurnTimer deadline={snapshot.deadline} serverTime={snapshot.serverTime} receivedAt={snapshot.receivedAt} paused={snapshot.street === 'HAND_FINISHED'} />}
         {session.connection !== 'connected' && <Button className={styles.compactButton} onClick={retry}>Reconnect</Button>}</div>
       {session.error && <div className={styles.alert} role="alert">{session.error}</div>}
+      {leaveError && <div className={styles.alert} role="alert">{leaveError}</div>}
       <TableTheme>
         <div className={`${styles.boardSlot} ${seatCount === 7 || seatCount === 8 ? styles.high : ''}`}><Board cards={snapshot.board} pot={snapshot.pot} distribution={snapshot.distribution} /></div>
         <div className={seatsClass}>{snapshot.seats.map(player => <PlayerSeat key={player.accountId} player={player} profile={profiles[player.accountId]}

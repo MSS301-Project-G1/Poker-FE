@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { leaveTable } from '@/features/game-table'
 import { acceptProposal, declineProposal, fetchQueueStatus, joinQueue, leaveQueue } from '../api/matchmakingApi'
 
 export function useMatchmaking(mode) {
@@ -59,5 +60,6 @@ export function useMatchmaking(mode) {
     leave: () => run(() => leaveQueue(mode)),
     accept: () => run(() => acceptProposal(queue.proposalId), () => setAcceptedId(queue.proposalId)),
     decline: () => run(() => declineProposal(queue.proposalId)),
+    leaveMatch: () => run(() => leaveTable(queue.tableId)),
   }
 }

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router'
 import { useAuth } from '@/features/auth'
 import { paths } from '@/shared/config/paths'
 import { useSound } from '@/shared/audio'
+import { confirmLeaveMatch } from '@/features/game-table'
 import { MatchmakingContext } from './MatchmakingContext'
 import { useMatchmaking } from './hooks/useMatchmaking'
 
@@ -51,6 +52,13 @@ function PlayerQueue({ children }) {
 
   const queueStatus = queue?.status
   const tableId = queue?.tableId
+  // READY with a table means the match is running: the lobby offers a way back, or a forfeit in Normal mode.
+  const inMatch = queueStatus === 'READY' && Boolean(tableId)
+  function returnToTable() { minimize(); navigate(paths.tableById(tableId)) }
+  async function leaveMatch() {
+    if (!confirmLeaveMatch()) return
+    if (await current.leaveMatch()) { close(); play('fold') }
+  }
   const proposalId = queue?.proposalId
   useEffect(() => {
     if (queueStatus === 'PROPOSED') play('match')
@@ -64,5 +72,5 @@ function PlayerQueue({ children }) {
     }
   }, [queueStatus, tableId, navigate, location.pathname])
 
-  return <MatchmakingContext.Provider value={{ rank, normal, mode, queue, active, activeMode, visible, pending, accepted: current.accepted, error: mode ? current.error : '', start, open, minimize, close, cancel, accept, decline }}>{children}</MatchmakingContext.Provider>
+  return <MatchmakingContext.Provider value={{ rank, normal, mode, queue, active, activeMode, inMatch, visible, pending, accepted: current.accepted, error: mode ? current.error : '', start, open, minimize, close, cancel, accept, decline, returnToTable, leaveMatch }}>{children}</MatchmakingContext.Provider>
 }
