@@ -6,7 +6,7 @@ export const POLL_MILLIS = 3000
 
 const initial = { phase: 'loading', room: null, error: '' }
 
-export function useRoom({ code, devUser, getAccessToken }) {
+export function useRoom({ code, devUser }) {
   const [state, setState] = useState(initial)
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export function useRoom({ code, devUser, getAccessToken }) {
     async function load() {
       let gone = false
       try {
-        const room = await fetchRoom(code, { accessToken: await getAccessToken(), devUser, signal: abort.signal })
+        const room = await fetchRoom(code, { devUser, signal: abort.signal })
         if (!disposed) setState({ phase: 'ready', room, error: '' })
       } catch (error) {
         if (disposed || error.name === 'AbortError') return
@@ -33,7 +33,7 @@ export function useRoom({ code, devUser, getAccessToken }) {
       abort.abort()
       window.clearTimeout(timer)
     }
-  }, [code, devUser, getAccessToken])
+  }, [code, devUser])
 
   // Actions return the updated room, which replaces the polled copy immediately.
   const apply = room => setState({ phase: 'ready', room, error: '' })

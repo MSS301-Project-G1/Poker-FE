@@ -1,0 +1,29 @@
+.page {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-margin);
+  /* Room to scroll the last controls above the floating community dock (fixed 56px from the bottom). */
+  padding-bottom: 8rem;
+  display: grid;
+  gap: var(--space-md);
+  align-content: start;
+  color: rgb(var(--color-on-surface));
+}
+
+.header { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--space-lg); flex-wrap: wrap; }
+.intro { display: grid; gap: 8px; min-width: 0; }
+.title { margin: 2px 0 0; font: 700 36px var(--font-display); letter-spacing: -1px; }
+.muted { margin: 0; max-width: 72ch; color: rgb(var(--color-on-surface-variant)); font-size: 14px; line-height: 1.5; }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.grid { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: var(--space-md); align-items: start; }
+.sectionTitle { margin: 4px 0 6px; font: 600 20px var(--font-display); }
+
+@media (max-width: 960px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 760px) {
+  .page { padding: var(--space-lg) var(--space-margin-mobile) 8rem; }
+  .title { font-size: 30px; }
+}

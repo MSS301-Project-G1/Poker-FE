@@ -1,0 +1,11 @@
+.message { margin: 0; font-size: 13px; line-height: 1.45; }
+.error { color: rgb(var(--color-error)); }
+.success { color: rgb(var(--color-tertiary)); }
+.notice {
+  padding: 12px 16px;
+  border: 1px solid rgb(var(--color-primary-rim) / 0.5);
+  border-radius: var(--radius-xl);
+  background: rgb(var(--color-primary-container) / 0.18);
+  color: rgb(var(--color-primary-fixed));
+  font-size: 14px;
+}
