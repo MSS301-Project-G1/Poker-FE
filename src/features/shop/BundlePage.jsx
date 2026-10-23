@@ -1,16 +1,21 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { paths } from '@/shared/config/paths'
 import { Icon, useToast } from '@/shared/ui'
 import { Button } from './shared/ui'
 import { useBundleTopup } from './hooks/useBundleTopup'
 import { useWallet } from './hooks/useWallet'
+import { usePendingOrder } from './hooks/usePendingOrder'
 import { formatVipCoin, formatVnd } from './utils/shopFormatters'
+import PendingPaymentModal from './components/PendingPaymentModal/PendingPaymentModal'
 
 export default function BundlePage() {
   const navigate = useNavigate()
   const notify = useToast()
   const { bundles, loading, error, orderingBundleId, purchaseBundle } = useBundleTopup()
-  const { vipCoin, isLoggedIn } = useWallet()
+  const { vipCoin, isLoggedIn, refreshWallet } = useWallet()
+  const { pendingOrder, cancelPendingOrder, syncPendingOrder, checkPendingOrder } = usePendingOrder()
+  const [isPendingModalOpen, setIsPendingModalOpen] = useState(false)
 
   const handleSelectBundle = async bundle => {
     if (!isLoggedIn) {
@@ -84,6 +89,42 @@ export default function BundlePage() {
             )}
           </div>
         </div>
+
+        {/* Active Pending Order Banner if user has an unfinished payment */}
+        {pendingOrder && (
+          <div className="my-space-md p-4 rounded-2xl bg-amber-500/15 border border-amber-500/40 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+            <div className="flex items-center gap-3.5 text-left">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30">
+                <Icon name="pending_actions" className="text-2xl animate-pulse" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h4 className="font-headline font-bold text-sm text-amber-300">
+                    Đơn hàng #{pendingOrder.payosOrderCode} đang chờ thanh toán
+                  </h4>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-400 text-slate-950">
+                    Chưa hoàn tất
+                  </span>
+                </div>
+                <p className="text-xs text-white/70 mt-0.5">
+                  {pendingOrder.bundleName || pendingOrder.productName || 'Gói nạp VIP Coin'} • {formatVnd(pendingOrder.amountVnd)} • Bạn có thể quét mã VietQR hoặc mở lại PayOS để hoàn tất.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto">
+              <Button
+                variant="gold"
+                size="sm"
+                icon="qr_code_2"
+                onClick={() => setIsPendingModalOpen(true)}
+                className="w-full sm:w-auto shadow-md shadow-amber-500/20"
+              >
+                Tiếp Tục Thanh Toán
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Riot-Style Notice Banner */}
         <div className="my-space-md px-4 py-3 rounded-2xl bg-gradient-to-r from-tertiary/10 via-surface-container to-primary/10 border border-tertiary/30 flex items-center gap-4 shadow-lg">
@@ -238,6 +279,19 @@ export default function BundlePage() {
           </div>
         </section>
       </div>
+
+      {/* Modal Tiếp Tục Thanh Toán PayOS */}
+      <PendingPaymentModal
+        order={pendingOrder}
+        isOpen={isPendingModalOpen}
+        onClose={() => setIsPendingModalOpen(false)}
+        onCancelOrder={cancelPendingOrder}
+        onSyncOrder={syncPendingOrder}
+        onSuccess={async () => {
+          await refreshWallet()
+          await checkPendingOrder()
+        }}
+      />
     </div>
   )
 }
