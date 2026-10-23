@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from 'react-router'
 import { useAuth } from '@/features/auth'
 import { paths } from '@/shared/config/paths'
 import { useSound } from '@/shared/audio'
-import { confirmLeaveMatch } from '@/features/game-table'
+import { useConfirm } from '@/shared/ui'
+import { leaveMatchPrompt } from '@/features/game-table'
 import { MatchmakingContext } from './MatchmakingContext'
 import { fetchMyParty } from './api/matchmakingApi'
 import { useMatchmaking } from './hooks/useMatchmaking'
@@ -27,6 +28,7 @@ function PlayerQueue({ accountId, children }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { play } = useSound()
+  const confirm = useConfirm()
   const activeMode = isActive(normal.queue) ? 'NORMAL' : isActive(rank.queue) ? 'RANK' : null
   const mode = activeMode || selection
   const current = mode === 'NORMAL' ? normal : rank
@@ -78,7 +80,7 @@ function PlayerQueue({ accountId, children }) {
   const leaderOnly = mode === 'NORMAL' && party.searchKey === searchKey && party.leaderId !== null && party.leaderId !== accountId
   function returnToTable() { minimize(); navigate(paths.tableById(tableId)) }
   async function leaveMatch() {
-    if (!confirmLeaveMatch()) return
+    if (!await confirm(leaveMatchPrompt)) return
     if (await current.leaveMatch()) { close(); play('fold') }
   }
   const proposalId = queue?.proposalId

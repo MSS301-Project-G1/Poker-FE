@@ -17,7 +17,11 @@ export const fetchTable = (tableId, identity) => call(`/api/game/tables/${tableI
 // Normal mode only: forfeits the rest of the match so the player can queue again.
 export const leaveTable = (tableId, identity) => call(`/api/game/tables/${tableId}/leave`, { ...identity, method: 'POST' })
 
-export const confirmLeaveMatch = () => window.confirm('Rời ván? Bạn sẽ bị xử thua và không thể quay lại bàn này.')
+// The question asked before leaveTable, for useConfirm().
+export const leaveMatchPrompt = {
+  title: 'Rời ván?', message: 'Bạn sẽ bị xử thua và không thể quay lại bàn này.',
+  confirmLabel: 'Rời ván', cancelLabel: 'Ở lại', icon: 'logout', danger: true,
+}
 
 // Local development only: creates a table with the given number of human and bot seats.
 export const createDevTable = ({ humans, bots }) => direct(`/dev/tables?humans=${humans}&bots=${bots}`, { method: 'POST' })

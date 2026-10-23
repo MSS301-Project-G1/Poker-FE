@@ -7,12 +7,12 @@ import { paths } from '@/shared/config/paths'
 import { MatchChat } from '@/features/community'
 import { useAuth } from '@/features/auth'
 import { devIdentity } from '@/shared/lib/devIdentity'
-import { Button, Eyebrow, Icon, PlaceholderScreen } from '@/shared/ui'
+import { Button, Eyebrow, Icon, PlaceholderScreen, useConfirm } from '@/shared/ui'
 import { GameRuntimeContext } from './runtime'
 import { useGameSession } from './hooks/useGameSession'
 import { useSeatProfiles } from './hooks/useSeatProfiles'
 import { useMatchRewards } from './hooks/useMatchRewards'
-import { confirmLeaveMatch, leaveTable } from './api/gameApi'
+import { leaveMatchPrompt, leaveTable } from './api/gameApi'
 import { placeSeats } from './seatLayout'
 import { label, modeLabels, playerName, resultLine } from './labels'
 import { useTablePresentation } from './presentation/useTablePresentation'
@@ -66,8 +66,9 @@ function GameSession({ tableId, retry }) {
   const inMatch = Boolean(snapshot) && !finished && !me?.eliminated && !me?.leftEarly
   const [leaving, setLeaving] = useState(false)
   const [leaveError, setLeaveError] = useState('')
+  const confirm = useConfirm()
   async function leave() {
-    if (!confirmLeaveMatch()) return
+    if (!await confirm(leaveMatchPrompt)) return
     setLeaving(true)
     setLeaveError('')
     try {
