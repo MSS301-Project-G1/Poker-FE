@@ -1,0 +1,4 @@
+export const labelClass = 'block text-xs font-label-action text-on-surface mb-1.5 tracking-wider uppercase'
+export const inputClass = 'w-full bg-surface-container-lowest/90 border border-outline-variant/60 rounded-xl py-3 text-sm text-white placeholder-on-surface-variant/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all font-body-md disabled:opacity-60'
+export const submitClass = 'w-full py-3.5 px-4 rounded-xl font-label-action text-sm tracking-wider uppercase font-bold text-on-primary bg-gradient-to-r from-primary via-primary-fixed to-secondary shadow-[0_0_22px_rgb(var(--color-primary)/0.35)] hover:shadow-[0_0_28px_rgb(var(--color-primary)/0.55)] hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:scale-100'
+export const fieldErrorClass = 'mt-1 text-xs text-error'

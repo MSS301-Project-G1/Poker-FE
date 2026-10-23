@@ -1,0 +1,22 @@
+.ladder { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+
+/* Tile: tier and status on top, the rewards underneath. */
+.step {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'tier status' 'rewards rewards';
+  align-items: center;
+  justify-items: start;
+  gap: 10px 8px;
+  padding: 12px 14px;
+  border: 1px solid rgb(var(--color-outline-variant));
+  border-radius: 12px;
+  background: rgb(var(--color-surface));
+}
+
+.rewards { grid-area: rewards; }
+.done { border-color: rgb(var(--color-tertiary) / 0.45); background: rgb(var(--color-tertiary) / 0.06); }
+.status { grid-area: status; justify-self: end; display: inline-flex; align-items: center; gap: 4px; color: rgb(var(--color-outline)); font: 600 11px var(--font-display); white-space: nowrap; }
+.done .status { color: rgb(var(--color-tertiary)); }
+.statusIcon { font-size: 16px; }
+.muted { margin: 0; color: rgb(var(--color-on-surface-variant)); font-size: 14px; }

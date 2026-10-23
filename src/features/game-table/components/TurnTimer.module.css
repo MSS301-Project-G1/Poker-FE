@@ -1,0 +1,4 @@
+.timer { display: flex; gap: 6px; align-items: center; color: rgb(var(--color-tertiary)); white-space: nowrap; }
+.timer strong { font-size: 16px; font-variant-numeric: tabular-nums; }
+.timer :global(.material-symbols-outlined) { font-size: 17px; }
+.urgent { color: rgb(var(--color-primary)); }

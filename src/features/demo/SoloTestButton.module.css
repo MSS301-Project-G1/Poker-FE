@@ -1,0 +1,7 @@
+.card { position: fixed; z-index: var(--z-overlay); left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(440px, calc(100vw - 32px)); padding: var(--space-lg); border-radius: 18px; border: 1px solid rgb(var(--color-primary-rim) / .65); background: rgb(var(--color-surface-container-lowest) / .98); color: rgb(var(--color-on-surface)); box-shadow: 0 28px 90px rgb(var(--color-obsidian) / .85); text-align: center; }
+.badge { color: rgb(var(--color-primary)); font-size: 12px; font-weight: 700; }
+.card h2 { margin: var(--space-md) 0; font-size: var(--text-headline-md-size); font-weight: 700; }
+.card p { color: rgb(var(--color-on-surface-variant)); font-size: var(--text-body-sm-size); }
+.card .countdown { margin: var(--space-md) 0; }
+.countdown strong { color: rgb(var(--color-primary)); font-size: 36px; font-variant-numeric: tabular-nums; }
+.card button { width: 100%; min-height: 46px; margin-top: var(--space-sm); border-radius: var(--radius-lg); border: 1px solid rgb(var(--color-outline-variant)); background: rgb(var(--color-surface-container-high)); font-weight: 700; }

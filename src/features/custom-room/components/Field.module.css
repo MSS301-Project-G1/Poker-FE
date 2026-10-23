@@ -1,0 +1,11 @@
+.field { display: grid; gap: 8px; color: rgb(var(--color-on-surface-variant)); font-size: 13px; }
+.hint { color: rgb(var(--color-outline)); }
+
+.control {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid rgb(var(--color-border));
+  border-radius: 9px;
+  background: rgb(var(--color-surface-container-lowest));
+  color: rgb(var(--color-on-surface));
+}

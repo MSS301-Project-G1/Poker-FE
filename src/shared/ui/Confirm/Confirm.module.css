@@ -1,0 +1,82 @@
+/* A small deep-glass card lit from above, like the match results. Danger questions glow red. */
+.dialog {
+  --glow: var(--color-primary-container);
+  width: min(420px, calc(100% - 2 * var(--space-md)));
+  max-width: none;
+  margin: auto;
+  padding: 0;
+  overflow: visible;
+  color: rgb(var(--color-on-surface));
+  background:
+    radial-gradient(ellipse 80% 55% at 50% 0%, rgb(var(--glow) / 0.3), transparent 70%),
+    rgb(var(--color-surface-container-lowest) / 0.96);
+  border: 1px solid rgb(var(--glow) / 0.45);
+  border-radius: 24px;
+  box-shadow: 0 16px 48px rgb(var(--color-obsidian) / 0.85), 0 0 60px rgb(var(--glow) / 0.2);
+  animation: dialogIn 0.3s cubic-bezier(.2, 1.3, .4, 1);
+}
+.dialog::backdrop {
+  background: radial-gradient(ellipse at 50% 40%, rgb(var(--color-secondary-container) / 0.3), rgb(var(--color-obsidian) / 0.85) 70%);
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.2s ease-out;
+}
+/* The top highlight line. */
+.dialog::before {
+  content: '';
+  position: absolute;
+  inset: 0 12% auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(var(--color-tertiary) / 0.7), rgb(var(--glow) / 0.6), transparent);
+}
+.danger { --glow: var(--color-error-container); }
+
+.panel {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-sm);
+  padding: 30px 26px 24px;
+  text-align: center;
+}
+
+.emblem {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  margin-bottom: var(--space-xs);
+  border-radius: var(--radius-full);
+  color: rgb(var(--color-primary));
+  background: radial-gradient(circle, rgb(var(--color-secondary-container) / 0.9), rgb(var(--color-surface-container-lowest)) 72%);
+  box-shadow: 0 0 28px rgb(var(--glow) / 0.45);
+}
+.danger .emblem {
+  color: rgb(var(--color-error));
+  background: radial-gradient(circle, rgb(var(--color-error-container) / 0.6), rgb(var(--color-surface-container-lowest)) 72%);
+}
+
+.title {
+  margin: 0;
+  font: var(--text-headline-sm-weight) var(--text-headline-sm-size) / var(--text-headline-sm-leading) var(--font-headline);
+}
+
+.message {
+  margin: 0;
+  color: rgb(var(--color-on-surface-variant));
+  font-size: var(--text-body-md-size);
+  line-height: var(--text-body-md-leading);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+  width: 100%;
+  margin-top: var(--space-md);
+}
+
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes dialogIn { from { opacity: 0; transform: translateY(12px) scale(0.96); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog, .dialog::backdrop { animation: none; }
+}

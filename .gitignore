@@ -34,3 +34,11 @@ scripts/download_stitch_assets.py
 .edge-*/
 preview-*.png
 .npm-cache/
+
+# Game browser verification artifacts.
+playwright-report/
+test-results/
+
+# Community UI browser verification screenshots.
+artifacts/community-*.png
+artifacts/solo-demo-*.png

@@ -1,0 +1,20 @@
+.state { display: grid; justify-items: center; gap: 14px; padding: 50px 20px; text-align: center; color: rgb(var(--color-on-surface-variant)); }
+.title { margin: 0; font: 600 20px var(--font-display); color: rgb(var(--color-on-surface)); }
+.icon { color: rgb(var(--color-tertiary)); font-size: 40px; }
+.muted { margin: 0; max-width: 46ch; font-size: 14px; line-height: 1.5; }
+.error { margin: 0; color: rgb(var(--color-error)); }
+
+.spinner {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  border: 3px solid rgb(var(--color-outline-variant));
+  border-top-color: rgb(var(--color-primary));
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation: none; }
+}

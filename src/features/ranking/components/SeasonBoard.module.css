@@ -1,0 +1,5 @@
+.pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; color: rgb(var(--color-on-surface-variant)); font-size: 13px; }
+
+@media (max-width: 760px) {
+  .pager { flex-wrap: wrap; justify-content: center; text-align: center; }
+}

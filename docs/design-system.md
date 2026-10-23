@@ -138,6 +138,11 @@ spacing:
   space-xl: 2.5rem
 ---
 
+> **Implementation note.** The front matter above is the original Stitch export, kept for reference.
+> The values the app actually uses live in [`src/styles/tokens.css`](../src/styles/tokens.css)
+> (see [ARCHITECTURE.md](ARCHITECTURE.md#6-hệ-thống-css)); change tokens there, not here.
+
+
 ## Brand & Style
 This design system defines an elite online poker environment that merges high-stakes casino styling with refined esports cyber aesthetics. It deliberately abandons traditional green felt and generic casino tropes in favor of an immersive deep purple universe.
 

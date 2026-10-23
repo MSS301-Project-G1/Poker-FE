@@ -1,0 +1,14 @@
+.panel { display: flex; flex-direction: column; gap: 14px; }
+.header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.title { margin: 6px 0 0; font: 600 20px var(--font-display); }
+.icon { font-size: 18px; }
+.muted { margin: 0; color: rgb(var(--color-on-surface-variant)); font-size: 14px; }
+.list { display: grid; align-content: start; gap: 10px; margin: 0; padding: 0; list-style: none; }
+
+/* Beside the create form the panel takes the leftover row height (height: 0 keeps a long list from
+   stretching the row) and the list scrolls inside it. */
+@media (min-width: 861px) {
+  .panel { flex: 1 0 0; height: 0; min-height: 168px; }
+  .list { flex: 1; min-height: 0; overflow-y: auto; padding-right: 4px; }
+}
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; color: rgb(var(--color-on-surface-variant)); font-size: 13px; }

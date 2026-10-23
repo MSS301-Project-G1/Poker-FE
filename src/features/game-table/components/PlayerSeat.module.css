@@ -1,0 +1,191 @@
+/* A seat on the rail: name plate, hole cards, current bet and showdown hand. */
+/* Only the visible parts take clicks, so a seat's empty corners never block the board's pot results toggle. */
+.seat { position: absolute; z-index: 2; display: flex; align-items: center; gap: 6px; pointer-events: none; }
+.seat > * { pointer-events: auto; }
+.folded { opacity: 0.5; }
+
+/* Slots (see seatLayout.js). Cards and bets sit on the side that faces the middle of the table. */
+.top, .topLeft, .topRight, .bottomLeft, .bottomRight, .bottom { flex-wrap: wrap; justify-content: center; width: 178px; }
+.top, .topLeft, .topRight { top: 0; transform: translateX(-50%); }
+/* The top-centre seat shares the middle column with the board and your cards, so its cards sit beside the plate. */
+.top { left: 50%; flex-wrap: nowrap; width: auto; }
+.topLeft { left: 24%; }
+.topRight { left: 76%; }
+.left { left: 0; top: 47%; transform: translateY(-50%); }
+.right { right: 0; top: 47%; transform: translateY(-50%); flex-direction: row-reverse; }
+.bottomLeft, .bottomRight, .bottom { bottom: 0; flex-wrap: wrap-reverse; }
+.bottomLeft { left: 3%; }
+.bottomRight { right: 3%; }
+.bottom { left: 50%; transform: translateX(-50%); }
+
+/* Name plate */
+.plate {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 178px;
+  padding: 7px 9px;
+  border: 1px solid rgb(var(--color-border) / 0.6);
+  border-radius: 12px;
+  background: rgb(var(--color-surface-container-low) / 0.92);
+  box-shadow: 0 10px 24px rgb(var(--color-obsidian) / 0.55);
+  backdrop-filter: blur(12px);
+}
+.active .plate { border-color: rgb(var(--color-primary)); box-shadow: 0 0 0 2px rgb(var(--color-primary-container) / 0.5), 0 0 26px rgb(var(--color-primary-container) / 0.6); }
+.winner .plate { border-color: rgb(var(--color-tertiary)); box-shadow: 0 0 0 2px rgb(var(--color-tertiary) / 0.5), 0 0 30px rgb(var(--color-tertiary) / 0.55); }
+/* Time left for the player who must act: the bar empties and turns red. */
+.turnBar {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 3px;
+  height: 3px;
+  border-radius: 3px;
+  background: rgb(var(--color-primary));
+  box-shadow: 0 0 6px rgb(var(--color-primary));
+  transform-origin: left;
+  animation: drain var(--turn-ms) linear forwards;
+}
+@keyframes drain {
+  70% { background: rgb(var(--color-tertiary)); }
+  to { transform: scaleX(0); background: rgb(var(--color-error)); }
+}
+
+.avatar { position: relative; flex: none; }
+.badges { position: absolute; right: -6px; bottom: -6px; display: flex; gap: 2px; }
+.badge {
+  min-width: 19px;
+  height: 17px;
+  padding: 0 3px;
+  border-radius: 5px;
+  display: inline-grid;
+  place-items: center;
+  background: rgb(var(--color-surface-container-highest));
+  color: rgb(var(--color-on-surface));
+  font: 700 9px var(--font-display);
+}
+
+.identity { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.identity strong { display: flex; align-items: center; gap: 5px; font-size: 13px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.identity small { flex: none; padding: 1px 6px; border-radius: 999px; background: rgb(var(--color-primary-container)); color: rgb(var(--color-on-primary-container)); font: 700 9px var(--font-display); }
+.stack { display: flex; align-items: center; gap: 3px; color: rgb(var(--color-tertiary)); font: 700 13px var(--font-display); font-variant-numeric: tabular-nums; }
+.stack :global(.material-symbols-outlined) { font-size: 14px; }
+.paid { animation: paid 0.6s ease-out; }
+@keyframes paid { 40% { transform: scale(1.25); color: rgb(var(--color-tertiary-fixed)); text-shadow: 0 0 12px rgb(var(--color-tertiary)); } }
+.status { color: rgb(var(--color-outline)); font: 600 10px var(--font-display); letter-spacing: 0.3px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.status[data-tone='calm'] { color: rgb(var(--color-secondary)); }
+.status[data-tone='hot'] { color: rgb(var(--color-primary)); }
+
+/* Cards, bet and hand */
+.holeCards { display: flex; justify-content: center; }
+.holeCards > * + * { margin-left: -10px; }
+.cardSlot { display: block; }
+/* Chips in front of the player; each new amount slides in from the plate. */
+.bet {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px 3px 5px;
+  border-radius: 999px;
+  background: rgb(var(--color-surface-container-lowest) / 0.85);
+  color: rgb(var(--color-tertiary));
+  box-shadow: 0 2px 8px rgb(var(--color-obsidian) / 0.5);
+  font: 700 12px var(--font-display);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  animation: betIn 0.3s ease-out;
+}
+@keyframes betIn { from { opacity: 0; transform: scale(0.6); } }
+.hand { position: relative; }
+.handRank {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  transform: translateX(-50%);
+  z-index: 1;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgb(var(--color-surface-container-lowest) / 0.95);
+  box-shadow: 0 0 0 1px rgb(var(--color-tertiary) / 0.6);
+  color: rgb(var(--color-tertiary));
+  font: 700 10px var(--font-display);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Your own seat: the cards stay centred under the board, the plate sits beside them. */
+.seat.hero { display: block; width: auto; }
+.hero .holeCards > * + * { margin-left: -14px; }
+.hero .holeCards > :first-child { transform: rotate(-6deg) translateY(4px); }
+.hero .holeCards > :last-child { transform: rotate(6deg); }
+.hero .plate {
+  position: absolute;
+  left: calc(100% + 18px);
+  bottom: 6px;
+  width: 256px;
+  padding: 9px 12px;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(rgb(var(--color-surface-container-lowest) / 0.96), rgb(var(--color-surface-container-lowest) / 0.96)) padding-box,
+    linear-gradient(90deg, rgb(var(--color-primary)), rgb(var(--color-tertiary)), rgb(var(--color-primary-container))) border-box;
+  box-shadow: 0 0 30px rgb(var(--color-primary-container) / 0.55);
+}
+.hero .identity strong { font-size: 15px; }
+.hero .stack { font-size: 17px; }
+.hero .bet { position: absolute; right: calc(100% + 18px); bottom: 34px; }
+.hero.active .plate { animation: heroTurn 1.2s ease-in-out infinite alternate; }
+@keyframes heroTurn { to { box-shadow: 0 0 0 3px rgb(var(--color-primary) / 0.7), 0 0 40px rgb(var(--color-primary) / 0.8); } }
+
+/* Narrow tables: the plate drops under your cards so it never collides with the bottom-corner seats. */
+@media (max-width: 1100px) {
+  .seat.hero { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .hero .hand { order: 1; }
+  .hero .plate { order: 2; position: static; width: 210px; padding: 6px 10px; }
+}
+
+/* Side seats keep their cards under the plate, on the rail side, so nothing reaches into the board. */
+@media (max-width: 900px) {
+  .left, .right { flex-direction: column; }
+  .left { align-items: flex-start; }
+  .right { align-items: flex-end; }
+}
+
+@media (max-width: 800px) {
+  .plate { width: 148px; gap: 6px; padding: 6px 7px; }
+  .topLeft, .topRight, .bottomLeft, .bottomRight, .bottom { width: 148px; }
+  .identity strong { font-size: 11px; }
+  .stack { font-size: 11px; }
+}
+
+@media (max-width: 500px) {
+  .plate, .hero .plate { width: 104px; padding: 5px 6px; border-radius: 9px; }
+  .hero .plate { width: 128px; }
+  /* Three seats share the top edge, so the top seat stacks its cards and the corners move outwards. */
+  .top, .topLeft, .topRight, .bottomLeft, .bottomRight, .bottom { width: 104px; }
+  .top { flex-wrap: wrap; }
+  .topLeft { left: 17%; }
+  .topRight { left: 83%; }
+  .left, .right { top: 37%; }
+  /* Your bet moves beside your cards; beside the plate it would cover the bottom-left seat. */
+  .hero .bet { right: calc(50% + 60px); bottom: auto; top: 8px; }
+  .identity strong { font-size: 10px; }
+  .identity small { display: none; }
+  .stack { font-size: 10px; }
+  .status { font-size: 8px; }
+  .badge { min-width: 15px; height: 14px; font-size: 7px; }
+  .bet { padding: 2px 6px 2px 3px; font-size: 10px; }
+}
+
+/* Small phones: the side seats drop below the top seats' cards, bets fit beside the cards,
+   and your plate loses the status line the info bar already shows. */
+@media (max-width: 500px) and (max-height: 720px) {
+  .left, .right { top: 42%; }
+  .bet { padding: 1px 5px 1px 2px; font-size: 9px; }
+  .hero .status { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bet, .paid, .hero.active .plate { animation: none; }
+  .turnBar { animation-timing-function: steps(1, end); }
+}
