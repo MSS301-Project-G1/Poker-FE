@@ -26,5 +26,5 @@ export default function AuthenticatedLayout() {
     } finally { setLogoutPending(false) }
   }
 
-  return <><MainLayout user={auth.user} onLogout={logout} logoutPending={logoutPending} /><MatchmakingCard /><CommunityDock showLauncher={location.pathname !== paths.lobby} /></>
+  return <><MainLayout user={auth.user} onLogout={logout} logoutPending={logoutPending} /><MatchmakingCard /><CommunityDock showLauncher={![paths.lobby, paths.ranked].includes(location.pathname)} /></>
 }

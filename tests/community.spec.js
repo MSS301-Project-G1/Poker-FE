@@ -43,7 +43,7 @@ test('lobby ports the lounge controls and party membership from the server', asy
   await expect(page.getByText('AB12CD34', { exact: true })).toBeVisible()
   await expect(page.getByText('482913', { exact: true })).toBeVisible()
   await expect(page.getByPlaceholder('UUID của người chơi')).toHaveCount(0)
-  await expect(page.getByRole('link', { name: 'Ranked', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('link', { name: 'Ranked', exact: true })).toHaveAttribute('href', '/ranked')
   await expect(page.getByTestId('lobby-3d-scene')).toHaveAttribute('data-render-status', 'ready', { timeout: 20000 })
   await page.screenshot({ path: 'artifacts/community-lobby-desktop.png', fullPage: true })
 })
@@ -69,31 +69,59 @@ test('party is joined with the shared code and password', async ({ page }) => {
   await expect(page.getByText('482913', { exact: true })).toBeVisible()
 })
 
-test('matchmaking stays on the 3D lobby and the floating card can be minimized and restored', async ({ page }) => {
+for (const [mode, button, heading] of [['NORMAL', 'Chơi nhanh', 'Normal Match'], ['RANK', 'Tìm trận Rank', 'Ranked Match']]) {
+test(`${mode} lobby matchmaking opens the radar page and resumes without joining twice`, async ({ page }) => {
   let queue = { status: 'NONE' }
   let joins = 0
-  await page.route('**/api/matchmaking/normal/status', route => route.fulfill({ json: queue }))
-  await page.route('**/api/matchmaking/normal/join', route => {
+  await page.route(`**/api/matchmaking/${mode.toLowerCase()}/status`, route => route.fulfill({ json: queue }))
+  await page.route(`**/api/matchmaking/${mode.toLowerCase()}/join`, route => {
     joins++
-    queue = { status: 'WAITING', mode: 'NORMAL', joinedAt: new Date().toISOString(), playerCount: 2, minPlayers: 4, maxPlayers: 6, position: 1 }
+    queue = { status: 'WAITING', mode, joinedAt: new Date().toISOString(), playerCount: 2, minPlayers: 4, maxPlayers: 6, position: 1 }
     return route.fulfill({ json: queue })
   })
-  await page.route('**/api/matchmaking/normal/leave', route => { queue = { status: 'NONE' }; return route.fulfill({ status: 204 }) })
+  await page.route(`**/api/matchmaking/${mode.toLowerCase()}/leave`, route => { queue = { status: 'NONE' }; return route.fulfill({ status: 204 }) })
   await page.goto('/lobby')
-  await page.getByRole('button', { name: 'Chơi nhanh', exact: true }).click()
-  await expect(page).toHaveURL(/\/lobby$/)
-  await expect(page.getByTestId('matchmaking-card')).toBeVisible()
+  await page.getByRole('button', { name: button, exact: true }).click()
+  await expect(page).toHaveURL(mode === 'NORMAL' ? /\/ranked\?mode=NORMAL$/ : /\/ranked$/)
+  await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible()
+  await expect(page.getByTestId('matchmaking-card')).toHaveCount(0)
   await expect(page.getByRole('heading', { name: 'Đang tìm người chơi' })).toBeVisible()
-  await expect(page.getByTestId('lobby-3d-scene')).toHaveAttribute('data-render-status', 'ready', { timeout: 20000 })
-  await page.screenshot({ path: 'artifacts/community-floating-matchmaking.png' })
-  await page.getByRole('button', { name: 'Thu gọn tìm trận' }).click()
+  await page.getByRole('link', { name: 'Lobby', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Bạn đang trong hàng chờ' })).toBeVisible()
   await expect(page.getByTestId('matchmaking-card')).toHaveCount(0)
   await page.getByRole('button', { name: 'Quay lại tìm trận', exact: true }).click()
-  await expect(page.getByTestId('matchmaking-card')).toBeVisible()
+  await expect(page).toHaveURL(mode === 'NORMAL' ? /\/ranked\?mode=NORMAL$/ : /\/ranked$/)
+  await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible()
   expect(joins).toBe(1)
   await page.getByRole('button', { name: 'Hủy tìm trận', exact: true }).click()
   await expect(page.getByTestId('matchmaking-card')).toHaveCount(0)
-  await expect(page.getByRole('button', { name: 'Chơi nhanh', exact: true })).toBeVisible()
+  await expect(page).toHaveURL(/\/lobby$/)
+  await expect(page.getByRole('button', { name: button, exact: true })).toBeVisible()
+})
+}
+
+test('radar loads actual queue profiles and removes players who leave', async ({ page }) => {
+  const newcomer = '00000000-0000-0000-0000-000000000004'
+  let ids = [friend, self]
+  await page.route('**/api/matchmaking/normal/status', route => route.fulfill({ json: {
+    status: 'WAITING', mode: 'NORMAL', playerCount: ids.length, minPlayers: 2, maxPlayers: 6, playerIds: ids,
+  } }))
+  await page.route('**/api/profiles/batch?*', route => route.fulfill({ json: { result: [
+    { accountId: friend, displayName: 'Linh Ace', avatarUrl: '/stitch-assets/avatar.svg' },
+    { accountId: newcomer, displayName: 'Bao Poker', avatarUrl: '/stitch-assets/avatar.svg' },
+  ] } }))
+  await page.goto('/ranked?mode=NORMAL')
+  const roster = page.getByTestId('queue-player')
+  await expect(roster.nth(0)).toContainText('Linh Ace')
+  await expect(roster.nth(1)).toContainText('Minh Poker (You)')
+  await expect(roster.nth(0).locator('img')).toHaveAttribute('src', '/stitch-assets/avatar.svg')
+  ids = [friend, self, newcomer]
+  await expect(roster.nth(2)).toContainText('Bao Poker')
+  ids = [self, newcomer]
+  await expect(page.getByText('Linh Ace', { exact: true })).toHaveCount(0)
+  await expect(roster.nth(0)).toContainText('Minh Poker (You)')
+  await expect(roster.nth(1)).toContainText('Bao Poker')
+  await expect(roster.nth(2)).toContainText('FINDING…')
 })
 
 test('solo test can be cancelled and enters the bot table after ten seconds without joining a queue', async ({ page }) => {

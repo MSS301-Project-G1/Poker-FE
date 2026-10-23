@@ -58,10 +58,11 @@ Vite builds the demo HTML as a separate entry, so Three.js is not added to the m
 
 ## Lobby 3D and floating matchmaking update
 
-- Ranked was removed from the navigation menu. Rank remains available as a game mode in the lounge.
-- Both mode buttons start real matchmaking while staying on /lobby. MatchmakingProvider owns both queue states across route changes.
-- MatchmakingCard is a non-modal floating card; it displays real elapsed time, player counts and Rank acceptance deadlines. Minimize does not cancel or join again. The lounge resume button restores it; cancellation still calls DELETE on the active queue.
-- Old /ranked links redirect to /lobby?match=RANK (or NORMAL), opening the same card rather than a separate queue screen.
+- Ranked is available in the navigation menu again and opens the restored dedicated matchmaking screen with radar, queue information and gathering slots. Timers, counts and actions use the shared queue state; profile/Elo values of opponents are not fabricated.
+- Both lobby mode buttons start real matchmaking and open the radar screen: /ranked for Rank, /ranked?mode=NORMAL for Normal. Returning to the lobby preserves the queue; its resume button returns to the radar without another join request. MatchmakingProvider owns both queue states across route changes.
+- Queue progress and Rank acceptance are displayed on the radar screen. MatchmakingCard remains only for a match already in progress, with return-to-table/forfeit controls. Queue cancellation still calls DELETE on the active queue.
+- /ranked displays Rank matchmaking; /ranked?mode=NORMAL displays Normal matchmaking. No floating queue card is shown while waiting. Legacy /lobby?match=RANK or NORMAL links also open the radar screen.
+- Queue status includes `playerIds`. Radar resolves these through `/api/profiles/batch` and updates identities/avatars on every membership change. Before a proposal, this is a bounded preview of the oldest entries in the mode's queue, not guaranteed final table seats (Rank Elo and Normal party selection still happen on the server). Proposals return the actual proposal roster. Missing profiles fall back to an ID label and default avatar; names are not invented.
 - LobbyBackdrop lazily renders the same Three.js TableScene geometry and lights as poker-3d behind the real React lounge. This adapter does not run the demo game's queue or economy.
 - WebGL resources are disposed on unmount; React Strict Mode can reuse the canvas context. Rendering is capped at 30 fps / DPR 1.25 and paused under modal panels or when the document is hidden. Reduced-motion mode renders a static scene. A CSS fallback keeps the lounge usable without WebGL.
 - Shared procedural sound effects cover clicks, queue found/ready, card/chip/turn changes, chat and notifications. The header's sound button persists a local preference. Browsers unlock audio only after a user gesture. The solo demo uses the same audio synthesizer inside its standalone document.

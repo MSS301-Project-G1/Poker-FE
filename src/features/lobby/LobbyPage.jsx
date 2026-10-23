@@ -13,15 +13,14 @@ import { useDailyCheckIn } from './hooks/useDailyCheckIn'
 
 export default function LobbyPage() {
   const { user } = useAuth()
-  const [params, setParams] = useSearchParams()
+  const [params] = useSearchParams()
   const { open } = useQueue()
   const legacyMode = params.get('match')
   useEffect(() => {
     if (legacyMode === 'RANK' || legacyMode === 'NORMAL') {
       open(legacyMode)
-      setParams(previous => { const next = new URLSearchParams(previous); next.delete('match'); return next }, { replace: true })
     }
-  }, [legacyMode, open, setParams])
+  }, [legacyMode, open])
   const [checkInOpen, setCheckInOpen] = useDailyCheckIn()
 
   // One flat grid so every block lines up with its row neighbours. From xl the leaderboard takes the

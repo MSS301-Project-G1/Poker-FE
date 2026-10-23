@@ -33,7 +33,12 @@ function PlayerQueue({ children }) {
   const active = Boolean(activeMode)
   const forceProposal = queue?.status === 'PROPOSED' && !current.accepted && dismissedProposal !== queue.proposalId
   const visible = Boolean(mode && (requested || active) && (!minimized || forceProposal))
-  const open = useCallback(chosen => { setSelection(chosen); setRequested(true); setMinimized(false) }, [])
+  const open = useCallback(chosen => {
+    setSelection(chosen)
+    setRequested(true)
+    setMinimized(false)
+    navigate(chosen === 'NORMAL' ? `${paths.ranked}?mode=NORMAL` : paths.ranked)
+  }, [navigate])
   const minimize = () => { setMinimized(true); setDismissedProposal(queue?.proposalId || null) }
   const close = () => { setRequested(false); setMinimized(true) }
 
