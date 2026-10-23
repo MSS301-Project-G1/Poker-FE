@@ -2,6 +2,7 @@
 
 /* Table felt: a stadium with a glowing rail. The page that renders it decides its size. */
 .felt { position: relative; }
+.felt.spatial::before, .felt.spatial::after { display: none; }
 .felt::before {
   content: '';
   position: absolute;

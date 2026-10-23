@@ -13,7 +13,7 @@ const actionTones = { FOLD: 'muted', CHECK: 'calm', CALL: 'calm', RAISE: 'hot', 
  * paid bumps the stack when a won pot lands.
  */
 export default function PlayerSeat({ player, profile, slot, isYou, active, dealer, smallBlind, bigBlind, winner,
-  chips, bet, revealDelays, turnMillis, turnKey, showHand, paid }) {
+  chips, bet, revealDelays, turnMillis, turnKey, showHand, paid, spatial = false }) {
   const name = playerName(profile, player.accountId)
   const state = [styles[slot], isYou && styles.hero, active && styles.active, player.folded && styles.folded, winner && styles.winner].filter(Boolean).join(' ')
   const status = player.eliminated ? `Place #${player.place}` : player.leftEarly ? 'Left table'
@@ -32,7 +32,7 @@ export default function PlayerSeat({ player, profile, slot, isYou, active, deale
       {turnMillis > 0 && <i key={turnKey} className={styles.turnBar} style={{ '--turn-ms': `${turnMillis}ms` }} aria-hidden="true" />}
     </div>
     {/* The showdown hand label hangs on the cards' lower edge, so it never needs room of its own. */}
-    <div className={styles.hand}>
+    <div className={`${styles.hand} ${spatial ? styles.spatialHand : ''}`}>
       <div className={styles.holeCards} aria-label={isYou ? 'Your cards' : `${name}'s cards`}>
         {Array.from({ length: player.holeCardCount }, (_, index) => <span key={index} className={styles.cardSlot} data-card-slot>
           <PlayingCard card={player.cards[index]} size={isYou ? 'xl' : 'sm'} revealDelay={revealDelays?.[index]} />
@@ -41,6 +41,6 @@ export default function PlayerSeat({ player, profile, slot, isYou, active, deale
       {showHand && player.handRank && <span className={styles.handRank}>{label(handLabels, player.handRank.category)}</span>}
     </div>
     {/* Keyed by the amount so every new bet slides in. */}
-    {bet > 0 && <span key={bet} className={styles.bet} data-bet-seat={player.seatIndex}><ChipStack amount={bet} /></span>}
+    {bet > 0 && !spatial && <span key={bet} className={styles.bet} data-bet-seat={player.seatIndex}><ChipStack amount={bet} /></span>}
   </div>
 }

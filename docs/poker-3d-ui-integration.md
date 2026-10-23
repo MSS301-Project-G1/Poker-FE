@@ -66,3 +66,27 @@ Vite builds the demo HTML as a separate entry, so Three.js is not added to the m
 - LobbyBackdrop lazily renders the same Three.js TableScene geometry and lights as poker-3d behind the real React lounge. This adapter does not run the demo game's queue or economy.
 - WebGL resources are disposed on unmount; React Strict Mode can reuse the canvas context. Rendering is capped at 30 fps / DPR 1.25 and paused under modal panels or when the document is hidden. Reduced-motion mode renders a static scene. A CSS fallback keeps the lounge usable without WebGL.
 - Shared procedural sound effects cover clicks, queue found/ready, card/chip/turn changes, chat and notifications. The header's sound button persists a local preference. Browsers unlock audio only after a user gesture. The solo demo uses the same audio synthesizer inside its standalone document.
+
+## Live 3D table and camera entrance
+
+- `/table/:tableId` now renders the same procedural 3D table, characters, cards and chips as the demo, driven exclusively by the authenticated Game Service snapshot. The local demo engine does not control live games. Only card faces disclosed by the server are rendered; pooled card materials are reset before reuse.
+- Rank proposals have a configurable 30-second acceptance deadline (`MATCHMAKING_RANK_ACCEPT_TIMEOUT`). The radar follows the server deadline. Once all accept and the server reports READY, navigation opens the table and the camera rises from floor height into the playing view over 3.2 seconds. Normal starts the camera entrance on READY without an acceptance phase.
+- Actions and the server turn clock continue throughout the entrance. Skip is available; reduced motion goes directly to the playing view. Completed entrances are remembered per table in sessionStorage so reconnecting does not replay them. The solo demo also uses the entrance.
+- Name plates and the pot follow projected world anchors on desktop; mobile uses spaced plates around the viewport. The existing shared skin components remain the HUD/accessibility layer. If WebGL creation fails or its context is lost, the standard table stays usable with the same server actions.
+- `npm run test:live-table` checks acceptance-to-READY navigation, low-to-high camera movement, live action/snapshot updates, hidden opponent cards, reconnect, mobile/reduced motion, skipping and WebGL fallback. These tests mock transport contracts; they are not a live multi-account backend session.
+
+
+## Updated matchmaking flow (2026-10-24)
+
+Both Normal and Rank now wait for the server fill deadline (30 seconds from the minimum roster, currently 2 players). A full table no longer bypasses that deadline. Below the minimum, the fill countdown resets while elapsed waiting time continues from joinedAt.
+
+After the server reserves the roster, PROPOSED displays a full-screen black reveal and a 3D table preview with Accept/Decline controls. The separate acceptance deadline is 30 seconds. No cards are dealt and no game is created during this preview. Every player must accept. READY navigates to the real full-screen 3D game; a completed preview camera animation is not replayed on entry.
+
+Normal rejection/expiry returns the entire proposal to the lobby, preserving party membership and clearing party queue locks. Rank retains its existing decline/timeout requeue/cooldown rules. WebGL failure keeps confirmation/actions usable with an explicit fallback message.
+
+Tests use mocked HTTP/STOMP transport for browser scenarios, and backend unit tests cover acceptance, expiry, rejection, membership, and countdowns.
+
+
+## Confirmed presentation correction
+
+The 3D camera/table is only the matchmaking confirmation stage. Once every player accepts and the server returns READY, `/table/:tableId` uses the original 2D table, cards, bets, actions, and chat. The real game does not initialize WebGL. The standalone `/demo` remains 3D. The 30-second fill and acceptance deadlines remain unchanged.

@@ -3,6 +3,7 @@
 .seat { position: absolute; z-index: 2; display: flex; align-items: center; gap: 6px; pointer-events: none; }
 .seat > * { pointer-events: auto; }
 .folded { opacity: 0.5; }
+.spatialHand { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 
 /* Slots (see seatLayout.js). Cards and bets sit on the side that faces the middle of the table. */
 .top, .topLeft, .topRight, .bottomLeft, .bottomRight, .bottom { flex-wrap: wrap; justify-content: center; width: 178px; }

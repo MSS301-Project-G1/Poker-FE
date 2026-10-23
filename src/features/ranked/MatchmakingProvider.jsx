@@ -94,12 +94,15 @@ function PlayerQueue({ accountId, children }) {
     if (queueStatus === 'READY' && tableId) play('win')
   }, [queueStatus, tableId, proposalId, play])
   useEffect(() => {
+    if (queueStatus === 'PROPOSED') {
+      if (location.pathname !== paths.ranked && location.pathname !== paths.demo) navigate(mode === 'NORMAL' ? `${paths.ranked}?mode=NORMAL` : paths.ranked)
+    }
     if (queueStatus !== 'READY') openedTable.current = null
     if (queueStatus === 'READY' && tableId && location.pathname !== paths.demo && openedTable.current !== tableId) {
       openedTable.current = tableId
       navigate(paths.tableById(tableId), { replace: true })
     }
-  }, [queueStatus, tableId, navigate, location.pathname])
+  }, [queueStatus, tableId, proposalId, mode, navigate, location.pathname])
 
   return <MatchmakingContext.Provider value={{ rank, normal, mode, queue, active, activeMode, inMatch, leaderOnly, visible, pending, accepted: current.accepted, error: mode ? current.error : '', start, open, minimize, close, cancel, accept, decline, returnToTable, leaveMatch }}>{children}</MatchmakingContext.Provider>
 }

@@ -45,6 +45,11 @@ class CardMesh {
     this.card = card;
     this.front.material = material;
   }
+
+  hideFace(material: THREE.Material): void {
+    this.card = null;
+    this.front.material = material;
+  }
 }
 
 type SeatVisual = {
@@ -80,6 +85,63 @@ export class TableScene {
   private readonly desiredPos = new THREE.Vector3();
   private readonly desiredLook = new THREE.Vector3();
   private cameraSnapped = false;
+  private entranceElapsed = -1;
+  private entranceDuration = 3.2;
+  private compactTableCamera = false;
+
+  useCompactTableCamera(): void { this.compactTableCamera = true; }
+
+  /** Live matches can enter from floor height; the game clock never waits for this camera. */
+  enterTable(duration = 3.2): void {
+    this.view = 'table';
+    this.entranceDuration = duration;
+    this.entranceElapsed = duration > 0 ? 0 : -1;
+  }
+
+  finishEntrance(): void { this.entranceElapsed = -1; this.cameraSnapped = false; }
+  get entering(): boolean { return this.entranceElapsed >= 0; }
+
+  /** Render only cards the server disclosed to this viewer; no local poker engine is involved. */
+  syncLiveCards(players: { cards: (Card | null)[]; holeCardCount: number; folded: boolean; eliminated: boolean; leftEarly: boolean }[], board: Card[], animate: boolean): void {
+    const position = (mesh: CardMesh, target: { position: THREE.Vector3; yaw: number; roll: number }, pitch: number, fresh: boolean) => {
+      mesh.root.visible = true;
+      mesh.root.rotation.set(pitch, target.yaw, target.roll);
+      if (fresh && animate) {
+        mesh.root.position.copy(DECK_POS);
+        void this.tweens.to(.4, k => mesh.root.position.lerpVectors(DECK_POS, target.position, k), easeOutCubic);
+      } else mesh.root.position.copy(target.position);
+    };
+    players.forEach((player, seatIndex) => {
+      const seat = this.seats[seatIndex];
+      if (!seat) return;
+      const count = player.folded || player.eliminated || player.leftEarly ? 0 : Math.min(2, player.holeCardCount);
+      while (seat.cards.length > count) this.releaseCard(seat.cards.pop()!);
+      for (let index = 0; index < count; index += 1) {
+        const fresh = !seat.cards[index];
+        const mesh = seat.cards[index] ?? this.takeCard();
+        seat.cards[index] = mesh;
+        const card = player.cards[index];
+        if (card) mesh.setFace(card, this.faceMaterial(card));
+        else mesh.hideFace(this.backMaterial);
+        const hero = seat.avatar === null;
+        position(mesh, this.holeTarget(seatIndex, index, hero), card ? (hero ? HERO_TILT : FACE_UP) : FACE_DOWN, fresh);
+      }
+    });
+    while (this.board.length > board.length) this.releaseCard(this.board.pop()!);
+    board.slice(0, 5).forEach((card, index) => {
+      const fresh = !this.board[index];
+      const mesh = this.board[index] ?? this.takeCard();
+      this.board[index] = mesh;
+      mesh.setFace(card, this.faceMaterial(card));
+      position(mesh, { position: new THREE.Vector3((index - 2) * BOARD_SPACING, .006, BOARD_Z), yaw: 0, roll: 0 }, FACE_UP, fresh);
+    });
+  }
+
+  /** Return pooled cards to the scene so the caller's GPU cleanup covers their materials too. */
+  prepareDispose(): void {
+    this.tweens.flush();
+    this.cardPool.forEach(card => this.scene.add(card.root));
+  }
 
   constructor(
     private readonly scene: THREE.Scene,
@@ -394,9 +456,9 @@ export class TableScene {
     } else if (portrait) {
       // Narrow screens: pull back and widen so the side avatars stay in frame.
       // Same pitch as desktop (keeps the lamp out of view), just further back.
-      this.desiredPos.set(0, 7.4, 9.6);
-      this.desiredLook.set(0, -0.9, 0.1);
-      this.camera.fov = 62;
+      this.desiredPos.set(0, this.compactTableCamera ? 6 : 7.4, this.compactTableCamera ? 7.8 : 9.6);
+      this.desiredLook.set(0, this.compactTableCamera ? -.55 : -.9, 0.1);
+      this.camera.fov = this.compactTableCamera ? 54 : 62;
     } else {
       const wide = Math.min(1, Math.max(0, (aspect - 1.2) / 0.8));
       this.desiredPos.set(0, 4.9 - wide * 0.5, 5.6 - wide * 0.4);
@@ -405,6 +467,19 @@ export class TableScene {
     }
     // The portrait table camera sits above the pendant lamp, whose shade would hide the far seat.
     if (this.lamp) this.lamp.visible = !(portrait && this.view === 'table');
+    if (this.entranceElapsed >= 0) {
+      this.entranceElapsed += delta;
+      const progress = Math.min(1, this.entranceElapsed / this.entranceDuration);
+      const k = easeInOutCubic(progress);
+      this.camPos.set(1.15 * (1 - k), -1.25 + (this.desiredPos.y + 1.25) * k, 7.6 + (this.desiredPos.z - 7.6) * k);
+      this.camLook.set(0, -.95 + (this.desiredLook.y + .95) * k, this.desiredLook.z);
+      this.camera.position.copy(this.camPos);
+      this.camera.lookAt(this.camLook);
+      this.camera.updateProjectionMatrix();
+      this.cameraSnapped = true;
+      if (progress === 1) this.entranceElapsed = -1;
+      return;
+    }
     if (!this.cameraSnapped) {
       this.camPos.copy(this.desiredPos);
       this.camLook.copy(this.desiredLook);
@@ -469,7 +544,7 @@ export class TableScene {
 
   private takeCard(): CardMesh {
     const mesh = this.cardPool.pop() ?? new CardMesh(this.cardGeometry, this.backMaterial, this.blankMaterial);
-    mesh.card = null;
+    mesh.hideFace(this.backMaterial);
     mesh.root.visible = false;
     this.scene.add(mesh.root);
     return mesh;

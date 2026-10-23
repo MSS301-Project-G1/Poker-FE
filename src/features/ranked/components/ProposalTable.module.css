@@ -1,0 +1,14 @@
+.scene { position: fixed; inset: 0; z-index: 80; background: #050309; color: #f5dcff; overflow: hidden; }
+.header { position: absolute; top: 20px; left: 24px; font-weight: 800; font-size: 22px; }
+.header span { margin-left: 20px; color: #e8c953; font-size: 12px; }
+.prompt { position: absolute; z-index: 3; left: 50%; top: 48%; transform: translate(-50%, -50%); width: min(440px, calc(100% - 32px)); padding: 28px; text-align: center; background: #1b0c29e8; border: 1px solid #d949b9; border-radius: 24px; box-shadow: 0 12px 80px #0008; }
+.prompt h1 { font-size: 26px; margin: 12px 0; }
+.prompt p { margin: 12px 0; }
+.prompt strong { color: #ffa3e0; font-size: 26px; }
+.actions { display: flex; justify-content: center; gap: 12px; margin-top: 24px; }
+.player { position: absolute; z-index: 2; padding: 8px 14px; border: 1px solid #956392; border-radius: 24px; background: #210d30ee; font-size: 13px; }
+.scene[data-camera-phase="entering"] .player { opacity: 0; }
+.blackout { position: absolute; inset: 0; z-index: 4; background: #000; pointer-events: none; animation: reveal .9s ease-in forwards; }
+@keyframes reveal { 0%, 25% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) { .blackout { display: none; } }
+@media(max-width: 600px) { .header { font-size: 16px; } .prompt { padding: 20px; } .player { font-size: 11px; max-width: 120px; } }

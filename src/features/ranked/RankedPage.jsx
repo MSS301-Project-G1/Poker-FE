@@ -6,6 +6,7 @@ import { paths } from '@/shared/config/paths'
 import { useQueue } from './MatchmakingContext'
 import MatchRadar from './components/MatchRadar'
 import QueueRoster from './components/QueueRoster'
+import ProposalTable from './components/ProposalTable'
 import styles from './RankedPage.module.css'
 
 const titles = { NONE: 'Sẵn sàng tìm trận', WAITING: 'Đang tìm người chơi', COUNTDOWN: 'Sắp bắt đầu', MATCHING: 'Đang ghép bàn', PROPOSED: 'Đã tìm thấy trận!', CREATING_TABLE: 'Đang tạo bàn', READY: 'Ván đấu đang diễn ra', FAILED: 'Không tìm được trận' }
@@ -33,6 +34,7 @@ export default function RankedPage() {
   async function cancel() {
     if (await current.leave()) { state.close(); navigate(paths.lobby) }
   }
+  if (['PROPOSED', 'CREATING_TABLE'].includes(status) && queue?.proposalId) return <ProposalTable key={queue.proposalId} queue={queue} user={user} current={current} state={state} remaining={remaining} mode={mode} />
   return <div className={styles.page}>
     <section className={styles.panel} aria-label="Ranked matchmaking">
       <header className={styles.header}>
@@ -40,7 +42,7 @@ export default function RankedPage() {
         <div className={styles.mode}>{mode === 'RANK' ? 'ĐẤU HẠNG · SOLO' : 'CHƠI THƯỜNG'}</div>
       </header>
       <div className={styles.main}>
-        <MatchRadar elapsed={clock(elapsed)} title={idle ? 'READY TO SEARCH' : 'SEARCHING TABLE'} active={!idle && Boolean(queue)} detail={queue?.position != null ? `Vị trí trong hàng: #${queue.position}` : 'Trạng thái được cập nhật từ máy chủ'} />
+        <MatchRadar elapsed={clock(status === 'COUNTDOWN' && remaining != null ? remaining : elapsed)} title={status === 'COUNTDOWN' ? 'CHỜ THÊM NGƯỜI CHƠI' : idle ? 'READY TO SEARCH' : 'SEARCHING TABLE'} active={!idle && Boolean(queue)} detail={status === 'COUNTDOWN' ? 'Hết giờ sẽ chuyển sang bàn xác nhận' : queue?.position != null ? `Vị trí trong hàng: #${queue.position}` : 'Trạng thái được cập nhật từ máy chủ'} />
         <aside className={styles.side}>
           <div className={styles.performance}><div className={styles.sectionTitle}><Icon name="hotel_class" /><h2>THÔNG TIN GHÉP TRẬN</h2></div>
             <div className={styles.stats}><div><span>Người đang chờ</span><strong>{count} / {max}</strong><i /></div><div><span>Tối thiểu mở bàn</span><strong>{queue?.minPlayers ?? '—'}</strong><i /></div></div>

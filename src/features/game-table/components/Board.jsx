@@ -17,7 +17,7 @@ export default function Board({ cards, pot, distribution, street, revealDelays =
         {index === 0 ? 'Pot chính' : `Pot phụ ${index}`}: {award.amount.toLocaleString()} → {award.winnerSeats.map(seat => `Ghế ${seat + 1}`).join(', ')}
       </span>)}</div></details> : <small>{label(streetLabels, street)}</small>}
     </div>
-    <div className={styles.community} aria-label="Community cards">
+    <div className={styles.community} aria-label="Community cards" data-community-cards>
       {Array.from({ length: 5 }, (_, index) => {
         const revealing = revealDelays[index] !== undefined
         return <div key={index} className={styles.cell}>
