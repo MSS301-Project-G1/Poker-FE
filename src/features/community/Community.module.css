@@ -79,8 +79,22 @@
 .composerActions { display: flex; justify-content: space-between; gap: var(--space-sm); align-items: center; margin-top: var(--space-sm); }
 .composerActions small { font-size: 11px; }
 .loadMore { align-self: center; color: rgb(var(--color-primary)); font-size: 13px; text-decoration: underline; padding: var(--space-sm); }
-.matchChat { width: 100%; min-width: 0; }
-.matchChat .chat { height: 400px; min-height: 0; }
+/* Match chat fills the table's chat slot, so it is compact and scrolls inside. */
+.matchChat { width: 100%; min-width: 0; height: 100%; display: flex; flex-direction: column; }
+.matchChat .chat { flex: 1; min-height: 0; border: 0; border-radius: 0; background: transparent; }
+.matchChat .chatHead { display: flex; align-items: center; gap: 6px; padding: 6px 12px; color: rgb(var(--color-on-surface-variant)); }
+.matchChat .chatHead > span { font-size: 15px; }
+.matchChat .chatHead h3 { font: 700 11px var(--font-display); letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
+.matchChat .chatHead small { display: none; }
+.matchChat .chatLog { min-height: 0; padding: 6px 12px; gap: 6px; }
+.matchChat .bubble { padding: 3px 10px; font-size: 12px; line-height: 17px; }
+.matchChat .messageMeta { display: none; }
+.matchChat .empty { padding: 4px; gap: 2px; font-size: 12px; }
+.matchChat .empty > span { font-size: 20px; }
+.matchChat .composer { display: flex; gap: 6px; align-items: center; padding: 6px 8px; }
+.matchChat .composer textarea { flex: 1; min-height: 34px; height: 34px; padding: 6px 10px; resize: none; font-size: 13px; line-height: 20px; }
+.matchChat .composerActions { margin-top: 0; }
+.matchChat .composerActions small { display: none; }
 @media (max-width: 639px) {
   .card { padding: var(--space-md); }
   .dialogHead, .dialogBody { padding: var(--space-md); }

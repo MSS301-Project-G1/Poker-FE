@@ -1,0 +1,11 @@
+.panel { display: grid; align-content: start; gap: 8px; padding: 10px 12px; border-radius: 14px; background: rgb(var(--color-surface-container) / 0.85); box-shadow: 0 10px 28px rgb(var(--color-obsidian) / 0.45); }
+.panel header { display: flex; justify-content: space-between; align-items: center; gap: 8px; color: rgb(var(--color-tertiary)); font: 700 12px var(--font-display); letter-spacing: 0.5px; }
+.panel header span { display: flex; align-items: center; gap: 5px; }
+.panel header :global(.material-symbols-outlined) { font-size: 16px; }
+.panel header small { padding: 2px 7px; border-radius: 5px; background: rgb(var(--color-tertiary-container) / 0.35); font-size: 10px; }
+.hand { margin: 0; color: rgb(var(--color-on-surface-variant)); font-size: 12px; line-height: 1.35; }
+.hand strong { color: rgb(var(--color-primary)); }
+.panel dl { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: 0; }
+.panel dl div { display: flex; justify-content: space-between; gap: 6px; padding: 4px 8px; border-radius: 6px; background: rgb(var(--color-surface-container-low)); font-size: 11px; }
+.panel dt { color: rgb(var(--color-on-surface-variant)); white-space: nowrap; }
+.panel dd { margin: 0; color: rgb(var(--color-primary)); font: 700 11px var(--font-display); font-variant-numeric: tabular-nums; }

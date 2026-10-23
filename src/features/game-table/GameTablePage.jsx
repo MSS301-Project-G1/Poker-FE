@@ -7,16 +7,19 @@ import { paths } from '@/shared/config/paths'
 import { MatchChat } from '@/features/community'
 import { useAuth } from '@/features/auth'
 import { devIdentity } from '@/shared/lib/devIdentity'
-import { Button, Eyebrow, PlaceholderScreen } from '@/shared/ui'
+import { Button, Eyebrow, Icon, PlaceholderScreen } from '@/shared/ui'
 import { GameRuntimeContext } from './runtime'
 import { useGameSession } from './hooks/useGameSession'
 import { useSeatProfiles } from './hooks/useSeatProfiles'
 import { useMatchRewards } from './hooks/useMatchRewards'
 import { confirmLeaveMatch, leaveTable } from './api/gameApi'
+import { placeSeats } from './seatLayout'
+import { label, modeLabels } from './labels'
 import Board from './components/Board'
 import PlayerSeat from './components/PlayerSeat'
 import ActionDock from './components/ActionDock'
 import TurnTimer from './components/TurnTimer'
+import TableInfo from './components/TableInfo'
 import MatchResult from './components/MatchResult'
 import HandGuide from './components/HandGuide'
 import DevLauncher from './components/DevLauncher'
@@ -82,35 +85,43 @@ function GameSession({ tableId, retry }) {
     }
   }
   const winners = snapshot?.distribution?.pots.flatMap(pot => pot.winnerSeats) || []
-  const seatCount = snapshot?.seats.length
-  const seatsClass = [styles.seats, styles[`seats${seatCount}`], seatCount >= 7 && styles.crowded].filter(Boolean).join(' ')
+  const timer = snapshot && { deadline: snapshot.deadline, serverTime: snapshot.serverTime, receivedAt: snapshot.receivedAt, paused: snapshot.street === 'HAND_FINISHED' }
+  const yourTurn = snapshot?.legalActions.length > 0
   return <div className={styles.page}>
     <header className={styles.header}>{inMatch ? <span className={styles.brand}><span>♠</span> POKER<span>RANK</span></span> : <Link to={paths.lobby} className={styles.brand}><span>♠</span> POKER<span>RANK</span></Link>}
-      <div className={styles.tableLabel}><Eyebrow>{snapshot?.mode || 'TEXAS HOLD’EM'}</Eyebrow><strong>{snapshot ? `Table ${snapshot.tableId.slice(-6)} · Hand ${snapshot.handNumber}` : 'Your next hand awaits'}</strong></div>
       <nav className={styles.headerNav}><HandGuide />{!inMatch && <Button className={styles.compactButton} onClick={() => navigate(paths.lobby)}>Lobby</Button>}
         {inMatch && snapshot.mode === 'NORMAL' && <Button className={styles.compactButton} disabled={leaving} onClick={leave}>Rời ván</Button>}</nav></header>
     {session.phase === 'loading' && <div className={styles.state} role="status"><div className={styles.spinner} /><h1>Finding your table…</h1></div>}
     {session.phase === 'empty' && <main className={styles.state}><span className={styles.stateIcon}>♠</span><h1>No active table</h1><p>{session.error || 'Join a match from the lobby. Your active table will appear here.'}</p><Button variant="primary" onClick={() => navigate(paths.lobby)}>Go to lobby</Button>{env.gameDevMode && <DevLauncher />}</main>}
     {session.phase === 'error' && <main className={styles.state}><span className={styles.stateIcon}>♠</span><h1>Unable to open this table</h1><p className={styles.error} role="alert">{session.error}</p><Button variant="primary" onClick={retry}>Try again</Button>{env.gameDevMode && <DevLauncher />}</main>}
     {snapshot && <main className={styles.arena}>
-      <div className={styles.status}><span className={`${styles.connection} ${styles[session.connection] || ''}`}><i />{session.connection === 'connected' ? 'LIVE' : session.connection.toUpperCase()}</span>
-        <span>{snapshot.street.replaceAll('_', ' ')}</span>{!finished && <TurnTimer deadline={snapshot.deadline} serverTime={snapshot.serverTime} receivedAt={snapshot.receivedAt} paused={snapshot.street === 'HAND_FINISHED'} />}
-        {session.connection !== 'connected' && <Button className={styles.compactButton} onClick={retry}>Reconnect</Button>}</div>
+      <div className={styles.infoBar}>
+        <div className={styles.tableName}><span className={`${styles.connection} ${styles[session.connection] || ''}`}><i />{session.connection === 'connected' ? 'LIVE' : session.connection.toUpperCase()}</span>
+          <strong>BÀN #{snapshot.tableId.slice(-6).toUpperCase()}</strong><span className={styles.tag}>{label(modeLabels, snapshot.mode)}</span><span className={styles.muted}>NO LIMIT HOLD’EM</span></div>
+        <div className={styles.tableMeta}>{!finished && <TurnTimer {...timer} label={yourTurn ? 'LƯỢT CỦA BẠN' : undefined} />}<span className={styles.pill}><Icon name="history" /> VÁN SỐ #{snapshot.handNumber}</span>
+          {session.connection !== 'connected' && <Button className={styles.compactButton} onClick={retry}>Reconnect</Button>}</div>
+      </div>
       {session.error && <div className={styles.alert} role="alert">{session.error}</div>}
       {leaveError && <div className={styles.alert} role="alert">{leaveError}</div>}
-      <TableTheme>
-        <div className={`${styles.boardSlot} ${seatCount === 7 || seatCount === 8 ? styles.high : ''}`}><Board cards={snapshot.board} pot={snapshot.pot} distribution={snapshot.distribution} /></div>
-        <div className={seatsClass}>{snapshot.seats.map(player => <PlayerSeat key={player.accountId} player={player} profile={profiles[player.accountId]}
-          isYou={player.accountId === snapshot.accountId} active={player.seatIndex === snapshot.actorSeat} dealer={player.seatIndex === snapshot.dealerSeat}
-          smallBlind={player.seatIndex === snapshot.smallBlindSeat} bigBlind={player.seatIndex === snapshot.bigBlindSeat} winner={winners.includes(player.seatIndex)} />)}</div>
+      <TableTheme className={styles.table}>
+        <div className={styles.center}><Board cards={snapshot.board} pot={snapshot.pot} distribution={snapshot.distribution} street={snapshot.street} /></div>
+        {placeSeats(snapshot.seats, snapshot.accountId).map(({ player, slot }) => {
+          const isYou = player.accountId === snapshot.accountId
+          return <PlayerSeat key={player.accountId} player={player} profile={profiles[player.accountId]} slot={slot} isYou={isYou}
+            active={player.seatIndex === snapshot.actorSeat} dealer={player.seatIndex === snapshot.dealerSeat}
+            smallBlind={player.seatIndex === snapshot.smallBlindSeat} bigBlind={player.seatIndex === snapshot.bigBlindSeat} winner={winners.includes(player.seatIndex)}
+            badge={isYou && yourTurn && <TurnTimer {...timer} label="LƯỢT CỦA BẠN" />} />
+        })}
       </TableTheme>
-      <div className={styles.bottom}><section className={styles.chatSlot} aria-label="Table chat">{ChatPanel ? <ChatPanel conversationId={snapshot.matchId} /> : auth.status === 'authenticated' && snapshot.matchId ? <MatchChat key={snapshot.matchId} matchId={snapshot.matchId} finished={finished} /> : <><Eyebrow>TABLE CHAT</Eyebrow><p>Sign in to open the match conversation.</p></>}</section>
-        <div><p className={styles.turnCaption} role="status">{session.pending ? 'Sending your action…' : snapshot.street === 'HAND_FINISHED' ? 'Hand complete. Next hand starts shortly.' : snapshot.legalActions.length ? 'Your move. Make it count.' : 'Waiting for the next action.'}</p>
+      <div className={styles.bottom}>
+        <section className={styles.chatSlot} aria-label="Table chat">{ChatPanel ? <ChatPanel conversationId={snapshot.matchId} /> : auth.status === 'authenticated' && snapshot.matchId ? <MatchChat key={snapshot.matchId} matchId={snapshot.matchId} finished={finished} /> : <div className={styles.chatNote}><Eyebrow>CHAT BÀN ĐẤU</Eyebrow><p>Đăng nhập để mở phòng chat của trận.</p></div>}</section>
+        <div className={styles.dockSlot}><p className={styles.turnCaption} role="status">{session.pending ? 'Đang gửi thao tác…' : snapshot.street === 'HAND_FINISHED' ? 'Ván đã xong. Ván mới sắp bắt đầu.' : snapshot.legalActions.length ? 'Đến lượt bạn. Chọn thao tác.' : 'Đang chờ người chơi khác…'}</p>
           <ActionDock key={snapshot.actionSequence} legalActions={snapshot.legalActions} callAmount={snapshot.callAmount} minRaiseTo={snapshot.minRaiseTo} maxRaiseTo={snapshot.maxRaiseTo} pot={snapshot.pot}
             disabled={session.pending || session.connection !== 'connected'} onAction={session.send} /></div>
+        <TableInfo snapshot={snapshot} me={me} />
       </div>
       {finished && <MatchResult mode={snapshot.mode} placements={snapshot.placements} accountId={snapshot.accountId} profiles={profiles} rewards={runtime.rewards || matchRewards} onExit={() => navigate(paths.lobby)} />}
     </main>}
-    <footer className={styles.footer}><span>NO-LIMIT TEXAS HOLD’EM</span><span>Table chips stay in this match.</span></footer>
+    <footer className={styles.footer}><span>NO-LIMIT TEXAS HOLD’EM</span><span>Chip trên bàn chỉ dùng trong trận này.</span></footer>
   </div>
 }

@@ -59,9 +59,14 @@ test('playing a full heads-up match displays server placements', async ({ page, 
       }
       const actorId = state.seats[state.actorSeat].accountId
       const actorPage = actorId === table.humanIds[0] ? page : other
+      // The All-in preset turns Raise into All-in; a stack too short to raise shows All-in directly.
+      const preset = actorPage.getByRole('button', { name: 'All-in', exact: true })
       const allIn = actorPage.getByRole('button', { name: /^ALL-IN/ })
-      if (await allIn.isEnabled()) await allIn.click()
-      else await actorPage.getByRole('button', { name: /^CALL/ }).click()
+      if (await preset.isEnabled()) {
+        await preset.click()
+        await allIn.click()
+      } else if (await allIn.count() && await allIn.isEnabled()) await allIn.click()
+      else await actorPage.getByRole('button', { name: /^(CALL|CHECK)/ }).click()
       await expect.poll(async () => (await snapshot()).actionSequence).toBeGreaterThan(state.actionSequence)
     }
     const results = page.getByRole('dialog', { name: 'Match results' })
