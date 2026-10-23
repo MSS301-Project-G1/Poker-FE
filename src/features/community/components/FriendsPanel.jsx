@@ -1,13 +1,27 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Button, useConfirm } from '@/shared/ui'
+import { Button, Icon, useConfirm } from '@/shared/ui'
 import { useCommunity } from '../CommunityContext'
 import { communityApi as api } from '../api/communityApi'
 import { useResource } from '../hooks/useResource'
 import { Avatar, Empty, ErrorNotice, Name } from './CommunityUI'
 import styles from '../Community.module.css'
+import FindPlayers from './FindPlayers'
+import ui from './FriendsPanel.module.css'
+import { MessagesPanel } from './ChatPanel'
 
-const tabs = [['friends', 'Bạn bè'], ['incoming', 'Lời mời nhận'], ['outgoing', 'Đã gửi'], ['blocks', 'Đã chặn']]
-const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const labels = { incoming: 'Lời mời kết bạn', outgoing: 'Lời mời đã gửi', blocks: 'Người đã chặn' }
+const statuses = { ACCEPTED: 'Đã kết bạn', DECLINED: 'Lời mời đã được từ chối', CANCELLED: 'Lời mời đã hủy' }
+
+function MoreMenu({ label, children }) {
+  return <details className={ui.menu} onKeyDown={event => {
+    if (event.key === 'Escape') { event.stopPropagation(); event.currentTarget.open = false; event.currentTarget.querySelector('summary').focus() }
+  }}>
+    <summary aria-label={label}><Icon name="more_horiz" /></summary>
+    <div className={ui.menuBody} onClick={event => {
+      if (event.target.closest('button')) event.currentTarget.closest('details').open = false
+    }}>{children}</div>
+  </details>
+}
 const removePrompt = name => ({
   title: 'Xóa bạn?', message: `${name} sẽ bị xóa khỏi danh sách bạn bè của bạn.`,
   confirmLabel: 'Xóa bạn', icon: 'person_remove', danger: true,
@@ -17,50 +31,66 @@ const blockPrompt = name => ({
   confirmLabel: 'Chặn', icon: 'block', danger: true,
 })
 
-export default function FriendsPanel({ notifications = false }) {
-  const { user, loadProfiles, openChat, profiles } = useCommunity()
+export default function FriendsPanel({ notifications = false, onChanged }) {
+  const { user, loadProfiles, openChat, profiles, panel, setPanel } = useCommunity()
   const confirm = useConfirm()
   const nameOf = accountId => profiles[accountId]?.displayName || 'Người chơi này'
-  const [tab, setTab] = useState(notifications ? 'incoming' : 'friends')
+  const [friendTab, setTab] = useState(notifications ? 'incoming' : 'friends')
+  const tab = !notifications && panel === 'chat' ? 'chat' : friendTab
   const [page, setPage] = useState(0)
-  const [id, setId] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
-  const loader = useCallback(signal => tab === 'friends' ? api.friends(page, signal) : tab === 'blocks' ? api.blocks(page, signal) : api.requests(tab === 'incoming' ? 'INCOMING' : 'OUTGOING', page, signal), [tab, page])
+  const loader = useCallback(signal => tab === 'chat' ? Promise.resolve(null) : tab === 'friends' ? api.friends(page, signal) : tab === 'blocks' ? api.blocks(page, signal) : api.requests(tab === 'incoming' ? 'INCOMING' : 'OUTGOING', page, signal), [tab, page])
   const { data, loading, error: readError, reload } = useResource(loader)
-  const partyLoader = useCallback(signal => api.party(signal), [])
-  const { data: party } = useResource(partyLoader, 5000)
-  const rows = data?.items || []
+  const rows = (data?.items || []).filter(row => !notifications || row.status === 'PENDING')
   useEffect(() => { if (data) void loadProfiles(data.items.map(row => typeof row === 'string' ? row : row.requesterId === user?.accountId ? row.addresseeId : row.requesterId)) }, [data, loadProfiles, user?.accountId])
 
   async function run(operation, message) {
     if (busy) return
     setBusy(true); setError(''); setNotice('')
-    try { await operation(); setNotice(message); reload() } catch (failure) { setError(failure.message) } finally { setBusy(false) }
+    try { await operation(); setNotice(message); reload(); onChanged?.(message) } catch (failure) { setError(failure.message) } finally { setBusy(false) }
   }
   async function chat(accountId) {
     await run(async () => openChat(await api.direct(accountId)), '')
   }
-  return <div className={styles.stack}>
-    {notifications ? <p className={styles.hint}>Lời mời đang chờ từ Social. Lịch sử thông báo và realtime sẽ được nối khi có cơ chế token socket.</p> : <>
-      <div className={styles.tabs} role="tablist" aria-label="Quan hệ người chơi">{tabs.map(([key, label]) => <button key={key} type="button" role="tab" aria-selected={tab === key} className={tab === key ? styles.tabActive : styles.tab} onClick={() => { setPage(0); setTab(key) }}>{label}</button>)}</div>
-      <form className={styles.form} onSubmit={event => { event.preventDefault(); if (uuid.test(id.trim()) && id.trim() !== user?.accountId) void run(() => api.addFriend(id.trim()), 'Đã xử lý lời mời. Kiểm tra tab Bạn bè hoặc Đã gửi.') }}><label htmlFor="add-friend-id">Kết nối với người chơi</label><div className={styles.inline}><input className={styles.input} id="add-friend-id" placeholder="Nhập account ID (UUID)" value={id} onChange={event => setId(event.target.value)} /><Button type="submit" disabled={busy || !uuid.test(id.trim()) || id.trim() === user?.accountId}>Thêm bạn</Button></div></form>
-    </>}
+  function selectTab(next) { if (!notifications) setPanel(next === 'chat' ? 'chat' : 'friends'); if (next !== 'chat') setTab(next); setPage(0); setError(''); setNotice('') }
+  const navigation = !notifications && <div className={ui.toolbar}>
+      <MoreMenu label="Tùy chọn bạn bè">
+        <button type="button" onClick={() => selectTab('outgoing')}><Icon name="outgoing_mail" />Lời mời đã gửi</button>
+        <button type="button" onClick={() => selectTab('blocks')}><Icon name="block" />Người đã chặn</button>
+      </MoreMenu>
+    </div>
+  if (tab === 'chat') return <MessagesPanel />
+  if (notifications && !loading && !readError && !rows.length) return null
+  return <div className={ui.panel}>
+    {navigation}
+    {!notifications && tab === 'friends' && <FindPlayers busy={busy} run={run} />}
+    {tab !== 'friends' && <div className={ui.heading}>
+      {['outgoing', 'blocks'].includes(tab) && <Button aria-label="Quay lại bạn bè" onClick={() => selectTab('friends')}><Icon name="arrow_back" /></Button>}
+      <h3>{labels[tab]}</h3>
+    </div>}
     <ErrorNotice message={error || readError} retry={readError ? reload : null} />
     {notice && <p className={styles.success} role="status">{notice}</p>}
-    {loading ? <Empty>Đang tải người chơi…</Empty> : !rows.length ? <Empty>{tab === 'friends' ? 'Chưa có bạn bè. Gửi lời mời để bắt đầu kết nối.' : tab === 'blocks' ? 'Bạn chưa chặn người chơi nào.' : 'Không có lời mời trong danh sách này.'}</Empty> : <ul className={styles.list}>{rows.map(row => {
+    {!notifications && tab === 'friends' && <FriendsPanel notifications onChanged={message => { setNotice(message); reload() }} />}
+    {tab === 'friends' && <h3 className={ui.sectionTitle}>Danh sách bạn bè{data ? ` · ${data.totalElements}` : ''}</h3>}
+    {loading ? <Empty>Đang tải người chơi…</Empty> : !rows.length ? <Empty>{tab === 'friends' ? 'Chưa có bạn bè. Tìm người chơi để bắt đầu kết nối.' : tab === 'blocks' ? 'Bạn chưa chặn người chơi nào.' : 'Không có lời mời trong danh sách này.'}</Empty> : <ul className={ui.list}>{rows.map(row => {
       const accountId = typeof row === 'string' ? row : row.requesterId === user?.accountId ? row.addresseeId : row.requesterId
-      return <li className={styles.socialRow} key={typeof row === 'string' ? row : row.id}>
-        <div className={styles.row}><Avatar id={accountId} /><span className={styles.person}><strong><Name id={accountId} /></strong><small className={styles.muted}>{row.status || accountId.slice(0, 8)}</small></span></div>
-        <div className={styles.actions}>
-          {tab === 'friends' && <><Button disabled={busy} onClick={() => chat(accountId)}>Nhắn tin</Button>{party?.leaderId === user?.accountId && !party.memberIds.includes(accountId) && <Button disabled={busy} onClick={() => run(() => api.invite(accountId), `Đã mời. Chia sẻ mã nhóm ${party.partyCode} cho người chơi.`)}>Mời nhóm</Button>}<button className={styles.link} type="button" disabled={busy} onClick={async () => { if (await confirm(removePrompt(nameOf(accountId)))) void run(() => api.removeFriend(accountId), 'Đã xóa bạn.') }}>Xóa bạn</button><button className={styles.dangerLink} type="button" disabled={busy} onClick={async () => { if (await confirm(blockPrompt(nameOf(accountId)))) void run(() => api.block(accountId), 'Đã chặn người chơi.') }}>Chặn</button></>}
+      const subtitle = row.status ? statuses[row.status] || (tab === 'incoming' ? 'Muốn kết bạn với bạn' : 'Đang chờ phản hồi') : tab === 'blocks' ? 'Đã chặn' : 'Bạn bè'
+      return <li className={ui.personRow} key={typeof row === 'string' ? row : row.id}>
+        <Avatar id={accountId} />
+        <div className={ui.person}><strong><Name id={accountId} /></strong><small>{subtitle}</small></div>
+        <div className={ui.actions}>
+          {tab === 'friends' && <><Button disabled={busy} onClick={() => chat(accountId)}>Nhắn tin</Button><MoreMenu label={`Tùy chọn với ${nameOf(accountId)}`}>
+            <button type="button" disabled={busy} onClick={async () => { if (await confirm(removePrompt(nameOf(accountId)))) void run(() => api.removeFriend(accountId), 'Đã xóa bạn.') }}><Icon name="person_remove" />Xóa bạn</button>
+            <button className={ui.danger} type="button" disabled={busy} onClick={async () => { if (await confirm(blockPrompt(nameOf(accountId)))) void run(() => api.block(accountId), 'Đã chặn người chơi.') }}><Icon name="block" />Chặn</button>
+          </MoreMenu></>}
           {tab === 'blocks' && <Button disabled={busy} onClick={() => run(() => api.unblock(accountId), 'Đã bỏ chặn. Quan hệ bạn bè không tự khôi phục.')}>Bỏ chặn</Button>}
           {row.status === 'PENDING' && tab === 'incoming' && <><Button variant="primary" disabled={busy} onClick={() => run(() => api.respond(row.id, 'accept'), 'Đã chấp nhận kết bạn.')}>Chấp nhận</Button><Button disabled={busy} onClick={() => run(() => api.respond(row.id, 'decline'), 'Đã từ chối.')}>Từ chối</Button></>}
           {row.status === 'PENDING' && tab === 'outgoing' && <Button disabled={busy} onClick={() => run(() => api.cancel(row.id), 'Đã hủy lời mời.')}>Hủy lời mời</Button>}
         </div>
       </li>
     })}</ul>}
-    <nav className={styles.pagination} aria-label="Phân trang"><Button disabled={page === 0} onClick={() => setPage(value => value - 1)}>Trước</Button><span>Trang {page + 1}</span><Button disabled={!data || page + 1 >= data.totalPages} onClick={() => setPage(value => value + 1)}>Sau</Button></nav>
+    {data?.totalPages > 1 && <nav className={ui.pagination} aria-label="Phân trang"><Button disabled={page === 0} onClick={() => setPage(value => value - 1)}>Trước</Button><span>{page + 1} / {data.totalPages}</span><Button disabled={page + 1 >= data.totalPages} onClick={() => setPage(value => value + 1)}>Sau</Button></nav>}
   </div>
 }

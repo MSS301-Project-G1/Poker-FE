@@ -3,3 +3,4 @@ export { default as CommunityDock, CommunityToolbar } from './components/Communi
 export { default as PartyPanel } from './components/PartyPanel'
 export { MatchChat } from './components/ChatPanel'
 export { useCommunity } from './CommunityContext'
+export { useParty } from './hooks/useParty'

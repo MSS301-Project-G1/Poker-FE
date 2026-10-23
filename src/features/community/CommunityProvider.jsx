@@ -20,6 +20,41 @@ function AccountCommunity({ user, children }) {
   const [profiles, setProfiles] = useState({})
   const [notifications, setNotifications] = useState([])
   const [chatMessages, setChatMessages] = useState([])
+  const [unreadMessages, setUnreadMessages] = useState({})
+  const [messageAlert, setMessageAlert] = useState(null)
+  const visibleChats = useRef(new Map())
+  const markChatRead = useCallback(id => {
+    setUnreadMessages(current => {
+      if (!current[id]) return current
+      const next = { ...current }
+      delete next[id]
+      return next
+    })
+    setMessageAlert(current => current?.conversationId === id ? null : current)
+  }, [])
+  const registerVisibleChat = useCallback(id => {
+    visibleChats.current.set(id, (visibleChats.current.get(id) || 0) + 1)
+    if (document.visibilityState === 'visible' && document.hasFocus()) markChatRead(id)
+    return () => {
+      const count = (visibleChats.current.get(id) || 1) - 1
+      if (count) visibleChats.current.set(id, count)
+      else visibleChats.current.delete(id)
+    }
+  }, [markChatRead])
+  const dismissMessageAlert = useCallback(() => setMessageAlert(null), [])
+  useEffect(() => {
+    function readVisible() {
+      if (document.visibilityState === 'visible' && document.hasFocus()) visibleChats.current.forEach((_, id) => markChatRead(id))
+    }
+    window.addEventListener('focus', readVisible)
+    document.addEventListener('visibilitychange', readVisible)
+    return () => { window.removeEventListener('focus', readVisible); document.removeEventListener('visibilitychange', readVisible) }
+  }, [markChatRead])
+  useEffect(() => {
+    if (!messageAlert) return
+    const timer = setTimeout(dismissMessageAlert, 7000)
+    return () => clearTimeout(timer)
+  }, [messageAlert, dismissMessageAlert])
   const [connection, setConnection] = useState({ social: 'connecting', chat: 'connecting' })
   const accountId = user?.accountId
   const cache = useRef({})
@@ -34,6 +69,7 @@ function AccountCommunity({ user, children }) {
     const clients = []
     const retries = []
     const received = new Set()
+    const chatRooms = new Map()
     const status = (name, value) => { if (!stopped) setConnection(previous => ({ ...previous, [name]: value })) }
     async function accessToken() {
       if (token && Date.parse(token.expiresAt) - Date.now() > 30000) return token.accessToken
@@ -59,7 +95,7 @@ function AccountCommunity({ user, children }) {
       client.onConnect = () => {
         if (stopped) { void client.deactivate(); return }
         status(name, 'connected')
-        client.subscribe(destination, frame => {
+        client.subscribe(destination, async frame => {
           if (stopped) return
           try {
             const payload = JSON.parse(frame.body)
@@ -73,6 +109,21 @@ function AccountCommunity({ user, children }) {
             } else if (name === 'chat' && payload.id && payload.conversationId && typeof payload.content === 'string') {
               play(payload.senderId === accountId ? 'chip' : 'card')
               setChatMessages(rows => [...rows.filter(row => row.id !== payload.id), payload].slice(-200))
+              if (payload.senderId !== accountId) {
+                if (!chatRooms.has(payload.conversationId)) {
+                  chatRooms.set(payload.conversationId, communityApi.conversation(payload.conversationId).catch(error => {
+                    chatRooms.delete(payload.conversationId)
+                    throw error
+                  }))
+                }
+                const room = await chatRooms.get(payload.conversationId)
+                if (stopped || room?.type !== 'DIRECT') return
+                const reading = visibleChats.current.has(payload.conversationId) && document.visibilityState === 'visible' && document.hasFocus()
+                if (!reading) {
+                  setUnreadMessages(current => ({ ...current, [payload.conversationId]: (current[payload.conversationId] || 0) + 1 }))
+                  setMessageAlert(payload)
+                }
+              }
             }
           } catch { /* Ignore malformed frames; REST remains available. */ }
         })
@@ -101,8 +152,10 @@ function AccountCommunity({ user, children }) {
       // IDs and default avatars remain available if the profile service fails.
     } finally { unique.forEach(id => pending.current.delete(id)) }
   }, [user])
-  const openChat = useCallback(row => { setConversation(row); setPanel('chat') }, [])
+  useEffect(() => { if (messageAlert?.senderId) void loadProfiles([messageAlert.senderId]) }, [messageAlert, loadProfiles])
+  const openChat = useCallback(row => { setConversation(row); setPanel('chat'); markChatRead(row.id) }, [markChatRead])
   const clearChat = useCallback(() => setConversation(null), [])
-  const value = useMemo(() => ({ user, panel, setPanel, conversation, openChat, clearChat, profiles, loadProfiles, notifications, chatMessages, connection }), [user, panel, conversation, openChat, clearChat, profiles, loadProfiles, notifications, chatMessages, connection])
+  const unreadCount = Object.values(unreadMessages).reduce((total, count) => total + count, 0)
+  const value = useMemo(() => ({ user, panel, setPanel, conversation, openChat, clearChat, profiles, loadProfiles, notifications, chatMessages, connection, unreadMessages, unreadCount, messageAlert, dismissMessageAlert, registerVisibleChat }), [user, panel, conversation, openChat, clearChat, profiles, loadProfiles, notifications, chatMessages, connection, unreadMessages, unreadCount, messageAlert, dismissMessageAlert, registerVisibleChat])
   return <CommunityContext.Provider value={value}>{children}</CommunityContext.Provider>
 }

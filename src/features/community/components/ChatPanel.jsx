@@ -13,7 +13,8 @@ export default function ChatPanel({ conversation, readOnly = false }) {
 }
 
 function ConversationChat({ conversation, readOnly }) {
-  const { user, loadProfiles, chatMessages, connection } = useCommunity()
+  const { user, loadProfiles, chatMessages, connection, registerVisibleChat } = useCommunity()
+  useEffect(() => registerVisibleChat(conversation.id), [conversation.id, registerVisibleChat])
   const loader = useCallback(async signal => {
     const [room, history] = await Promise.all([api.conversation(conversation.id, signal), api.history(conversation.id, null, signal)])
     return { room, history }
@@ -91,12 +92,28 @@ export function MessagesPanel() {
 }
 
 function ConversationList() {
-  const { user, openChat, loadProfiles } = useCommunity()
+  const { user, openChat, loadProfiles, unreadMessages, chatMessages } = useCommunity()
   const [page, setPage] = useState(0)
-  const loader = useCallback(signal => api.conversations(page, signal), [page])
+  const loader = useCallback(signal => api.directConversations(page, signal), [page])
   const { data, loading, error, reload } = useResource(loader, 10000)
-  useEffect(() => { if (data) void loadProfiles(data.items.flatMap(row => row.memberIds)) }, [data, loadProfiles])
-  return <div className={styles.stack}><ErrorNotice message={error} retry={reload} />{loading ? <Empty>Đang tải tin nhắn…</Empty> : !data?.items.length ? <Empty icon="forum">Chưa có cuộc trò chuyện. Mở Bạn bè để bắt đầu nhắn tin.</Empty> : <ul className={styles.list}>{data.items.map(row => { const other = row.memberIds.find(id => id !== user?.accountId); return <li key={row.id}><button type="button" className={styles.conversationRow} onClick={() => openChat(row)}><Avatar id={other} /><span className={styles.person}><strong>{row.type === 'MATCH' ? `Bàn poker · ${row.refId?.slice(-6)}` : <Name id={other} />}</strong><small className={styles.muted}>{row.closedAt ? 'Đã kết thúc · Chỉ đọc' : row.type === 'MATCH' ? 'Trò chuyện trong trận' : 'Cuộc trò chuyện riêng'}</small></span><Icon name="chevron_right" /></button></li> })}</ul>}<nav className={styles.pagination} aria-label="Trang trò chuyện"><Button disabled={page === 0} onClick={() => setPage(value => value - 1)}>Trước</Button><span>Trang {page + 1}</span><Button disabled={!data || page + 1 >= data.totalPages} onClick={() => setPage(value => value + 1)}>Sau</Button></nav></div>
+  const latestMessageId = chatMessages.at(-1)?.id
+  useEffect(() => { if (latestMessageId) reload() }, [latestMessageId, reload])
+  useEffect(() => { if (data) void loadProfiles(data.items.filter(row => row.type === 'DIRECT').flatMap(row => row.memberIds)) }, [data, loadProfiles])
+  const rooms = (data?.items || []).filter(row => row.type === 'DIRECT')
+  return <div className={styles.stack}>
+    <ErrorNotice message={error} retry={reload} />
+    {loading ? <Empty>Đang tải tin nhắn…</Empty> : !rooms.length ? <Empty icon="forum">Chưa có cuộc trò chuyện. Mở Bạn bè để bắt đầu nhắn tin.</Empty> : <ul className={styles.list}>{rooms.map(row => {
+      const other = row.memberIds.find(id => id !== user?.accountId)
+      const unread = unreadMessages[row.id] || 0
+      const latest = chatMessages.findLast(message => message.conversationId === row.id)
+      return <li key={row.id}><button type="button" className={`${styles.conversationRow} ${unread ? styles.unreadConversation : ''}`} onClick={() => openChat(row)}>
+        <Avatar id={other} />
+        <span className={styles.person}><strong><Name id={other} /></strong><small className={styles.messagePreview}>{latest ? `${latest.senderId === user?.accountId ? 'Bạn: ' : ''}${latest.content}` : 'Cuộc trò chuyện riêng'}</small></span>
+        {unread > 0 ? <span className={styles.unreadBadge} aria-label={`${unread} tin nhắn chưa đọc`}>{unread > 99 ? '99+' : unread}</span> : <Icon name="chevron_right" />}
+      </button></li>
+    })}</ul>}
+    {data?.totalPages > 1 && <nav className={styles.pagination} aria-label="Trang trò chuyện"><Button disabled={page === 0} onClick={() => setPage(value => value - 1)}>Trước</Button><span>Trang {page + 1}</span><Button disabled={page + 1 >= data.totalPages} onClick={() => setPage(value => value + 1)}>Sau</Button></nav>}
+  </div>
 }
 
 export function MatchChat({ matchId, finished }) {
