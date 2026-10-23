@@ -1,0 +1,24 @@
+/* Casino chips: a coloured disc with a dashed white edge. Also used by the chips that fly to the pot. */
+.stack { display: inline-flex; align-items: center; gap: 5px; }
+.pile { display: inline-flex; flex-direction: column-reverse; }
+.pile .disc + .disc { margin-bottom: -12px; }
+.disc {
+  --chip: var(--color-primary-container);
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px dashed rgb(var(--color-card-face) / 0.9);
+  background: radial-gradient(circle, rgb(var(--chip)) 0 34%, rgb(var(--color-card-face) / 0.85) 36% 44%, rgb(var(--chip)) 46%);
+  box-shadow: 0 0 0 1px rgb(var(--chip)), 0 2px 4px rgb(var(--color-obsidian) / 0.6);
+}
+.primary { --chip: var(--color-primary-container); }
+.gold { --chip: var(--color-card-gold); }
+.violet { --chip: var(--color-secondary-container); }
+.flying { position: absolute; margin: -8px 0 0 -8px; }
+
+@media (max-width: 500px) {
+  .disc { width: 12px; height: 12px; border-width: 1.5px; }
+  .pile .disc + .disc { margin-bottom: -9px; }
+  .stack { gap: 3px; }
+}

@@ -16,8 +16,18 @@
 .pot :global(.material-symbols-outlined) { font-size: 20px; }
 .pot strong { font-variant-numeric: tabular-nums; }
 .pot small, .awards summary { padding: 2px 6px; border-radius: 4px; background: rgb(var(--color-tertiary-container) / 0.3); font-size: 10px; }
+/* The winner line: the pot turns gold when the hand is settled. */
+.result {
+  color: rgb(var(--color-on-tertiary));
+  background: linear-gradient(90deg, rgb(var(--color-tertiary-container)), rgb(var(--color-tertiary)), rgb(var(--color-tertiary-container)));
+  box-shadow: 0 0 28px rgb(var(--color-tertiary) / 0.55);
+  animation: resultIn 0.4s cubic-bezier(.2, 1.4, .4, 1);
+}
+.result .awards summary { background: rgb(var(--color-obsidian) / 0.25); }
+@keyframes resultIn { from { transform: scale(0.7); opacity: 0; } }
 
 .community {
+  position: relative;
   display: flex;
   gap: 8px;
   padding: 8px;
@@ -44,6 +54,10 @@
   letter-spacing: 1px;
 }
 .slot :global(.material-symbols-outlined) { font-size: 18px; }
+.cell { position: relative; }
+.slot + * { position: absolute; top: 0; left: 0; }
+/* The YOUR TURN badge straddles the tray's lower edge. */
+.badge { position: absolute; left: 50%; bottom: 0; transform: translate(-50%, 55%); z-index: 2; pointer-events: none; }
 
 .awards { position: relative; letter-spacing: 0; }
 .awards summary { cursor: pointer; list-style: none; }
@@ -53,6 +67,7 @@
   position: absolute;
   right: 0;
   top: 24px;
+  color: rgb(var(--color-tertiary));
   font-size: 11px;
   display: grid;
   gap: 6px;
@@ -69,10 +84,21 @@
   .slot { width: 52px; height: 74px; }
 }
 
+/* Narrower tables tuck your cards right under the board, so the badge rides over the board cards' lower edge instead. */
+@media (max-width: 1100px) {
+  .badge { transform: translate(-50%, 12%); }
+}
+
 @media (max-width: 500px) {
   .board { gap: 6px; }
   .pot { padding: 4px 10px; font-size: 11px; gap: 5px; }
   .pot :global(.material-symbols-outlined) { font-size: 15px; }
+  /* The winner line is longer than the pot line; keep it clear of the side seats' cards. */
+  .result { letter-spacing: 0; }
   .community { gap: 4px; padding: 5px; }
   .slot { width: 43px; height: 64px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .result { animation: none; }
 }
