@@ -16,7 +16,7 @@ export default function MatchmakingCard() {
   const card = useRef(null)
   const trigger = useRef(null)
   const previousVisible = useRef(false)
-  const { queue, mode, visible, pending, accepted, error, active, inMatch, open, minimize, close, start, cancel, accept, decline, returnToTable, leaveMatch } = state
+  const { queue, mode, visible, pending, accepted, error, active, inMatch, leaderOnly, open, minimize, close, start, cancel, accept, decline, returnToTable, leaveMatch } = state
   useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 250); return () => clearInterval(timer) }, [])
   useEffect(() => {
     if (visible && !previousVisible.current) { trigger.current = document.activeElement; card.current?.focus() }
@@ -42,10 +42,11 @@ export default function MatchmakingCard() {
     {proposed && <p className={styles.hint}>{accepted ? 'Đã xác nhận. Đang chờ những người chơi còn lại.' : 'Tất cả người chơi cần xác nhận trước khi hết giờ.'}</p>}
     {status === 'CREATING_TABLE' && <p className={styles.hint}>Đang chuẩn bị bàn poker. Bạn sẽ tự động được đưa vào trận.</p>}
     {status === 'NONE' && <p className={styles.hint}>Chọn tìm trận để bắt đầu ghép người chơi.</p>}
+    {leaderOnly && ['WAITING', 'COUNTDOWN'].includes(status) && <p className={styles.hint}>Chỉ trưởng nhóm có thể hủy tìm trận.</p>}
     {error && <p className={styles.error} role="alert">{error}</p>}
     <div className={styles.actions}>
       {(status === 'NONE' || status === 'FAILED') && <Button variant="primary" disabled={pending} onClick={() => start(mode)}>Tìm trận</Button>}
-      {['WAITING', 'COUNTDOWN'].includes(status) && <Button disabled={pending} onClick={cancel}>Hủy tìm trận</Button>}
+      {['WAITING', 'COUNTDOWN'].includes(status) && !leaderOnly && <Button disabled={pending} onClick={cancel}>Hủy tìm trận</Button>}
       {proposed && <><Button variant="primary" disabled={pending || accepted || remaining === 0} onClick={accept}>{accepted ? 'Đã xác nhận' : 'Chấp nhận trận'}</Button><Button disabled={pending || remaining === 0} onClick={decline}>Từ chối</Button></>}
       {inMatch && <><Button variant="primary" onClick={returnToTable}>Quay lại bàn</Button>{mode === 'NORMAL' && <Button disabled={pending} onClick={leaveMatch}>Rời ván</Button>}</>}
       {(!status || status === 'NONE' || status === 'FAILED') && <button className={styles.close} type="button" onClick={close}>Đóng</button>}
