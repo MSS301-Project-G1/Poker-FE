@@ -76,7 +76,7 @@ export default function LobbyPage() {
       {/* 3-Zone Spatial Cockpit: Left Flank | Unobstructed Center Stage | Right Flank */}
       <div className="flex flex-col lg:flex-row gap-space-md w-full items-start relative mt-1">
         {/* Left Flank: 3 Identical 3D Spatial Cubes */}
-        <div className="w-full lg:w-[310px] xl:w-[330px] shrink-0 flex flex-col gap-5 z-20">
+        <div className="w-full lg:w-[325px] xl:w-[340px] shrink-0 flex flex-col gap-5 z-20">
           <LoungeModes />
           <PartyPanel />
         </div>
