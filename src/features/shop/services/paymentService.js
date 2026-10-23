@@ -30,6 +30,13 @@ export async function getMyOrders({ signal } = {}) {
   })
 }
 
+export async function getPendingOrder({ signal } = {}) {
+  return gatewayRequest('/api/payments/orders/pending', {
+    signal,
+    errorMessage: 'Không thể kiểm tra đơn hàng đang chờ',
+  })
+}
+
 export async function getOrderDetail(orderId, { signal } = {}) {
   return gatewayRequest(`/api/payments/orders/${orderId}`, {
     signal,

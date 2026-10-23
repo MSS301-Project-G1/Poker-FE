@@ -1,0 +1,76 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: rgba(6, 2, 14, 0.85);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.modalCard {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  background: linear-gradient(180deg, rgba(27, 15, 51, 0.95) 0%, rgba(16, 6, 32, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 40px rgba(229, 196, 87, 0.08);
+  padding: 1.5rem;
+  overflow: hidden;
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.accentBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.accentPending {
+  background: linear-gradient(90deg, #d4af37, #f6e07a, #d4af37);
+  box-shadow: 0 0 12px rgba(229, 196, 87, 0.5);
+}
+
+.accentSuccess {
+  background: linear-gradient(90deg, #10b981, #34d399, #10b981);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+}
+
+.accentExpired {
+  background: linear-gradient(90deg, #f43f5e, #fb7185, #f43f5e);
+  box-shadow: 0 0 12px rgba(244, 63, 94, 0.5);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
