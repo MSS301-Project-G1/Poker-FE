@@ -1,33 +1,41 @@
+import { gatewayRequest } from '@/shared/api/gatewayClient'
 import { request } from '@/shared/api/httpClient'
 import { env } from '@/shared/config/env'
 
-const errorMessage = 'Room request failed'
-const call = (path, options) => request(`${env.gameApiBaseUrl}/api/rooms${path}`, { errorMessage, ...options })
-const room = code => `/${encodeURIComponent(code)}`
+// Signed-in players reach competition-service through the gateway session cookie; local ?devUser identities
+// call the dev service directly through the Vite proxy (like game-table's gameApi).
+const call = (path, errorMessage, { devUser, signal, method, body, auth } = {}) => devUser
+  ? request(`${env.gameApiBaseUrl}${path}`, { errorMessage, devUser, signal, method, body })
+  : gatewayRequest(path, { errorMessage, signal, method, body, auth })
+const room = code => `/api/rooms/${encodeURIComponent(code)}`
+const failed = 'Room request failed'
 
-/** Every function takes identity = { accessToken?, devUser?, signal? } last. Actions return the updated room. */
-export const fetchMyRoom = identity => call('/me', identity)
+/** Every function takes identity = { devUser?, signal? } last. Actions return the updated room. */
+export const fetchMyRoom = identity => call('/api/rooms/me', failed, identity)
 
-export const fetchPublicRooms = (page, size, identity) => call(`?page=${page}&size=${size}`, identity)
+/** Public on the gateway, so no session refresh is attempted. */
+export const fetchPublicRooms = (page, size, identity) =>
+  call(`/api/rooms?page=${page}&size=${size}`, failed, { ...identity, auth: false })
 
-export const createRoom = (settings, identity) => call('', { method: 'POST', body: settings, ...identity })
+export const createRoom = (settings, identity) => call('/api/rooms', failed, { ...identity, method: 'POST', body: settings })
 
-export const fetchRoom = (code, identity) => call(room(code), identity)
+export const fetchRoom = (code, identity) => call(room(code), failed, identity)
 
 export const joinRoom = (code, password, identity) =>
-  call(`${room(code)}/join`, { method: 'POST', body: { password }, ...identity })
+  call(`${room(code)}/join`, failed, { ...identity, method: 'POST', body: { password } })
 
-export const leaveRoom = (code, identity) => call(`${room(code)}/leave`, { method: 'POST', ...identity })
+export const leaveRoom = (code, identity) => call(`${room(code)}/leave`, failed, { ...identity, method: 'POST' })
 
-export const setReady = (code, ready, identity) => call(`${room(code)}/ready`, { method: 'PUT', body: { ready }, ...identity })
+export const setReady = (code, ready, identity) =>
+  call(`${room(code)}/ready`, failed, { ...identity, method: 'PUT', body: { ready } })
 
 export const kickMember = (code, accountId, identity) =>
-  call(`${room(code)}/members/${accountId}`, { method: 'DELETE', ...identity })
+  call(`${room(code)}/members/${accountId}`, failed, { ...identity, method: 'DELETE' })
 
 export const transferOwner = (code, accountId, identity) =>
-  call(`${room(code)}/owner`, { method: 'PUT', body: { accountId }, ...identity })
+  call(`${room(code)}/owner`, failed, { ...identity, method: 'PUT', body: { accountId } })
 
 export const inviteFriend = (code, accountId, identity) =>
-  call(`${room(code)}/invitations`, { method: 'POST', body: { accountId }, ...identity })
+  call(`${room(code)}/invitations`, failed, { ...identity, method: 'POST', body: { accountId } })
 
-export const startRoom = (code, identity) => call(`${room(code)}/start`, { method: 'POST', ...identity })
+export const startRoom = (code, identity) => call(`${room(code)}/start`, failed, { ...identity, method: 'POST' })
