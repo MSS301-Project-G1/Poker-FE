@@ -22,6 +22,15 @@
 
 .secondary { background: rgb(var(--color-surface-container-high)); }
 
+/* Irreversible actions: leave, remove, block. */
+.danger {
+  background: linear-gradient(120deg, rgb(var(--color-error-container)), rgb(var(--color-on-error)));
+  border-color: rgb(var(--color-error) / 0.55);
+  color: rgb(var(--color-on-error-container));
+  box-shadow: 0 5px 25px rgb(var(--color-error-container) / 0.3);
+  font-weight: 600;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .button { transition: none; }
 }

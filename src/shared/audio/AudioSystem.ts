@@ -1,4 +1,4 @@
-export type SoundName = 'chip' | 'card' | 'shuffle' | 'check' | 'fold' | 'win' | 'turn' | 'click' | 'match';
+export type SoundName = 'chip' | 'card' | 'shuffle' | 'check' | 'fold' | 'win' | 'turn' | 'urgent' | 'click' | 'match';
 
 type Voice = { type: OscillatorType; from: number; to: number; duration: number; gain: number; delay?: number; noise?: boolean };
 
@@ -25,9 +25,16 @@ const VOICES: Record<SoundName, Voice[]> = {
     { type: 'triangle', from: 784, to: 784, duration: 0.14, gain: 0.07, delay: 0.22 },
     { type: 'triangle', from: 1046, to: 1046, duration: 0.3, gain: 0.06, delay: 0.33 },
   ],
+  // Rising three-note chime, easy to notice while looking elsewhere.
   turn: [
-    { type: 'sine', from: 880, to: 880, duration: 0.09, gain: 0.05 },
-    { type: 'sine', from: 1320, to: 1320, duration: 0.12, gain: 0.045, delay: 0.1 },
+    { type: 'sine', from: 660, to: 660, duration: 0.12, gain: 0.08 },
+    { type: 'sine', from: 880, to: 880, duration: 0.12, gain: 0.08, delay: 0.11 },
+    { type: 'sine', from: 1320, to: 1320, duration: 0.22, gain: 0.07, delay: 0.22 },
+  ],
+  urgent: [
+    { type: 'square', from: 990, to: 990, duration: 0.07, gain: 0.04 },
+    { type: 'square', from: 990, to: 990, duration: 0.07, gain: 0.04, delay: 0.14 },
+    { type: 'square', from: 990, to: 990, duration: 0.07, gain: 0.04, delay: 0.28 },
   ],
   click: [{ type: 'square', from: 1200, to: 900, duration: 0.03, gain: 0.02 }],
   match: [

@@ -5,6 +5,9 @@ import { acceptProposal, declineProposal, fetchQueueStatus, joinQueue, leaveQueu
 export function useMatchmaking(mode) {
   const [queue, setQueue] = useState(null)
   const [error, setError] = useState('')
+  // A failed poll (for example while matchmaking restarts) only lasts until the next poll gets through,
+  // unlike an action error, which stays until the player tries again.
+  const [pollError, setPollError] = useState('')
   const [pending, setPending] = useState(false)
   const [acceptedId, setAcceptedId] = useState(null)
   const actionBusy = useRef(false)
@@ -20,10 +23,11 @@ export function useMatchmaking(mode) {
         if (!actionBusy.current) {
           const startedAt = revision.current
           const next = await fetchQueueStatus(mode, controller.signal)
+          if (!controller.signal.aborted) setPollError('')
           if (!controller.signal.aborted && !actionBusy.current && startedAt === revision.current) setQueue(next)
         }
       } catch (failure) {
-        if (!controller.signal.aborted) setError(failure.message)
+        if (!controller.signal.aborted) setPollError(failure.message)
       } finally {
         if (!controller.signal.aborted) timer = setTimeout(poll, 1000)
       }
@@ -55,7 +59,7 @@ export function useMatchmaking(mode) {
   }, [mode])
 
   return {
-    queue, error, pending, accepted: queue?.proposalId === acceptedId,
+    queue, error: error || pollError, pending, accepted: queue?.proposalId === acceptedId,
     join: () => run(() => joinQueue(mode), () => setAcceptedId(null)),
     leave: () => run(() => leaveQueue(mode)),
     accept: () => run(() => acceptProposal(queue.proposalId), () => setAcceptedId(queue.proposalId)),

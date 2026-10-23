@@ -1,6 +1,6 @@
 import { BrowserRouter } from 'react-router'
 import { AuthProvider } from '@/features/auth'
-import { ToastProvider } from '@/shared/ui'
+import { ConfirmProvider, ToastProvider } from '@/shared/ui'
 import { CommunityProvider } from '@/features/community'
 import { MatchmakingProvider } from '@/features/ranked'
 import { SoundProvider } from '@/shared/audio'
@@ -13,9 +13,9 @@ export default function App() {
   return <BrowserRouter>
     <ScrollToTop />
     <SoundProvider><AuthProvider>
-      <ToastProvider>
+      <ToastProvider><ConfirmProvider>
         <CommunityProvider><MatchmakingProvider><GameRuntimeBridge><AppRoutes /></GameRuntimeBridge></MatchmakingProvider></CommunityProvider>
-      </ToastProvider>
+      </ConfirmProvider></ToastProvider>
     </AuthProvider></SoundProvider>
   </BrowserRouter>
 }

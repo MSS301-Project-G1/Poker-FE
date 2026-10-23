@@ -69,6 +69,45 @@ test('party is joined with the shared code and password', async ({ page }) => {
   await expect(page.getByText('482913', { exact: true })).toBeVisible()
 })
 
+test('leaving the party asks in the app popup; Escape keeps the player in', async ({ page }) => {
+  let party = { partyId: 'party-test', partyCode: 'AB12CD34', password: '482913', leaderId: friend, memberIds: [friend, self] }
+  let left = false
+  await page.route('**/api/party/me', route => route.fulfill({ json: party }))
+  await page.route('**/api/party/leave', route => { left = true; party = null; return route.fulfill({ status: 204 }) })
+  await page.goto('/lobby')
+  const leave = page.getByRole('button', { name: 'Rời nhóm', exact: true })
+  const question = page.getByRole('alertdialog', { name: 'Rời nhóm?' })
+  await leave.click()
+  await expect(question.getByRole('button', { name: 'Hủy' })).toBeFocused()
+  await page.keyboard.press('Escape')
+  await expect(question).toHaveCount(0)
+  await expect(leave).toBeFocused()
+  expect(left).toBe(false)
+  await leave.click()
+  await question.getByRole('button', { name: 'Rời nhóm', exact: true }).click()
+  await expect(page.getByText('Đã rời nhóm.')).toBeVisible()
+  expect(left).toBe(true)
+})
+
+test('removing a friend asks first, and Escape closes only the popup, not the community panel', async ({ page }) => {
+  let removed = false
+  await page.route(`**/api/friends/${friend}`, route => { removed = true; return route.fulfill({ status: 204 }) })
+  await page.goto('/lobby')
+  await page.getByRole('button', { name: 'Bạn bè', exact: true }).click()
+  const panel = page.getByRole('dialog', { name: 'Bạn bè & kết nối' })
+  const question = page.getByRole('alertdialog', { name: 'Xóa bạn?' })
+  await panel.getByRole('button', { name: 'Xóa bạn' }).click()
+  await expect(question).toContainText('Linh Ace sẽ bị xóa khỏi danh sách bạn bè')
+  await page.keyboard.press('Escape')
+  await expect(question).toHaveCount(0)
+  await expect(panel).toBeVisible()
+  expect(removed).toBe(false)
+  await panel.getByRole('button', { name: 'Xóa bạn' }).click()
+  await question.getByRole('button', { name: 'Xóa bạn' }).click()
+  await expect(panel.getByText('Đã xóa bạn.')).toBeVisible()
+  expect(removed).toBe(true)
+})
+
 test('matchmaking stays on the 3D lobby and the floating card can be minimized and restored', async ({ page }) => {
   let queue = { status: 'NONE' }
   let joins = 0

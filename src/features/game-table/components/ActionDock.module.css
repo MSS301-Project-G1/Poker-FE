@@ -8,6 +8,9 @@
   backdrop-filter: blur(20px);
 }
 
+.dock[data-turn] { box-shadow: 0 0 0 2px rgb(var(--color-primary) / 0.8), 0 0 34px rgb(var(--color-primary) / 0.45), 0 16px 40px rgb(var(--color-obsidian) / 0.9); animation: dockTurn 1.2s ease-in-out infinite alternate; }
+@keyframes dockTurn { to { box-shadow: 0 0 0 2px rgb(var(--color-primary)), 0 0 50px rgb(var(--color-primary) / 0.7), 0 16px 40px rgb(var(--color-obsidian) / 0.9); } }
+
 /* Every dock button */
 .dock button { border: 0; transition: background 0.15s, transform 0.15s, filter 0.15s; }
 .dock button:disabled { opacity: 0.38; cursor: not-allowed; }
@@ -63,4 +66,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .dock button { transition: none; }
+  .dock[data-turn] { animation: none; }
 }

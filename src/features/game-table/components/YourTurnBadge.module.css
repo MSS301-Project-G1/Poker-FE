@@ -1,0 +1,39 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 26px;
+  border-radius: 999px;
+  border: 2px solid rgb(var(--color-primary) / 0.7);
+  background: linear-gradient(90deg, rgb(var(--color-primary-container)), rgb(var(--color-primary)), rgb(var(--color-primary-container)));
+  color: rgb(var(--color-obsidian));
+  box-shadow: 0 0 24px rgb(var(--color-primary) / 0.75), 0 8px 22px rgb(var(--color-obsidian) / 0.6);
+  font: 800 18px var(--font-display);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  animation: pop 0.35s cubic-bezier(.2, 1.4, .4, 1), glow 1.6s ease-in-out 0.35s infinite;
+}
+.badge :global(.material-symbols-outlined) { font-size: 22px; }
+.urgent {
+  background: linear-gradient(90deg, rgb(var(--color-error-container)), rgb(var(--color-error)), rgb(var(--color-error-container)));
+  animation: pulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes pop { from { transform: scale(0.6); opacity: 0; } }
+@keyframes glow { 50% { box-shadow: 0 0 40px rgb(var(--color-primary) / 0.95), 0 8px 22px rgb(var(--color-obsidian) / 0.6); } }
+@keyframes pulse { to { transform: scale(1.07); } }
+
+@media (max-height: 760px) {
+  .badge { padding: 7px 20px; font-size: 15px; }
+  .badge :global(.material-symbols-outlined) { font-size: 18px; }
+}
+
+@media (max-width: 500px) {
+  .badge { gap: 5px; padding: 5px 14px; font-size: 12px; border-width: 1px; }
+  .badge :global(.material-symbols-outlined) { font-size: 15px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .badge, .urgent { animation: none; }
+}

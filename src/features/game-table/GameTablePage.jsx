@@ -7,18 +7,20 @@ import { paths } from '@/shared/config/paths'
 import { MatchChat } from '@/features/community'
 import { useAuth } from '@/features/auth'
 import { devIdentity } from '@/shared/lib/devIdentity'
-import { Button, Eyebrow, Icon, PlaceholderScreen } from '@/shared/ui'
+import { Button, Eyebrow, Icon, PlaceholderScreen, useConfirm } from '@/shared/ui'
 import { GameRuntimeContext } from './runtime'
 import { useGameSession } from './hooks/useGameSession'
 import { useSeatProfiles } from './hooks/useSeatProfiles'
 import { useMatchRewards } from './hooks/useMatchRewards'
-import { confirmLeaveMatch, leaveTable } from './api/gameApi'
+import { leaveMatchPrompt, leaveTable } from './api/gameApi'
 import { placeSeats } from './seatLayout'
-import { label, modeLabels } from './labels'
+import { label, modeLabels, playerName, resultLine } from './labels'
+import { useTablePresentation } from './presentation/useTablePresentation'
 import Board from './components/Board'
 import PlayerSeat from './components/PlayerSeat'
 import ActionDock from './components/ActionDock'
 import TurnTimer from './components/TurnTimer'
+import YourTurnBadge from './components/YourTurnBadge'
 import TableInfo from './components/TableInfo'
 import MatchResult from './components/MatchResult'
 import HandGuide from './components/HandGuide'
@@ -44,7 +46,8 @@ export default function GameTablePage() {
 
 function GameSession({ tableId, retry }) {
   const { play } = useSound()
-  const previousSnapshot = useRef(null)
+  const tableRef = useRef(null)
+  const flightsRef = useRef(null)
   const auth = useAuth()
   const navigate = useNavigate()
   const runtime = useContext(GameRuntimeContext)
@@ -54,16 +57,7 @@ function GameSession({ tableId, retry }) {
   const signedIn = auth.status === 'authenticated' && !devUser
   const seatProfiles = useSeatProfiles(snapshot?.seats.map(seat => seat.accountId) || [], signedIn)
   const matchRewards = useMatchRewards(snapshot?.matchId, signedIn && snapshot?.mode === 'RANK' && snapshot?.street === 'FINISHED')
-  useEffect(() => {
-    if (!snapshot) return
-    const previous = previousSnapshot.current
-    if (!previous || previous.handNumber !== snapshot.handNumber) play('shuffle')
-    else if (snapshot.street === 'FINISHED' && previous.street !== 'FINISHED') play('win')
-    else if (snapshot.board.length !== previous.board.length) play('card')
-    else if (snapshot.actorSeat !== previous.actorSeat && snapshot.seats.some(seat => seat.accountId === snapshot.accountId && seat.seatIndex === snapshot.actorSeat)) play('turn')
-    else if (snapshot.pot > previous.pot) play('chip')
-    previousSnapshot.current = snapshot
-  }, [snapshot, play])
+  const show = useTablePresentation(snapshot, { play, tableRef, layerRef: flightsRef })
   const profiles = { ...seatProfiles, ...runtime.profiles }
   const ChatPanel = runtime.ChatPanel
   const finished = snapshot?.street === 'FINISHED'
@@ -72,8 +66,9 @@ function GameSession({ tableId, retry }) {
   const inMatch = Boolean(snapshot) && !finished && !me?.eliminated && !me?.leftEarly
   const [leaving, setLeaving] = useState(false)
   const [leaveError, setLeaveError] = useState('')
+  const confirm = useConfirm()
   async function leave() {
-    if (!confirmLeaveMatch()) return
+    if (!await confirm(leaveMatchPrompt)) return
     setLeaving(true)
     setLeaveError('')
     try {
@@ -84,9 +79,18 @@ function GameSession({ tableId, retry }) {
       setLeaving(false)
     }
   }
-  const winners = snapshot?.distribution?.pots.flatMap(pot => pot.winnerSeats) || []
+  const handOver = snapshot?.street === 'HAND_FINISHED' || finished
+  const winners = show.resultShown ? snapshot.distribution?.pots.flatMap(pot => pot.winnerSeats) ?? [] : []
   const timer = snapshot && { deadline: snapshot.deadline, serverTime: snapshot.serverTime, receivedAt: snapshot.receivedAt, paused: snapshot.street === 'HAND_FINISHED' }
   const yourTurn = snapshot?.legalActions.length > 0
+  const turnMillis = snapshot ? Date.parse(snapshot.deadline) - Date.parse(snapshot.serverTime) : 0
+  const nameOf = seat => playerName(profiles[seat.accountId], seat.accountId)
+  useEffect(() => {
+    if (!yourTurn) return undefined
+    const title = document.title
+    document.title = `● YOUR TURN · ${title}`
+    return () => { document.title = title }
+  }, [yourTurn])
   return <div className={styles.page}>
     <header className={styles.header}>{inMatch ? <span className={styles.brand}><span>♠</span> POKER<span>RANK</span></span> : <Link to={paths.lobby} className={styles.brand}><span>♠</span> POKER<span>RANK</span></Link>}
       <nav className={styles.headerNav}><HandGuide />{!inMatch && <Button className={styles.compactButton} onClick={() => navigate(paths.lobby)}>Lobby</Button>}
@@ -103,16 +107,22 @@ function GameSession({ tableId, retry }) {
       </div>
       {session.error && <div className={styles.alert} role="alert">{session.error}</div>}
       {leaveError && <div className={styles.alert} role="alert">{leaveError}</div>}
-      <TableTheme className={styles.table}>
-        <div className={styles.center}><Board cards={snapshot.board} pot={snapshot.pot} distribution={snapshot.distribution} street={snapshot.street} /></div>
+      <TableTheme ref={tableRef} className={styles.table} glow={yourTurn}>
+        <div className={styles.center}><Board cards={snapshot.board} pot={snapshot.pot} distribution={snapshot.distribution} street={snapshot.street}
+          revealDelays={show.boardDelays} result={show.resultShown && snapshot.distribution ? resultLine(snapshot, nameOf) : null}
+          badge={yourTurn && <YourTurnBadge key={snapshot.actionSequence} {...timer} />} /></div>
         {placeSeats(snapshot.seats, snapshot.accountId).map(({ player, slot }) => {
-          const isYou = player.accountId === snapshot.accountId
-          return <PlayerSeat key={player.accountId} player={player} profile={profiles[player.accountId]} slot={slot} isYou={isYou}
-            active={player.seatIndex === snapshot.actorSeat} dealer={player.seatIndex === snapshot.dealerSeat}
-            smallBlind={player.seatIndex === snapshot.smallBlindSeat} bigBlind={player.seatIndex === snapshot.bigBlindSeat} winner={winners.includes(player.seatIndex)}
-            badge={isYou && yourTurn && <TurnTimer {...timer} label="LƯỢT CỦA BẠN" />} />
+          const active = player.seatIndex === snapshot.actorSeat && !handOver
+          const winner = winners.includes(player.seatIndex)
+          return <PlayerSeat key={player.accountId} player={player} profile={profiles[player.accountId]} slot={slot} isYou={player.accountId === snapshot.accountId}
+            active={active} dealer={player.seatIndex === snapshot.dealerSeat}
+            smallBlind={player.seatIndex === snapshot.smallBlindSeat} bigBlind={player.seatIndex === snapshot.bigBlindSeat} winner={winner}
+            chips={show.paying ? player.chips - (snapshot.distribution.winnings[player.seatIndex] ?? 0) : player.chips} bet={handOver ? 0 : player.streetBet}
+            revealDelays={show.reveals[player.seatIndex]} turnMillis={active ? turnMillis : 0} turnKey={snapshot.actionSequence}
+            showHand={show.resultShown} paid={winner && !show.paying} />
         })}
       </TableTheme>
+      <div ref={flightsRef} className={styles.flights} aria-hidden="true" />
       <div className={styles.bottom}>
         <section className={styles.chatSlot} aria-label="Table chat">{ChatPanel ? <ChatPanel conversationId={snapshot.matchId} /> : auth.status === 'authenticated' && snapshot.matchId ? <MatchChat key={snapshot.matchId} matchId={snapshot.matchId} finished={finished} /> : <div className={styles.chatNote}><Eyebrow>CHAT BÀN ĐẤU</Eyebrow><p>Đăng nhập để mở phòng chat của trận.</p></div>}</section>
         <div className={styles.dockSlot}><p className={styles.turnCaption} role="status">{session.pending ? 'Đang gửi thao tác…' : snapshot.street === 'HAND_FINISHED' ? 'Ván đã xong. Ván mới sắp bắt đầu.' : snapshot.legalActions.length ? 'Đến lượt bạn. Chọn thao tác.' : 'Đang chờ người chơi khác…'}</p>
@@ -120,7 +130,7 @@ function GameSession({ tableId, retry }) {
             disabled={session.pending || session.connection !== 'connected'} onAction={session.send} /></div>
         <TableInfo snapshot={snapshot} me={me} />
       </div>
-      {finished && <MatchResult mode={snapshot.mode} placements={snapshot.placements} accountId={snapshot.accountId} profiles={profiles} rewards={runtime.rewards || matchRewards} onExit={() => navigate(paths.lobby)} />}
+      {finished && show.dialogShown && <MatchResult mode={snapshot.mode} placements={snapshot.placements} accountId={snapshot.accountId} profiles={profiles} rewards={runtime.rewards || matchRewards} onExit={() => navigate(paths.lobby)} />}
     </main>}
     <footer className={styles.footer}><span>NO-LIMIT TEXAS HOLD’EM</span><span>Chip trên bàn chỉ dùng trong trận này.</span></footer>
   </div>
