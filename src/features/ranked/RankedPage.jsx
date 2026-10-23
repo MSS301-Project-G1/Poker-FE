@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { useAuth } from '@/features/auth'
-import { Button, Icon } from '@/shared/ui'
+import { Button, Icon, useToast } from '@/shared/ui'
 import { paths } from '@/shared/config/paths'
 import { PartyPanel, useParty } from '@/features/community'
 import { useQueue } from './MatchmakingContext'
@@ -17,12 +17,24 @@ export default function RankedPage() {
   const state = useQueue()
   const { user } = useAuth()
   const navigate = useNavigate()
+  const notify = useToast()
+  const lastParty = useRef(null)
   const [now, setNow] = useState(Date.now)
   useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 250); return () => clearInterval(timer) }, [])
   const partyRequested = params.get('mode') === 'PARTY'
   const mode = state.activeMode || (['NORMAL', 'PARTY'].includes(params.get('mode')) ? 'NORMAL' : 'RANK')
   const partyState = useParty(mode === 'NORMAL')
   const party = partyState.data?.partyId ? partyState.data : null
+  useEffect(() => {
+    if (mode !== 'NORMAL') { lastParty.current = null; return }
+    if (partyState.loading || partyState.error) return
+    if (party) { lastParty.current = party.partyId; return }
+    if (lastParty.current) {
+      lastParty.current = null
+      notify('Nhóm đã giải tán hoặc bạn không còn là thành viên. Đã trở về lobby.')
+      navigate(paths.lobby, { replace: true })
+    }
+  }, [mode, party, partyState.loading, partyState.error, notify, navigate])
   const isParty = mode === 'NORMAL' && (partyRequested || Boolean(party))
   const canManageParty = !isParty || party?.leaderId === user?.accountId
   const current = mode === 'NORMAL' ? state.normal : state.rank

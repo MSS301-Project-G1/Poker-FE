@@ -318,3 +318,35 @@ test('chat list: hides closed poker tables and requests only direct conversation
   await expect(page.getByRole('navigation', { name: 'Trang trò chuyện', exact: true })).toHaveCount(0)
 })
 
+test('party disband: leader confirms that everyone leaves and returns to lobby', async ({ page }) => {
+  let party = { partyId: 'party-disband', partyCode: 'AB12CD34', password: '482913', leaderId: self, memberIds: [self, friend] }
+  let left = false
+  await page.route('**/api/party/me', route => route.fulfill({ json: party }))
+  await page.route('**/api/party/leave', route => {
+    left = true
+    party = null
+    return route.fulfill({ status: 204 })
+  })
+  await page.goto('/ranked?mode=PARTY')
+  await page.getByRole('button', { name: 'Rời nhóm', exact: true }).click()
+  const confirm = page.getByRole('alertdialog', { name: 'Giải tán nhóm?', exact: true })
+  await expect(confirm).toContainText('đưa toàn bộ thành viên ra khỏi nhóm')
+  expect(left).toBe(false)
+  await confirm.getByRole('button', { name: 'Rời và giải tán', exact: true }).click()
+  await expect(page).toHaveURL(/\/lobby$/)
+  expect(left).toBe(true)
+  await expect(page.getByRole('button', { name: 'Tạo nhóm', exact: true })).toBeVisible()
+  await expect(page.getByText('AB12CD34', { exact: true })).toHaveCount(0)
+})
+
+test('party disband: member leaves the room automatically when leader disbands', async ({ page }) => {
+  let party = { partyId: 'party-disband', partyCode: 'AB12CD34', password: '482913', leaderId: friend, memberIds: [friend, self] }
+  await page.route('**/api/party/me', route => route.fulfill({ json: party }))
+  await page.goto('/ranked?mode=PARTY')
+  await expect(page.getByText('AB12CD34', { exact: true })).toBeVisible()
+  party = null
+  await expect(page).toHaveURL(/\/lobby$/)
+  await expect(page.getByRole('button', { name: 'Tạo nhóm', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Tìm trận cùng nhóm', exact: true })).toHaveCount(0)
+})
+

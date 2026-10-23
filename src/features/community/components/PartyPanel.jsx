@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { paths } from '@/shared/config/paths'
-import { Button, Icon, useConfirm } from '@/shared/ui'
+import { Button, Icon, useConfirm, useToast } from '@/shared/ui'
 import { gatewayRequest } from '@/shared/api/gatewayClient'
 import { useCommunity } from '../CommunityContext'
 import { communityApi as api } from '../api/communityApi'
@@ -25,6 +25,7 @@ export default function PartyPanel({ room = false }) {
   const openRoom = () => navigate(`${paths.ranked}?mode=PARTY`)
   const { user, loadProfiles, profiles } = useCommunity()
   const confirm = useConfirm()
+  const notify = useToast()
   const loader = useCallback(async signal => {
     const [party, queue] = await Promise.all([api.party(signal), apiQueue(signal)])
     return { party: party?.partyId ? party : null, queue }
@@ -45,6 +46,23 @@ export default function PartyPanel({ room = false }) {
     if (busy) return
     setBusy(true); setFailure(''); setMessage('')
     try { await operation(); setMessage(success); reload(); if (enterRoom) openRoom() } catch (failure) { setFailure(failure.message) } finally { setBusy(false) }
+  }
+  async function leaveGroup() {
+    if (busy) return
+    const prompt = leader ? {
+      title: 'Giải tán nhóm?',
+      message: 'Bạn là chủ phòng. Rời nhóm sẽ giải tán phòng và đưa toàn bộ thành viên ra khỏi nhóm.',
+      confirmLabel: 'Rời và giải tán', icon: 'group_remove', danger: true,
+    } : leavePrompt
+    if (!await confirm(prompt)) return
+    setBusy(true); setFailure('')
+    try {
+      await api.leaveParty()
+      const message = leader ? 'Đã giải tán nhóm. Toàn bộ thành viên đã rời nhóm.' : 'Đã rời nhóm.'
+      if (room) { notify(message); navigate(paths.lobby) }
+      else { setMessage(message); reload() }
+    } catch (failure) { setFailure(failure.message) }
+    finally { setBusy(false) }
   }
   return <section className={room ? styles.partyRoom : styles.card} aria-labelledby="party-title">
     <header className={styles.cardHead}>
@@ -123,7 +141,7 @@ export default function PartyPanel({ room = false }) {
       <p className={styles.hint}><Icon name="share" />Gửi mã và mật khẩu cho bạn bè để họ vào nhóm.</p>
       {locked && <p className={styles.hint}><Icon name="lock" />Nhóm đang tìm trận — tạm khóa thành viên.</p>}
       <details className={styles.partyMembers}><summary>Quản lý thành viên · {party.memberIds.length}</summary><ul className={styles.list}>{party.memberIds.map(id => <li className={styles.row} key={id}><Avatar id={id} /><span className={styles.person}><strong><Name id={id} /></strong>{id === user?.accountId && <small className={styles.muted}>Bạn</small>}</span>{id === party.leaderId && <span className={styles.leader} title="Trưởng nhóm"><Icon name="crown" /></span>}{leader && id !== user?.accountId && <button className={styles.iconButton} type="button" aria-label="Mời thành viên rời nhóm" disabled={busy || locked} onClick={async () => { if (await confirm(kickPrompt(profiles[id]?.displayName || 'Người chơi này'))) void run(() => api.kick(id), 'Đã mời người chơi rời nhóm. Mật khẩu nhóm đã được đổi.') }}><Icon name="person_remove" /></button>}</li>)}</ul></details>
-      <Button className={styles.full} disabled={busy || locked} onClick={async () => { if (await confirm(leavePrompt)) void run(api.leaveParty, 'Đã rời nhóm.') }}>Rời nhóm</Button>
+      <Button className={styles.full} disabled={busy || locked} onClick={leaveGroup}>Rời nhóm</Button>
     </div>}
   </section>
 }
