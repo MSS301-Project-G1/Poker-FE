@@ -3,16 +3,20 @@ import { useLocation, useNavigate } from 'react-router'
 import { useAuth } from '@/features/auth'
 import { paths } from '@/shared/config/paths'
 import { useSound } from '@/shared/audio'
+import { useConfirm } from '@/shared/ui'
+import { leaveMatchPrompt } from '@/features/game-table'
 import { MatchmakingContext } from './MatchmakingContext'
+import { fetchMyParty } from './api/matchmakingApi'
 import { useMatchmaking } from './hooks/useMatchmaking'
 
 const isActive = state => state && !['NONE', 'FAILED'].includes(state.status)
+const searching = state => ['WAITING', 'COUNTDOWN'].includes(state?.status)
 export default function MatchmakingProvider({ children }) {
   const { status, user } = useAuth()
-  return status === 'authenticated' ? <PlayerQueue key={user.accountId}>{children}</PlayerQueue> : children
+  return status === 'authenticated' ? <PlayerQueue key={user.accountId} accountId={user.accountId}>{children}</PlayerQueue> : children
 }
 
-function PlayerQueue({ children }) {
+function PlayerQueue({ accountId, children }) {
   const rank = useMatchmaking('RANK')
   const normal = useMatchmaking('NORMAL')
   const [selection, setSelection] = useState(null)
@@ -24,6 +28,7 @@ function PlayerQueue({ children }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { play } = useSound()
+  const confirm = useConfirm()
   const activeMode = isActive(normal.queue) ? 'NORMAL' : isActive(rank.queue) ? 'RANK' : null
   const mode = activeMode || selection
   const current = mode === 'NORMAL' ? normal : rank
@@ -32,7 +37,12 @@ function PlayerQueue({ children }) {
   const active = Boolean(activeMode)
   const forceProposal = queue?.status === 'PROPOSED' && !current.accepted && dismissedProposal !== queue.proposalId
   const visible = Boolean(mode && (requested || active) && (!minimized || forceProposal))
-  const open = useCallback(chosen => { setSelection(chosen); setRequested(true); setMinimized(false) }, [])
+  const open = useCallback(chosen => {
+    setSelection(chosen)
+    setRequested(true)
+    setMinimized(false)
+    navigate(chosen === 'NORMAL' ? `${paths.ranked}?mode=NORMAL` : paths.ranked)
+  }, [navigate])
   const minimize = () => { setMinimized(true); setDismissedProposal(queue?.proposalId || null) }
   const close = () => { setRequested(false); setMinimized(true) }
 
@@ -51,18 +61,48 @@ function PlayerQueue({ children }) {
 
   const queueStatus = queue?.status
   const tableId = queue?.tableId
+  // READY with a table means the match is running: the lobby offers a way back, or a forfeit in Normal mode.
+  const inMatch = queueStatus === 'READY' && Boolean(tableId)
+  // A table that opens ends the search you asked for, so the finished match does not pop the idle card back up.
+  const [startedTable, setStartedTable] = useState(null)
+  if (inMatch && startedTable !== tableId) {
+    setStartedTable(tableId)
+    setRequested(false)
+  }
+
+  // Only the leader can take a party out of the Normal queue. The party is locked while it searches,
+  // so one look per search is enough; until it answers, the cancel button stays and the server has the last word.
+  const searchKey = searching(normal.queue) ? normal.queue.joinedAt : null
+  const [party, setParty] = useState({ searchKey: null, leaderId: null })
+  useEffect(() => {
+    if (!searchKey) return undefined
+    const controller = new AbortController()
+    fetchMyParty(controller.signal)
+      .then(found => setParty({ searchKey, leaderId: found?.partyId ? found.leaderId : null }))
+      .catch(() => {})
+    return () => controller.abort()
+  }, [searchKey])
+  const leaderOnly = mode === 'NORMAL' && party.searchKey === searchKey && party.leaderId !== null && party.leaderId !== accountId
+  function returnToTable() { minimize(); navigate(paths.tableById(tableId)) }
+  async function leaveMatch() {
+    if (!await confirm(leaveMatchPrompt)) return
+    if (await current.leaveMatch()) { close(); play('fold') }
+  }
   const proposalId = queue?.proposalId
   useEffect(() => {
     if (queueStatus === 'PROPOSED') play('match')
     if (queueStatus === 'READY' && tableId) play('win')
   }, [queueStatus, tableId, proposalId, play])
   useEffect(() => {
+    if (queueStatus === 'PROPOSED') {
+      if (location.pathname !== paths.ranked && location.pathname !== paths.demo) navigate(mode === 'NORMAL' ? `${paths.ranked}?mode=NORMAL` : paths.ranked)
+    }
     if (queueStatus !== 'READY') openedTable.current = null
     if (queueStatus === 'READY' && tableId && location.pathname !== paths.demo && openedTable.current !== tableId) {
       openedTable.current = tableId
       navigate(paths.tableById(tableId), { replace: true })
     }
-  }, [queueStatus, tableId, navigate, location.pathname])
+  }, [queueStatus, tableId, proposalId, mode, navigate, location.pathname])
 
-  return <MatchmakingContext.Provider value={{ rank, normal, mode, queue, active, activeMode, visible, pending, accepted: current.accepted, error: mode ? current.error : '', start, open, minimize, close, cancel, accept, decline }}>{children}</MatchmakingContext.Provider>
+  return <MatchmakingContext.Provider value={{ rank, normal, mode, queue, active, activeMode, inMatch, leaderOnly, visible, pending, accepted: current.accepted, error: mode ? current.error : '', start, open, minimize, close, cancel, accept, decline, returnToTable, leaveMatch }}>{children}</MatchmakingContext.Provider>
 }

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Button } from '@/shared/ui'
+import { Button, useConfirm } from '@/shared/ui'
 import { useCommunity } from '../CommunityContext'
 import { communityApi as api } from '../api/communityApi'
 import { useResource } from '../hooks/useResource'
@@ -8,9 +8,19 @@ import styles from '../Community.module.css'
 
 const tabs = [['friends', 'Bạn bè'], ['incoming', 'Lời mời nhận'], ['outgoing', 'Đã gửi'], ['blocks', 'Đã chặn']]
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const removePrompt = name => ({
+  title: 'Xóa bạn?', message: `${name} sẽ bị xóa khỏi danh sách bạn bè của bạn.`,
+  confirmLabel: 'Xóa bạn', icon: 'person_remove', danger: true,
+})
+const blockPrompt = name => ({
+  title: 'Chặn người chơi?', message: `${name} sẽ bị gỡ khỏi danh sách bạn bè. Nếu bỏ chặn sau này, quan hệ bạn bè không tự khôi phục.`,
+  confirmLabel: 'Chặn', icon: 'block', danger: true,
+})
 
 export default function FriendsPanel({ notifications = false }) {
-  const { user, loadProfiles, openChat } = useCommunity()
+  const { user, loadProfiles, openChat, profiles } = useCommunity()
+  const confirm = useConfirm()
+  const nameOf = accountId => profiles[accountId]?.displayName || 'Người chơi này'
   const [tab, setTab] = useState(notifications ? 'incoming' : 'friends')
   const [page, setPage] = useState(0)
   const [id, setId] = useState('')
@@ -44,7 +54,7 @@ export default function FriendsPanel({ notifications = false }) {
       return <li className={styles.socialRow} key={typeof row === 'string' ? row : row.id}>
         <div className={styles.row}><Avatar id={accountId} /><span className={styles.person}><strong><Name id={accountId} /></strong><small className={styles.muted}>{row.status || accountId.slice(0, 8)}</small></span></div>
         <div className={styles.actions}>
-          {tab === 'friends' && <><Button disabled={busy} onClick={() => chat(accountId)}>Nhắn tin</Button>{party?.leaderId === user?.accountId && !party.memberIds.includes(accountId) && <Button disabled={busy} onClick={() => run(() => api.invite(accountId), `Đã mời. Chia sẻ mã nhóm ${party.partyCode} cho người chơi.`)}>Mời nhóm</Button>}<button className={styles.link} type="button" disabled={busy} onClick={() => { if (window.confirm('Xóa người chơi này khỏi bạn bè?')) void run(() => api.removeFriend(accountId), 'Đã xóa bạn.') }}>Xóa bạn</button><button className={styles.dangerLink} type="button" disabled={busy} onClick={() => { if (window.confirm('Chặn người chơi và gỡ quan hệ bạn bè?')) void run(() => api.block(accountId), 'Đã chặn người chơi.') }}>Chặn</button></>}
+          {tab === 'friends' && <><Button disabled={busy} onClick={() => chat(accountId)}>Nhắn tin</Button>{party?.leaderId === user?.accountId && !party.memberIds.includes(accountId) && <Button disabled={busy} onClick={() => run(() => api.invite(accountId), `Đã mời. Chia sẻ mã nhóm ${party.partyCode} cho người chơi.`)}>Mời nhóm</Button>}<button className={styles.link} type="button" disabled={busy} onClick={async () => { if (await confirm(removePrompt(nameOf(accountId)))) void run(() => api.removeFriend(accountId), 'Đã xóa bạn.') }}>Xóa bạn</button><button className={styles.dangerLink} type="button" disabled={busy} onClick={async () => { if (await confirm(blockPrompt(nameOf(accountId)))) void run(() => api.block(accountId), 'Đã chặn người chơi.') }}>Chặn</button></>}
           {tab === 'blocks' && <Button disabled={busy} onClick={() => run(() => api.unblock(accountId), 'Đã bỏ chặn. Quan hệ bạn bè không tự khôi phục.')}>Bỏ chặn</Button>}
           {row.status === 'PENDING' && tab === 'incoming' && <><Button variant="primary" disabled={busy} onClick={() => run(() => api.respond(row.id, 'accept'), 'Đã chấp nhận kết bạn.')}>Chấp nhận</Button><Button disabled={busy} onClick={() => run(() => api.respond(row.id, 'decline'), 'Đã từ chối.')}>Từ chối</Button></>}
           {row.status === 'PENDING' && tab === 'outgoing' && <Button disabled={busy} onClick={() => run(() => api.cancel(row.id), 'Đã hủy lời mời.')}>Hủy lời mời</Button>}

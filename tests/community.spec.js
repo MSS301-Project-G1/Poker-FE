@@ -33,7 +33,7 @@ test('lobby ports the lounge controls and party membership from the server', asy
   await page.route('**/api/party/create', route => {
     expect(route.request().headers()['x-xsrf-token']).toBe('csrf-test')
     expect(route.request().headers()['x-user-id']).toBeUndefined()
-    party = { partyId: 'party-test', partyCode: 'AB12CD34', leaderId: self, memberIds: [self] }
+    party = { partyId: 'party-test', partyCode: 'AB12CD34', password: '482913', leaderId: self, memberIds: [self] }
     return route.fulfill({ json: party })
   })
   await page.goto('/lobby')
@@ -41,36 +41,125 @@ test('lobby ports the lounge controls and party membership from the server', asy
   await expect(page.getByRole('heading', { name: 'Chơi thường', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Tạo nhóm', exact: true }).click()
   await expect(page.getByText('AB12CD34', { exact: true })).toBeVisible()
-  await expect(page.getByRole('link', { name: 'Ranked', exact: true })).toHaveCount(0)
+  await expect(page.getByText('482913', { exact: true })).toBeVisible()
+  await expect(page.getByPlaceholder('UUID của người chơi')).toHaveCount(0)
+  await expect(page.getByRole('link', { name: 'Ranked', exact: true })).toHaveAttribute('href', '/ranked')
   await expect(page.getByTestId('lobby-3d-scene')).toHaveAttribute('data-render-status', 'ready', { timeout: 20000 })
   await page.screenshot({ path: 'artifacts/community-lobby-desktop.png', fullPage: true })
+})
+
+test('party is joined with the shared code and password', async ({ page }) => {
+  let party = null
+  let joinBody = null
+  await page.route('**/api/party/me', route => route.fulfill({ json: party }))
+  await page.route('**/api/party/join', route => {
+    joinBody = route.request().postDataJSON()
+    party = { partyId: 'party-test', partyCode: 'AB12CD34', password: '482913', leaderId: friend, memberIds: [friend, self] }
+    return route.fulfill({ json: party })
+  })
+  await page.goto('/lobby')
+  const join = page.getByRole('button', { name: 'Vào nhóm', exact: true })
+  await page.getByLabel('Tham gia bằng mã nhóm').fill('ab12-cd34')
+  await page.getByLabel('Mật khẩu', { exact: true }).fill('48a29')
+  await expect(join).toBeDisabled()
+  await page.getByLabel('Mật khẩu', { exact: true }).fill(' 482 913 ')
+  await join.click()
+  await expect(page.getByText('Đã tham gia nhóm.')).toBeVisible()
+  expect(joinBody).toEqual({ partyCode: 'AB12CD34', password: '482913' })
+  await expect(page.getByText('482913', { exact: true })).toBeVisible()
+})
+
+test('leaving the party asks in the app popup; Escape keeps the player in', async ({ page }) => {
+  let party = { partyId: 'party-test', partyCode: 'AB12CD34', password: '482913', leaderId: friend, memberIds: [friend, self] }
+  let left = false
+  await page.route('**/api/party/me', route => route.fulfill({ json: party }))
+  await page.route('**/api/party/leave', route => { left = true; party = null; return route.fulfill({ status: 204 }) })
+  await page.goto('/lobby')
+  const leave = page.getByRole('button', { name: 'Rời nhóm', exact: true })
+  const question = page.getByRole('alertdialog', { name: 'Rời nhóm?' })
+  await leave.click()
+  await expect(question.getByRole('button', { name: 'Hủy' })).toBeFocused()
+  await page.keyboard.press('Escape')
+  await expect(question).toHaveCount(0)
+  await expect(leave).toBeFocused()
+  expect(left).toBe(false)
+  await leave.click()
+  await question.getByRole('button', { name: 'Rời nhóm', exact: true }).click()
+  await expect(page.getByText('Đã rời nhóm.')).toBeVisible()
+  expect(left).toBe(true)
+})
+
+test('removing a friend asks first, and Escape closes only the popup, not the community panel', async ({ page }) => {
+  let removed = false
+  await page.route(`**/api/friends/${friend}`, route => { removed = true; return route.fulfill({ status: 204 }) })
+  await page.goto('/lobby')
+  await page.getByRole('button', { name: 'Bạn bè', exact: true }).click()
+  const panel = page.getByRole('dialog', { name: 'Bạn bè & kết nối' })
+  const question = page.getByRole('alertdialog', { name: 'Xóa bạn?' })
+  await panel.getByRole('button', { name: 'Xóa bạn' }).click()
+  await expect(question).toContainText('Linh Ace sẽ bị xóa khỏi danh sách bạn bè')
+  await page.keyboard.press('Escape')
+  await expect(question).toHaveCount(0)
+  await expect(panel).toBeVisible()
+  expect(removed).toBe(false)
+  await panel.getByRole('button', { name: 'Xóa bạn' }).click()
+  await question.getByRole('button', { name: 'Xóa bạn' }).click()
+  await expect(panel.getByText('Đã xóa bạn.')).toBeVisible()
+  expect(removed).toBe(true)
 })
 
 test('matchmaking stays on the 3D lobby and the floating card can be minimized and restored', async ({ page }) => {
   let queue = { status: 'NONE' }
   let joins = 0
-  await page.route('**/api/matchmaking/normal/status', route => route.fulfill({ json: queue }))
-  await page.route('**/api/matchmaking/normal/join', route => {
+  await page.route(`**/api/matchmaking/${mode.toLowerCase()}/status`, route => route.fulfill({ json: queue }))
+  await page.route(`**/api/matchmaking/${mode.toLowerCase()}/join`, route => {
     joins++
-    queue = { status: 'WAITING', mode: 'NORMAL', joinedAt: new Date().toISOString(), playerCount: 2, minPlayers: 4, maxPlayers: 6, position: 1 }
+    queue = { status: 'WAITING', mode, joinedAt: new Date().toISOString(), playerCount: 2, minPlayers: 4, maxPlayers: 6, position: 1 }
     return route.fulfill({ json: queue })
   })
-  await page.route('**/api/matchmaking/normal/leave', route => { queue = { status: 'NONE' }; return route.fulfill({ status: 204 }) })
+  await page.route(`**/api/matchmaking/${mode.toLowerCase()}/leave`, route => { queue = { status: 'NONE' }; return route.fulfill({ status: 204 }) })
   await page.goto('/lobby')
-  await page.getByRole('button', { name: 'Chơi nhanh', exact: true }).click()
-  await expect(page).toHaveURL(/\/lobby$/)
-  await expect(page.getByTestId('matchmaking-card')).toBeVisible()
+  await page.getByRole('button', { name: button, exact: true }).click()
+  await expect(page).toHaveURL(mode === 'NORMAL' ? /\/ranked\?mode=NORMAL$/ : /\/ranked$/)
+  await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible()
+  await expect(page.getByTestId('matchmaking-card')).toHaveCount(0)
   await expect(page.getByRole('heading', { name: 'Đang tìm người chơi' })).toBeVisible()
-  await expect(page.getByTestId('lobby-3d-scene')).toHaveAttribute('data-render-status', 'ready', { timeout: 20000 })
-  await page.screenshot({ path: 'artifacts/community-floating-matchmaking.png' })
-  await page.getByRole('button', { name: 'Thu gọn tìm trận' }).click()
+  await page.getByRole('link', { name: 'Lobby', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Bạn đang trong hàng chờ' })).toBeVisible()
   await expect(page.getByTestId('matchmaking-card')).toHaveCount(0)
   await page.getByRole('button', { name: 'Quay lại tìm trận', exact: true }).click()
-  await expect(page.getByTestId('matchmaking-card')).toBeVisible()
+  await expect(page).toHaveURL(mode === 'NORMAL' ? /\/ranked\?mode=NORMAL$/ : /\/ranked$/)
+  await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible()
   expect(joins).toBe(1)
   await page.getByRole('button', { name: 'Hủy tìm trận', exact: true }).click()
   await expect(page.getByTestId('matchmaking-card')).toHaveCount(0)
-  await expect(page.getByRole('button', { name: 'Chơi nhanh', exact: true })).toBeVisible()
+  await expect(page).toHaveURL(/\/lobby$/)
+  await expect(page.getByRole('button', { name: button, exact: true })).toBeVisible()
+})
+}
+
+test('radar loads actual queue profiles and removes players who leave', async ({ page }) => {
+  const newcomer = '00000000-0000-0000-0000-000000000004'
+  let ids = [friend, self]
+  await page.route('**/api/matchmaking/normal/status', route => route.fulfill({ json: {
+    status: 'WAITING', mode: 'NORMAL', playerCount: ids.length, minPlayers: 2, maxPlayers: 6, playerIds: ids,
+  } }))
+  await page.route('**/api/profiles/batch?*', route => route.fulfill({ json: { result: [
+    { accountId: friend, displayName: 'Linh Ace', avatarUrl: '/stitch-assets/avatar.svg' },
+    { accountId: newcomer, displayName: 'Bao Poker', avatarUrl: '/stitch-assets/avatar.svg' },
+  ] } }))
+  await page.goto('/ranked?mode=NORMAL')
+  const roster = page.getByTestId('queue-player')
+  await expect(roster.nth(0)).toContainText('Linh Ace')
+  await expect(roster.nth(1)).toContainText('Minh Poker (You)')
+  await expect(roster.nth(0).locator('img')).toHaveAttribute('src', '/stitch-assets/avatar.svg')
+  ids = [friend, self, newcomer]
+  await expect(roster.nth(2)).toContainText('Bao Poker')
+  ids = [self, newcomer]
+  await expect(page.getByText('Linh Ace', { exact: true })).toHaveCount(0)
+  await expect(roster.nth(0)).toContainText('Minh Poker (You)')
+  await expect(roster.nth(1)).toContainText('Bao Poker')
+  await expect(roster.nth(2)).toContainText('FINDING…')
 })
 
 test('solo test can be cancelled and enters the bot table after ten seconds without joining a queue', async ({ page }) => {

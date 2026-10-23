@@ -5,6 +5,7 @@ import { useSound } from '@/shared/audio'
 
 const navItems = [
   { to: paths.lobby, label: 'Lobby' },
+  { to: paths.ranked, label: 'Ranked' },
   { to: paths.shop, label: 'Shop' },
   { to: paths.events, label: 'Events' },
   { to: paths.mailbox, label: 'Mailbox' },

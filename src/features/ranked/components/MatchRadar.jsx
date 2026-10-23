@@ -2,7 +2,7 @@ import { Icon } from '@/shared/ui'
 
 const rings = [{ r: 150, opacity: 0.4, dash: '4 6' }, { r: 110, opacity: 0.6, dash: '2 4' }, { r: 70, opacity: 0.5, dash: '6 6' }]
 
-export default function MatchRadar() {
+export default function MatchRadar({ elapsed = '00:00', title = 'SẴN SÀNG TÌM TRẬN', detail = 'Chọn tìm trận để bắt đầu', active = false }) {
   return <div className="lg:col-span-7 flex flex-col items-center justify-center relative p-space-sm">
     <div className="relative w-64 h-64 sm:w-80 sm:h-80 flex items-center justify-center">
       <div className="absolute inset-0 rounded-full bg-secondary-container/15 animate-ping opacity-30"></div>
@@ -26,18 +26,18 @@ export default function MatchRadar() {
       <div className="absolute bottom-16 right-24 w-2 h-2 rounded-full bg-primary animate-pulse"></div>
 
       <div className="relative z-10 flex flex-col items-center text-center select-none">
-        <span className="font-label-micro text-label-micro uppercase tracking-widest text-secondary-fixed-dim">SEARCHING TABLE</span>
-        <div className="font-headline-xl text-headline-xl text-primary tracking-tight font-bold my-space-xs">00:28</div>
+        <span className="font-label-micro text-label-micro uppercase tracking-widest text-secondary-fixed-dim">{title}</span>
+        <div className="font-headline-xl text-headline-xl text-primary tracking-tight font-bold my-space-xs">{elapsed}</div>
         <div className="flex items-center gap-space-xs px-space-sm py-0.5 rounded-full bg-surface-container-high/70">
           <span className="w-2 h-2 rounded-full bg-tertiary animate-ping"></span>
-          <span className="font-body-sm text-body-sm text-on-surface-variant">Est: <strong className="text-tertiary">~00:35</strong></span>
+          <span className="font-body-sm text-body-sm text-on-surface-variant">{active ? 'Đang ghép người chơi' : 'NO-LIMIT HOLD’EM'}</span>
         </div>
       </div>
     </div>
 
     <div className="mt-space-md flex items-center gap-space-xs">
       <Icon name="sync" className="text-primary text-sm animate-spin" />
-      <span className="font-body-sm text-body-sm text-on-surface-variant">Synchronizing with VN-South server #04</span>
+      <span className="font-body-sm text-body-sm text-on-surface-variant">{detail}</span>
     </div>
   </div>
 }
