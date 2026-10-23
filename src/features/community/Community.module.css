@@ -1,5 +1,6 @@
 /* Ported from poker-3d's lobby-view, queue-view and chat-panel; colors use FE tokens. */
-.card { min-width: 0; padding: var(--space-lg); background: rgb(var(--color-surface-container-low) / .86); border: 1px solid rgb(var(--color-outline-variant)); border-radius: var(--radius-xl); box-shadow: var(--shadow-raised); backdrop-filter: blur(14px); }
+.card { min-width: 0; padding: var(--space-lg); background: rgb(var(--color-surface-container-lowest) / .22); border: 1px solid rgb(var(--color-outline-variant) / .35); border-radius: var(--radius-xl); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+.card:hover { border-color: rgb(var(--color-primary) / .6); transform: translateY(-2px); box-shadow: 0 16px 44px -8px rgba(var(--color-primary) / .2); background: rgb(var(--color-surface-container-lowest) / .32); }
 .cardHead, .dialogHead, .chatHead { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); }
 .cardHead { margin-bottom: var(--space-md); }
 .cardHead h2 { display: flex; align-items: center; gap: var(--space-sm); font: 600 20px/28px var(--font-display); }
@@ -50,8 +51,8 @@
 .pagination { display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); margin-top: var(--space-md); font-size: 13px; }
 .toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-md); align-items: center; }
 .toolbar p { margin-top: var(--space-xs); color: rgb(var(--color-on-surface-variant)); font-size: 13px; }
-.tool { display: flex; align-items: center; gap: var(--space-sm); border: 1px solid rgb(var(--color-outline-variant)); border-radius: var(--radius-full); background: rgb(var(--color-surface-container-low)); color: rgb(var(--color-on-surface)); padding: 10px 16px; font-size: 13px; }
-.tool:hover { border-color: rgb(var(--color-primary)); background: rgb(var(--color-surface-container-high)); }
+.tool { display: flex; align-items: center; gap: var(--space-sm); border: 1px solid rgb(var(--color-outline-variant) / .5); border-radius: var(--radius-full); background: rgb(var(--color-surface-container-lowest) / .45); color: rgb(var(--color-on-surface)); padding: 10px 16px; font-size: 13px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: all 0.2s ease; }
+.tool:hover { border-color: rgb(var(--color-primary)); background: rgb(var(--color-surface-container-high) / .6); transform: translateY(-1px); }
 .tool > span { color: rgb(var(--color-primary)); font-size: 20px; }
 .dock { position: fixed; right: var(--space-md); bottom: 56px; display: flex; gap: var(--space-xs); padding: var(--space-xs); background: rgb(var(--color-surface-container-lowest) / .95); border: 1px solid rgb(var(--color-outline-variant)); border-radius: var(--radius-xl); box-shadow: var(--shadow-popover); z-index: var(--z-overlay); }
 .dockButton { display: flex; align-items: center; gap: var(--space-xs); padding: 10px; color: rgb(var(--color-primary)); font-size: 12px; border-radius: var(--radius-lg); }
