@@ -9,6 +9,8 @@ export const paths = {
   shop: '/shop',
   shopBundles: '/shop/bundles',
   shopProductDetail: id => `/shop/products/${id}`,
+  shopPaymentSuccess: '/shop/payment/success',
+  shopPaymentCancel: '/shop/payment/cancel',
   events: '/events',
   mailbox: '/mailbox',
   table: '/table',

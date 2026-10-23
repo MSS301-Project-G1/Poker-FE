@@ -72,6 +72,19 @@ export default function ProductDetailPage() {
 
   const isDeckSkin = useMemo(() => isCardProduct(product), [product])
 
+  // Parse card deck manifest from backend metadata
+  const deckManifest = useMemo(() => {
+    if (!product?.metadata) return null
+    try {
+      return typeof product.metadata === 'string'
+        ? JSON.parse(product.metadata)
+        : product.metadata
+    } catch (err) {
+      console.error('Failed to parse product metadata:', err)
+      return null
+    }
+  }, [product?.metadata])
+
   // 52 cards dataset
   const deckCards = useMemo(() => {
     const list = []
@@ -83,6 +96,11 @@ export default function ProductDetailPage() {
     })
     return list
   }, [selectedSuit])
+
+  // Real image URLs for active card face and back
+  const currentCardCode = `${focusedCard.rank}${focusedCard.suit}`
+  const currentFaceUrl = deckManifest?.cards?.[currentCardCode] || null
+  const currentBackUrl = deckManifest?.cardBackUrl || product?.previewUrl || product?.assetUrl
 
   // Handle Purchase
   const handleConfirmPurchase = async () => {
@@ -190,8 +208,8 @@ export default function ProductDetailPage() {
                   isFlipped={is3DFlipped}
                   onFlip={setIs3DFlipped}
                   interactive
-                  assetUrl={product.assetUrl}
-                  previewUrl={product.previewUrl}
+                  assetUrl={currentBackUrl}
+                  previewUrl={currentFaceUrl}
                   productName={product.name}
                   className="w-full h-full"
                 />
@@ -391,11 +409,15 @@ export default function ProductDetailPage() {
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-13 gap-2.5">
               {deckCards.map(c => {
                 const isCurrentFocused = focusedCard.rank === c.rank && focusedCard.suit === c.suit
+                const cardFaceUrl = deckManifest?.cards?.[c.id] || null
 
                 return (
                   <div
                     key={c.id}
-                    onClick={() => setFocusedCard({ rank: c.rank, suit: c.suit })}
+                    onClick={() => {
+                      setFocusedCard({ rank: c.rank, suit: c.suit })
+                      setIs3DFlipped(false)
+                    }}
                     className={`transition-all duration-200 transform hover:-translate-y-1 hover:scale-105 cursor-pointer ${
                       isCurrentFocused ? 'ring-2 ring-amber-400 rounded-xl' : ''
                     }`}
@@ -405,6 +427,8 @@ export default function ProductDetailPage() {
                         categoryCode="CARD_FACE"
                         rank={c.rank}
                         suit={c.suit}
+                        previewUrl={cardFaceUrl}
+                        assetUrl={currentBackUrl}
                         className="w-full h-full"
                       />
                     </div>
