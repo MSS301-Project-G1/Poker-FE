@@ -38,7 +38,7 @@ export default function Leaderboard({ collapsed = false, onToggleCollapse }) {
     </div>
   }
 
-  return <div className="h-full flex flex-col gap-space-md bg-surface-container-lowest/25 backdrop-blur-md p-space-md rounded-2xl border border-white/10 shadow-2xl relative overflow-hidden transition-all duration-300 hover:border-white/20">
+  return <div className="h-full flex flex-col gap-space-md bg-surface-container-lowest/30 backdrop-blur-md p-space-md rounded-2xl border border-amber-400/20 shadow-2xl relative overflow-hidden [transform-style:preserve-3d] lg:[transform:perspective(1200px)_rotateY(-12deg)_rotateX(4deg)_translateZ(0)] lg:hover:[transform:perspective(1200px)_rotateY(0deg)_rotateX(0deg)_translateZ(40px)_scale(1.02)] transition-all duration-500 ease-out hover:border-amber-400/60 hover:shadow-[0_24px_60px_-10px_rgba(0,0,0,0.85),0_0_30px_rgba(245,196,80,0.3)] will-change-transform z-20">
     <div className="flex items-center justify-between pb-space-xs">
       <div className="flex items-center gap-space-xs">
         <Icon name="military_tech" filled className="text-tertiary text-xl" />

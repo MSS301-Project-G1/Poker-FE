@@ -54,7 +54,7 @@ export default function LobbyPage() {
     )}
 
     {/* Main Lobby HUD overlay */}
-    <div className={`relative z-10 w-full max-w-7xl mx-auto flex flex-col gap-space-md transition-all duration-500 ${zenMode ? 'opacity-0 pointer-events-none scale-95 translate-y-4' : 'opacity-100 scale-100'}`}>
+    <div className={`relative z-10 w-full max-w-[1720px] mx-auto flex flex-col gap-space-md transition-all duration-500 ${zenMode ? 'opacity-0 pointer-events-none scale-95 translate-y-4' : 'opacity-100 scale-100'}`}>
       <div className="flex flex-wrap items-center justify-between gap-space-md">
         <div className="flex-1 min-w-[280px]">
           <CommunityToolbar />
@@ -70,19 +70,44 @@ export default function LobbyPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-12 gap-space-md">
-        <div className={`col-span-12 ${leaderboardCollapsed ? 'xl:col-span-11' : 'xl:col-span-9'} grid transition-all duration-300`}>
-          <PlayerSummary player={{ ...user?.profile, email: user?.email }} onOpenCheckIn={() => setCheckInOpen(true)} />
+      {/* Top Sub-Bar: PlayerSummary */}
+      <PlayerSummary player={{ ...user?.profile, email: user?.email }} onOpenCheckIn={() => setCheckInOpen(true)} />
+
+      {/* 3-Zone Spatial Cockpit: Left Flank | Unobstructed Center Stage | Right Flank */}
+      <div className="flex flex-col lg:flex-row gap-space-md w-full items-start relative mt-1">
+        {/* Left Flank: 3 Identical 3D Spatial Cubes */}
+        <div className="w-full lg:w-[310px] xl:w-[330px] shrink-0 flex flex-col gap-5 z-20">
+          <LoungeModes />
+          <PartyPanel />
         </div>
-        <div className={`col-span-12 lg:col-span-8 ${leaderboardCollapsed ? 'xl:col-span-7' : 'xl:col-span-6'} grid transition-all duration-300`}><LoungeModes /></div>
-        <div className={`col-span-12 lg:col-span-4 ${leaderboardCollapsed ? 'xl:col-span-4' : 'xl:col-span-3'} grid min-w-0 transition-all duration-300`}><PartyPanel /></div>
-        <div className={`col-span-12 ${leaderboardCollapsed ? 'xl:col-span-11' : 'xl:col-span-9'} grid transition-all duration-300`}><ChampionshipBanner /></div>
-        <aside className={`col-span-12 ${leaderboardCollapsed ? 'xl:col-span-1 xl:col-start-12' : 'xl:col-span-3 xl:col-start-10'} xl:row-start-1 xl:row-span-3 grid min-w-0 transition-all duration-300`}>
+
+        {/* Center Stage: 100% Unobstructed view of 3D Poker Table */}
+        <div className="flex-1 min-h-[480px] lg:min-h-[600px] flex flex-col justify-start items-center pointer-events-none relative w-full pt-2">
+          {/* Subtle camera view button in center ceiling */}
+          <div className="pointer-events-auto">
+            <button
+              type="button"
+              onClick={() => setZenMode(true)}
+              className="opacity-40 hover:opacity-100 transition-opacity duration-300 flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-lowest/30 hover:bg-surface-container-lowest/60 border border-white/10 hover:border-primary/40 text-[11px] text-on-surface-variant hover:text-white backdrop-blur-md cursor-pointer"
+            >
+              <Icon name="crop_free" className="text-xs text-primary" />
+              <span>Chạm để ẩn UI ngắm bàn 3D</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Right Flank: Leaderboard */}
+        <aside className={`w-full ${leaderboardCollapsed ? 'lg:w-[64px]' : 'lg:w-[300px] xl:w-[320px]'} shrink-0 z-20 transition-all duration-300`}>
           <Leaderboard
             collapsed={leaderboardCollapsed}
             onToggleCollapse={() => setLeaderboardCollapsed(current => !current)}
           />
         </aside>
+      </div>
+
+      {/* Bottom Championship Banner - Positioned below the table so it never obstructs the felt */}
+      <div className="w-full mt-2 z-20">
+        <ChampionshipBanner />
       </div>
     </div>
     {checkInOpen && <DailyCheckInModal onClose={() => setCheckInOpen(false)} />}

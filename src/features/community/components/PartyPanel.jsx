@@ -34,20 +34,42 @@ export default function PartyPanel() {
     try { await operation(); setMessage(success); reload() } catch (failure) { setFailure(failure.message) } finally { setBusy(false) }
   }
   return <section className={styles.card} aria-labelledby="party-title">
-    <header className={styles.cardHead}><h2 id="party-title"><Icon name="groups" />Nhóm chơi</h2>{party && <span className={styles.muted}>{party.memberIds.length} thành viên</span>}</header>
+    <header className={styles.cardHead}>
+      <div className="flex items-center gap-space-sm min-w-0">
+        <div className={styles.cubeBadge} aria-hidden="true">
+          <div className={styles.cube3dMesh}>
+            <div className={`${styles.cubeFace} ${styles.faceFront}`} />
+            <div className={`${styles.cubeFace} ${styles.faceBack}`} />
+            <div className={`${styles.cubeFace} ${styles.faceRight}`} />
+            <div className={`${styles.cubeFace} ${styles.faceLeft}`} />
+            <div className={`${styles.cubeFace} ${styles.faceTop}`} />
+            <div className={`${styles.cubeFace} ${styles.faceBottom}`} />
+            <div className={styles.cubeCoreOrb} />
+            <div className={styles.cubeIconOverlay}><Icon name="groups" /></div>
+          </div>
+        </div>
+        <div className="flex flex-col min-w-0">
+          <span className="text-[11px] font-bold tracking-widest text-pink-400">TEAM LOUNGE</span>
+          <h2 id="party-title" className="text-[20px] font-bold leading-tight">Nhóm chơi</h2>
+        </div>
+      </div>
+      {party && <span className={styles.muted}>{party.memberIds.length} thành viên</span>}
+    </header>
     <ErrorNotice message={error || failure} retry={error ? reload : null} />
     {message && <p className={styles.success} role="status">{message}</p>}
-    {loading ? <Empty>Đang kiểm tra nhóm…</Empty> : !data ? null : !party ? <>
-      <p className={styles.muted}>Rủ bạn bè vào cùng bàn Chơi thường. Cùng nhóm, cùng cuộc vui.</p>
-      <Button variant="primary" className={styles.full} disabled={busy || locked} onClick={() => run(api.createParty, 'Đã tạo nhóm.')}>Tạo nhóm</Button>
+    {loading ? <Empty>Đang kiểm tra nhóm…</Empty> : !data ? null : !party ? <div className={styles.partyActions}>
+      <p className={styles.tagline}>Rủ bạn bè cùng chơi · Cùng nhóm cùng vui</p>
+      <Button variant="primary" className={styles.createBtn} disabled={busy || locked} onClick={() => run(api.createParty, 'Đã tạo nhóm.')}><Icon name="group_add" />Tạo nhóm</Button>
       <form className={styles.form} onSubmit={event => { event.preventDefault(); if (canJoin) void run(() => api.joinParty(code, password), 'Đã tham gia nhóm.') }}>
-        <label htmlFor="party-code">Tham gia bằng mã nhóm</label>
-        <input id="party-code" className={styles.input} value={code} autoComplete="off" placeholder="8 ký tự, ví dụ AB12CD34" onChange={event => setCode(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8))} />
-        <label htmlFor="party-password">Mật khẩu</label>
-        <div className={styles.inline}><input id="party-password" className={styles.input} value={password} inputMode="numeric" autoComplete="off" placeholder="6 chữ số" onChange={event => setPassword(event.target.value.replace(/\D/g, '').slice(0, 6))} /><Button type="submit" disabled={busy || locked || !canJoin}>Vào nhóm</Button></div>
-        <small className={styles.muted}>Nhập mã và mật khẩu do thành viên trong nhóm chia sẻ.</small>
+        <div className={styles.joinRow}>
+          <label htmlFor="party-code" className={styles.srOnly}>Tham gia bằng mã nhóm</label>
+          <input id="party-code" className={styles.compactInput} value={code} autoComplete="off" placeholder="8 ký tự, ví dụ AB12CD34" onChange={event => setCode(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8))} />
+          <label htmlFor="party-password" className={styles.srOnly}>Mật khẩu</label>
+          <input id="party-password" className={styles.compactPassword} value={password} inputMode="numeric" autoComplete="off" placeholder="6 chữ số" onChange={event => setPassword(event.target.value.replace(/\D/g, '').slice(0, 6))} />
+          <Button type="submit" className={styles.joinBtn} disabled={busy || locked || !canJoin}>Vào nhóm</Button>
+        </div>
       </form>
-    </> : <>
+    </div> : <>
       <div className={styles.partyCode}><span className={styles.muted}>Mã nhóm</span><code>{party.partyCode}</code><button type="button" className={styles.iconButton} aria-label="Sao chép mã nhóm" onClick={() => run(() => navigator.clipboard.writeText(party.partyCode), 'Đã sao chép mã nhóm.')}><Icon name="content_copy" /></button></div>
       {party.password && <div className={styles.partyCode}><span className={styles.muted}>Mật khẩu</span><code>{party.password}</code><button type="button" className={styles.iconButton} aria-label="Sao chép mật khẩu nhóm" onClick={() => run(() => navigator.clipboard.writeText(party.password), 'Đã sao chép mật khẩu nhóm.')}><Icon name="content_copy" /></button></div>}
       <p className={styles.hint}><Icon name="share" />Gửi mã và mật khẩu cho bạn bè để họ vào nhóm.</p>
