@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import * as paymentService from '../services/paymentService'
-import { useAuth } from '@/features/auth/useAuth'
+import { useAuth } from '@/features/auth'
 
 export function usePendingOrder({ pollInterval = 0 } = {}) {
   const { status } = useAuth()
@@ -9,6 +9,9 @@ export function usePendingOrder({ pollInterval = 0 } = {}) {
   const [pendingOrder, setPendingOrder] = useState(null)
   const [loading, setLoading] = useState(isAuth)
   const [actionInProgress, setActionInProgress] = useState(false)
+
+  const pendingOrderRef = useRef(null)
+  pendingOrderRef.current = pendingOrder
 
   const checkPendingOrder = useCallback(async () => {
     if (!isAuth) {
@@ -49,23 +52,25 @@ export function usePendingOrder({ pollInterval = 0 } = {}) {
     return () => clearInterval(intervalId)
   }, [pollInterval, pendingOrder, isAuth, checkPendingOrder])
 
-  const cancelPendingOrder = useCallback(async () => {
-    if (!pendingOrder) return null
+  const cancelPendingOrder = useCallback(async (explicitOrderId) => {
+    const targetId = explicitOrderId || pendingOrderRef.current?.id
+    if (!targetId) return null
     setActionInProgress(true)
     try {
-      const res = await paymentService.cancelOrder(pendingOrder.id)
+      const res = await paymentService.cancelOrder(targetId)
       setPendingOrder(null)
       return res?.data
     } finally {
       setActionInProgress(false)
     }
-  }, [pendingOrder])
+  }, [])
 
-  const syncPendingOrder = useCallback(async () => {
-    if (!pendingOrder) return null
+  const syncPendingOrder = useCallback(async (explicitOrderId) => {
+    const targetId = explicitOrderId || pendingOrderRef.current?.id
+    if (!targetId) return null
     setActionInProgress(true)
     try {
-      const res = await paymentService.syncOrder(pendingOrder.id)
+      const res = await paymentService.syncOrder(targetId)
       const updated = res?.data
       if (updated?.status !== 'PENDING') {
         setPendingOrder(null)
@@ -76,7 +81,8 @@ export function usePendingOrder({ pollInterval = 0 } = {}) {
     } finally {
       setActionInProgress(false)
     }
-  }, [pendingOrder])
+  }, [])
+
 
   return {
     pendingOrder,

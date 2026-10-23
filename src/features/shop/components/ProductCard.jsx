@@ -131,8 +131,14 @@ export default function ProductCard({
 
         <div className={styles.actionsGroup}>
           {isEquipped ? (
-            <Button variant="secondary" size="sm" disabled>
-              Đang dùng
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled
+              icon="check_circle"
+              className={styles.btnEquipped}
+            >
+              Đã trang bị
             </Button>
           ) : product.isOwned ? (
             <Button

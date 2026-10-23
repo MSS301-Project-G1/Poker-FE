@@ -28,6 +28,7 @@ export default function ShopPage() {
   const {
     items: inventoryItems,
     ownedProductIds,
+    isProductEquipped,
     loading: inventoryLoading,
     actionInProgressId,
     equipItem,
@@ -71,6 +72,7 @@ export default function ShopPage() {
     }
     try {
       await equipItem(product.id)
+      await refreshInventory()
       notify(`Đã trang bị "${product.name}".`, { type: 'success' })
     } catch (err) {
       notify(err.message || 'Không thể trang bị vật phẩm', { type: 'error' })
@@ -98,10 +100,6 @@ export default function ShopPage() {
     }
   }
 
-  const isProductEquipped = productId => {
-    const invItem = inventoryItems.find(i => i.productId === productId)
-    return Boolean(invItem?.isEquipped)
-  }
 
   const handleSelectCategory = useCallback(categoryCode => {
     setActiveCategory(categoryCode)
@@ -283,7 +281,7 @@ export default function ShopPage() {
                         key={product.id}
                         product={product}
                         isEquipped={isProductEquipped(product.id)}
-                        isEquipping={actionInProgressId !== null}
+                        isEquipping={actionInProgressId === product.id}
                         onSelect={() => navigate(`/shop/products/${product.id}`)}
                         onBuy={handleBuyProduct}
                         onEquip={handleEquipProduct}
