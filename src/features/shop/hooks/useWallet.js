@@ -49,8 +49,8 @@ export function useWallet() {
   return {
     wallet,
     isLoggedIn: isAuth,
-    vipCoin: wallet?.vipCoin ?? (isAuth ? 0 : null),
-    coin: wallet?.coin ?? (isAuth ? 0 : null),
+    vipCoin: wallet?.vipCoinBalance ?? wallet?.vipCoin ?? (isAuth ? 0 : null),
+    coin: wallet?.coinBalance ?? wallet?.balance ?? wallet?.coin ?? (isAuth ? 0 : null),
     loading,
     error,
     refreshWallet: () => setReloadTrigger(v => v + 1),

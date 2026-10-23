@@ -15,7 +15,7 @@ import { MailboxPage } from '@/features/mailbox'
 import { RankedPage } from '@/features/ranked'
 import { LeaderboardPage } from '@/features/ranking'
 import { SeasonPage } from '@/features/season'
-import { ShopPage, BundlePage, ProductDetailPage } from '@/features/shop'
+import { ShopPage, BundlePage, ProductDetailPage, PaymentResultPage } from '@/features/shop'
 import AdminOnlyRoute from './AdminOnlyRoute'
 import NotFoundPage from './NotFoundPage'
 import AuthenticatedLayout from './AuthenticatedLayout'
@@ -33,6 +33,8 @@ export default function AppRoutes() {
       <Route path={paths.shop} element={<ShopPage />} />
       <Route path={paths.shopBundles} element={<BundlePage />} />
       <Route path={paths.shopProductDetail(':id')} element={<ProductDetailPage />} />
+      <Route path={paths.shopPaymentSuccess} element={<PaymentResultPage />} />
+      <Route path={paths.shopPaymentCancel} element={<PaymentResultPage />} />
       <Route path={paths.ranking} element={<LeaderboardPage />} />
       <Route path={paths.seasons} element={<SeasonPage />} />
       <Route path={paths.rooms} element={<RoomsPage />} />

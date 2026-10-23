@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Icon } from '@/shared/ui'
 import styles from './CosmeticRenderer.module.css'
 
@@ -24,6 +24,14 @@ export default function CosmeticRenderer({
   const [internalFlipped, setInternalFlipped] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [backImageError, setBackImageError] = useState(false)
+
+  useEffect(() => {
+    setImageError(false)
+  }, [previewUrl])
+
+  useEffect(() => {
+    setBackImageError(false)
+  }, [assetUrl])
 
   const effectiveFlipped = onFlip ? isFlipped : internalFlipped
   const handleToggleFlip = () => {

@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react'
-import { useNavigate } from 'react-router'
+import { useState, useCallback, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router'
 import { paths } from '@/shared/config/paths'
 import { Icon, useToast } from '@/shared/ui'
 import ShopSidebar from './components/ShopSidebar'
@@ -17,6 +17,7 @@ import styles from './ShopPage.module.css'
 
 export default function ShopPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const notify = useToast()
   const [purchaseModalProduct, setPurchaseModalProduct] = useState(null)
 
@@ -52,6 +53,14 @@ export default function ShopPage() {
       await Promise.all([refreshWallet(), refreshInventory()])
     },
   })
+
+  // Switch to wallet tab if requested via URL param (e.g. from payment success page)
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab === 'wallet') {
+      setActiveCategory('MY_WALLET')
+    }
+  }, [searchParams, setActiveCategory])
 
   // Equip handler for owned items
   const handleEquipProduct = async product => {
