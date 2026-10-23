@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { paths } from '@/shared/config/paths'
 import { Eyebrow } from '@/shared/ui'
@@ -8,14 +8,12 @@ import JoinRoomForm from './components/JoinRoomForm'
 import Message from './components/Message'
 import PublicRooms from './components/PublicRooms'
 import { useDevUser } from './hooks/useDevUser'
-import { RoomRuntimeContext } from './runtime'
 import styles from './RoomsPage.module.css'
 
 const PAGE_SIZE = 10
 
 export default function RoomsPage() {
   const navigate = useNavigate()
-  const runtime = useContext(RoomRuntimeContext)
   const devUser = useDevUser()
   const [account, setAccount] = useState(devUser ? 'signed-in' : 'checking')
   const [rooms, setRooms] = useState(null)
@@ -23,8 +21,7 @@ export default function RoomsPage() {
   const [page, setPage] = useState(0)
   const [version, setVersion] = useState(0)
 
-  const identity = useCallback(async signal => ({ accessToken: await runtime.getAccessToken(), devUser, signal }),
-    [runtime, devUser])
+  const identity = useCallback(async signal => ({ devUser, signal }), [devUser])
 
   // A player belongs to one open room at a time; resume it after a reload.
   useEffect(() => {

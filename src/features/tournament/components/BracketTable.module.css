@@ -1,0 +1,61 @@
+.table {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: 14px;
+  border: 1px solid rgb(var(--color-outline-variant));
+  border-radius: 14px;
+  background: rgb(var(--color-surface));
+}
+
+.final { border-color: rgb(var(--color-border-gold)); background: linear-gradient(130deg, rgb(var(--color-tertiary) / 0.1), rgb(var(--color-surface))); }
+.mine { box-shadow: 0 0 0 1px rgb(var(--color-primary-container) / 0.6); }
+.header { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.title { display: inline-flex; align-items: center; gap: 6px; margin: 0; font: 600 16px var(--font-display); }
+.trophy { color: rgb(var(--color-tertiary)); font-size: 20px; }
+
+.status {
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: rgb(var(--color-surface-container-highest));
+  color: rgb(var(--color-on-surface-variant));
+  font: 600 9px var(--font-display);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.playing { background: rgb(var(--color-primary-container)); color: rgb(var(--color-on-primary-container)); }
+.finished { color: rgb(var(--color-outline)); }
+.seats { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+
+.seat {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.you { background: rgb(var(--color-primary-container) / 0.2); }
+.number { color: rgb(var(--color-outline)); font: 600 11px var(--font-display); text-align: center; }
+.name { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.tag {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgb(var(--color-surface-container-highest));
+  color: rgb(var(--color-on-surface-variant));
+  font: 600 9px var(--font-display);
+  font-style: normal;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.advance { background: rgb(var(--color-tertiary)); color: rgb(var(--color-on-tertiary)); }
+.place { color: rgb(var(--color-on-surface-variant)); font: 600 12px var(--font-display); }
+.winner { color: rgb(var(--color-tertiary)); }
+.open { width: 100%; justify-content: center; }

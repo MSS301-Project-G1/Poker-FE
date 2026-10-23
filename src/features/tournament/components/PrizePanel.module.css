@@ -1,0 +1,22 @@
+.header { display: grid; gap: 6px; }
+.pool { margin: 0; color: rgb(var(--color-tertiary)); font: 700 28px var(--font-display); }
+.muted { margin: 0; color: rgb(var(--color-on-surface-variant)); font-size: 13px; line-height: 1.5; }
+.places { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+
+.place {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid rgb(var(--color-outline-variant));
+  border-radius: 12px;
+  background: rgb(var(--color-surface));
+  font-size: 14px;
+}
+
+.champion { border-color: rgb(var(--color-border-gold)); }
+.rank { display: inline-flex; align-items: center; gap: 6px; color: rgb(var(--color-on-surface-variant)); font: 600 13px var(--font-display); }
+.trophy { color: rgb(var(--color-tertiary)); font-size: 18px; }
+.skin { display: flex; align-items: center; gap: 8px; margin: 0; color: rgb(var(--color-tertiary)); font-size: 13px; }
+.skinIcon { font-size: 18px; }

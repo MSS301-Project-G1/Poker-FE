@@ -1,0 +1,12 @@
+.bracket { display: grid; gap: 14px; }
+.round { margin: 6px 0 0; color: rgb(var(--color-outline)); font: 600 11px var(--font-display); letter-spacing: 1px; text-transform: uppercase; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 12px; }
+
+.waiting {
+  padding: 18px;
+  border: 1px dashed rgb(var(--color-border-gold));
+  border-radius: 14px;
+  color: rgb(var(--color-on-surface-variant));
+  font-size: 13px;
+  text-align: center;
+}
