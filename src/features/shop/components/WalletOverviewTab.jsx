@@ -25,26 +25,43 @@ function formatDate(isoString) {
   }
 }
 
+function formatAuditRef(idempotencyKey, txId) {
+  if (!idempotencyKey) return txId ? `#${txId.slice(0, 8)}` : '--'
+  if (idempotencyKey.startsWith('PURCHASE:')) {
+    return `MUA #${idempotencyKey.slice(9, 17)}`
+  }
+  if (idempotencyKey.startsWith('ORDER:')) {
+    return `NẠP #${idempotencyKey.slice(6, 14)}`
+  }
+  if (idempotencyKey.startsWith('checkin:')) {
+    return 'CHECK-IN'
+  }
+  return `#${idempotencyKey.replace(/[^a-zA-Z0-9]/g, '').slice(-8).toUpperCase()}`
+}
+
 function getReasonInfo(reason, amount) {
   switch (reason) {
+    case 'SHOP_BUY_ITEM':
     case 'SHOP_PURCHASE':
       return {
-        title: 'Mua vật phẩm Shop',
-        desc: 'Trừ VIP Coin mua skin/vật phẩm',
+        title: 'Mua Vật Phẩm Cửa Hàng',
+        desc: 'Trừ VIP Coin sở hữu trang trí',
         icon: 'shopping_bag',
         bg: 'rgba(244, 63, 94, 0.15)',
         color: '#f43f5e',
       }
+    case 'TOPUP_BUNDLE_PAYOS':
     case 'DEPOSIT':
     case 'PAYMENT_PAYOS':
     case 'BUNDLE_TOPUP':
       return {
         title: 'Nạp VIP Coin (PayOS)',
-        desc: 'Cộng VIP Coin từ đơn thanh toán',
+        desc: 'Cộng VIP Coin từ đơn thanh toán PayOS',
         icon: 'add_card',
         bg: 'rgba(16, 185, 129, 0.15)',
         color: '#10b981',
       }
+
     case 'DAILY_CHECKIN':
     case 'DAILY_REWARD':
       return {
@@ -261,8 +278,8 @@ export default function WalletOverviewTab({
             <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Đã kết nối ví
             </span>
-            <span className="text-xs text-white/40 font-mono">
-              {wallet?.accountId ? `${String(wallet.accountId).slice(0, 8)}...` : ''}
+            <span className="text-xs text-white/50 font-medium">
+              Bảo mật SSL 256-bit
             </span>
           </div>
         </div>
@@ -386,10 +403,8 @@ export default function WalletOverviewTab({
                           </span>
                         </td>
                         <td>
-                          <span className="font-mono text-[11px] text-white/40 tracking-wider">
-                            {tx.idempotencyKey
-                              ? tx.idempotencyKey.slice(0, 14)
-                              : tx.id ? tx.id.slice(0, 8) : '--'}
+                          <span className="font-mono text-[11px] text-white/60 tracking-wider">
+                            {formatAuditRef(tx.idempotencyKey, tx.id)}
                           </span>
                         </td>
                       </tr>

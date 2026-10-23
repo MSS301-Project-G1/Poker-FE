@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import * as paymentService from '../services/paymentService'
 
 let cachedBundles = null
@@ -38,10 +38,27 @@ export function useBundleTopup() {
     }
   }, [reloadTrigger])
 
-  // Riot Games-style: Create order and direct redirect to PayOS checkoutUrl
-  const purchaseBundle = async bundleId => {
-    if (orderingBundleId) return
+  const clearOrderingState = useCallback(() => {
+    setOrderingBundleId(null)
+    setOrderError(null)
+  }, [])
 
+  const refreshBundles = useCallback(() => {
+    setReloadTrigger(v => v + 1)
+  }, [])
+
+  // Reset ordering state if user navigated back via browser history (BFCache) or tab focused
+  useEffect(() => {
+    window.addEventListener('pageshow', clearOrderingState)
+    window.addEventListener('focus', clearOrderingState)
+    return () => {
+      window.removeEventListener('pageshow', clearOrderingState)
+      window.removeEventListener('focus', clearOrderingState)
+    }
+  }, [clearOrderingState])
+
+  // Riot Games-style: Create order and direct redirect to PayOS checkoutUrl
+  const purchaseBundle = useCallback(async bundleId => {
     setOrderingBundleId(bundleId)
     setOrderError(null)
 
@@ -60,7 +77,7 @@ export function useBundleTopup() {
       setOrderingBundleId(null)
       throw err
     }
-  }
+  }, [])
 
   return {
     bundles,
@@ -69,6 +86,9 @@ export function useBundleTopup() {
     orderingBundleId,
     orderError,
     purchaseBundle,
-    refreshBundles: () => setReloadTrigger(v => v + 1),
+    clearOrderingState,
+    refreshBundles,
   }
 }
+
+

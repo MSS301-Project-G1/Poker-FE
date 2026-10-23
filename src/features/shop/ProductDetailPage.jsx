@@ -346,8 +346,14 @@ export default function ProductDetailPage() {
 
               <div>
                 {isEquipped ? (
-                  <Button variant="secondary" size="lg" disabled>
-                    Đang sử dụng
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    disabled
+                    icon="check_circle"
+                    className="!bg-white/10 !text-white/45 !border-white/10 !cursor-not-allowed !opacity-60"
+                  >
+                    Đã trang bị
                   </Button>
                 ) : isOwned ? (
                   <Button variant="primary" size="lg" icon="swap_horiz" onClick={handleEquip}>

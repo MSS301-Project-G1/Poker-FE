@@ -71,7 +71,7 @@ export default function InventoryGrid({
             <div className="relative w-full h-36 rounded-xl bg-surface-container-lowest/80 overflow-hidden mb-3 border border-outline-variant/20 flex items-center justify-center p-2">
               <CosmeticRenderer
                 categoryCode={item.categoryCode}
-                previewUrl={item.previewUrl}
+                previewUrl={item.previewUrl || item.assetUrl}
                 assetUrl={item.assetUrl}
                 productName={item.productName}
                 rank="A"

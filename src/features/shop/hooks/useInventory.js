@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useAuth } from '@/features/auth/useAuth'
+import { useAuth } from '@/features/auth'
 import * as inventoryService from '../services/inventoryService'
 
 export function useInventory() {
@@ -56,13 +56,26 @@ export function useInventory() {
     return set
   }, [items])
 
-  // Optimistic Equip
-  const equip = async inventoryItemId => {
+  // Fast set lookup for equipped products
+  const equippedProductIds = useMemo(() => {
+    const set = new Set()
+    items.forEach(item => {
+      if ((item.isEquipped || item.equipped) && item.productId) {
+        set.add(item.productId)
+      }
+    })
+    return set
+  }, [items])
+
+  const isProductEquipped = (productId) => equippedProductIds.has(productId)
+
+  // Optimistic Equip: supports either inventoryItem.id OR product.id
+  const equip = async idOrProductId => {
     if (actionInProgressId) return
-    setActionInProgressId(inventoryItemId)
+    setActionInProgressId(idOrProductId)
 
     const previousItems = [...items]
-    const targetItem = items.find(i => i.id === inventoryItemId)
+    const targetItem = items.find(i => i.id === idOrProductId || i.productId === idOrProductId)
     if (!targetItem) {
       setActionInProgressId(null)
       return
@@ -71,7 +84,8 @@ export function useInventory() {
     setItems(prev =>
       prev.map(item => {
         if (item.categoryCode === targetItem.categoryCode) {
-          return { ...item, isEquipped: item.id === inventoryItemId }
+          const matched = item.id === targetItem.id
+          return { ...item, isEquipped: matched, equipped: matched }
         }
         return item
       })
@@ -88,20 +102,24 @@ export function useInventory() {
     }
   }
 
-  // Optimistic Unequip
-  const unequip = async inventoryItemId => {
+  // Optimistic Unequip: supports either inventoryItem.id OR product.id
+  const unequip = async idOrProductId => {
     if (actionInProgressId) return
-    setActionInProgressId(inventoryItemId)
+    setActionInProgressId(idOrProductId)
 
     const previousItems = [...items]
-    const targetItem = items.find(i => i.id === inventoryItemId)
+    const targetItem = items.find(i => i.id === idOrProductId || i.productId === idOrProductId)
     if (!targetItem) {
       setActionInProgressId(null)
       return
     }
 
     setItems(prev =>
-      prev.map(item => (item.id === inventoryItemId ? { ...item, isEquipped: false } : item))
+      prev.map(item =>
+        item.id === targetItem.id
+          ? { ...item, isEquipped: false, equipped: false }
+          : item
+      )
     )
 
     try {
@@ -118,6 +136,8 @@ export function useInventory() {
   return {
     items,
     ownedProductIds,
+    equippedProductIds,
+    isProductEquipped,
     loading,
     error,
     actionInProgressId,
