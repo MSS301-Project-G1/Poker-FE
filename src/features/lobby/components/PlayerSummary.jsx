@@ -3,11 +3,11 @@ import { Icon } from '@/shared/ui'
 export default function PlayerSummary({ player, onOpenCheckIn }) {
   const displayName = player?.displayName || player?.email || 'Player'
   const avatarUrl = player?.avatarUrl || '/stitch-assets/avatar.svg'
-  return <div className="flex flex-col md:flex-row items-center justify-between gap-space-md bg-surface-container-low/70 backdrop-blur-xl px-space-md py-space-sm rounded-xl shadow-lg relative overflow-hidden">
-    <div className="absolute -top-12 -left-12 w-48 h-48 bg-primary/10 rounded-full blur-2xl pointer-events-none"></div>
+  return <div className="flex flex-col md:flex-row items-center justify-between gap-space-md bg-surface-container-lowest/40 backdrop-blur-xl px-space-md py-space-sm rounded-2xl border border-white/10 shadow-2xl relative overflow-hidden transition-all duration-300 hover:border-white/20">
+    <div className="absolute -top-12 -left-12 w-48 h-48 bg-primary/15 rounded-full blur-2xl pointer-events-none"></div>
     <div className="flex items-center gap-space-md z-10 w-full md:w-auto">
       <div className="relative shrink-0">
-        <img alt={displayName} className="w-12 h-12 rounded-xl object-cover shadow-md" src={avatarUrl}
+        <img alt={displayName} className="w-12 h-12 rounded-xl object-cover ring-2 ring-primary/40 shadow-lg" src={avatarUrl}
           onError={event => { event.currentTarget.src = '/stitch-assets/avatar.svg' }} />
       </div>
       <div className="flex flex-col min-w-0">
@@ -28,7 +28,7 @@ export default function PlayerSummary({ player, onOpenCheckIn }) {
         <span>Daily Check-in</span>
         <span className="w-2.5 h-2.5 rounded-full bg-tertiary animate-pulse ml-1"></span>
       </button>
-      <button type="button" className="flex items-center gap-space-xs px-space-md py-space-sm bg-surface-container-high rounded-lg text-on-surface font-label-action text-label-action hover:bg-surface-variant transition-all">
+      <button type="button" className="flex items-center gap-space-xs px-space-md py-space-sm bg-surface-container-highest/40 backdrop-blur-md border border-white/10 rounded-lg text-on-surface font-label-action text-label-action hover:bg-surface-container-highest/70 transition-all">
         <Icon name="history_edu" className="text-primary text-lg" />
         <span className="hidden sm:inline">History Log</span>
       </button>
