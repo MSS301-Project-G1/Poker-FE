@@ -10,7 +10,8 @@ export default function ActionDock({ legalActions, callAmount, minRaiseTo, maxRa
   const raiseAmount = Math.max(minRaiseTo, Math.min(maxRaiseTo, amount))
   const allIn = legalActions.includes('ALL_IN') && (!canRaise || raiseAmount >= maxRaiseTo)
   const presets = [['Min', minRaiseTo], ['½ Pot', Math.max(minRaiseTo, Math.floor(pot / 2))], ['Pot', Math.max(minRaiseTo, pot)], ['All-in', maxRaiseTo]]
-  return <section className={styles.dock} aria-label="Poker actions">
+  // The dock lights up whenever the server is waiting for you.
+  return <section className={styles.dock} aria-label="Poker actions" data-turn={legalActions.length > 0 || undefined}>
     <div className={styles.raiseControls}>
       <div className={styles.sizing}>{presets.map(([name, value]) =>
         <button key={name} className={name === 'All-in' ? styles.allinPreset : undefined} disabled={disabled || !canRaise}

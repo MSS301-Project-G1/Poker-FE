@@ -63,7 +63,10 @@
 
 /* Table: seats are placed on the rail by PlayerSeat; the board stays in the middle. */
 .table { flex: 1; min-height: 330px; }
-.center { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); z-index: 1; }
+/* Above the seats, so the YOUR TURN badge and the pot results stay on top where they meet a seat. */
+.center { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); z-index: 3; }
+/* Chips flying to the pot or a winner, drawn over the whole page. */
+.flights { position: fixed; inset: 0; z-index: 40; pointer-events: none; }
 /* Lift the board when the space under it gets tight, so your cards and the turn badge stay clear of it. */
 @media (max-height: 700px) { .center { top: 41%; } }
 @media (max-width: 1100px) { .center { top: 40%; } }

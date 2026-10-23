@@ -92,8 +92,8 @@ test('Normal match in progress offers a way back to the table or a forfeit from 
   await expect(page).toHaveURL(new RegExp(`/table/${tableId}$`))
   await page.getByRole('button', { name: 'Lobby', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Bạn đang trong một ván đấu' })).toBeVisible()
-  page.once('dialog', dialog => dialog.accept())
   await page.getByRole('button', { name: 'Rời ván' }).click()
+  await page.getByRole('alertdialog', { name: 'Rời ván?' }).getByRole('button', { name: 'Rời ván' }).click()
   await expect(page.getByRole('button', { name: 'Chơi nhanh' })).toBeVisible()
   expect(leaveMethod).toBe('POST')
 })
@@ -110,11 +110,11 @@ async function openTable(page, snapshot) {
   await page.routeWebSocket('**/ws/game', ws => ws.onMessage(frame => { if (frame.toString().startsWith('CONNECT\n')) ws.send('CONNECTED\nversion:1.2\nheart-beat:0,0\n\n\0') }))
   await page.route(`**/api/game/tables/${tableId}`, route => route.fulfill({ json: {
     tableId, matchId: proposalId, accountId: 'player', seats: [], board: [], pot: 0, street: 'PREFLOP', handNumber: 1,
-    actorSeat: 0, dealerSeat: 0, legalActions: [], actionSequence: 1, callAmount: 0, minRaiseTo: 20, maxRaiseTo: 1000,
+    actorSeat: 0, dealerSeat: 0, legalActions: [], actionSequence: 1, callAmount: 0, currentBet: 0, minRaiseTo: 20, maxRaiseTo: 1000,
     serverTime: new Date().toISOString(), deadline: new Date(Date.now() + 30000).toISOString(), ...snapshot,
   } }))
   await page.goto(`/table/${tableId}`)
-  await expect(page.getByText(`Table ${tableId.slice(-6)} · Hand 1`)).toBeVisible()
+  await expect(page.getByText(`BÀN #${tableId.slice(-6).toUpperCase()}`)).toBeVisible()
 }
 
 test('a running Normal table hides the lobby exits and forfeits through Leave', async ({ page }) => {
@@ -123,11 +123,14 @@ test('a running Normal table hides the lobby exits and forfeits through Leave', 
   await openTable(page, { mode: 'NORMAL' })
   await expect(page.getByRole('button', { name: 'Lobby', exact: true })).toHaveCount(0)
   await expect(page.getByRole('link', { name: /POKER/ })).toHaveCount(0)
-  page.once('dialog', dialog => dialog.dismiss())
-  await page.getByRole('button', { name: 'Rời ván' }).click()
+  const leave = page.getByRole('button', { name: 'Rời ván' })
+  const question = page.getByRole('alertdialog', { name: 'Rời ván?' })
+  await leave.click()
+  await question.getByRole('button', { name: 'Ở lại' }).click()
+  await expect(question).toHaveCount(0)
   expect(leaveMethod).toBeUndefined()
-  page.once('dialog', dialog => dialog.accept())
-  await page.getByRole('button', { name: 'Rời ván' }).click()
+  await leave.click()
+  await question.getByRole('button', { name: 'Rời ván' }).click()
   await expect(page).toHaveURL(/\/lobby$/)
   expect(leaveMethod).toBe('POST')
 })

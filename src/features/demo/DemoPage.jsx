@@ -1,14 +1,18 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { paths } from '@/shared/config/paths'
-import { Icon } from '@/shared/ui'
+import { Icon, useConfirm } from '@/shared/ui'
 import styles from './DemoPage.module.css'
 
 export default function DemoPage() {
   const [round, setRound] = useState(0)
   const [loaded, setLoaded] = useState(false)
-  function reset() {
-    if (!window.confirm('Bắt đầu lại bản chơi thử và đặt lại xu mô phỏng?')) return
+  const confirm = useConfirm()
+  async function reset() {
+    if (!await confirm({
+      title: 'Chơi lại từ đầu?', message: 'Ván chơi thử hiện tại sẽ kết thúc và xu mô phỏng được đặt lại.',
+      confirmLabel: 'Chơi lại', icon: 'restart_alt',
+    })) return
     try { localStorage.removeItem('poker-rank:solo-demo:profile:v1') } catch { /* The engine also supports memory-only profiles. */ }
     setLoaded(false)
     setRound(value => value + 1)

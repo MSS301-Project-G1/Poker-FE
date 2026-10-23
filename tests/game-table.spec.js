@@ -71,7 +71,7 @@ test('playing a full heads-up match displays server placements', async ({ page, 
     }
     const results = page.getByRole('dialog', { name: 'Match results' })
     await expect(results).toBeVisible()
-    await expect(results.getByRole('row')).toHaveCount(3)
+    await expect(results.getByRole('listitem')).toHaveCount(2)
     await expect(results.getByRole('button', { name: 'Back to lobby' })).toBeVisible()
   } finally { await otherContext.close() }
 })
