@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useAuth } from '@/features/auth'
 import * as walletService from '../services/walletService'
 
@@ -6,11 +6,9 @@ export function useWalletTransactions() {
   const { status } = useAuth()
   const isAuth = status === 'authenticated'
 
-  const [transactions, setTransactions] = useState([])
+  const [rawTransactions, setRawTransactions] = useState([])
   const [page, setPage] = useState(0)
-  const [pageSize] = useState(20)
-  const [totalPages, setTotalPages] = useState(1)
-  const [totalElements, setTotalElements] = useState(0)
+  const [pageSize, setPageSize] = useState(5) // default 5 items per page for clear pagination
   const [loading, setLoading] = useState(isAuth)
   const [error, setError] = useState(null)
   const [reloadTrigger, setReloadTrigger] = useState(0)
@@ -18,7 +16,7 @@ export function useWalletTransactions() {
 
   const loadTransactions = useCallback(async (signal) => {
     if (!isAuth) {
-      setTransactions([])
+      setRawTransactions([])
       setLoading(false)
       setError(null)
       return
@@ -26,11 +24,10 @@ export function useWalletTransactions() {
 
     setLoading(true)
     try {
-      const res = await walletService.getMyTransactions({ page, size: pageSize, signal })
+      // Fetch recent transactions (up to 100) to allow instant filtering and fluid pagination
+      const res = await walletService.getMyTransactions({ page: 0, size: 100, signal })
       if (res?.data) {
-        setTransactions(res.data.content || [])
-        setTotalPages(res.data.totalPages || 1)
-        setTotalElements(res.data.totalElements || 0)
+        setRawTransactions(res.data.content || [])
         setError(null)
       }
     } catch (err) {
@@ -40,7 +37,7 @@ export function useWalletTransactions() {
     } finally {
       setLoading(false)
     }
-  }, [isAuth, page, pageSize])
+  }, [isAuth])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -50,22 +47,48 @@ export function useWalletTransactions() {
     }
   }, [loadTransactions, reloadTrigger])
 
-  const filteredTransactions = transactions.filter(tx => {
-    if (currencyFilter === 'ALL') return true
-    return tx.currencyType === currencyFilter
-  })
+  // Filter transactions by currency type
+  const filteredTransactions = useMemo(() => {
+    if (currencyFilter === 'ALL') return rawTransactions
+    return rawTransactions.filter(tx => tx.currencyType === currencyFilter)
+  }, [rawTransactions, currencyFilter])
+
+  // Calculate pagination metrics
+  const totalElements = filteredTransactions.length
+  const totalPages = Math.max(1, Math.ceil(totalElements / pageSize))
+  const safePage = Math.min(page, Math.max(0, totalPages - 1))
+
+  // Paginated slice for current page
+  const paginatedTransactions = useMemo(() => {
+    const start = safePage * pageSize
+    return filteredTransactions.slice(start, start + pageSize)
+  }, [filteredTransactions, safePage, pageSize])
+
+  const handleSetCurrencyFilter = useCallback((newFilter) => {
+    setCurrencyFilter(newFilter)
+    setPage(0)
+  }, [])
+
+  const handleSetPageSize = useCallback((newSize) => {
+    setPageSize(newSize)
+    setPage(0)
+  }, [])
 
   return {
-    transactions: filteredTransactions,
-    rawTransactions: transactions,
-    page,
+    transactions: paginatedTransactions,
+    rawTransactions,
+    totalWalletCount: rawTransactions.length,
+    page: safePage,
     setPage,
+    pageSize,
+    setPageSize: handleSetPageSize,
     totalPages,
     totalElements,
     loading,
     error,
     currencyFilter,
-    setCurrencyFilter,
+    setCurrencyFilter: handleSetCurrencyFilter,
     refresh: () => setReloadTrigger(v => v + 1),
   }
 }
+

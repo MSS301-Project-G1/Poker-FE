@@ -17,7 +17,7 @@ import styles from './ShopPage.module.css'
 
 export default function ShopPage() {
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const notify = useToast()
   const [purchaseModalProduct, setPurchaseModalProduct] = useState(null)
 
@@ -59,11 +59,18 @@ export default function ShopPage() {
     },
   })
 
-  // Switch to wallet tab if requested via URL param (e.g. from payment success page)
+  // Synchronize URL search params with active category / tab
   useEffect(() => {
     const tab = searchParams.get('tab')
+    const cat = searchParams.get('category')
     if (tab === 'wallet') {
       setActiveCategory('MY_WALLET')
+    } else if (tab === 'inventory') {
+      setActiveCategory('MY_INVENTORY')
+    } else if (cat) {
+      setActiveCategory(cat)
+    } else {
+      setActiveCategory('ALL')
     }
   }, [searchParams, setActiveCategory])
 
@@ -107,7 +114,16 @@ export default function ShopPage() {
 
   const handleSelectCategory = useCallback(categoryCode => {
     setActiveCategory(categoryCode)
-  }, [setActiveCategory])
+    if (categoryCode === 'MY_WALLET') {
+      setSearchParams({ tab: 'wallet' }, { replace: true })
+    } else if (categoryCode === 'MY_INVENTORY') {
+      setSearchParams({ tab: 'inventory' }, { replace: true })
+    } else if (categoryCode === 'ALL') {
+      setSearchParams({}, { replace: true })
+    } else {
+      setSearchParams({ category: categoryCode }, { replace: true })
+    }
+  }, [setActiveCategory, setSearchParams])
 
   return (
     <div className={styles.pageWrapper}>
