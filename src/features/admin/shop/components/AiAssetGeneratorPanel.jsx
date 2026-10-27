@@ -534,6 +534,7 @@ export default function AiAssetGeneratorPanel({
         </button>
 
         <Button
+          id="btn-start-ai-generate"
           variant="gold"
           size="md"
           icon="auto_awesome"

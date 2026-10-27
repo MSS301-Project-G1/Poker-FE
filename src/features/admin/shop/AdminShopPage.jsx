@@ -38,7 +38,7 @@ export default function AdminShopPage() {
   } = useAdminBundles()
 
   return (
-    <div className="relative w-full pb-space-lg text-white font-body-md">
+    <div className="relative w-full pb-32 text-white font-body-md">
       {/* Background ambient lighting */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
         <div className="absolute -top-32 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[140px]" />
