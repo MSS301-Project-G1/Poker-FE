@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { Icon } from '@/shared/ui'
 import { Button } from '../shared/ui'
@@ -16,6 +17,18 @@ export default function ProductCard({
 }) {
   const navigate = useNavigate()
   const isDeckSkin = isCardProduct(product)
+
+  const saleRemaining = useMemo(() => {
+    if (product.isExclusive || !product.saleExpiresAt) return null
+    const diffMs = new Date(product.saleExpiresAt).getTime() - Date.now()
+    if (diffMs <= 0) return null
+    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+    const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24)
+    const minutes = Math.floor((diffMs / (1000 * 60)) % 60)
+    if (days > 0) return `Còn ${days}n ${hours}h`
+    if (hours > 0) return `Còn ${hours}h ${minutes}p`
+    return `Còn ${minutes}p`
+  }, [product.isExclusive, product.saleExpiresAt])
 
   const getTierClass = tier => {
     switch (tier) {
@@ -65,6 +78,13 @@ export default function ProductCard({
         ) : product.isOwned ? (
           <span className={`${styles.statusBadge} ${styles.statusOwned}`}>
             <Icon name="verified" className="text-xs" /> Đã Sở Hữu
+          </span>
+        ) : saleRemaining ? (
+          <span
+            className={`${styles.statusBadge} ${styles.statusFlashSale}`}
+            title={`Mở bán có hạn đến ${new Date(product.saleExpiresAt).toLocaleString()}`}
+          >
+            <Icon name="bolt" className="text-xs text-amber-300" /> {saleRemaining}
           </span>
         ) : product.isExclusive ? (
           <span className={`${styles.statusBadge} ${styles.statusExclusive}`}>

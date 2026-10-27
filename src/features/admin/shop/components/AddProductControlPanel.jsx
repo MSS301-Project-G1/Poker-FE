@@ -25,9 +25,28 @@ export default function AddProductControlPanel({
   const [priceVnd, setPriceVnd] = useState(50000)
   const [priceVipCoin, setPriceVipCoin] = useState(50)
   const [isExclusive, setIsExclusive] = useState(false)
+  const [isFlashSale, setIsFlashSale] = useState(false)
+  const [flashSalePreset, setFlashSalePreset] = useState('2_DAYS')
+  const [customSaleExpiresAt, setCustomSaleExpiresAt] = useState('')
   const [assetUrl, setAssetUrl] = useState('')
   const [previewVideoUrl, setPreviewVideoUrl] = useState('')
   const [soundFile, setSoundFile] = useState(null)
+
+  const computedSaleExpiresAt = useMemo(() => {
+    if (!isFlashSale) return null
+    if (flashSalePreset === 'CUSTOM') {
+      return customSaleExpiresAt ? new Date(customSaleExpiresAt).toISOString() : null
+    }
+    const msMap = {
+      '12_HOURS': 12 * 60 * 60 * 1000,
+      '1_DAY': 24 * 60 * 60 * 1000,
+      '2_DAYS': 2 * 24 * 60 * 60 * 1000,
+      '3_DAYS': 3 * 24 * 60 * 60 * 1000,
+      '7_DAYS': 7 * 24 * 60 * 60 * 1000,
+    }
+    const ms = msMap[flashSalePreset] || (2 * 24 * 60 * 60 * 1000)
+    return new Date(Date.now() + ms).toISOString()
+  }, [isFlashSale, flashSalePreset, customSaleExpiresAt])
 
   // Card Skin specific options
   const [ingestionMethod, setIngestionMethod] = useState('ZIP') // 'ZIP' | 'FILES' | 'URL'
@@ -163,7 +182,8 @@ export default function AddProductControlPanel({
             ? 'https://assets.msspoker.com/cards/cyber/back.png'
             : 'https://assets.msspoker.com/cosmetics/default_preview.png'),
         previewVideoUrl: previewVideoUrl.trim() || null,
-        isExclusive,
+        isExclusive: isFlashSale ? false : isExclusive,
+        saleExpiresAt: isFlashSale ? computedSaleExpiresAt : null,
       }
 
       const res = await createProduct(payload)
@@ -669,12 +689,100 @@ export default function AddProductControlPanel({
                 type="checkbox"
                 id="exclusive-panel-chk"
                 checked={isExclusive}
-                onChange={e => setIsExclusive(e.target.checked)}
+                onChange={e => {
+                  const checked = e.target.checked
+                  setIsExclusive(checked)
+                  if (checked) {
+                    setIsFlashSale(false)
+                  }
+                }}
                 className="w-4 h-4 rounded border-white/30 text-amber-500 focus:ring-0 focus:ring-offset-0 bg-black/50"
               />
               <label htmlFor="exclusive-panel-chk" className="text-xs text-white/80 cursor-pointer">
                 <strong>Vật phẩm độc quyền:</strong> Không cho phép mua tự do bằng VIP Coin, chỉ trao thưởng qua giải đấu Season hoặc sự kiện đặc biệt.
               </label>
+            </div>
+
+            {/* Flash Sale Toggle & Countdown Duration */}
+            <div className="pt-3 border-t border-white/10 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="flash-sale-chk"
+                    checked={isFlashSale}
+                    onChange={e => {
+                      const checked = e.target.checked
+                      setIsFlashSale(checked)
+                      if (checked) {
+                        setIsExclusive(false)
+                      }
+                    }}
+                    className="w-4 h-4 rounded border-amber-400/40 text-amber-400 focus:ring-0 focus:ring-offset-0 bg-black/50"
+                  />
+                  <label htmlFor="flash-sale-chk" className="text-xs text-white/90 cursor-pointer">
+                    <strong className="text-amber-300 flex items-center gap-1.5 inline-flex">
+                      <Icon name="bolt" className="text-amber-400 text-sm" />
+                      Mở Bán Giới Hạn Thời Gian (Flash Sale Độc Quyền)
+                    </strong>
+                    <span className="block text-white/50 text-[11px] mt-0.5">
+                      Sau khi hết thời hạn đếm ngược, Scheduler hệ thống sẽ tự động ngắt bán và khóa lại thành vật phẩm độc quyền.
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              {isFlashSale && (
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-400/30 space-y-3">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                      <Icon name="timer" className="text-base" />
+                      Thời Hạn Mở Bán:
+                    </span>
+                    <span className="text-[11px] text-white/60 font-mono">
+                      Hết hạn: {computedSaleExpiresAt ? new Date(computedSaleExpiresAt).toLocaleString() : 'Chưa thiết lập'}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
+                    {[
+                      { id: '12_HOURS', label: '12 Giờ' },
+                      { id: '1_DAY', label: '1 Ngày' },
+                      { id: '2_DAYS', label: '2 Ngày' },
+                      { id: '3_DAYS', label: '3 Ngày' },
+                      { id: '7_DAYS', label: '7 Ngày' },
+                      { id: 'CUSTOM', label: 'Tùy Chọn' },
+                    ].map(opt => (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setFlashSalePreset(opt.id)}
+                        className={`px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all text-center ${
+                          flashSalePreset === opt.id
+                            ? 'bg-amber-400 text-slate-950 border-amber-400 shadow-sm shadow-amber-500/20'
+                            : 'bg-black/40 border-white/10 text-white/70 hover:border-white/20'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {flashSalePreset === 'CUSTOM' && (
+                    <div className="pt-2">
+                      <label className="text-[11px] font-bold text-white/70 block mb-1">
+                        Chọn thời điểm kết thúc mở bán:
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={customSaleExpiresAt}
+                        onChange={e => setCustomSaleExpiresAt(e.target.value)}
+                        className="w-full sm:w-72 px-3 py-2 rounded-xl bg-black/60 border border-amber-400/30 text-xs text-amber-300 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
