@@ -145,7 +145,69 @@ export default function CosmeticRenderer({
     )
   }
 
-  // 5. Playing Card & Deck Renderer (CARD_SKIN or default)
+  // 5. Sound / Audio Effect Renderer
+  if (normalizedCategory.includes('SOUND') || normalizedCategory.includes('AUDIO')) {
+    return (
+      <div className={`${styles.rendererWrapper} ${className}`}>
+        <div className="relative flex flex-col items-center justify-center p-4">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-amber-400 p-1 shadow-2xl flex items-center justify-center relative overflow-hidden group">
+            <div className="w-full h-full rounded-full bg-black/85 flex items-center justify-center border-2 border-dashed border-amber-400/40">
+              <Icon name="graphic_eq" className="text-4xl text-amber-400 animate-pulse" />
+            </div>
+            <div className="absolute inset-0 bg-amber-400/10 rounded-full animate-ping pointer-events-none" />
+          </div>
+          <span className="mt-2.5 text-[10px] font-black tracking-widest px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 uppercase">
+            ÂM THANH FX
+          </span>
+          <span className="text-[11px] text-white/70 font-bold mt-1 text-center max-w-[140px] truncate">
+            {productName || 'Hiệu Ứng Âm Thanh'}
+          </span>
+        </div>
+      </div>
+    )
+  }
+
+  // 6. Emoji / Reaction Renderer
+  if (normalizedCategory.includes('EMOJI') || normalizedCategory.includes('REACTION')) {
+    return (
+      <div className={`${styles.rendererWrapper} ${className}`}>
+        <div className="relative flex flex-col items-center justify-center p-4">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-600 p-2 shadow-xl flex items-center justify-center">
+            {previewUrl ? (
+              <img src={previewUrl} alt={productName} className="w-full h-full object-contain" />
+            ) : (
+              <Icon name="sentiment_very_satisfied" className="text-4xl text-slate-950" />
+            )}
+          </div>
+          <span className="mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 uppercase">
+            EMOJI
+          </span>
+        </div>
+      </div>
+    )
+  }
+
+  // 7. Generic Non-Card Cosmetic Renderer (Only render Playing Card if CARD_SKIN or Deck)
+  if (!normalizedCategory.includes('CARD') && !normalizedCategory.includes('SKIN') && normalizedCategory !== '') {
+    return (
+      <div className={`${styles.rendererWrapper} ${className}`}>
+        <div className="relative flex flex-col items-center justify-center p-4">
+          <div className="w-24 h-24 rounded-2xl bg-black/60 border border-amber-400/30 p-2 shadow-xl flex items-center justify-center overflow-hidden">
+            {previewUrl || assetUrl ? (
+              <img src={previewUrl || assetUrl} alt={productName} className="w-full h-full object-contain" />
+            ) : (
+              <Icon name="category" className="text-4xl text-amber-400/60" />
+            )}
+          </div>
+          <span className="mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-white/80 border border-white/10 uppercase">
+            {normalizedCategory || 'VẬT PHẨM'}
+          </span>
+        </div>
+      </div>
+    )
+  }
+
+  // 8. Playing Card & Deck Renderer (CARD_SKIN or default)
   const isShowingBack = effectiveFlipped
 
   return (

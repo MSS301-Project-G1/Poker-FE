@@ -19,6 +19,14 @@ export async function getAdminProducts({ category, tier, page = 0, size = 50, si
   })
 }
 
+export async function getProductById(id, { signal } = {}) {
+  return gatewayRequest(`/api/shop/products/${id}`, {
+    signal,
+    auth: false,
+    errorMessage: 'Không thể tải chi tiết sản phẩm',
+  })
+}
+
 export async function createProduct(payload) {
   return gatewayRequest('/api/admin/products', {
     method: 'POST',
@@ -278,5 +286,29 @@ export async function getRecentAiBatches({ signal } = {}) {
     errorMessage: 'Không thể tải lịch sử sinh tài nguyên',
   })
 }
+
+export async function createPromptPreset(payload) {
+  return gatewayRequest('/api/admin/asset-generator/prompt-presets', {
+    method: 'POST',
+    body: payload,
+    errorMessage: 'Không thể tạo mới mẫu phong cách (Preset)',
+  })
+}
+
+export async function updatePromptPreset(id, payload) {
+  return gatewayRequest(`/api/admin/asset-generator/prompt-presets/${id}`, {
+    method: 'PUT',
+    body: payload,
+    errorMessage: 'Không thể cập nhật mẫu phong cách (Preset)',
+  })
+}
+
+export async function deletePromptPreset(id) {
+  return gatewayRequest(`/api/admin/asset-generator/prompt-presets/${id}`, {
+    method: 'DELETE',
+    errorMessage: 'Không thể xóa mẫu phong cách (Preset)',
+  })
+}
+
 
 

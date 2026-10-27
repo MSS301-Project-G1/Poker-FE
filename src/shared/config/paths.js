@@ -22,4 +22,6 @@ export const paths = {
   adminAvatars: '/admin/avatars',
   adminMatchSettings: '/admin/match-settings',
   adminShop: '/admin/shop',
+  adminShopEditProduct: id => `/admin/shop/products/${id}/edit`,
+  adminShopAddProduct: '/admin/shop/products/new',
 }

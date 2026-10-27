@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Icon, Button } from '@/shared/ui'
+import { paths } from '@/shared/config/paths'
 import AdminSidebar from './components/AdminSidebar'
 import ProductManagementTab from './components/ProductManagementTab'
 import AddProductControlPanel from './components/AddProductControlPanel'
@@ -16,6 +17,7 @@ export default function AdminShopPage() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('PRODUCTS') // 'PRODUCTS' | 'ADD_PRODUCT' | 'CATEGORIES' | 'BUNDLES' | 'AI_CONFIG' | 'AI_STUDIO'
   const [showTutorialModal, setShowTutorialModal] = useState(false)
+  const [editingProduct, setEditingProduct] = useState(null)
 
   // Products state & actions
   const {
@@ -24,6 +26,7 @@ export default function AdminShopPage() {
     loading: productsLoading,
     refreshProducts,
     createProduct,
+    updateProduct,
     deleteProduct,
     uploadDeckSkinZip,
     uploadDeckSkinFiles,
@@ -84,7 +87,10 @@ export default function AdminShopPage() {
         <div className="flex flex-col md:flex-row gap-6 items-start">
           <AdminSidebar
             activeTab={activeTab}
-            onSelectTab={setActiveTab}
+            onSelectTab={tab => {
+              setEditingProduct(null)
+              setActiveTab(tab)
+            }}
             productCount={products.length}
             bundleCount={bundles.length}
           />
@@ -99,7 +105,11 @@ export default function AdminShopPage() {
                 uploadDeckSkinZip={uploadDeckSkinZip}
                 onRefresh={refreshProducts}
                 onOpenAddProduct={type => {
+                  setEditingProduct(null)
                   setActiveTab('ADD_PRODUCT')
+                }}
+                onEditProduct={product => {
+                  navigate(paths.adminShopEditProduct(product.id))
                 }}
               />
             )}
@@ -109,13 +119,19 @@ export default function AdminShopPage() {
                 categories={categories}
                 onRefreshCategories={refreshProducts}
                 createProduct={createProduct}
+                updateProduct={updateProduct}
+                editingProduct={editingProduct}
                 uploadDeckSkinZip={uploadDeckSkinZip}
                 uploadDeckSkinFiles={uploadDeckSkinFiles}
                 onSuccess={() => {
+                  setEditingProduct(null)
                   refreshProducts()
                   setActiveTab('PRODUCTS')
                 }}
-                onCancel={() => setActiveTab('PRODUCTS')}
+                onCancel={() => {
+                  setEditingProduct(null)
+                  setActiveTab('PRODUCTS')
+                }}
               />
             )}
 
@@ -143,13 +159,13 @@ export default function AdminShopPage() {
                     <span>AI Asset Synthesis Studio</span>
                   </h2>
                   <p className="text-xs text-white/50">
-                    Tạo nhanh Dealer 4 tư thế, bộ bài 52 lá dát vàng, hoặc bàn poker từ 1 ảnh tham chiếu bằng Google Gemini.
+                    Tạo nhanh bộ bài 52 lá dát vàng, chip poker VIP hoặc bàn chơi từ ảnh tham chiếu bằng Google Gemini.
                   </p>
                 </div>
 
                 <AiAssetGeneratorPanel
                   allowCategoryChange={true}
-                  categoryCode="DEALER"
+                  categoryCode="CARD_SKIN"
                   categories={categories}
                   onProductApplied={() => {
                     refreshProducts()

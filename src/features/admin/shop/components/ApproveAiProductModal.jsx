@@ -83,6 +83,8 @@ export default function ApproveAiProductModal({
       await applyAiBatch(batch.batchId, {
         categoryId: selectedCategoryId,
         productName: productName.trim(),
+        tier,
+        description: description.trim(),
         priceVipCoin,
         priceVnd,
       })

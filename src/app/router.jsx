@@ -4,7 +4,7 @@ import { paths } from '@/shared/config/paths'
 import { AccountPage } from '@/features/account'
 import { AdminAvatarsPage } from '@/features/admin/avatars'
 import { MatchSettingsPage } from '@/features/admin/match-settings'
-import { AdminShopPage } from '@/features/admin/shop'
+import { AdminShopPage, AdminEditProductPage } from '@/features/admin/shop'
 import { AuthPage } from '@/features/auth'
 import { DemoPage } from '@/features/demo'
 import { RoomLobbyPage, RoomsPage } from '@/features/custom-room'
@@ -42,6 +42,8 @@ export default function AppRoutes() {
       <Route element={<AdminOnlyRoute />}>
         <Route path={paths.adminAvatars} element={<AdminAvatarsPage />} />
         <Route path={paths.adminShop} element={<AdminShopPage />} />
+        <Route path={paths.adminShopEditProduct(':id')} element={<AdminEditProductPage />} />
+        <Route path={paths.adminShopAddProduct} element={<AdminEditProductPage />} />
         {!env.gameDevMode && <Route path={paths.adminMatchSettings} element={<MatchSettingsPage />} />}
       </Route>
     </Route>

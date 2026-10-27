@@ -11,9 +11,34 @@ import {
 import PromptPreviewModal from './PromptPreviewModal'
 import ApproveAiProductModal from './ApproveAiProductModal'
 import ImageCropperModal from './ImageCropperModal'
+import PresetEditorModal from './PresetEditorModal'
+
+const SUPPORTED_AI_CATEGORIES = [
+  {
+    code: 'CARD_SKIN',
+    name: 'Skin Bộ Bài Tây',
+    icon: 'style',
+    title: 'Chế Độ Sinh Bộ Bài 52 Lá Dát Vàng / Cyberpunk',
+    desc: 'Hệ thống AI sẽ dùng Google Gemini phân tích phong cách thiết kế, chất liệu viền và kết xuất trọn bộ 52 lá bài tây cùng mặt sau lá bài độc quyền.',
+  },
+  {
+    code: 'COIN_SKIN',
+    name: 'Skin Chip / Đồng Xu',
+    icon: 'monetization_on',
+    title: 'Chế Độ Sinh Chip Poker Sứ VIP / Đồng Xu Hoàng Kim',
+    desc: 'Hệ thống AI sẽ tạo texture đồng xu kim loại hoặc chip poker sứ nhiều mệnh giá với logo và dải hoa văn viền tinh xảo.',
+  },
+  {
+    code: 'TABLE',
+    name: 'Skin Bàn Chơi Poker',
+    icon: 'crop_16_9',
+    title: 'Chế Độ Sinh Mặt Bàn Poker Nỉ Nhung & Viền Sang Trọng',
+    desc: 'Hệ thống AI tạo mặt nỉ nhung cao cấp chuẩn sòng bạc Las Vegas hoặc phong cách Cyberpunk dạ quang cùng viền gỗ/carbon.',
+  },
+]
 
 export default function AiAssetGeneratorPanel({
-  categoryCode: initialCategoryCode = 'DEALER',
+  categoryCode: initialCategoryCode = 'CARD_SKIN',
   categories = [],
   onAssetGenerated,
   soundFile = null,
@@ -32,9 +57,9 @@ export default function AiAssetGeneratorPanel({
   const [selectedPresetId, setSelectedPresetId] = useState('')
 
   // Prompt options
-  const [primaryColor, setPrimaryColor] = useState('#ff80bf') // default pink dress for dealer girl
-  const [secondaryColor, setSecondaryColor] = useState('#1a0933')
-  const [accentColor, setAccentColor] = useState('#ffd700')
+  const [primaryColor, setPrimaryColor] = useState('#ffd700') // Gold
+  const [secondaryColor, setSecondaryColor] = useState('#1a0933') // Deep royal purple/dark
+  const [accentColor, setAccentColor] = useState('#00e5ff') // Cyan accent
   const [extraDescription, setExtraDescription] = useState('')
   const [avoidElements, setAvoidElements] = useState('')
   const [referenceImage, setReferenceImage] = useState(null)
@@ -47,6 +72,8 @@ export default function AiAssetGeneratorPanel({
   const [lightboxImage, setLightboxImage] = useState(null)
   const [showCropper, setShowCropper] = useState(false)
   const [cropperSource, setCropperSource] = useState(null)
+  const [showPresetModal, setShowPresetModal] = useState(false)
+  const [editingPreset, setEditingPreset] = useState(null)
 
   // Generation status & result
   const [isGenerating, setIsGenerating] = useState(false)
@@ -243,46 +270,42 @@ export default function AiAssetGeneratorPanel({
 
       {/* Category selector */}
       {allowCategoryChange && (
-        <div>
-          <label className="text-xs font-bold text-white/80 block mb-1.5">
-            Chọn Loại Tài Nguyên / Danh Mục Muốn Sinh:
+        <div className="space-y-3">
+          <label className="text-xs font-bold text-white/80 block">
+            Chọn Loại Tài Nguyên Muốn Sinh (Hỗ Trợ 3 Danh Mục Chính):
           </label>
-          <div className="flex items-center gap-2 overflow-x-auto pb-1.5 p-1.5 bg-black/40 rounded-2xl border border-white/10">
-            {(categories.length > 0
-              ? categories
-              : [
-                  { code: 'DEALER', name: 'Cô Em Chia Bài' },
-                  { code: 'CARD_SKIN', name: 'Bộ Skin Lá Bài' },
-                  { code: 'TABLE', name: 'Bàn Chơi Poker' },
-                ]
-            ).map(c => {
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {SUPPORTED_AI_CATEGORIES.map(c => {
               const isSelected = currentCategory === c.code
-              const icon =
-                c.code === 'DEALER'
-                  ? 'face'
-                  : c.code === 'CARD_SKIN'
-                  ? 'style'
-                  : c.code === 'TABLE'
-                  ? 'crop_16_9'
-                  : c.code === 'SOUND'
-                  ? 'volume_up'
-                  : 'category'
 
               return (
                 <button
-                  key={c.id || c.code}
+                  key={c.code}
                   type="button"
                   onClick={() => setCurrentCategory(c.code)}
-                  className={`py-2 px-3.5 rounded-xl text-xs font-bold flex items-center shrink-0 gap-2 transition-all ${
+                  className={`p-3.5 rounded-2xl border text-left transition-all flex items-center gap-3 ${
                     isSelected
-                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-lg font-black'
-                      : 'text-white/60 hover:text-white hover:bg-white/5'
+                      ? 'bg-amber-400/20 border-amber-400 text-amber-300 shadow-lg shadow-amber-500/10 ring-1 ring-amber-400/30'
+                      : 'bg-black/40 border-white/10 text-white/60 hover:border-white/25 hover:text-white'
                   }`}
                 >
-                  <Icon name={icon} className="text-base" />
-                  <span>
-                    {c.name} ({c.code})
-                  </span>
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                      isSelected
+                        ? 'bg-amber-400 text-slate-950 font-black'
+                        : 'bg-white/5 text-white/50 border border-white/10'
+                    }`}
+                  >
+                    <Icon name={c.icon} className="text-xl" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="font-headline font-bold text-xs block text-white">
+                      {c.name}
+                    </span>
+                    <span className="text-[10px] text-white/50 block font-mono">
+                      {c.code}
+                    </span>
+                  </div>
                 </button>
               )
             })}
@@ -290,24 +313,20 @@ export default function AiAssetGeneratorPanel({
         </div>
       )}
 
-      {/* Dealer Notice */}
-      {currentCategory === 'DEALER' && (
-        <div className="p-3.5 rounded-2xl bg-gradient-to-r from-pink-500/15 to-purple-500/15 border border-pink-500/30 flex items-start gap-3">
-          <span className="text-2xl shrink-0">💃</span>
-          <div className="space-y-1">
-            <div className="font-bold text-xs text-pink-300">
-              Chế Độ Sinh Dealer 4 Tư Thế Từ 1 Ảnh Nhân Vật
-            </div>
-            <div className="text-[11px] text-white/70 leading-relaxed">
-              Hệ thống sẽ dùng AI phân tích ảnh chân dung và tạo trọn bộ 4 trạng thái hành động trong phòng chơi:
-              <b className="text-amber-300"> 1. Đứng chờ (idle)</b>,
-              <b className="text-cyan-300"> 2. Chia bài (deal)</b>,
-              <b className="text-emerald-300"> 3. Lật bài (flip)</b>,
-              <b className="text-pink-300"> 4. Ăn mừng (win)</b> cùng ảnh avatar tròn mạ vàng!
+      {/* Category Notice Banner */}
+      {(() => {
+        const catInfo = SUPPORTED_AI_CATEGORIES.find(c => c.code === currentCategory)
+        if (!catInfo) return null
+        return (
+          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-purple-500/15 to-transparent border border-amber-400/30 flex items-start gap-3">
+            <Icon name={catInfo.icon} className="text-2xl text-amber-400 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <div className="font-bold text-xs text-amber-300">{catInfo.title}</div>
+              <div className="text-[11px] text-white/70 leading-relaxed">{catInfo.desc}</div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      })()}
 
       {/* Row 1: AI Model Selector & Style Preset */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -330,19 +349,54 @@ export default function AiAssetGeneratorPanel({
         </div>
 
         <div>
-          <label className="text-xs font-bold text-white/80 block mb-1.5">
-            Mẫu Phong Cách Định Sẵn (Style Preset):
-          </label>
+          <div className="flex items-center justify-between mb-1.5 flex-wrap gap-1">
+            <label className="text-xs font-bold text-white/80">
+              Mẫu Phong Cách Định Sẵn (Style Preset):
+            </label>
+            <div className="flex items-center gap-1.5">
+              {selectedPresetId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const found = presets.find(p => p.id === selectedPresetId)
+                    setEditingPreset(found || null)
+                    setShowPresetModal(true)
+                  }}
+                  className="px-2 py-0.5 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] text-amber-300 font-bold border border-white/10 transition-colors flex items-center gap-1"
+                  title="Chỉnh sửa Mẫu Phong Cách này"
+                >
+                  <Icon name="edit" className="text-xs" />
+                  <span>Sửa Preset</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingPreset(null)
+                  setShowPresetModal(true)
+                }}
+                className="px-2 py-0.5 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-[11px] text-purple-300 font-bold border border-purple-500/30 transition-colors flex items-center gap-1"
+                title="Tạo mới Preset cho danh mục này"
+              >
+                <Icon name="add" className="text-xs" />
+                <span>+ Thêm Mới</span>
+              </button>
+            </div>
+          </div>
           <select
             value={selectedPresetId}
             onChange={e => setSelectedPresetId(e.target.value)}
             className="w-full px-4 py-2.5 rounded-2xl bg-[#1b0d36] border border-purple-500/30 text-sm font-bold text-white focus:outline-none focus:border-purple-400"
           >
-            {presets.map(p => (
-              <option key={p.id} value={p.id}>
-                {p.presetName}
-              </option>
-            ))}
+            {presets.length === 0 ? (
+              <option value="">(Chưa có preset - Nhấp [+ Thêm Mới])</option>
+            ) : (
+              presets.map(p => (
+                <option key={p.id} value={p.id}>
+                  {p.presetName}
+                </option>
+              ))
+            )}
           </select>
         </div>
       </div>
@@ -351,16 +405,9 @@ export default function AiAssetGeneratorPanel({
       <div>
         <div className="flex items-center justify-between mb-1.5 flex-wrap gap-1">
           <label className="text-xs font-bold text-white/80">
-            Ảnh Tham Chiếu Nhân Vật / Biểu Tượng (Reference Image):
+            Ảnh Tham Chiếu Phong Cách / Logo / Hoa Văn (Reference Image):
           </label>
-          <button
-            type="button"
-            onClick={handleLoadSampleDealerImage}
-            className="text-[11px] text-pink-300 hover:text-pink-200 font-bold flex items-center gap-1 bg-pink-500/10 px-2 py-0.5 rounded-lg border border-pink-500/20"
-          >
-            <Icon name="auto_awesome" className="text-xs" />
-            <span>Dùng Nhanh Ảnh Mẫu Cô Em Chia Bài</span>
-          </button>
+          <span className="text-[11px] text-white/40">Tùy chọn - Dùng ảnh định hình phong cách</span>
         </div>
 
         <div className="border-2 border-dashed border-purple-500/30 hover:border-purple-400 rounded-3xl p-4 bg-black/40 transition-all">
@@ -875,6 +922,25 @@ export default function AiAssetGeneratorPanel({
         cropShape={currentCategory === 'DEALER' ? 'circle' : 'square'}
         onClose={() => setShowCropper(false)}
         onCropComplete={handleCropComplete}
+      />
+
+      {/* Preset Editor Modal */}
+      <PresetEditorModal
+        isOpen={showPresetModal}
+        onClose={() => setShowPresetModal(false)}
+        preset={editingPreset}
+        categoryCode={currentCategory}
+        onSaveSuccess={saved => {
+          getPromptPresets(currentCategory).then(res => {
+            const list = res?.data || []
+            setPresets(list)
+            if (saved?.id) {
+              setSelectedPresetId(saved.id)
+            } else if (list.length > 0) {
+              setSelectedPresetId(list[0].id)
+            }
+          })
+        }}
       />
     </div>
   )

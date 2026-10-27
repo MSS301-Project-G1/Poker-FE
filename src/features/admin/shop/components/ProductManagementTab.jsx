@@ -12,6 +12,7 @@ export default function ProductManagementTab({
   uploadDeckSkinZip,
   onRefresh,
   onOpenAddProduct,
+  onEditProduct,
 }) {
   const notify = useToast()
   const [selectedCategory, setSelectedCategory] = useState('ALL')
@@ -250,7 +251,6 @@ export default function ProductManagementTab({
               ) : (
                 filteredProducts.map(p => {
                   const tier = getTierBadge(p.tier)
-                  const isDeck = isCardProduct(p)
 
                   return (
                     <tr key={p.id} className="hover:bg-white/5 transition-colors">
@@ -304,17 +304,15 @@ export default function ProductManagementTab({
                         )}
                       </td>
                       <td className="p-4 text-right space-x-2 whitespace-nowrap">
-                        {isDeck && (
-                          <button
-                            type="button"
-                            onClick={() => setZipModalProduct(p)}
-                            className="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/40 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
-                            title="Nạp 53 lá bài qua file ZIP vào S3"
-                          >
-                            <Icon name="cloud_upload" className="text-sm" />
-                            <span>Nạp 53 Lá ZIP</span>
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => onEditProduct?.(p)}
+                          className="px-3 py-1.5 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 border border-amber-400/40 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
+                          title="Chỉnh sửa thông tin sản phẩm"
+                        >
+                          <Icon name="edit" className="text-sm" />
+                          <span>Sửa</span>
+                        </button>
                         <button
                           type="button"
                           onClick={() => setProductToDelete(p)}
