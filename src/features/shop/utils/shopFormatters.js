@@ -55,8 +55,6 @@ export function isCardProduct(product) {
 
 export function getCategoryIcon(code) {
   switch (code) {
-    case 'CARD_BACK':
-    case 'CARD_FACE':
     case 'CARD_SKIN':
       return 'style'
     case 'TABLE':

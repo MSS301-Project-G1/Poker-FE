@@ -430,7 +430,7 @@ export default function ProductDetailPage() {
                   >
                     <div className="w-full aspect-[2/3]">
                       <CosmeticRenderer
-                        categoryCode="CARD_FACE"
+                        categoryCode="CARD_SKIN"
                         rank={c.rank}
                         suit={c.suit}
                         previewUrl={cardFaceUrl}

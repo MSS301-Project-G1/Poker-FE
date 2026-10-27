@@ -27,7 +27,6 @@ export default function AddProductControlPanel({
   const [previewVideoUrl, setPreviewVideoUrl] = useState('')
 
   // Card Skin specific options
-  const [deckOption, setDeckOption] = useState('CARD_FACE') // 'CARD_FACE' | 'CARD_BACK'
   const [ingestionMethod, setIngestionMethod] = useState('ZIP') // 'ZIP' | 'FILES' | 'URL'
   const [selectedZipFile, setSelectedZipFile] = useState(null)
   const [selectedImageFiles, setSelectedImageFiles] = useState([])
@@ -40,6 +39,7 @@ export default function AddProductControlPanel({
   const cardCategories = useMemo(() => {
     return categories.filter(
       c =>
+        c.code === 'CARD_SKIN' ||
         c.code.includes('CARD') ||
         c.code.includes('DECK') ||
         c.name.toLowerCase().includes('bài')
@@ -48,43 +48,37 @@ export default function AddProductControlPanel({
 
   const defaultCategory = useMemo(() => {
     if (productType === 'CARD_SKIN') {
-      const match = categories.find(c => c.code === deckOption)
+      const match = categories.find(c => c.code === 'CARD_SKIN')
       return match || cardCategories[0] || categories[0]
     }
     const nonCard = categories.filter(
       c =>
+        c.code !== 'CARD_SKIN' &&
         !c.code.includes('CARD') &&
         !c.code.includes('DECK') &&
         !c.name.toLowerCase().includes('bài')
     )
     return nonCard[0] || categories[0]
-  }, [productType, deckOption, categories, cardCategories])
+  }, [productType, categories, cardCategories])
 
   const [selectedCategoryId, setSelectedCategoryId] = useState(
     defaultCategory?.id || ''
   )
 
-  // Auto-sync category when productType or deckOption changes
+  // Auto-sync category when productType changes
   const handleTypeChange = newType => {
     setProductType(newType)
     if (newType === 'CARD_SKIN') {
-      const targetCode = deckOption || 'CARD_FACE'
-      const cat = categories.find(c => c.code === targetCode) || cardCategories[0] || categories[0]
+      const cat = categories.find(c => c.code === 'CARD_SKIN') || cardCategories[0] || categories[0]
       if (cat) setSelectedCategoryId(cat.id)
       if (!name) setName('Bộ Bài Hoàng Gia Hắc Kim')
-      if (!description) setDescription('Bộ bài nghệ thuật 52 lá dát vàng sang trọng kèm hiệu ứng lật bài độc quyền.')
+      if (!description) setDescription('Bộ bài nghệ thuật 52 lá dát vàng sang trọng kèm mặt lưng VIP và hiệu ứng lật bài độc quyền.')
       if (!assetUrl) setAssetUrl('https://assets.msspoker.com/cards/gold_black/back.png')
     } else {
-      const cat = categories.find(c => !c.code.includes('CARD')) || categories[0]
+      const cat = categories.find(c => c.code !== 'CARD_SKIN' && !c.code.includes('CARD')) || categories[0]
       if (cat) setSelectedCategoryId(cat.id)
       if (name.includes('Bộ Bài')) setName('')
     }
-  }
-
-  const handleDeckOptionChange = newOption => {
-    setDeckOption(newOption)
-    const cat = categories.find(c => c.code === newOption) || cardCategories[0]
-    if (cat) setSelectedCategoryId(cat.id)
   }
 
   // Price synchronization helper
@@ -446,47 +440,14 @@ export default function AddProductControlPanel({
                 <span className="text-xs text-white/50">Quy chuẩn S3 / MinIO</span>
               </div>
 
-              {/* Deck Option: Face vs Back */}
-              <div>
-                <label className="text-xs font-bold text-white/70 block mb-1.5">
-                  Phân loại bộ bài:
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => handleDeckOptionChange('CARD_FACE')}
-                    className={`p-3.5 rounded-2xl border text-left transition-all flex items-center gap-3 ${
-                      deckOption === 'CARD_FACE'
-                        ? 'bg-amber-400/20 border-amber-400 text-amber-300 shadow-md'
-                        : 'bg-black/30 border-white/10 text-white/60 hover:border-white/20'
-                    }`}
-                  >
-                    <Icon name="style" className="text-2xl shrink-0" />
-                    <div>
-                      <div className="font-bold text-xs">Mặt Trước 52 Lá (CARD_FACE)</div>
-                      <div className="text-[11px] opacity-75 mt-0.5">
-                        Trọn bộ 52 lá bài từ 2 đến A cho cả 4 chất
-                      </div>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleDeckOptionChange('CARD_BACK')}
-                    className={`p-3.5 rounded-2xl border text-left transition-all flex items-center gap-3 ${
-                      deckOption === 'CARD_BACK'
-                        ? 'bg-amber-400/20 border-amber-400 text-amber-300 shadow-md'
-                        : 'bg-black/30 border-white/10 text-white/60 hover:border-white/20'
-                    }`}
-                  >
-                    <Icon name="flip_to_back" className="text-2xl shrink-0" />
-                    <div>
-                      <div className="font-bold text-xs">Mặt Lưng Bài (CARD_BACK)</div>
-                      <div className="text-[11px] opacity-75 mt-0.5">
-                        Texture mặt sau phát sáng neon hoặc họa tiết VIP
-                      </div>
-                    </div>
-                  </button>
+              {/* Card Skin Unified Notice */}
+              <div className="p-3.5 rounded-2xl bg-amber-400/10 border border-amber-400/30 flex items-center gap-3">
+                <Icon name="style" className="text-2xl text-amber-300 shrink-0" />
+                <div>
+                  <div className="font-bold text-xs text-amber-300">Bộ Skin Lá Bài Toàn Diện (CARD_SKIN)</div>
+                  <div className="text-[11px] text-white/70 mt-0.5">
+                    Gói bao gồm trọn bộ 52 lá mặt trước (2–A cho cả 4 chất Bích, Cơ, Rô, Chuồn), mặt lưng lá bài (BACK.png) và ảnh bìa (PREVIEW.png).
+                  </div>
                 </div>
               </div>
 
@@ -755,7 +716,7 @@ export default function AddProductControlPanel({
             {/* Live Cosmetic Visualizer */}
             <div className="w-full aspect-[16/11] rounded-2xl bg-radial from-[#1e0e3a] to-[#0a0314] border border-white/10 flex items-center justify-center relative overflow-hidden p-4">
               <CosmeticRenderer
-                categoryCode={selectedCategoryObj?.code || 'CARD_FACE'}
+                categoryCode={selectedCategoryObj?.code || 'CARD_SKIN'}
                 previewUrl={assetUrl}
                 assetUrl={assetUrl}
                 productName={name || 'Tên vật phẩm'}

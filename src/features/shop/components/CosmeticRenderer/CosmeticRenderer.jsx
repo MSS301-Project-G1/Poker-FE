@@ -10,7 +10,7 @@ const SUIT_SYMBOLS = {
 }
 
 export default function CosmeticRenderer({
-  categoryCode = 'CARD_FACE',
+  categoryCode = 'CARD_SKIN',
   previewUrl = null,
   assetUrl = null,
   rank = 'A',
@@ -46,6 +46,33 @@ export default function CosmeticRenderer({
   const normalizedCategory = String(categoryCode || '').toUpperCase()
   const isRedSuit = suit === 'H' || suit === 'D'
   const suitChar = SUIT_SYMBOLS[suit] || suit
+
+  // 0. Dealer Skin Renderer
+  if (normalizedCategory.includes('DEALER')) {
+    return (
+      <div className={`${styles.rendererWrapper} ${className}`}>
+        <div className="relative flex flex-col items-center justify-center p-3">
+          <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-amber-500 via-purple-500 to-rose-500 shadow-xl relative overflow-hidden flex items-center justify-center">
+            {previewUrl || assetUrl ? (
+              <img
+                src={previewUrl || assetUrl}
+                alt={productName || 'Dealer'}
+                className="w-full h-full object-cover rounded-full"
+                onError={e => {
+                  e.currentTarget.style.display = 'none'
+                }}
+              />
+            ) : (
+              <Icon name="person" className="text-4xl text-amber-300" />
+            )}
+          </div>
+          <span className="mt-2 text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30">
+            DEALER
+          </span>
+        </div>
+      </div>
+    )
+  }
 
   // 1. Table Felt Renderer
   if (normalizedCategory.includes('TABLE')) {
@@ -118,9 +145,8 @@ export default function CosmeticRenderer({
     )
   }
 
-  // 5. Playing Card & Deck Renderer (CARD_FACE, CARD_BACK, or default)
-  const isBackDefault = normalizedCategory === 'CARD_BACK'
-  const isShowingBack = isBackDefault ? !effectiveFlipped : effectiveFlipped
+  // 5. Playing Card & Deck Renderer (CARD_SKIN or default)
+  const isShowingBack = effectiveFlipped
 
   return (
     <div className={`${styles.rendererWrapper} ${className}`}>
