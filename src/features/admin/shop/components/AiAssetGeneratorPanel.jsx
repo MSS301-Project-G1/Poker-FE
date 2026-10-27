@@ -10,6 +10,7 @@ import {
 } from '../services/adminShopService'
 import PromptPreviewModal from './PromptPreviewModal'
 import ApproveAiProductModal from './ApproveAiProductModal'
+import ImageCropperModal from './ImageCropperModal'
 
 export default function AiAssetGeneratorPanel({
   categoryCode: initialCategoryCode = 'DEALER',
@@ -44,6 +45,8 @@ export default function AiAssetGeneratorPanel({
   const [previewText, setPreviewText] = useState('')
   const [showApprovalModal, setShowApprovalModal] = useState(false)
   const [lightboxImage, setLightboxImage] = useState(null)
+  const [showCropper, setShowCropper] = useState(false)
+  const [cropperSource, setCropperSource] = useState(null)
 
   // Generation status & result
   const [isGenerating, setIsGenerating] = useState(false)
@@ -118,6 +121,13 @@ export default function AiAssetGeneratorPanel({
       URL.revokeObjectURL(imagePreviewUrl)
     }
     setImagePreviewUrl('')
+  }
+
+  // Handle Crop Complete
+  const handleCropComplete = (croppedFile, dataUrl) => {
+    setReferenceImage(croppedFile)
+    setImagePreviewUrl(dataUrl)
+    notify('Đã căn chỉnh khung hình ảnh tham chiếu!', { type: 'success' })
   }
 
   // Assemble prompt options
@@ -235,45 +245,47 @@ export default function AiAssetGeneratorPanel({
       {allowCategoryChange && (
         <div>
           <label className="text-xs font-bold text-white/80 block mb-1.5">
-            Chọn Loại Tài Nguyên Muốn Sinh:
+            Chọn Loại Tài Nguyên / Danh Mục Muốn Sinh:
           </label>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-1.5 bg-black/40 rounded-2xl border border-white/10">
-            <button
-              type="button"
-              onClick={() => setCurrentCategory('DEALER')}
-              className={`py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
-                currentCategory === 'DEALER'
-                  ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg'
-                  : 'text-white/60 hover:text-white'
-              }`}
-            >
-              <Icon name="face" />
-              <span>💃 Cô Em Chia Bài (DEALER)</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setCurrentCategory('CARD_SKIN')}
-              className={`py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
-                currentCategory === 'CARD_SKIN'
-                  ? 'bg-gradient-to-r from-amber-500 to-amber-700 text-white shadow-lg'
-                  : 'text-white/60 hover:text-white'
-              }`}
-            >
-              <Icon name="filter_frames" />
-              <span>🎴 Bộ Skin Lá Bài (CARD_SKIN)</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setCurrentCategory('TABLE')}
-              className={`py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
-                currentCategory === 'TABLE'
-                  ? 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-lg'
-                  : 'text-white/60 hover:text-white'
-              }`}
-            >
-              <Icon name="crop_16_9" />
-              <span>🎲 Bàn Chơi Poker (TABLE)</span>
-            </button>
+          <div className="flex items-center gap-2 overflow-x-auto pb-1.5 p-1.5 bg-black/40 rounded-2xl border border-white/10">
+            {(categories.length > 0
+              ? categories
+              : [
+                  { code: 'DEALER', name: 'Cô Em Chia Bài' },
+                  { code: 'CARD_SKIN', name: 'Bộ Skin Lá Bài' },
+                  { code: 'TABLE', name: 'Bàn Chơi Poker' },
+                ]
+            ).map(c => {
+              const isSelected = currentCategory === c.code
+              const icon =
+                c.code === 'DEALER'
+                  ? 'face'
+                  : c.code === 'CARD_SKIN'
+                  ? 'style'
+                  : c.code === 'TABLE'
+                  ? 'crop_16_9'
+                  : c.code === 'SOUND'
+                  ? 'volume_up'
+                  : 'category'
+
+              return (
+                <button
+                  key={c.id || c.code}
+                  type="button"
+                  onClick={() => setCurrentCategory(c.code)}
+                  className={`py-2 px-3.5 rounded-xl text-xs font-bold flex items-center shrink-0 gap-2 transition-all ${
+                    isSelected
+                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-lg font-black'
+                      : 'text-white/60 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <Icon name={icon} className="text-base" />
+                  <span>
+                    {c.name} ({c.code})
+                  </span>
+                </button>
+              )
+            })}
           </div>
         </div>
       )}
@@ -368,14 +380,27 @@ export default function AiAssetGeneratorPanel({
                 <div className="text-[11px] text-pink-300 mt-0.5">
                   ✓ Đã sẵn sàng nạp vào Google Gemini để phân tích diện mạo và 4 tư thế
                 </div>
-                <button
-                  type="button"
-                  onClick={removeReferenceImage}
-                  className="mt-2 text-xs text-rose-400 hover:text-rose-300 font-bold flex items-center gap-1"
-                >
-                  <Icon name="delete" className="text-sm" />
-                  <span>Gỡ bỏ ảnh này</span>
-                </button>
+                <div className="flex items-center gap-2 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCropperSource(imagePreviewUrl)
+                      setShowCropper(true)
+                    }}
+                    className="text-xs text-amber-300 hover:text-amber-200 font-bold flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-400/15 border border-amber-400/30 transition-colors"
+                  >
+                    <Icon name="crop" className="text-sm" />
+                    <span>Cắt & Căn Chỉnh Khung (Crop)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={removeReferenceImage}
+                    className="text-xs text-rose-400 hover:text-rose-300 font-bold flex items-center gap-1"
+                  >
+                    <Icon name="delete" className="text-sm" />
+                    <span>Gỡ bỏ</span>
+                  </button>
+                </div>
               </div>
             </div>
           ) : (
@@ -842,6 +867,15 @@ export default function AiAssetGeneratorPanel({
           </div>
         </div>
       )}
+
+      {/* Image Cropper Modal */}
+      <ImageCropperModal
+        isOpen={showCropper}
+        imageSrc={cropperSource}
+        cropShape={currentCategory === 'DEALER' ? 'circle' : 'square'}
+        onClose={() => setShowCropper(false)}
+        onCropComplete={handleCropComplete}
+      />
     </div>
   )
 }

@@ -1,11 +1,10 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import { Icon, Button, useToast } from '@/shared/ui'
 import { formatVipCoin, formatVnd } from '../utils/adminFormatters'
 import CosmeticRenderer from '@/features/shop/components/CosmeticRenderer'
-import ProductSoundField from './ProductSoundField'
-import AiAssetGeneratorPanel from './AiAssetGeneratorPanel'
 import AddCategoryModal from './AddCategoryModal'
-import { uploadProductSound, applyAiBatch } from '../services/adminShopService'
+import ImageCropperModal from './ImageCropperModal'
+import { uploadProductSound, uploadAssetFile } from '../services/adminShopService'
 
 export default function AddProductControlPanel({
   categories = [],
@@ -18,11 +17,27 @@ export default function AddProductControlPanel({
 }) {
   const notify = useToast()
 
-  // Modal create category
+  // Modal Category & Cropper
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false)
+  const [showCropperModal, setShowCropperModal] = useState(false)
+  const [cropperSource, setCropperSource] = useState(null)
 
-  // Mode: 'STANDARD' (Cosmetic items like felts, avatars, vfx) vs 'CARD_SKIN' (Card deck skins)
-  const [productType, setProductType] = useState('STANDARD')
+  // Selected Category
+  const [selectedCategoryId, setSelectedCategoryId] = useState(categories[0]?.id || '')
+
+  useEffect(() => {
+    if (!selectedCategoryId && categories.length > 0) {
+      setSelectedCategoryId(categories[0].id)
+    }
+  }, [categories, selectedCategoryId])
+
+  const currentCategory = useMemo(() => {
+    return categories.find(c => c.id === selectedCategoryId) || categories[0]
+  }, [categories, selectedCategoryId])
+
+  const catCode = useMemo(() => {
+    return String(currentCategory?.code || '').toUpperCase()
+  }, [currentCategory])
 
   // Form Fields
   const [name, setName] = useState('')
@@ -34,10 +49,33 @@ export default function AddProductControlPanel({
   const [isFlashSale, setIsFlashSale] = useState(false)
   const [flashSalePreset, setFlashSalePreset] = useState('2_DAYS')
   const [customSaleExpiresAt, setCustomSaleExpiresAt] = useState('')
-  const [assetUrl, setAssetUrl] = useState('')
-  const [previewVideoUrl, setPreviewVideoUrl] = useState('')
-  const [soundFile, setSoundFile] = useState(null)
 
+  // Local Files & Previews (Local First - Only uploaded to S3 upon clicking Submit)
+  const [localAssetFile, setLocalAssetFile] = useState(null)
+  const [localAssetPreviewUrl, setLocalAssetPreviewUrl] = useState('')
+  const [localVideoFile, setLocalVideoFile] = useState(null)
+  const [localVideoPreviewUrl, setLocalVideoPreviewUrl] = useState('')
+  const [localSoundFile, setLocalSoundFile] = useState(null)
+  const [localSoundPreviewUrl, setLocalSoundPreviewUrl] = useState('')
+
+  // Card Skin specific files
+  const [deckMethod, setDeckMethod] = useState('ZIP') // 'ZIP' | 'FILES'
+  const [selectedZipFile, setSelectedZipFile] = useState(null)
+  const [selectedImageFiles, setSelectedImageFiles] = useState([])
+
+  // Fallback URLs if admin enters custom URLs manually
+  const [manualAssetUrl, setManualAssetUrl] = useState('')
+  const [manualVideoUrl, setManualVideoUrl] = useState('')
+
+  // Sound player
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false)
+  const audioRef = useRef(null)
+
+  // Submission State
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStep, setSubmitStep] = useState('')
+
+  // Sale expiration calculation
   const computedSaleExpiresAt = useMemo(() => {
     if (!isFlashSale) return null
     if (flashSalePreset === 'CUSTOM') {
@@ -54,73 +92,7 @@ export default function AddProductControlPanel({
     return new Date(Date.now() + ms).toISOString()
   }, [isFlashSale, flashSalePreset, customSaleExpiresAt])
 
-  // Card Skin specific options
-  const [ingestionMethod, setIngestionMethod] = useState('ZIP') // 'AI' | 'ZIP' | 'FILES' | 'URL'
-  const [selectedZipFile, setSelectedZipFile] = useState(null)
-  const [selectedImageFiles, setSelectedImageFiles] = useState([])
-  const [generatedBatchId, setGeneratedBatchId] = useState(null)
-  const [showStandardAiPanel, setShowStandardAiPanel] = useState(false)
-
-  const handleAiGenerated = assetData => {
-    if (!assetData) return
-    setGeneratedBatchId(assetData.batchId)
-    if (assetData.previewUrl) {
-      setAssetUrl(assetData.previewUrl)
-    }
-    if (!name.trim()) {
-      setName(`Skin Bài AI Hoàng Gia #${assetData.batchId.substring(0, 6)}`)
-    }
-  }
-
-  // Submission state
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitStep, setSubmitStep] = useState('')
-
-  // Find or fallback category
-  const cardCategories = useMemo(() => {
-    return categories.filter(
-      c =>
-        c.code === 'CARD_SKIN' ||
-        c.code.includes('CARD') ||
-        c.code.includes('DECK')
-    )
-  }, [categories])
-
-  const defaultCategory = useMemo(() => {
-    if (productType === 'CARD_SKIN') {
-      const match = categories.find(c => c.code === 'CARD_SKIN')
-      return match || cardCategories[0] || categories[0]
-    }
-    const nonCard = categories.filter(
-      c =>
-        c.code !== 'CARD_SKIN' &&
-        !c.code.includes('CARD') &&
-        !c.code.includes('DECK')
-    )
-    return nonCard[0] || categories[0]
-  }, [productType, categories, cardCategories])
-
-  const [selectedCategoryId, setSelectedCategoryId] = useState(
-    defaultCategory?.id || ''
-  )
-
-  // Auto-sync category when productType changes
-  const handleTypeChange = newType => {
-    setProductType(newType)
-    if (newType === 'CARD_SKIN') {
-      const cat = categories.find(c => c.code === 'CARD_SKIN') || cardCategories[0] || categories[0]
-      if (cat) setSelectedCategoryId(cat.id)
-      if (!name) setName('Bộ Bài Hoàng Gia Hắc Kim')
-      if (!description) setDescription('Bộ bài nghệ thuật 52 lá dát vàng sang trọng kèm mặt lưng VIP và hiệu ứng lật bài độc quyền.')
-      if (!assetUrl) setAssetUrl('https://assets.msspoker.com/cards/gold_black/back.png')
-    } else {
-      const cat = categories.find(c => c.code !== 'CARD_SKIN' && !c.code.includes('CARD')) || categories[0]
-      if (cat) setSelectedCategoryId(cat.id)
-      if (name.includes('Bộ Bài')) setName('')
-    }
-  }
-
-  // Price synchronization helper
+  // Price synchronization
   const handlePriceVndChange = val => {
     const vnd = Math.max(0, Number(val) || 0)
     setPriceVnd(vnd)
@@ -133,289 +105,238 @@ export default function AddProductControlPanel({
     setPriceVnd(vip * 1000)
   }
 
-  // Handle Drag & Drop ZIP
-  const handleZipDrop = e => {
-    e.preventDefault()
-    const file = e.dataTransfer?.files?.[0]
-    if (file) {
-      if (!file.name.toLowerCase().endsWith('.zip')) {
-        notify('Vui lòng chọn file nén định dạng .zip!', { type: 'error' })
-        return
-      }
-      setSelectedZipFile(file)
+  // File Handlers
+  const handleAssetFileSelect = e => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setLocalAssetFile(file)
+    const url = URL.createObjectURL(file)
+    setLocalAssetPreviewUrl(url)
+
+    // For dealer or avatar frame, suggest opening cropper
+    if (catCode === 'DEALER' || catCode === 'FRAME') {
+      setCropperSource(url)
+      setShowCropperModal(true)
     }
   }
 
-  // Handle File change
+  const handleVideoFileSelect = e => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setLocalVideoFile(file)
+    setLocalVideoPreviewUrl(URL.createObjectURL(file))
+  }
+
+  const handleSoundFileSelect = e => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 2 * 1024 * 1024) {
+      notify('Tệp âm thanh không được vượt quá 2MB', { type: 'error' })
+      return
+    }
+    setLocalSoundFile(file)
+    const url = URL.createObjectURL(file)
+    setLocalSoundPreviewUrl(url)
+    if (audioRef.current) {
+      audioRef.current.pause()
+      setIsPlayingAudio(false)
+    }
+  }
+
+  const handleTogglePlayAudio = () => {
+    if (!localSoundPreviewUrl) return
+    if (!audioRef.current) {
+      audioRef.current = new Audio(localSoundPreviewUrl)
+      audioRef.current.onended = () => setIsPlayingAudio(false)
+    }
+    if (isPlayingAudio) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+      setIsPlayingAudio(false)
+    } else {
+      audioRef.current.src = localSoundPreviewUrl
+      audioRef.current
+        .play()
+        .then(() => setIsPlayingAudio(true))
+        .catch(() => setIsPlayingAudio(false))
+    }
+  }
+
   const handleZipFileSelect = e => {
     const file = e.target.files?.[0]
-    if (file) {
-      if (!file.name.toLowerCase().endsWith('.zip')) {
-        notify('Vui lòng chọn file nén định dạng .zip!', { type: 'error' })
-        return
-      }
-      setSelectedZipFile(file)
-    }
+    if (!file) return
+    setSelectedZipFile(file)
   }
 
   const handleMultiFilesSelect = e => {
     const files = Array.from(e.target.files || [])
     if (files.length > 0) {
       setSelectedImageFiles(files)
-      notify(`Đã chọn ${files.length} ảnh lá bài.`, { type: 'info' })
     }
+  }
+
+  // Handle Cropper Result
+  const handleCropComplete = (croppedFile, dataUrl) => {
+    setLocalAssetFile(croppedFile)
+    setLocalAssetPreviewUrl(dataUrl)
+    notify('Đã cắt và căn khung ảnh thành công!', { type: 'success' })
   }
 
   // Submit Handler
   const handleSubmit = async e => {
     e.preventDefault()
     if (!name.trim()) {
-      notify('Vui lòng nhập tên sản phẩm!', { type: 'error' })
+      notify('Vui lòng nhập tên sản phẩm', { type: 'error' })
       return
     }
-
-    const categoryObj =
-      categories.find(c => c.id === selectedCategoryId) || defaultCategory
-    if (!categoryObj) {
-      notify('Vui lòng chọn danh mục hợp lệ!', { type: 'error' })
+    if (!selectedCategoryId) {
+      notify('Vui lòng chọn danh mục cho sản phẩm', { type: 'error' })
       return
     }
 
     setIsSubmitting(true)
-    setSubmitStep('Đang khởi tạo thông tin sản phẩm...')
-
     try {
-      // 1. Create Product in DB
-      const payload = {
-        categoryId: categoryObj.id,
+      let finalAssetUrl = manualAssetUrl.trim()
+      let finalVideoUrl = manualVideoUrl.trim()
+
+      // 1. Upload local asset file to S3 if selected
+      if (localAssetFile) {
+        setSubmitStep('Đang tải lên tệp tài nguyên lên S3...')
+        const res = await uploadAssetFile(localAssetFile, 'assets')
+        if (res?.data?.url) {
+          finalAssetUrl = res.data.url
+        }
+      }
+
+      // 2. Upload local video file to S3 if selected
+      if (localVideoFile) {
+        setSubmitStep('Đang tải lên video review lên S3...')
+        const res = await uploadAssetFile(localVideoFile, 'videos')
+        if (res?.data?.url) {
+          finalVideoUrl = res.data.url
+        }
+      }
+
+      // 3. Fallback defaults if no asset provided
+      if (!finalAssetUrl) {
+        if (catCode === 'CARD_SKIN') {
+          finalAssetUrl = 'https://assets.msspoker.com/cards/gold_black/back.png'
+        } else if (catCode === 'TABLE') {
+          finalAssetUrl = 'https://assets.msspoker.com/tables/classic_green.png'
+        } else {
+          finalAssetUrl = 'https://assets.msspoker.com/placeholders/cosmetic.png'
+        }
+      }
+
+      // 4. Create Product
+      setSubmitStep('Đang khởi tạo bản ghi sản phẩm...')
+      const productPayload = {
         name: name.trim(),
+        categoryId: selectedCategoryId,
         description: description.trim(),
         tier,
-        priceVnd: Number(priceVnd),
-        priceVipCoin: Number(priceVipCoin),
-        assetUrl:
-          assetUrl.trim() ||
-          (productType === 'CARD_SKIN'
-            ? 'https://assets.msspoker.com/cards/cyber/back.png'
-            : 'https://assets.msspoker.com/cosmetics/default_preview.png'),
-        previewVideoUrl: previewVideoUrl.trim() || null,
-        isExclusive: isFlashSale ? false : isExclusive,
-        saleExpiresAt: isFlashSale ? computedSaleExpiresAt : null,
+        priceVnd,
+        priceVipCoin,
+        isExclusive,
+        assetUrl: finalAssetUrl,
+        previewVideoUrl: finalVideoUrl || null,
+        saleExpiresAt: computedSaleExpiresAt,
       }
 
-      const res = await createProduct(payload)
-      const createdProduct = res?.data
-      const newProductId = createdProduct?.id
+      const created = await createProduct(productPayload)
+      const productId = created?.id
 
-      // 2. If AI generated batch -> Apply batch to product
-      if (generatedBatchId && newProductId) {
-        setSubmitStep('Đang liên kết gói tài nguyên AI vào sản phẩm...')
-        await applyAiBatch(generatedBatchId, { targetProductId: newProductId })
-        notify(`Đã tạo sản phẩm và áp dụng gói tài nguyên AI cho "${name}"!`, { type: 'success' })
-      } else if (
-        productType === 'CARD_SKIN' &&
-        newProductId &&
-        ingestionMethod === 'ZIP' &&
-        selectedZipFile
-      ) {
-        setSubmitStep('Đang giải nén & nạp 53 lá bài lên S3 / MinIO...')
-        await uploadDeckSkinZip(newProductId, selectedZipFile)
-        notify(
-          `Đã tạo sản phẩm và nạp thành công 53 lá bài cho "${name}"!`,
-          { type: 'success' }
-        )
-      } else if (
-        productType === 'CARD_SKIN' &&
-        newProductId &&
-        ingestionMethod === 'FILES' &&
-        selectedImageFiles.length > 0
-      ) {
-        setSubmitStep(`Đang tải lên ${selectedImageFiles.length} file ảnh lên S3...`)
-        await uploadDeckSkinFiles(newProductId, selectedImageFiles)
-        notify(
-          `Đã tạo sản phẩm và nạp ${selectedImageFiles.length} ảnh lá bài thành công!`,
-          { type: 'success' }
-        )
-      } else {
-        notify(`Tạo sản phẩm "${name}" thành công!`, { type: 'success' })
+      if (!productId) {
+        throw new Error('Không nhận được ID sản phẩm sau khi tạo')
       }
 
-      // 3. If Sound File attached -> Upload sound
-      if (soundFile && newProductId) {
-        setSubmitStep('Đang tải lên tệp âm thanh hiệu ứng...')
-        await uploadProductSound(newProductId, soundFile)
+      // 5. Upload Sound if provided
+      if (localSoundFile) {
+        setSubmitStep('Đang tải lên và liên kết tệp âm thanh...')
+        await uploadProductSound(productId, localSoundFile)
       }
 
+      // 6. Ingest Card Skin if CARD_SKIN
+      if (catCode === 'CARD_SKIN') {
+        if (selectedZipFile) {
+          setSubmitStep('Đang giải nén và tải lên bộ bài 52 lá...')
+          await uploadDeckSkinZip(productId, selectedZipFile)
+        } else if (selectedImageFiles.length > 0) {
+          setSubmitStep('Đang tải lên các lá bài rời...')
+          await uploadDeckSkinFiles(productId, selectedImageFiles)
+        }
+      }
+
+      notify(`Tạo sản phẩm "${name}" thành công!`, { type: 'success' })
       onSuccess?.()
     } catch (err) {
-      notify(err.message || 'Thao tác tạo sản phẩm thất bại', { type: 'error' })
+      notify(err.message || 'Lỗi khi tạo sản phẩm', { type: 'error' })
     } finally {
       setIsSubmitting(false)
       setSubmitStep('')
     }
   }
 
-  const selectedCategoryObj =
-    categories.find(c => c.id === selectedCategoryId) || defaultCategory
+  // Category Icon helper
+  const getCatIcon = code => {
+    switch (code) {
+      case 'DEALER': return 'face'
+      case 'CARD_SKIN': return 'style'
+      case 'TABLE': return 'crop_16_9'
+      case 'FRAME': return 'account_circle'
+      case 'SOUND': return 'volume_up'
+      case 'ALL_IN_EFFECT':
+      case 'VICTORY_EFFECT': return 'auto_awesome'
+      default: return 'category'
+    }
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Top Banner & Breadcrumb Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-3xl bg-gradient-to-r from-[#170a2c] via-[#150926] to-[#0c0418] border border-white/10 shadow-2xl relative overflow-hidden">
-        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-amber-500/10 to-transparent pointer-events-none" />
-
-        <div className="flex items-center gap-4 relative z-10">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="w-10 h-10 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/70 hover:text-white transition-all shadow-md shrink-0"
-            title="Quay lại danh sách"
-          >
-            <Icon name="arrow_back" className="text-xl" />
-          </button>
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-400 text-slate-950 shadow-sm">
-                Control Panel
-              </span>
-              <span className="text-xs text-white/40">• Bảng Điều Khiển Quản Trị</span>
-            </div>
-            <h2 className="font-headline font-black text-2xl text-white">
-              Thêm Vật Phẩm Mới & Cấu Hình Skin Bài
-            </h2>
-          </div>
+    <div className="space-y-6 animate-fade-in text-white">
+      {/* Header */}
+      <div className="flex items-center justify-between pb-4 border-b border-white/10 flex-wrap gap-4">
+        <div>
+          <h2 className="font-headline font-black text-xl text-white flex items-center gap-2">
+            <Icon name="add_circle" className="text-amber-400 text-2xl" />
+            <span>Thêm Mới Vật Phẩm & Skin Vào Cửa Hàng</span>
+          </h2>
+          <p className="text-xs text-white/50">
+            Form động tự điều chỉnh theo danh mục • Chọn file trực tiếp từ máy tính (S3 Ingestion khi Lưu)
+          </p>
         </div>
-
-        <div className="flex items-center gap-3 relative z-10">
-          <Button
-            variant="secondary"
-            size="md"
-            icon="close"
-            disabled={isSubmitting}
-            onClick={onCancel}
-          >
+        <div className="flex items-center gap-3">
+          <Button variant="secondary" size="sm" onClick={onCancel}>
             Hủy Bỏ
           </Button>
           <Button
             variant="gold"
-            size="md"
+            size="sm"
             icon="publish"
             loading={isSubmitting}
             onClick={handleSubmit}
           >
-            {isSubmitting ? (submitStep || 'Đang Xử Lý...') : 'Lưu & Kích Hoạt Shop'}
+            {isSubmitting ? (submitStep || 'Đang Xử Lý...') : 'Lưu Sản Phẩm Ngay'}
           </Button>
         </div>
       </div>
 
-      {/* Product Type Selector: 2 Big Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Card 1: Standard Cosmetic */}
-        <div
-          onClick={() => handleTypeChange('STANDARD')}
-          className={`cursor-pointer p-5 rounded-3xl border transition-all relative overflow-hidden flex items-start gap-4 ${
-            productType === 'STANDARD'
-              ? 'bg-[#1b0d36] border-amber-400/80 shadow-lg shadow-amber-500/10'
-              : 'bg-[#120822]/70 border-white/10 hover:border-white/20 hover:bg-[#160b2b]'
-          }`}
-        >
-          <div
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-md ${
-              productType === 'STANDARD'
-                ? 'bg-amber-400 text-slate-950 font-black'
-                : 'bg-white/10 text-white/70'
-            }`}
-          >
-            <Icon name="palette" className="text-2xl" />
-          </div>
-          <div className="flex-grow min-w-0">
-            <div className="flex items-center justify-between">
-              <h4 className="font-headline font-black text-base text-white">
-                Vật Phẩm Trang Trí Tiêu Chuẩn
-              </h4>
-              {productType === 'STANDARD' && (
-                <span className="text-amber-400 text-sm font-bold flex items-center gap-1">
-                  <Icon name="check_circle" className="text-base" /> Đang Chọn
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-white/60 mt-1 leading-relaxed">
-              Khung Avatar danh giá, Bàn chơi poker bọc nhung, Hiệu ứng All-in rực lửa, Biểu cảm emoji & Âm thanh.
-            </p>
-          </div>
-        </div>
-
-        {/* Card 2: Card Deck Skin */}
-        <div
-          onClick={() => handleTypeChange('CARD_SKIN')}
-          className={`cursor-pointer p-5 rounded-3xl border transition-all relative overflow-hidden flex items-start gap-4 ${
-            productType === 'CARD_SKIN'
-              ? 'bg-[#1b0d36] border-amber-400/80 shadow-lg shadow-amber-500/10 ring-2 ring-amber-400/30'
-              : 'bg-[#120822]/70 border-white/10 hover:border-white/20 hover:bg-[#160b2b]'
-          }`}
-        >
-          <div
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-md ${
-              productType === 'CARD_SKIN'
-                ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black'
-                : 'bg-white/10 text-white/70'
-            }`}
-          >
-            <Icon name="style" className="text-2xl" />
-          </div>
-          <div className="flex-grow min-w-0">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <h4 className="font-headline font-black text-base text-white">
-                  Bộ Skin Lá Bài Tây (52/53 Lá)
-                </h4>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                  Hỗ Trợ ZIP
-                </span>
-              </div>
-              {productType === 'CARD_SKIN' && (
-                <span className="text-amber-400 text-sm font-bold flex items-center gap-1">
-                  <Icon name="check_circle" className="text-base" /> Đang Chọn
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-white/60 mt-1 leading-relaxed">
-              Tạo skin bộ bài tây, nạp file ZIP 53 lá tự động unpack sang S3, tạo Texture Atlas & hỗ trợ xem 3D tương tác.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Two-Column Control Panel Layout */}
+      {/* Main Form Layout (8 cols form + 4 cols sticky preview) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column (8 cols): Form Controls */}
+        {/* Left Column (8 cols): Dynamic Form Fields */}
         <div className="lg:col-span-8 space-y-6">
-          {/* Section 1: Thông tin cơ bản */}
+          {/* Step 1: Chọn Danh Mục & Thông Tin Cơ Bản */}
           <div className="p-6 rounded-3xl bg-[#140a24]/95 border border-white/10 shadow-xl space-y-4">
             <h3 className="font-headline font-bold text-base text-white flex items-center gap-2 pb-3 border-b border-white/10">
-              <Icon name="edit_note" className="text-amber-400 text-xl" />
-              <span>1. Thông Tin Nhận Diện Sản Phẩm</span>
+              <Icon name="category" className="text-amber-400 text-xl" />
+              <span>1. Chọn Danh Mục & Thông Tin Nhận Diện</span>
             </h3>
 
+            {/* Row 1: Category Selector (Priority at Top) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-white/70 block mb-1.5">
-                  Tên sản phẩm: <span className="text-rose-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ví dụ: Bộ Bài Hoàng Gia Hắc Kim, Bàn Chơi Dạ Quang..."
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-2xl bg-black/50 border border-white/15 text-sm text-white placeholder-white/30 focus:outline-none focus:border-amber-400 transition-colors"
-                />
-              </div>
-
-              <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-bold text-white/70">
-                    Danh mục hiển thị: <span className="text-rose-400">*</span>
+                  <label className="text-xs font-bold text-white/80">
+                    Danh mục hiển thị: <span className="text-amber-400">*</span>
                   </label>
                   <button
                     type="button"
@@ -426,23 +347,43 @@ export default function AddProductControlPanel({
                     <span>+ Thêm danh mục mới</span>
                   </button>
                 </div>
-                <select
-                  value={selectedCategoryId}
-                  onChange={e => setSelectedCategoryId(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-2xl bg-[#1b0d36] border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400 transition-colors"
-                >
-                  {categories.map(c => (
-                    <option key={c.id || c.code} value={c.id}>
-                      {c.name} ({c.code})
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={selectedCategoryId}
+                    onChange={e => setSelectedCategoryId(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#1b0d36] border border-amber-400/40 text-sm font-bold text-white focus:outline-none focus:border-amber-400 transition-colors cursor-pointer"
+                  >
+                    {categories.map(c => (
+                      <option key={c.id || c.code} value={c.id}>
+                        {c.name} ({c.code})
+                      </option>
+                    ))}
+                  </select>
+                  <Icon
+                    name={getCatIcon(catCode)}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-400 text-lg pointer-events-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-white/80 block mb-1.5">
+                  Tên sản phẩm mở bán: <span className="text-rose-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ví dụ: Cô Em Chia Bài Sexy Nơ Hồng, Bàn Dạ Quang..."
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-2xl bg-black/50 border border-white/15 text-sm text-white placeholder-white/30 focus:outline-none focus:border-amber-400 transition-colors"
+                />
               </div>
             </div>
 
-            {/* Tier Selector Pills */}
+            {/* Row 2: Tier Pills */}
             <div>
-              <label className="text-xs font-bold text-white/70 block mb-1.5">
+              <label className="text-xs font-bold text-white/80 block mb-1.5">
                 Phân hạng vật phẩm (Tier):
               </label>
               <div className="grid grid-cols-3 gap-3">
@@ -457,161 +398,76 @@ export default function AddProductControlPanel({
                     onClick={() => setTier(t.id)}
                     className={`p-3 rounded-2xl border text-left transition-all ${
                       tier === t.id
-                        ? t.id === 'SUPER_VIP'
-                          ? 'bg-amber-400/20 border-amber-400 text-amber-300 shadow-md shadow-amber-500/20'
-                          : t.id === 'VIP'
-                          ? 'bg-purple-500/20 border-purple-400 text-purple-300'
-                          : 'bg-white/15 border-white/30 text-white'
+                        ? 'bg-amber-400/15 border-amber-400 text-amber-300 shadow-md shadow-amber-500/10'
                         : 'bg-black/30 border-white/10 text-white/60 hover:border-white/20'
                     }`}
                   >
-                    <div className="font-headline font-black text-xs tracking-wider">
-                      {t.label}
-                    </div>
-                    <div className="text-[11px] opacity-75 mt-0.5">{t.desc}</div>
+                    <span className="font-headline font-black text-xs block">{t.label}</span>
+                    <span className="text-[10px] text-white/40 block mt-0.5">{t.desc}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Description */}
+            {/* Row 3: Description */}
             <div>
-              <label className="text-xs font-bold text-white/70 block mb-1.5">
-                Mô tả chi tiết:
+              <label className="text-xs font-bold text-white/80 block mb-1.5">
+                Mô tả chi tiết hiển thị trong Shop:
               </label>
               <textarea
-                rows={3}
-                placeholder="Mô tả phong cách thiết kế, chất liệu, hiệu ứng ánh sáng hoặc âm thanh kèm theo..."
+                rows={2}
+                maxLength={300}
+                placeholder="Mô tả phong cách thiết kế, chất liệu, tính năng độc quyền..."
                 value={description}
                 onChange={e => setDescription(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-2xl bg-black/50 border border-white/15 text-sm text-white placeholder-white/30 focus:outline-none focus:border-amber-400 transition-colors"
+                className="w-full px-4 py-2.5 rounded-2xl bg-black/50 border border-white/15 text-xs text-white placeholder-white/30 focus:outline-none focus:border-amber-400 transition-colors"
               />
             </div>
-
-            {/* Sound Attachment */}
-            <ProductSoundField
-              soundFile={soundFile}
-              onSoundChange={setSoundFile}
-            />
-
-            {/* Optional AI generator for Standard Products (Dealer, Table, etc.) */}
-            {productType === 'STANDARD' && (
-              <div className="pt-2 border-t border-white/10">
-                <button
-                  type="button"
-                  onClick={() => setShowStandardAiPanel(!showStandardAiPanel)}
-                  className="w-full py-2.5 px-4 rounded-2xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-xs font-bold text-purple-300 flex items-center justify-between transition-all"
-                >
-                  <span className="flex items-center gap-2">
-                    <Icon name="auto_awesome" className="text-base text-purple-400" />
-                    <span>Dùng Trí Tuệ Nhân Tạo (Gemini / Imagen) Tạo Dealer / Bàn Chơi / Hiệu Ứng</span>
-                  </span>
-                  <Icon name={showStandardAiPanel ? 'expand_less' : 'expand_more'} className="text-lg" />
-                </button>
-
-                {showStandardAiPanel && (
-                  <div className="mt-3">
-                    <AiAssetGeneratorPanel
-                      categoryCode={selectedCategoryObj?.code || 'DEALER'}
-                      soundFile={soundFile}
-                      onAssetGenerated={handleAiGenerated}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
-          {/* Section 2: Card Skin Special Options (Hiển thị khi chọn Card Skin) */}
-          {productType === 'CARD_SKIN' && (
-            <div className="p-6 rounded-3xl bg-[#140a24]/95 border border-amber-400/30 shadow-xl space-y-4 relative">
-              <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                <h3 className="font-headline font-bold text-base text-amber-300 flex items-center gap-2">
-                  <Icon name="filter_frames" className="text-xl" />
-                  <span>2. Cấu Hình Bộ Skin Lá Bài Tây (52/53 Lá)</span>
-                </h3>
-                <span className="text-xs text-white/50">Quy chuẩn S3 / MinIO</span>
-              </div>
+          {/* Step 2: Dynamic Asset Upload Area (Dựa theo Category) */}
+          <div className="p-6 rounded-3xl bg-[#140a24]/95 border border-white/10 shadow-xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <h3 className="font-headline font-bold text-base text-white flex items-center gap-2">
+                <Icon name="upload_file" className="text-amber-400 text-xl" />
+                <span>2. Tải Lên Tệp Tài Nguyên Cho:</span>
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 text-xs font-black">
+                  {currentCategory?.name || 'Vật Phẩm'} ({catCode})
+                </span>
+              </h3>
+              <span className="text-[11px] text-white/50">Chọn trực tiếp từ máy tính</span>
+            </div>
 
-              {/* Card Skin Unified Notice */}
-              <div className="p-3.5 rounded-2xl bg-amber-400/10 border border-amber-400/30 flex items-center gap-3">
-                <Icon name="style" className="text-2xl text-amber-300 shrink-0" />
-                <div>
-                  <div className="font-bold text-xs text-amber-300">Bộ Skin Lá Bài Toàn Diện (CARD_SKIN)</div>
-                  <div className="text-[11px] text-white/70 mt-0.5">
-                    Gói bao gồm trọn bộ 52 lá mặt trước (2–A cho cả 4 chất Bích, Cơ, Rô, Chuồn), mặt lưng lá bài (BACK.png) và ảnh bìa (PREVIEW.png).
-                  </div>
-                </div>
-              </div>
-
-              {/* Ingestion Method Tabs: ZIP vs Multi-files */}
-              <div>
-                <label className="text-xs font-bold text-white/70 block mb-1.5">
-                  Phương thức nạp Skin bài vào S3 / MinIO:
-                </label>
-                <div className="flex items-center gap-2 p-1 bg-black/40 rounded-2xl border border-white/10 mb-3 flex-wrap sm:flex-nowrap">
+            {/* Case A: CARD_SKIN */}
+            {catCode === 'CARD_SKIN' && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 p-1.5 bg-black/40 rounded-2xl border border-white/10 max-w-md">
                   <button
                     type="button"
-                    onClick={() => setIngestionMethod('AI')}
-                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                      ingestionMethod === 'AI'
-                        ? 'bg-gradient-to-r from-purple-500 to-amber-400 text-slate-950 font-black shadow-md'
-                        : 'text-purple-300/80 hover:text-purple-200 hover:bg-purple-500/10'
-                    }`}
-                  >
-                    <Icon name="auto_awesome" className="text-base text-purple-300" /> ✨ AI Tạo Tự Động
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIngestionMethod('ZIP')}
-                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                      ingestionMethod === 'ZIP'
-                        ? 'bg-amber-400 text-slate-950 font-black shadow-md'
+                    onClick={() => setDeckMethod('ZIP')}
+                    className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      deckMethod === 'ZIP'
+                        ? 'bg-amber-400 text-slate-950 shadow-md'
                         : 'text-white/60 hover:text-white'
                     }`}
                   >
-                    <Icon name="folder_zip" className="text-base" /> Nén File ZIP
+                    File ZIP (52/53 Lá Nhanh)
                   </button>
                   <button
                     type="button"
-                    onClick={() => setIngestionMethod('FILES')}
-                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                      ingestionMethod === 'FILES'
-                        ? 'bg-amber-400 text-slate-950 font-black shadow-md'
+                    onClick={() => setDeckMethod('FILES')}
+                    className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      deckMethod === 'FILES'
+                        ? 'bg-amber-400 text-slate-950 shadow-md'
                         : 'text-white/60 hover:text-white'
                     }`}
                   >
-                    <Icon name="collections" className="text-base" /> Chọn Nhiều Ảnh
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIngestionMethod('URL')}
-                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                      ingestionMethod === 'URL'
-                        ? 'bg-amber-400 text-slate-950 font-black shadow-md'
-                        : 'text-white/60 hover:text-white'
-                    }`}
-                  >
-                    <Icon name="link" className="text-base" /> Template URL
+                    Tải Danh Sách Ảnh Rời
                   </button>
                 </div>
 
-                {/* AI Ingestion Panel */}
-                {ingestionMethod === 'AI' && (
-                  <AiAssetGeneratorPanel
-                    categoryCode="CARD_SKIN"
-                    soundFile={soundFile}
-                    onAssetGenerated={handleAiGenerated}
-                  />
-                )}
-
-                {/* ZIP Upload Box */}
-                {ingestionMethod === 'ZIP' && (
-                  <div
-                    onDragOver={e => e.preventDefault()}
-                    onDrop={handleZipDrop}
-                    className="border-2 border-dashed border-amber-400/40 hover:border-amber-400 rounded-3xl p-6 text-center bg-black/30 transition-all"
-                  >
+                {deckMethod === 'ZIP' ? (
+                  <div className="border-2 border-dashed border-amber-400/40 hover:border-amber-400 rounded-3xl p-6 text-center bg-black/30 transition-all">
                     <input
                       type="file"
                       accept=".zip"
@@ -619,118 +475,279 @@ export default function AddProductControlPanel({
                       onChange={handleZipFileSelect}
                       className="hidden"
                     />
-                    <label
-                      htmlFor="ctrl-panel-zip"
-                      className="cursor-pointer flex flex-col items-center"
-                    >
+                    <label htmlFor="ctrl-panel-zip" className="cursor-pointer flex flex-col items-center">
                       <div className="w-14 h-14 rounded-2xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 mb-3 shadow-inner">
                         <Icon name="folder_zip" className="text-3xl" />
                       </div>
                       <span className="text-sm font-bold text-white">
-                        {selectedZipFile
-                          ? selectedZipFile.name
-                          : 'Kéo thả file ZIP vào đây hoặc Bấm để chọn file'}
+                        {selectedZipFile ? selectedZipFile.name : 'Nhấp để chọn file ZIP 52 lá bài từ máy tính'}
                       </span>
                       <span className="text-xs text-white/50 mt-1 max-w-md">
                         {selectedZipFile
-                          ? `Dung lượng: ${(selectedZipFile.size / 1024).toFixed(1)} KB • Sẵn sàng nạp vào S3`
-                          : 'Chứa 52 lá mặt trước (2H.png, AS.png...) và 1 lá mặt sau (back.png). Tự động unpack & tạo texture atlas.'}
+                          ? `Dung lượng: ${(selectedZipFile.size / 1024).toFixed(1)} KB • Sẵn sàng nạp S3 khi bấm Lưu`
+                          : 'File ZIP chứa 52 lá mặt trước (2H.png, AS.png...) và 1 lá mặt sau (back.png).'}
                       </span>
                       {selectedZipFile && (
                         <span className="mt-3 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold border border-emerald-500/30">
-                          <Icon name="check_circle" className="text-sm" /> File ZIP đã sẵn sàng
+                          <Icon name="check_circle" className="text-sm" /> Đã chọn file ZIP
                         </span>
                       )}
                     </label>
                   </div>
-                )}
-
-                {/* Multiple Files Upload Box */}
-                {ingestionMethod === 'FILES' && (
+                ) : (
                   <div className="border-2 border-dashed border-white/20 hover:border-amber-400 rounded-3xl p-6 text-center bg-black/30 transition-all">
                     <input
                       type="file"
-                      accept="image/png,image/jpeg,image/webp"
+                      accept="image/*"
                       multiple
                       id="ctrl-panel-files"
                       onChange={handleMultiFilesSelect}
                       className="hidden"
                     />
-                    <label
-                      htmlFor="ctrl-panel-files"
-                      className="cursor-pointer flex flex-col items-center"
-                    >
-                      <Icon name="photo_library" className="text-4xl text-amber-400 mb-2" />
+                    <label htmlFor="ctrl-panel-files" className="cursor-pointer flex flex-col items-center">
+                      <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 mb-3">
+                        <Icon name="photo_library" className="text-3xl" />
+                      </div>
                       <span className="text-sm font-bold text-white">
                         {selectedImageFiles.length > 0
-                          ? `Đã chọn ${selectedImageFiles.length} file ảnh lá bài`
-                          : 'Chọn danh sách 52 file ảnh lá bài (PNG / WebP)'}
-                      </span>
-                      <span className="text-xs text-white/50 mt-1">
-                        Đặt tên file theo mã chuẩn: 2H.png, 10S.png, AS.png, back.png...
+                          ? `Đã chọn ${selectedImageFiles.length} ảnh lá bài`
+                          : 'Bấm để chọn nhiều file ảnh lá bài (2H.png, AS.png...)'}
                       </span>
                     </label>
                   </div>
                 )}
+              </div>
+            )}
 
-                {/* Template URL info */}
-                {ingestionMethod === 'URL' && (
-                  <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-xs text-white/70 space-y-1">
-                    <p className="font-bold text-amber-400">Template bài tây mẫu:</p>
-                    <p>Hệ thống sẽ liên kết asset texture từ CDN mặc định đã tối ưu WebP.</p>
+            {/* Case B: SOUND */}
+            {catCode === 'SOUND' && (
+              <div className="space-y-4">
+                <div className="border-2 border-dashed border-purple-500/40 hover:border-purple-400 rounded-3xl p-6 text-center bg-black/30 transition-all">
+                  <input
+                    type="file"
+                    accept="audio/mp3,audio/wav,audio/ogg"
+                    id="ctrl-panel-sound"
+                    onChange={handleSoundFileSelect}
+                    className="hidden"
+                  />
+                  <label htmlFor="ctrl-panel-sound" className="cursor-pointer flex flex-col items-center">
+                    <div className="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-3 shadow-inner">
+                      <Icon name="volume_up" className="text-3xl" />
+                    </div>
+                    <span className="text-sm font-bold text-white">
+                      {localSoundFile ? localSoundFile.name : 'Chọn tệp âm thanh hiệu ứng (MP3, WAV, OGG)'}
+                    </span>
+                    <span className="text-xs text-white/50 mt-1">
+                      {localSoundFile
+                        ? `Dung lượng: ${(localSoundFile.size / 1024).toFixed(1)} KB • Có thể nghe thử ngay bên dưới`
+                        : 'Dung lượng tối đa 2MB. Dùng cho tiếng lật bài, all-in, trêu đùa hoặc âm thanh Dealer.'}
+                    </span>
+                  </label>
+                </div>
+
+                {/* Audio Player Preview */}
+                {localSoundPreviewUrl && (
+                  <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={handleTogglePlayAudio}
+                        className="w-10 h-10 rounded-full bg-purple-500 hover:bg-purple-400 text-slate-950 flex items-center justify-center shadow-lg transition-transform active:scale-95"
+                      >
+                        <Icon name={isPlayingAudio ? 'pause' : 'play_arrow'} className="text-xl" />
+                      </button>
+                      <div>
+                        <span className="text-xs font-bold text-purple-300 block">
+                          {localSoundFile?.name}
+                        </span>
+                        <span className="text-[11px] text-white/50">
+                          {isPlayingAudio ? 'Đang phát...' : 'Nhấn để nghe thử trực tiếp'}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLocalSoundFile(null)
+                        setLocalSoundPreviewUrl('')
+                        setIsPlayingAudio(false)
+                      }}
+                      className="text-xs text-rose-400 hover:text-rose-300 font-bold"
+                    >
+                      Xóa tệp
+                    </button>
                   </div>
                 )}
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Section 3: Định giá & Kinh tế shop */}
+            {/* Case C: DEALER */}
+            {catCode === 'DEALER' && (
+              <div className="space-y-4">
+                <div className="border-2 border-dashed border-amber-400/40 hover:border-amber-400 rounded-3xl p-6 text-center bg-black/30 transition-all">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    id="ctrl-panel-dealer"
+                    onChange={handleAssetFileSelect}
+                    className="hidden"
+                  />
+                  <label htmlFor="ctrl-panel-dealer" className="cursor-pointer flex flex-col items-center">
+                    <div className="w-14 h-14 rounded-2xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 mb-3 shadow-inner">
+                      <Icon name="face" className="text-3xl" />
+                    </div>
+                    <span className="text-sm font-bold text-white">
+                      {localAssetFile ? localAssetFile.name : 'Bấm để tải ảnh chân dung Người chia bài (Dealer)'}
+                    </span>
+                    <span className="text-xs text-white/50 mt-1">
+                      Hỗ trợ PNG, JPEG, WebP. Khuyên dùng ảnh chụp từ ngực trở lên để làm Avatar tròn hoàn hảo.
+                    </span>
+                  </label>
+                </div>
+
+                {/* Cropper Trigger & Preview */}
+                {localAssetPreviewUrl && (
+                  <div className="p-4 rounded-2xl bg-black/40 border border-amber-400/30 flex items-center justify-between flex-wrap gap-3">
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-amber-400 shadow-md bg-black">
+                        <img
+                          src={localAssetPreviewUrl}
+                          alt="Dealer Cropped Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <span className="text-xs font-bold text-amber-300 block">
+                          Ảnh đại diện Dealer đã sẵn sàng
+                        </span>
+                        <span className="text-[11px] text-white/50">
+                          Ảnh này sẽ xuất hiện trên bàn chơi và Shop
+                        </span>
+                      </div>
+                    </div>
+
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      icon="crop"
+                      onClick={() => {
+                        setCropperSource(localAssetPreviewUrl)
+                        setShowCropperModal(true)
+                      }}
+                      className="border-amber-400/40 text-amber-300 hover:bg-amber-400/10"
+                    >
+                      Cắt & Căn Chỉnh Khung Hình (Crop 1:1)
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Case D, E, F & Generic: TABLE, EFFECT, FRAME, ETC */}
+            {catCode !== 'CARD_SKIN' && catCode !== 'SOUND' && catCode !== 'DEALER' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Asset File (Texture, Sprite, Frame) */}
+                  <div className="border-2 border-dashed border-white/20 hover:border-amber-400 rounded-3xl p-5 text-center bg-black/30 transition-all flex flex-col justify-center items-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      id="ctrl-panel-generic-asset"
+                      onChange={handleAssetFileSelect}
+                      className="hidden"
+                    />
+                    <label htmlFor="ctrl-panel-generic-asset" className="cursor-pointer flex flex-col items-center">
+                      <Icon name="image" className="text-3xl text-amber-400 mb-2" />
+                      <span className="text-xs font-bold text-white block">
+                        {localAssetFile ? localAssetFile.name : 'Tải ảnh tài nguyên (Texture / Frame / Icon)'}
+                      </span>
+                      <span className="text-[10px] text-white/50 mt-1">Chọn từ máy tính (PNG, JPG, WebP)</span>
+                    </label>
+                  </div>
+
+                  {/* Video Review File (Optional for Effects / Tables) */}
+                  <div className="border-2 border-dashed border-white/20 hover:border-amber-400 rounded-3xl p-5 text-center bg-black/30 transition-all flex flex-col justify-center items-center">
+                    <input
+                      type="file"
+                      accept="video/mp4,video/webm"
+                      id="ctrl-panel-generic-video"
+                      onChange={handleVideoFileSelect}
+                      className="hidden"
+                    />
+                    <label htmlFor="ctrl-panel-generic-video" className="cursor-pointer flex flex-col items-center">
+                      <Icon name="videocam" className="text-3xl text-cyan-400 mb-2" />
+                      <span className="text-xs font-bold text-white block">
+                        {localVideoFile ? localVideoFile.name : 'Tải Video Review (MP4, WebM)'}
+                      </span>
+                      <span className="text-[10px] text-white/50 mt-1">Tùy chọn - Hiển thị demo chuyển động</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Video Player Preview if selected */}
+                {localVideoPreviewUrl && (
+                  <div className="p-3 rounded-2xl bg-black/50 border border-cyan-400/30 space-y-2">
+                    <span className="text-xs font-bold text-cyan-300 flex items-center gap-1.5">
+                      <Icon name="play_circle" className="text-sm" />
+                      Xem thử Video Review:
+                    </span>
+                    <video
+                      src={localVideoPreviewUrl}
+                      controls
+                      autoPlay
+                      loop
+                      muted
+                      className="w-full max-h-48 rounded-xl object-contain bg-black"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Step 3: Thiết Lập Giá Bán & Quyền Sở Hữu */}
           <div className="p-6 rounded-3xl bg-[#140a24]/95 border border-white/10 shadow-xl space-y-4">
             <h3 className="font-headline font-bold text-base text-white flex items-center gap-2 pb-3 border-b border-white/10">
-              <Icon name="payments" className="text-amber-400 text-xl" />
-              <span>{productType === 'CARD_SKIN' ? '3.' : '2.'} Thiết Lập Giá Bán & Quyền Sở Hữu</span>
+              <Icon name="monetization_on" className="text-amber-400 text-xl" />
+              <span>3. Thiết Lập Giá Bán & Quyền Sở Hữu</span>
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-amber-400 flex items-center justify-between mb-1.5">
-                  <span>Giá VIP Coin (Trong Game):</span>
-                  <span className="text-[11px] text-white/40">1 VIP = 1,000 VNĐ</span>
+                <label className="text-xs font-bold text-white/80 block mb-1.5">
+                  Giá VIP Coin (Trong Game):
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-400 font-bold text-sm">
-                    <Icon name="paid" className="text-lg" />
-                  </span>
                   <input
                     type="number"
-                    min={0}
+                    min="0"
+                    step="10"
                     value={priceVipCoin}
                     onChange={e => handlePriceVipCoinChange(e.target.value)}
-                    className="w-full pl-10 pr-16 py-2.5 rounded-2xl bg-black/50 border border-white/15 text-sm font-bold text-amber-400 focus:outline-none focus:border-amber-400 transition-colors"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400 font-mono"
                   />
-                  <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-white/40">
-                    VIP COIN
-                  </span>
+                  <Icon
+                    name="paid"
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-400 text-lg pointer-events-none"
+                  />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-bold text-white/70 block mb-1.5">
+                <label className="text-xs font-bold text-white/80 block mb-1.5">
                   Giá niêm yết tương đương (VNĐ):
                 </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    min={0}
-                    step={10000}
-                    value={priceVnd}
-                    onChange={e => handlePriceVndChange(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400 transition-colors"
-                  />
-                  <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-white/40">
-                    VNĐ
-                  </span>
-                </div>
+                <input
+                  type="number"
+                  min="0"
+                  step="10000"
+                  value={priceVnd}
+                  onChange={e => handlePriceVndChange(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-2xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400 font-mono"
+                />
+                <span className="text-[11px] text-white/40 mt-1 block">
+                  Quy đổi: {formatVnd(priceVnd)}
+                </span>
               </div>
             </div>
 
@@ -761,53 +778,25 @@ export default function AddProductControlPanel({
               ))}
             </div>
 
-            {/* Exclusive Checkbox */}
-            <div className="flex items-center gap-3 pt-3 border-t border-white/10">
-              <input
-                type="checkbox"
-                id="exclusive-panel-chk"
-                checked={isExclusive}
-                onChange={e => {
-                  const checked = e.target.checked
-                  setIsExclusive(checked)
-                  if (checked) {
-                    setIsFlashSale(false)
-                  }
-                }}
-                className="w-4 h-4 rounded border-white/30 text-amber-500 focus:ring-0 focus:ring-offset-0 bg-black/50"
-              />
-              <label htmlFor="exclusive-panel-chk" className="text-xs text-white/80 cursor-pointer">
-                <strong>Vật phẩm độc quyền:</strong> Không cho phép mua tự do bằng VIP Coin, chỉ trao thưởng qua giải đấu Season hoặc sự kiện đặc biệt.
-              </label>
-            </div>
-
-            {/* Flash Sale Toggle & Countdown Duration */}
-            <div className="pt-3 border-t border-white/10 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    id="flash-sale-chk"
-                    checked={isFlashSale}
-                    onChange={e => {
-                      const checked = e.target.checked
-                      setIsFlashSale(checked)
-                      if (checked) {
-                        setIsExclusive(false)
-                      }
-                    }}
-                    className="w-4 h-4 rounded border-amber-400/40 text-amber-400 focus:ring-0 focus:ring-offset-0 bg-black/50"
-                  />
-                  <label htmlFor="flash-sale-chk" className="text-xs text-white/90 cursor-pointer">
-                    <strong className="text-amber-300 flex items-center gap-1.5 inline-flex">
-                      <Icon name="bolt" className="text-amber-400 text-sm" />
-                      Mở Bán Giới Hạn Thời Gian (Flash Sale Độc Quyền)
-                    </strong>
-                    <span className="block text-white/50 text-[11px] mt-0.5">
-                      Sau khi hết thời hạn đếm ngược, Scheduler hệ thống sẽ tự động ngắt bán và khóa lại thành vật phẩm độc quyền.
-                    </span>
-                  </label>
-                </div>
+            {/* Flash sale settings */}
+            <div className="space-y-3 pt-3 border-t border-white/10">
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="flash-sale-chk"
+                  checked={isFlashSale}
+                  onChange={e => setIsFlashSale(e.target.checked)}
+                  className="mt-1 rounded accent-amber-400 w-4 h-4 cursor-pointer"
+                />
+                <label htmlFor="flash-sale-chk" className="text-xs text-white/90 cursor-pointer">
+                  <strong className="text-amber-300 flex items-center gap-1.5 inline-flex">
+                    <Icon name="bolt" className="text-amber-400 text-sm" />
+                    Mở Bán Giới Hạn Thời Gian (Flash Sale Độc Quyền)
+                  </strong>
+                  <span className="block text-white/50 text-[11px] mt-0.5">
+                    Hết thời hạn đếm ngược, Scheduler hệ thống sẽ tự động khóa và ngắt bán sản phẩm này.
+                  </span>
+                </label>
               </div>
 
               {isFlashSale && (
@@ -848,9 +837,6 @@ export default function AddProductControlPanel({
 
                   {flashSalePreset === 'CUSTOM' && (
                     <div className="pt-2">
-                      <label className="text-[11px] font-bold text-white/70 block mb-1">
-                        Chọn thời điểm kết thúc mở bán:
-                      </label>
                       <input
                         type="datetime-local"
                         value={customSaleExpiresAt}
@@ -863,42 +849,6 @@ export default function AddProductControlPanel({
               )}
             </div>
           </div>
-
-          {/* Section 4: URLs & Assets */}
-          <div className="p-6 rounded-3xl bg-[#140a24]/95 border border-white/10 shadow-xl space-y-4">
-            <h3 className="font-headline font-bold text-base text-white flex items-center gap-2 pb-3 border-b border-white/10">
-              <Icon name="link" className="text-amber-400 text-xl" />
-              <span>{productType === 'CARD_SKIN' ? '4.' : '3.'} Đường Dẫn Tài Nguyên (Assets & Review Video)</span>
-            </h3>
-
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs font-bold text-white/70 block mb-1.5">
-                  Asset URL (Ảnh preview / mặt lưng / texture sprite):
-                </label>
-                <input
-                  type="text"
-                  placeholder="https://assets.msspoker.com/cards/cyber/back.png"
-                  value={assetUrl}
-                  onChange={e => setAssetUrl(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-2xl bg-black/50 border border-white/15 text-sm text-white placeholder-white/30 focus:outline-none focus:border-amber-400 transition-colors font-mono text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-white/70 block mb-1.5">
-                  Video Review MP4/WebM (Tùy chọn - Hiển thị chuyển động bàn chơi/hiệu ứng all-in):
-                </label>
-                <input
-                  type="text"
-                  placeholder="https://assets.msspoker.com/videos/allin_dragon.mp4"
-                  value={previewVideoUrl}
-                  onChange={e => setPreviewVideoUrl(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-2xl bg-black/50 border border-white/15 text-sm text-white placeholder-white/30 focus:outline-none focus:border-amber-400 transition-colors font-mono text-xs"
-                />
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Right Column (4 cols): Live Preview & Summary Card */}
@@ -909,70 +859,50 @@ export default function AddProductControlPanel({
                 <Icon name="preview" className="text-amber-400 text-lg" />
                 <span>Xem Trước Hiển Thị Shop</span>
               </h4>
-              <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">
+              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-amber-400/20 text-amber-300">
                 Live Preview
               </span>
             </div>
 
-            {/* Live Cosmetic Visualizer */}
-            <div className="w-full aspect-[16/11] rounded-2xl bg-radial from-[#1e0e3a] to-[#0a0314] border border-white/10 flex items-center justify-center relative overflow-hidden p-4">
+            {/* Stage Preview */}
+            <div className="w-full aspect-[4/3] rounded-2xl bg-black/60 border border-white/10 p-3 flex flex-col items-center justify-center relative overflow-hidden">
               <CosmeticRenderer
-                categoryCode={selectedCategoryObj?.code || 'CARD_SKIN'}
-                previewUrl={assetUrl}
-                assetUrl={assetUrl}
-                productName={name || 'Tên vật phẩm'}
+                categoryCode={catCode}
+                previewUrl={localAssetPreviewUrl || manualAssetUrl}
+                assetUrl={localAssetPreviewUrl || manualAssetUrl}
+                productName={name}
                 rank="A"
                 suit="S"
+                interactive
               />
-
-              <span className="absolute bottom-3 left-3 px-2 py-1 rounded-md bg-black/80 backdrop-blur-md text-[11px] font-bold text-white/90">
-                {selectedCategoryObj?.name || 'Vật phẩm'}
+              <span className="absolute bottom-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/60 text-white/80 border border-white/10">
+                {currentCategory?.name || 'Vật phẩm'}
               </span>
-
-              {productType === 'CARD_SKIN' && (
-                <span className="absolute top-3 right-3 px-2.5 py-0.5 rounded-full bg-amber-400/90 text-slate-950 font-black text-[10px] shadow-md flex items-center gap-1">
-                  <Icon name="visibility" className="text-xs" /> 52 Lá
-                </span>
-              )}
             </div>
 
-            {/* Product Metadata Summary */}
-            <div className="space-y-3 pt-2 text-xs">
-              <div>
-                <span className="text-white/40 block">Tên sản phẩm:</span>
-                <span className="font-headline font-bold text-white text-base block mt-0.5">
+            {/* Product Meta Summary */}
+            <div className="space-y-2 text-xs border-t border-white/10 pt-3">
+              <div className="flex items-center justify-between">
+                <span className="text-white/50">Tên sản phẩm:</span>
+                <span className="font-bold text-white truncate max-w-[180px]">
                   {name || 'Chưa đặt tên'}
                 </span>
               </div>
-
-              <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
-                <div>
-                  <span className="text-white/40 block">Phân hạng Tier:</span>
-                  <span className="font-bold text-amber-300 block mt-0.5">
-                    {tier}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-white/40 block">Mở bán:</span>
-                  <span className="font-bold text-white block mt-0.5">
-                    {isExclusive ? 'Độc quyền' : 'Công khai'}
-                  </span>
-                </div>
+              <div className="flex items-center justify-between">
+                <span className="text-white/50">Phân hạng Tier:</span>
+                <span className="font-bold text-amber-400">{tier}</span>
               </div>
-
-              <div className="pt-2 border-t border-white/10 flex items-center justify-between">
-                <div>
-                  <span className="text-white/40 block">Giá VIP Coin:</span>
-                  <span className="font-headline font-black text-amber-400 text-lg">
-                    {formatVipCoin(priceVipCoin)} VIP
-                  </span>
-                </div>
-                <div className="text-right">
-                  <span className="text-white/40 block">Quy đổi VNĐ:</span>
-                  <span className="text-white/70 font-bold">
-                    {formatVnd(priceVnd)}
-                  </span>
-                </div>
+              <div className="flex items-center justify-between">
+                <span className="text-white/50">Giá VIP Coin:</span>
+                <span className="font-bold text-amber-300 font-mono">
+                  {formatVipCoin(priceVipCoin)} VIP
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-white/50">Quy đổi VNĐ:</span>
+                <span className="font-bold text-white/80 font-mono">
+                  {formatVnd(priceVnd)}
+                </span>
               </div>
             </div>
 
@@ -1012,6 +942,15 @@ export default function AddProductControlPanel({
             setSelectedCategoryId(newCat.id)
           }
         }}
+      />
+
+      {/* Modal Cắt Ảnh (Image Cropper) */}
+      <ImageCropperModal
+        isOpen={showCropperModal}
+        imageSrc={cropperSource}
+        cropShape={catCode === 'DEALER' || catCode === 'FRAME' ? 'circle' : 'square'}
+        onClose={() => setShowCropperModal(false)}
+        onCropComplete={handleCropComplete}
       />
     </div>
   )

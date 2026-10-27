@@ -106,6 +106,21 @@ export async function uploadDeckSkinFiles(productId, files) {
   })
 }
 
+/**
+ * Upload general media asset file (image, video mp4, sprite) to MinIO / S3 via Admin API
+ */
+export async function uploadAssetFile(file, folder = 'assets') {
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('folder', folder)
+
+  return gatewayRequest('/api/admin/products/upload-asset', {
+    method: 'POST',
+    body: formData,
+    errorMessage: 'Tải lên tệp tài nguyên thất bại',
+  })
+}
+
 export async function getAdminBundles({ signal } = {}) {
   return gatewayRequest('/api/admin/bundles', {
     signal,
