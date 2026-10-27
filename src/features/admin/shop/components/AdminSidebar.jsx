@@ -107,6 +107,22 @@ export default function AdminSidebar({
           <div className={styles.navGroup}>
             <button
               type="button"
+              onClick={() => onSelectTab('AI_STUDIO')}
+              className={`${styles.navItem} ${activeTab === 'AI_STUDIO' ? styles.navItemActiveGold : ''}`}
+            >
+              <div className={styles.navItemLeft}>
+                <span className={styles.navIcon}>
+                  <Icon name="auto_awesome" />
+                </span>
+                <span className={styles.navLabel}>✨ AI Studio (Tạo Mẫu)</span>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-pink-500/20 text-pink-300 border border-pink-500/30">
+                Dealer/Skin
+              </span>
+            </button>
+
+            <button
+              type="button"
               onClick={() => onSelectTab('AI_CONFIG')}
               className={`${styles.navItem} ${activeTab === 'AI_CONFIG' ? styles.navItemActive : ''}`}
             >
