@@ -117,8 +117,7 @@ export default function CategoryManagementTab({ onCategoryUpdated }) {
                 <tr className="border-b border-white/10 bg-white/5 text-[11px] font-bold text-white/60 uppercase tracking-wider">
                   <th className="py-3.5 px-6">Mã Danh Mục (Code)</th>
                   <th className="py-3.5 px-6">Tên Hiển Thị</th>
-                  <th className="py-3.5 px-6">Loại Định Danh</th>
-                  <th className="py-3.5 px-6 text-right">Thao Tác</th>
+                <th className="py-3.5 px-6 text-right">Thao Tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-xs text-white/90">
@@ -134,17 +133,6 @@ export default function CategoryManagementTab({ onCategoryUpdated }) {
                       </td>
                       <td className="py-4 px-6 font-bold text-white text-sm">
                         {cat.name}
-                      </td>
-                      <td className="py-4 px-6">
-                        {isCore ? (
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
-                            Cốt Lõi AI & 3D
-                          </span>
-                        ) : (
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-white/60 border border-white/10">
-                            Vật Phẩm Thường
-                          </span>
-                        )}
                       </td>
                       <td className="py-4 px-6 text-right">
                         <div className="flex items-center justify-end gap-2">

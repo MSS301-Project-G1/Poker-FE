@@ -49,24 +49,133 @@ const DEALER_POSES_SCHEMA = [
   },
 ]
 
-const getCategoryAssetDefaults = (code) => {
-  try {
-    const saved = localStorage.getItem(`cat_asset_config_${code}`)
-    if (saved) return JSON.parse(saved)
-  } catch {}
-  switch (code) {
-    case 'DEALER':
-      return { hasImage: true, hasVideo: false, hasSound: false, hasPoses: true, hasDeckZip: false }
-    case 'CARD_SKIN':
-      return { hasImage: false, hasVideo: false, hasSound: false, hasPoses: false, hasDeckZip: true }
-    case 'SOUND':
-      return { hasImage: true, hasVideo: false, hasSound: true, hasPoses: false, hasDeckZip: false }
-    case 'ALL_IN_EFFECT':
-    case 'VICTORY_EFFECT':
-      return { hasImage: true, hasVideo: true, hasSound: false, hasPoses: false, hasDeckZip: false }
-    default:
-      return { hasImage: true, hasVideo: true, hasSound: false, hasPoses: false, hasDeckZip: false }
-  }
+export const CATEGORY_ASSET_RULES = {
+  CARD_SKIN: {
+    name: 'Skin Bộ Bài',
+    required: ['hasDeckZip'],
+    allowed: ['hasDeckZip', 'hasVideo'],
+    disallowedReasons: {
+      hasImage: 'Skin bài tây nạp trọn bộ qua tệp ZIP 52 lá thay cho 1 ảnh lẻ',
+      hasSound: 'Skin bài tây không gắn tệp âm thanh MP3 riêng',
+      hasPoses: 'Chỉ Người chia bài (Dealer) mới có 5 tư thế hành động',
+    },
+    default: { hasImage: false, hasVideo: false, hasSound: false, hasPoses: false, hasDeckZip: true },
+    guide: 'Skin Bộ Bài yêu cầu nạp tệp ZIP đủ 52/53 lá bài (chuẩn mặt lưng + 52 quân) và tùy chọn video review.',
+  },
+  DEALER: {
+    name: 'Người Chia Bài',
+    required: ['hasPoses'],
+    allowed: ['hasPoses', 'hasVideo'],
+    disallowedReasons: {
+      hasImage: 'Dealer dùng bộ 5 tư thế chuyên dụng thay cho ảnh đơn',
+      hasSound: 'Dealer không dùng tệp âm thanh độc lập',
+      hasDeckZip: 'Dealer không phải là bộ bài tây',
+    },
+    default: { hasImage: false, hasVideo: false, hasSound: false, hasPoses: true, hasDeckZip: false },
+    guide: 'Người chia bài yêu cầu tải lên 5 tư thế: Đứng chờ, Chia bài, Lật bài, Ăn mừng và Avatar góc bàn.',
+  },
+  COIN_SKIN: {
+    name: 'Skin Đồng Xu (Chip)',
+    required: ['hasImage'],
+    allowed: ['hasImage', 'hasVideo'],
+    disallowedReasons: {
+      hasSound: 'Đồng xu chip cược không gắn tệp âm thanh MP3 (chỉ dùng cho danh mục Âm thanh)',
+      hasPoses: 'Đồng xu chip cược không có tư thế Dealer',
+      hasDeckZip: 'Đồng xu chip cược không dùng tệp nén bài tây ZIP',
+    },
+    default: { hasImage: true, hasVideo: false, hasSound: false, hasPoses: false, hasDeckZip: false },
+    guide: 'Skin Đồng Xu (Chip Poker) yêu cầu 1 ảnh texture mặt chip (PNG/WebP tròn) và tùy chọn video review 3D.',
+  },
+  TABLE: {
+    name: 'Bàn Chơi',
+    required: ['hasImage'],
+    allowed: ['hasImage', 'hasVideo'],
+    disallowedReasons: {
+      hasSound: 'Bàn chơi không gắn tệp âm thanh MP3 riêng',
+      hasPoses: 'Bàn chơi không có tư thế Dealer',
+      hasDeckZip: 'Bàn chơi không dùng tệp bài tây ZIP',
+    },
+    default: { hasImage: true, hasVideo: false, hasSound: false, hasPoses: false, hasDeckZip: false },
+    guide: 'Bàn chơi yêu cầu ảnh nỉ bàn cược poker tỷ lệ chuẩn và tùy chọn video review ánh sáng bàn.',
+  },
+  FRAME: {
+    name: 'Khung Avatar',
+    required: ['hasImage'],
+    allowed: ['hasImage', 'hasVideo'],
+    disallowedReasons: {
+      hasSound: 'Khung avatar không gắn tệp âm thanh MP3',
+      hasPoses: 'Khung avatar không có tư thế Dealer',
+      hasDeckZip: 'Khung avatar không dùng tệp bài tây ZIP',
+    },
+    default: { hasImage: true, hasVideo: false, hasSound: false, hasPoses: false, hasDeckZip: false },
+    guide: 'Khung Avatar yêu cầu ảnh viền tròn PNG trong suốt (hỗ trợ công cụ Cắt & Căn Tròn) và tùy chọn video hiệu ứng.',
+  },
+  SOUND: {
+    name: 'Âm Thanh',
+    required: ['hasSound', 'hasImage'],
+    allowed: ['hasSound', 'hasImage'],
+    disallowedReasons: {
+      hasVideo: 'Gói âm thanh không sử dụng video review',
+      hasPoses: 'Gói âm thanh không có tư thế Dealer',
+      hasDeckZip: 'Gói âm thanh không dùng tệp bài tây ZIP',
+    },
+    default: { hasImage: true, hasVideo: false, hasSound: true, hasPoses: false, hasDeckZip: false },
+    guide: 'Âm Thanh yêu cầu tải lên tệp âm thanh MP3/WAV (< 2MB) và 1 ảnh icon đại diện hiển thị trong Shop.',
+  },
+  ALL_IN_EFFECT: {
+    name: 'Hiệu Ứng All-in',
+    required: ['hasImage'],
+    allowed: ['hasImage', 'hasVideo'],
+    disallowedReasons: {
+      hasSound: 'Hiệu ứng All-in được tích hợp đồng bộ qua video / shader particle',
+      hasPoses: 'Chỉ Dealer mới có tư thế động',
+      hasDeckZip: 'Hiệu ứng All-in không dùng tệp bài tây ZIP',
+    },
+    default: { hasImage: true, hasVideo: true, hasSound: false, hasPoses: false, hasDeckZip: false },
+    guide: 'Hiệu ứng All-in yêu cầu ảnh texture / icon và khuyến khích đính kèm video review (MP4/WebM) mô phỏng hiệu ứng bàn.',
+  },
+  VICTORY_EFFECT: {
+    name: 'Hiệu Ứng Chiến Thắng',
+    required: ['hasImage'],
+    allowed: ['hasImage', 'hasVideo'],
+    disallowedReasons: {
+      hasSound: 'Hiệu ứng chiến thắng được tích hợp đồng bộ qua video / shader particle',
+      hasPoses: 'Chỉ Dealer mới có tư thế động',
+      hasDeckZip: 'Hiệu ứng chiến thắng không dùng tệp bài tây ZIP',
+    },
+    default: { hasImage: true, hasVideo: true, hasSound: false, hasPoses: false, hasDeckZip: false },
+    guide: 'Hiệu ứng Chiến Thắng yêu cầu ảnh texture / icon và khuyến khích đính kèm video review mô phỏng pháo hoa / mưa tiền.',
+  },
+  EMOJI: {
+    name: 'Biểu Cảm (Emoji)',
+    required: ['hasImage'],
+    allowed: ['hasImage', 'hasVideo'],
+    disallowedReasons: {
+      hasSound: 'Biểu cảm emoji không gắn tệp âm thanh',
+      hasPoses: 'Biểu cảm emoji không có tư thế Dealer',
+      hasDeckZip: 'Biểu cảm emoji không dùng tệp bài tây ZIP',
+    },
+    default: { hasImage: true, hasVideo: false, hasSound: false, hasPoses: false, hasDeckZip: false },
+    guide: 'Biểu cảm yêu cầu ảnh PNG/WebP trong suốt và tùy chọn video ngắn lặp lại (looping animation).',
+  },
+}
+
+export const DEFAULT_FALLBACK_RULE = {
+  name: 'Vật Phẩm Khác',
+  required: ['hasImage'],
+  allowed: ['hasImage', 'hasVideo'],
+  disallowedReasons: {
+    hasSound: 'Danh mục này không dùng âm thanh MP3',
+    hasPoses: 'Danh mục này không có tư thế Dealer',
+    hasDeckZip: 'Danh mục này không dùng tệp bài tây ZIP',
+  },
+  default: { hasImage: true, hasVideo: false, hasSound: false, hasPoses: false, hasDeckZip: false },
+  guide: 'Vui lòng tải lên ảnh texture hoặc icon đại diện cho vật phẩm.',
+}
+
+export const getCategoryRule = (code) => {
+  const normalized = String(code || '').toUpperCase()
+  return CATEGORY_ASSET_RULES[normalized] || DEFAULT_FALLBACK_RULE
 }
 
 export default function AddProductControlPanel({
@@ -113,8 +222,13 @@ export default function AddProductControlPanel({
     return String(currentCategory?.code || editingProduct?.categoryCode || '').toUpperCase()
   }, [currentCategory, editingProduct])
 
-  // Asset Requirements Configuration (Dynamic per category & per product)
+  const categoryRule = useMemo(() => getCategoryRule(catCode), [catCode])
+
+  // Asset Requirements Configuration (Enforced per category & product)
   const [assetConfig, setAssetConfig] = useState(() => {
+    const rule = getCategoryRule(catCode)
+    const initial = { ...rule.default }
+
     if (editingProduct?.metadata) {
       try {
         const meta =
@@ -122,29 +236,59 @@ export default function AddProductControlPanel({
             ? JSON.parse(editingProduct.metadata)
             : editingProduct.metadata
         if (meta?.assetConfig) {
-          return {
-            hasImage: Boolean(meta.assetConfig.hasImage ?? true),
-            hasVideo: Boolean(meta.assetConfig.hasVideo ?? editingProduct?.previewVideoUrl),
-            hasSound: Boolean(meta.assetConfig.hasSound ?? false),
-            hasPoses: Boolean(meta.assetConfig.hasPoses ?? (catCode === 'DEALER')),
-            hasDeckZip: Boolean(meta.assetConfig.hasDeckZip ?? (catCode === 'CARD_SKIN')),
-          }
+          // Only accept keys that are allowed for this category
+          rule.allowed.forEach(k => {
+            if (meta.assetConfig[k] !== undefined) {
+              initial[k] = Boolean(meta.assetConfig[k])
+            }
+          })
+          // Force required keys to true
+          rule.required.forEach(k => {
+            initial[k] = true
+          })
         }
       } catch (err) {
         console.error('Error parsing assetConfig from metadata:', err)
       }
     }
-    return getCategoryAssetDefaults(catCode)
+    return initial
   })
 
-  // When category changes, switch to its configured default asset requirements
+  // When category changes, auto-select and enforce the new category's asset configuration
   const prevCatCodeRef = useRef(catCode)
   useEffect(() => {
     if (prevCatCodeRef.current !== catCode) {
       prevCatCodeRef.current = catCode
-      setAssetConfig(getCategoryAssetDefaults(catCode))
+      setAssetConfig({ ...categoryRule.default })
     }
-  }, [catCode])
+  }, [catCode, categoryRule])
+
+  // Smart Handler for toggling asset configuration with warnings
+  const handleToggleAssetConfig = (key, itemLabel) => {
+    const isAllowed = categoryRule.allowed.includes(key)
+    const isRequired = categoryRule.required.includes(key)
+
+    // 1. Incompatible / Disallowed: Show clear warning and block
+    if (!isAllowed) {
+      const reason = categoryRule.disallowedReasons?.[key] || `Danh mục ${currentCategory?.name || catCode} không hỗ trợ loại tệp này`
+      notify(`⚠️ Không thể chọn! ${reason}.`, { type: 'warning' })
+      return
+    }
+
+    // 2. Required asset: cannot turn off
+    if (isRequired && assetConfig[key]) {
+      notify(`ℹ️ Mục "${itemLabel}" là tệp bắt buộc cho danh mục ${currentCategory?.name || catCode}, không thể tắt!`, {
+        type: 'info',
+      })
+      return
+    }
+
+    // 3. Optional asset: toggle freely
+    setAssetConfig(prev => ({
+      ...prev,
+      [key]: !prev[key],
+    }))
+  }
 
   // Form Fields
   const [name, setName] = useState(editingProduct?.name || '')
@@ -837,14 +981,30 @@ export default function AddProductControlPanel({
             </div>
 
             {/* Asset Requirement Configuration Bar */}
-            <div className="p-3.5 rounded-2xl bg-black/40 border border-amber-400/20 space-y-2">
-              <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="p-4 rounded-2xl bg-black/40 border border-amber-400/20 space-y-3">
+              {/* Smart Category Guidance Banner */}
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-400/10 border border-amber-400/25">
+                <Icon name="auto_awesome" className="text-amber-400 text-lg mt-0.5 shrink-0" />
+                <div className="text-xs space-y-0.5">
+                  <div className="font-bold text-amber-300 flex items-center gap-2 flex-wrap">
+                    <span>Tự động tối ưu định dạng tệp cho: <strong>{currentCategory?.name || catCode}</strong></span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 font-mono border border-amber-400/30">
+                      {catCode}
+                    </span>
+                  </div>
+                  <p className="text-white/70 text-[11px] leading-relaxed">
+                    {categoryRule.guide}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
                 <span className="text-xs font-bold text-white/80 flex items-center gap-1.5">
                   <Icon name="tune" className="text-amber-400 text-sm" />
-                  <span>Cấu hình loại tệp nhận diện cho danh mục này:</span>
+                  <span>Cấu hình loại tệp nhận diện:</span>
                 </span>
                 <span className="text-[11px] text-white/40">
-                  (Bấm để bật / tắt các mục tài nguyên cần tải lên)
+                  (Hệ thống tự động khóa loại tệp không tương thích để tránh admin bấm nhầm)
                 </span>
               </div>
 
@@ -856,31 +1016,60 @@ export default function AddProductControlPanel({
                   { key: 'hasPoses', label: 'Đa Tư Thế Động (Poses)', icon: 'accessibility_new' },
                   { key: 'hasDeckZip', label: 'Bộ Bài 52 Lá (ZIP)', icon: 'style' },
                 ].map(item => {
+                  const isAllowed = categoryRule.allowed.includes(item.key)
+                  const isRequired = categoryRule.required.includes(item.key)
                   const active = Boolean(assetConfig[item.key])
+                  const disallowedReason = categoryRule.disallowedReasons?.[item.key]
+
                   return (
                     <button
                       key={item.key}
                       type="button"
-                      onClick={() =>
-                        setAssetConfig(prev => ({
-                          ...prev,
-                          [item.key]: !prev[item.key],
-                        }))
+                      onClick={() => handleToggleAssetConfig(item.key, item.label)}
+                      title={
+                        !isAllowed
+                          ? `⚠️ Không hỗ trợ: ${disallowedReason}`
+                          : isRequired
+                            ? `Bắt buộc cho danh mục ${currentCategory?.name || catCode}`
+                            : active
+                              ? 'Bấm để tắt tệp tùy chọn này'
+                              : 'Bấm để bật tệp tùy chọn này'
                       }
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border ${
-                        active
-                          ? 'bg-amber-400/20 text-amber-300 border-amber-400 shadow-sm shadow-amber-400/10'
-                          : 'bg-white/5 text-white/40 border-white/10 hover:border-white/20 hover:text-white/70'
+                        !isAllowed
+                          ? 'opacity-35 bg-white/[0.02] text-white/30 border-white/5 cursor-not-allowed hover:border-rose-500/40 hover:text-rose-300 hover:opacity-70'
+                          : isRequired
+                            ? 'bg-amber-400/20 text-amber-300 border-amber-400/80 shadow-sm shadow-amber-400/10 cursor-default'
+                            : active
+                              ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400 shadow-sm shadow-cyan-400/10'
+                              : 'bg-white/5 text-white/50 border-white/10 hover:border-white/20 hover:text-white/80'
                       }`}
                     >
-                      <Icon name={item.icon} className="text-sm" />
+                      <Icon
+                        name={!isAllowed ? 'block' : item.icon}
+                        className={`text-sm ${
+                          !isAllowed
+                            ? 'text-white/30'
+                            : isRequired
+                              ? 'text-amber-400'
+                              : active
+                                ? 'text-cyan-400'
+                                : 'text-white/40'
+                        }`}
+                      />
                       <span>{item.label}</span>
                       <span
-                        className={`text-[9px] px-1 py-0.2 rounded font-black ${
-                          active ? 'bg-amber-400 text-slate-950' : 'bg-white/10 text-white/40'
+                        className={`text-[9px] px-1.5 py-0.5 rounded font-black tracking-wider uppercase ${
+                          !isAllowed
+                            ? 'bg-white/5 text-white/30 border border-white/10'
+                            : isRequired
+                              ? 'bg-amber-400 text-slate-950 font-black'
+                              : active
+                                ? 'bg-cyan-400 text-slate-950'
+                                : 'bg-white/10 text-white/40'
                         }`}
                       >
-                        {active ? 'BẬT' : 'TẮT'}
+                        {!isAllowed ? 'KHÔNG HỖ TRỢ' : isRequired ? 'BẮT BUỘC' : active ? 'BẬT' : 'TẮT'}
                       </span>
                     </button>
                   )

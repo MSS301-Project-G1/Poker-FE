@@ -6,15 +6,13 @@ import AdminSidebar from './components/AdminSidebar'
 import ProductManagementTab from './components/ProductManagementTab'
 import AddProductControlPanel from './components/AddProductControlPanel'
 import BundleManagementTab from './components/BundleManagementTab'
-import AiConfigTab from './components/AiConfigTab'
-import AiAssetGeneratorPanel from './components/AiAssetGeneratorPanel'
 import CategoryManagementTab from './components/CategoryManagementTab'
 import { useAdminProducts } from './hooks/useAdminProducts'
 import { useAdminBundles } from './hooks/useAdminBundles'
 
 export default function AdminShopPage() {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('PRODUCTS') // 'PRODUCTS' | 'ADD_PRODUCT' | 'CATEGORIES' | 'BUNDLES' | 'AI_CONFIG' | 'AI_STUDIO'
+  const [activeTab, setActiveTab] = useState('PRODUCTS') // 'PRODUCTS' | 'ADD_PRODUCT' | 'CATEGORIES' | 'BUNDLES'
   const [editingProduct, setEditingProduct] = useState(null)
 
   // Products state & actions
@@ -22,6 +20,16 @@ export default function AdminShopPage() {
     products,
     categories,
     loading: productsLoading,
+    page,
+    setPage,
+    size,
+    setSize,
+    totalPages,
+    totalElements,
+    selectedCategory,
+    setSelectedCategory,
+    selectedTier,
+    setSelectedTier,
     refreshProducts,
     createProduct,
     updateProduct,
@@ -80,7 +88,7 @@ export default function AdminShopPage() {
               setEditingProduct(null)
               setActiveTab(tab)
             }}
-            productCount={products.length}
+            productCount={totalElements || products.length}
             bundleCount={bundles.length}
           />
 
@@ -93,6 +101,16 @@ export default function AdminShopPage() {
                 deleteProduct={deleteProduct}
                 uploadDeckSkinZip={uploadDeckSkinZip}
                 onRefresh={refreshProducts}
+                page={page}
+                setPage={setPage}
+                size={size}
+                setSize={setSize}
+                totalPages={totalPages}
+                totalElements={totalElements}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+                selectedTier={selectedTier}
+                setSelectedTier={setSelectedTier}
                 onOpenAddProduct={type => {
                   setEditingProduct(null)
                   setActiveTab('ADD_PRODUCT')
@@ -139,32 +157,6 @@ export default function AdminShopPage() {
                 onRefresh={refreshBundles}
               />
             )}
-
-            {activeTab === 'AI_STUDIO' && (
-              <div className="space-y-6">
-                <div className="pb-3 border-b border-white/10">
-                  <h2 className="font-headline font-black text-xl text-white flex items-center gap-2">
-                    <Icon name="auto_awesome" className="text-purple-400" />
-                    <span>AI Asset Synthesis Studio</span>
-                  </h2>
-                  <p className="text-xs text-white/50">
-                    Tạo nhanh bộ bài 52 lá dát vàng, chip poker VIP hoặc bàn chơi từ ảnh tham chiếu bằng Google Gemini.
-                  </p>
-                </div>
-
-                <AiAssetGeneratorPanel
-                  allowCategoryChange={true}
-                  categoryCode="CARD_SKIN"
-                  categories={categories}
-                  onProductApplied={() => {
-                    refreshProducts()
-                    setActiveTab('PRODUCTS')
-                  }}
-                />
-              </div>
-            )}
-
-            {activeTab === 'AI_CONFIG' && <AiConfigTab />}
           </main>
         </div>
       </div>

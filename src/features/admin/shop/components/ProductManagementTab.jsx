@@ -13,28 +13,52 @@ export default function ProductManagementTab({
   onRefresh,
   onOpenAddProduct,
   onEditProduct,
+  page = 0,
+  setPage,
+  size = 10,
+  setSize,
+  totalPages = 1,
+  totalElements = 0,
+  selectedCategory = 'ALL',
+  setSelectedCategory,
+  selectedTier = 'ALL',
+  setSelectedTier,
 }) {
   const notify = useToast()
-  const [selectedCategory, setSelectedCategory] = useState('ALL')
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedTier, setSelectedTier] = useState('ALL')
   const [zipModalProduct, setZipModalProduct] = useState(null)
   const [productToDelete, setProductToDelete] = useState(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
+  // Local fallback filters if not controlled by parent
+  const [localCategory, setLocalCategory] = useState('ALL')
+  const [localTier, setLocalTier] = useState('ALL')
+  const activeCategory = setSelectedCategory ? selectedCategory : localCategory
+  const activeTier = setSelectedTier ? selectedTier : localTier
+
+  const handleCategorySelect = cat => {
+    if (setSelectedCategory) setSelectedCategory(cat)
+    else setLocalCategory(cat)
+  }
+
+  const handleTierSelect = tier => {
+    if (setSelectedTier) setSelectedTier(tier)
+    else setLocalTier(tier)
+  }
+
   // KPI Dashboard Stats
   const stats = useMemo(() => {
-    const total = products.length
+    const total = totalElements || products.length
     const cardDecks = products.filter(p => isCardProduct(p)).length
     const vipItems = products.filter(p => p.tier === 'VIP' || p.tier === 'SUPER_VIP').length
     const exclusive = products.filter(p => p.isExclusive).length
     return { total, cardDecks, vipItems, exclusive }
-  }, [products])
+  }, [products, totalElements])
 
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
-      if (selectedCategory !== 'ALL' && p.categoryCode !== selectedCategory) return false
-      if (selectedTier !== 'ALL' && p.tier !== selectedTier) return false
+      if (!setSelectedCategory && activeCategory !== 'ALL' && p.categoryCode !== activeCategory) return false
+      if (!setSelectedTier && activeTier !== 'ALL' && p.tier !== activeTier) return false
       if (searchTerm) {
         const q = searchTerm.toLowerCase()
         const name = (p.name || '').toLowerCase()
@@ -43,7 +67,7 @@ export default function ProductManagementTab({
       }
       return true
     })
-  }, [products, selectedCategory, selectedTier, searchTerm])
+  }, [products, setSelectedCategory, activeCategory, setSelectedTier, activeTier, searchTerm])
 
   const handleConfirmDelete = async () => {
     if (!productToDelete) return
@@ -166,22 +190,22 @@ export default function ProductManagementTab({
       <div className="flex items-center gap-2 p-1.5 bg-black/40 rounded-2xl border border-white/10 overflow-x-auto">
         <button
           type="button"
-          onClick={() => setSelectedCategory('ALL')}
+          onClick={() => handleCategorySelect('ALL')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
-            selectedCategory === 'ALL'
+            activeCategory === 'ALL'
               ? 'bg-amber-400 text-slate-950 font-black shadow-md'
               : 'text-white/70 hover:text-white hover:bg-white/10'
           }`}
         >
-          Tất cả ({products.length})
+          Tất cả ({totalElements || products.length})
         </button>
         {categories.map(cat => (
           <button
             key={cat.code}
             type="button"
-            onClick={() => setSelectedCategory(cat.code)}
+            onClick={() => handleCategorySelect(cat.code)}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
-              selectedCategory === cat.code
+              activeCategory === cat.code
                 ? 'bg-amber-400 text-slate-950 font-black shadow-md'
                 : 'text-white/70 hover:text-white hover:bg-white/10'
             }`}
@@ -195,8 +219,8 @@ export default function ProductManagementTab({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
         <div className="flex items-center gap-3 flex-wrap">
           <select
-            value={selectedTier}
-            onChange={e => setSelectedTier(e.target.value)}
+            value={activeTier}
+            onChange={e => handleTierSelect(e.target.value)}
             className="px-3.5 py-2 rounded-xl bg-black/50 border border-white/15 text-xs font-bold text-white focus:outline-none focus:border-amber-400"
           >
             <option value="ALL">Tất cả Hạng Tier</option>
@@ -329,6 +353,95 @@ export default function ProductManagementTab({
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination Bar */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-white/10 bg-black/40 text-xs">
+          {/* Left: Range info & size selector */}
+          <div className="flex items-center gap-3 text-white/60 flex-wrap">
+            <span>
+              Hiển thị{' '}
+              <strong className="text-white font-bold">
+                {totalElements === 0 ? 0 : page * size + 1}
+              </strong>{' '}
+              -{' '}
+              <strong className="text-white font-bold">
+                {Math.min((page + 1) * size, totalElements || products.length)}
+              </strong>{' '}
+              trên tổng số{' '}
+              <strong className="text-amber-400 font-black">
+                {totalElements || products.length}
+              </strong>{' '}
+              sản phẩm
+            </span>
+            <span className="text-white/20">|</span>
+            <div className="flex items-center gap-1.5">
+              <span>Mỗi trang:</span>
+              <select
+                value={size}
+                onChange={e => {
+                  setSize?.(Number(e.target.value))
+                }}
+                className="px-2.5 py-1 rounded-lg bg-black/60 border border-white/15 text-white font-bold focus:outline-none focus:border-amber-400 cursor-pointer"
+              >
+                <option value={5} className="bg-[#170a2c] text-white">5</option>
+                <option value={10} className="bg-[#170a2c] text-white">10</option>
+                <option value={20} className="bg-[#170a2c] text-white">20</option>
+                <option value={50} className="bg-[#170a2c] text-white">50</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Right: Page Navigation Buttons */}
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              disabled={page <= 0 || loading}
+              onClick={() => setPage?.(prev => Math.max(0, prev - 1))}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all font-semibold"
+            >
+              <Icon name="chevron_left" className="text-base" />
+              <span>Trước</span>
+            </button>
+
+            {/* Page pills */}
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.max(1, totalPages) }, (_, i) => i)
+                .filter(p => p === 0 || p === totalPages - 1 || Math.abs(p - page) <= 1)
+                .map((p, idx, arr) => {
+                  const prev = arr[idx - 1]
+                  const showEllipsis = prev !== undefined && p - prev > 1
+
+                  return (
+                    <div key={p} className="flex items-center gap-1">
+                      {showEllipsis && <span className="text-white/30 px-1">...</span>}
+                      <button
+                        type="button"
+                        onClick={() => setPage?.(p)}
+                        disabled={loading}
+                        className={`w-8 h-8 rounded-xl font-bold flex items-center justify-center transition-all ${
+                          page === p
+                            ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
+                            : 'bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10'
+                        }`}
+                      >
+                        {p + 1}
+                      </button>
+                    </div>
+                  )
+                })}
+            </div>
+
+            <button
+              type="button"
+              disabled={page >= totalPages - 1 || loading}
+              onClick={() => setPage?.(prev => Math.min(totalPages - 1, prev + 1))}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all font-semibold"
+            >
+              <span>Tiếp</span>
+              <Icon name="chevron_right" className="text-base" />
+            </button>
+          </div>
         </div>
       </div>
 

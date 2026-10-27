@@ -103,37 +103,6 @@ export default function AdminSidebar({
           </div>
         </div>
 
-        {/* Section 3: AI Engine & Models */}
-        <div className={styles.navSection}>
-          <span className={styles.sectionLabel}>AI Engine & Tạo Mẫu</span>
-          <div className={styles.navGroup}>
-            <button
-              type="button"
-              onClick={() => onSelectTab('AI_STUDIO')}
-              className={`${styles.navItem} ${activeTab === 'AI_STUDIO' ? styles.navItemActiveGold : ''}`}
-            >
-              <div className={styles.navItemLeft}>
-                <span className={styles.navIcon}>
-                  <Icon name="auto_awesome" />
-                </span>
-                <span className={styles.navLabel}>AI Studio (Tạo Mẫu)</span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onSelectTab('AI_CONFIG')}
-              className={`${styles.navItem} ${activeTab === 'AI_CONFIG' ? styles.navItemActive : ''}`}
-            >
-              <div className={styles.navItemLeft}>
-                <span className={styles.navIcon}>
-                  <Icon name="psychology" />
-                </span>
-                <span className={styles.navLabel}>Cấu Hình AI Models</span>
-              </div>
-            </button>
-          </div>
-        </div>
 
         {/* Section 4: Điều Hành Game */}
         <div className={styles.navSection}>
