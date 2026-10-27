@@ -537,7 +537,7 @@ export default function AddProductControlPanel({
       } else {
         setSubmitStep('Đang tạo bản ghi sản phẩm mới...')
         const created = await createProduct(productPayload)
-        productId = created?.id
+        productId = created?.data?.id || created?.result?.id || created?.id
         if (!productId) {
           throw new Error('Không nhận được ID sản phẩm sau khi tạo')
         }
