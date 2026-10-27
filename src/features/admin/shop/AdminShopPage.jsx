@@ -5,12 +5,13 @@ import AdminSidebar from './components/AdminSidebar'
 import ProductManagementTab from './components/ProductManagementTab'
 import AddProductControlPanel from './components/AddProductControlPanel'
 import BundleManagementTab from './components/BundleManagementTab'
+import AiConfigTab from './components/AiConfigTab'
 import { useAdminProducts } from './hooks/useAdminProducts'
 import { useAdminBundles } from './hooks/useAdminBundles'
 
 export default function AdminShopPage() {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('PRODUCTS') // 'PRODUCTS' | 'ADD_PRODUCT' | 'BUNDLES'
+  const [activeTab, setActiveTab] = useState('PRODUCTS') // 'PRODUCTS' | 'ADD_PRODUCT' | 'BUNDLES' | 'AI_CONFIG'
 
   // Products state & actions
   const {
@@ -113,6 +114,8 @@ export default function AdminShopPage() {
                 onRefresh={refreshBundles}
               />
             )}
+
+            {activeTab === 'AI_CONFIG' && <AiConfigTab />}
           </main>
         </div>
       </div>

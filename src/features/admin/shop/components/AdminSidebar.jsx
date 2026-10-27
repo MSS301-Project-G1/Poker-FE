@@ -101,7 +101,29 @@ export default function AdminSidebar({
           </div>
         </div>
 
-        {/* Section 3: Điều Hành Game */}
+        {/* Section 3: AI Engine & Models */}
+        <div className={styles.navSection}>
+          <span className={styles.sectionLabel}>AI Engine & Tạo Mẫu</span>
+          <div className={styles.navGroup}>
+            <button
+              type="button"
+              onClick={() => onSelectTab('AI_CONFIG')}
+              className={`${styles.navItem} ${activeTab === 'AI_CONFIG' ? styles.navItemActive : ''}`}
+            >
+              <div className={styles.navItemLeft}>
+                <span className={styles.navIcon}>
+                  <Icon name="psychology" />
+                </span>
+                <span className={styles.navLabel}>Cấu Hình AI Models</span>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                Gemini
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Section 4: Điều Hành Game */}
         <div className={styles.navSection}>
           <span className={styles.sectionLabel}>Điều Hành Trận Đấu</span>
           <div className={styles.navGroup}>

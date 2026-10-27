@@ -3,7 +3,8 @@ import { Icon, Button, useToast } from '@/shared/ui'
 import { formatVipCoin, formatVnd } from '../utils/adminFormatters'
 import CosmeticRenderer from '@/features/shop/components/CosmeticRenderer'
 import ProductSoundField from './ProductSoundField'
-import { uploadProductSound } from '../services/adminShopService'
+import AiAssetGeneratorPanel from './AiAssetGeneratorPanel'
+import { uploadProductSound, applyAiBatch } from '../services/adminShopService'
 
 export default function AddProductControlPanel({
   categories = [],
@@ -49,9 +50,22 @@ export default function AddProductControlPanel({
   }, [isFlashSale, flashSalePreset, customSaleExpiresAt])
 
   // Card Skin specific options
-  const [ingestionMethod, setIngestionMethod] = useState('ZIP') // 'ZIP' | 'FILES' | 'URL'
+  const [ingestionMethod, setIngestionMethod] = useState('ZIP') // 'AI' | 'ZIP' | 'FILES' | 'URL'
   const [selectedZipFile, setSelectedZipFile] = useState(null)
   const [selectedImageFiles, setSelectedImageFiles] = useState([])
+  const [generatedBatchId, setGeneratedBatchId] = useState(null)
+  const [showStandardAiPanel, setShowStandardAiPanel] = useState(false)
+
+  const handleAiGenerated = assetData => {
+    if (!assetData) return
+    setGeneratedBatchId(assetData.batchId)
+    if (assetData.previewUrl) {
+      setAssetUrl(assetData.previewUrl)
+    }
+    if (!name.trim()) {
+      setName(`Skin Bài AI Hoàng Gia #${assetData.batchId.substring(0, 6)}`)
+    }
+  }
 
   // Submission state
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -190,8 +204,12 @@ export default function AddProductControlPanel({
       const createdProduct = res?.data
       const newProductId = createdProduct?.id
 
-      // 2. If Card Skin with ZIP file -> Upload directly to S3
-      if (
+      // 2. If AI generated batch -> Apply batch to product
+      if (generatedBatchId && newProductId) {
+        setSubmitStep('Đang liên kết gói tài nguyên AI vào sản phẩm...')
+        await applyAiBatch(generatedBatchId, { targetProductId: newProductId })
+        notify(`Đã tạo sản phẩm và áp dụng gói tài nguyên AI cho "${name}"!`, { type: 'success' })
+      } else if (
         productType === 'CARD_SKIN' &&
         newProductId &&
         ingestionMethod === 'ZIP' &&
@@ -462,6 +480,33 @@ export default function AddProductControlPanel({
               soundFile={soundFile}
               onSoundChange={setSoundFile}
             />
+
+            {/* Optional AI generator for Standard Products (Dealer, Table, etc.) */}
+            {productType === 'STANDARD' && (
+              <div className="pt-2 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setShowStandardAiPanel(!showStandardAiPanel)}
+                  className="w-full py-2.5 px-4 rounded-2xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-xs font-bold text-purple-300 flex items-center justify-between transition-all"
+                >
+                  <span className="flex items-center gap-2">
+                    <Icon name="auto_awesome" className="text-base text-purple-400" />
+                    <span>Dùng Trí Tuệ Nhân Tạo (Gemini / Imagen) Tạo Dealer / Bàn Chơi / Hiệu Ứng</span>
+                  </span>
+                  <Icon name={showStandardAiPanel ? 'expand_less' : 'expand_more'} className="text-lg" />
+                </button>
+
+                {showStandardAiPanel && (
+                  <div className="mt-3">
+                    <AiAssetGeneratorPanel
+                      categoryCode={selectedCategoryObj?.code || 'DEALER'}
+                      soundFile={soundFile}
+                      onAssetGenerated={handleAiGenerated}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Section 2: Card Skin Special Options (Hiển thị khi chọn Card Skin) */}
@@ -491,41 +536,61 @@ export default function AddProductControlPanel({
                 <label className="text-xs font-bold text-white/70 block mb-1.5">
                   Phương thức nạp Skin bài vào S3 / MinIO:
                 </label>
-                <div className="flex items-center gap-2 p-1 bg-black/40 rounded-2xl border border-white/10 mb-3">
+                <div className="flex items-center gap-2 p-1 bg-black/40 rounded-2xl border border-white/10 mb-3 flex-wrap sm:flex-nowrap">
+                  <button
+                    type="button"
+                    onClick={() => setIngestionMethod('AI')}
+                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                      ingestionMethod === 'AI'
+                        ? 'bg-gradient-to-r from-purple-500 to-amber-400 text-slate-950 font-black shadow-md'
+                        : 'text-purple-300/80 hover:text-purple-200 hover:bg-purple-500/10'
+                    }`}
+                  >
+                    <Icon name="auto_awesome" className="text-base text-purple-300" /> ✨ AI Tạo Tự Động
+                  </button>
                   <button
                     type="button"
                     onClick={() => setIngestionMethod('ZIP')}
-                    className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                       ingestionMethod === 'ZIP'
                         ? 'bg-amber-400 text-slate-950 font-black shadow-md'
                         : 'text-white/60 hover:text-white'
                     }`}
                   >
-                    <Icon name="folder_zip" className="text-base" /> Nén File ZIP (Khuyên dùng)
+                    <Icon name="folder_zip" className="text-base" /> Nén File ZIP
                   </button>
                   <button
                     type="button"
                     onClick={() => setIngestionMethod('FILES')}
-                    className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                       ingestionMethod === 'FILES'
                         ? 'bg-amber-400 text-slate-950 font-black shadow-md'
                         : 'text-white/60 hover:text-white'
                     }`}
                   >
-                    <Icon name="collections" className="text-base" /> Chọn Nhiều Ảnh Rời
+                    <Icon name="collections" className="text-base" /> Chọn Nhiều Ảnh
                   </button>
                   <button
                     type="button"
                     onClick={() => setIngestionMethod('URL')}
-                    className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                       ingestionMethod === 'URL'
                         ? 'bg-amber-400 text-slate-950 font-black shadow-md'
                         : 'text-white/60 hover:text-white'
                     }`}
                   >
-                    <Icon name="link" className="text-base" /> Dùng Template URL
+                    <Icon name="link" className="text-base" /> Template URL
                   </button>
                 </div>
+
+                {/* AI Ingestion Panel */}
+                {ingestionMethod === 'AI' && (
+                  <AiAssetGeneratorPanel
+                    categoryCode="CARD_SKIN"
+                    soundFile={soundFile}
+                    onAssetGenerated={handleAiGenerated}
+                  />
+                )}
 
                 {/* ZIP Upload Box */}
                 {ingestionMethod === 'ZIP' && (
