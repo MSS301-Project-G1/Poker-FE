@@ -116,8 +116,11 @@ export default function WalletOverviewTab({
     transactions,
     page,
     setPage,
+    pageSize,
+    setPageSize,
     totalPages,
     totalElements,
+    totalWalletCount,
     loading: txLoading,
     currencyFilter,
     setCurrencyFilter,
@@ -265,7 +268,7 @@ export default function WalletOverviewTab({
               </div>
             </div>
             <div className={styles.kpiValue}>
-              {totalElements}
+              {totalWalletCount}
               <span className="text-sm font-semibold text-sky-400/90 ml-1.5">Giao dịch</span>
             </div>
             <p className={styles.kpiDesc}>
@@ -415,11 +418,28 @@ export default function WalletOverviewTab({
             </div>
 
             {/* Pagination Controls */}
-            {totalPages > 1 && (
+            {totalElements > 0 && (
               <div className={styles.paginationRow}>
-                <span className={styles.pageInfo}>
-                  Trang {page + 1} / {totalPages} (Tổng {totalElements} giao dịch)
-                </span>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className={styles.pageInfo}>
+                    Hiển thị <strong className="text-white/90">{Math.min(page * pageSize + 1, totalElements)}</strong> - <strong className="text-white/90">{Math.min((page + 1) * pageSize, totalElements)}</strong> trong <strong className="text-amber-400">{totalElements}</strong> giao dịch
+                  </span>
+
+                  <div className="flex items-center gap-1.5 text-xs text-white/50">
+                    <span>Số dòng:</span>
+                    <select
+                      value={pageSize}
+                      onChange={e => setPageSize(Number(e.target.value))}
+                      className={styles.pageSizeSelect}
+                      aria-label="Chọn số giao dịch mỗi trang"
+                    >
+                      <option value={5}>5 / trang</option>
+                      <option value={10}>10 / trang</option>
+                      <option value={20}>20 / trang</option>
+                    </select>
+                  </div>
+                </div>
+
                 <div className={styles.pageControls}>
                   <button
                     type="button"
@@ -427,15 +447,29 @@ export default function WalletOverviewTab({
                     onClick={() => setPage(p => Math.max(0, p - 1))}
                     className={styles.pageBtn}
                     title="Trang trước"
+                    aria-label="Trang trước"
                   >
                     <Icon name="chevron_left" />
                   </button>
+
+                  {Array.from({ length: totalPages }, (_, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setPage(idx)}
+                      className={`${styles.pageBtn} ${page === idx ? styles.pageBtnActive : ''}`}
+                    >
+                      {idx + 1}
+                    </button>
+                  ))}
+
                   <button
                     type="button"
                     disabled={page >= totalPages - 1}
-                    onClick={() => setPage(p => p + 1)}
+                    onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
                     className={styles.pageBtn}
                     title="Trang sau"
+                    aria-label="Trang sau"
                   >
                     <Icon name="chevron_right" />
                   </button>

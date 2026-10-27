@@ -54,9 +54,6 @@ export default function AdminSidebar({
                 </span>
                 <span className={styles.navLabel}>Quản Lý Kho Hàng</span>
               </div>
-              {productCount > 0 && (
-                <span className={styles.badge}>{productCount}</span>
-              )}
             </button>
 
             <button
@@ -70,9 +67,19 @@ export default function AdminSidebar({
                 </span>
                 <span className={styles.navLabel}>Thêm Vật Phẩm & Skin</span>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-amber-400 text-slate-950 shadow-sm">
-                + Thêm
-              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onSelectTab('CATEGORIES')}
+              className={`${styles.navItem} ${activeTab === 'CATEGORIES' ? styles.navItemActiveGold : ''}`}
+            >
+              <div className={styles.navItemLeft}>
+                <span className={styles.navIcon}>
+                  <Icon name="category" />
+                </span>
+                <span className={styles.navLabel}>Quản Lý Danh Mục</span>
+              </div>
             </button>
           </div>
         </div>
@@ -92,16 +99,12 @@ export default function AdminSidebar({
                 </span>
                 <span className={styles.navLabel}>Gói Nạp VIP Coin (PayOS)</span>
               </div>
-              {bundleCount > 0 && (
-                <span className={`${styles.badge} ${activeTab === 'BUNDLES' ? styles.badgeGold : ''}`}>
-                  {bundleCount}
-                </span>
-              )}
             </button>
           </div>
         </div>
 
-        {/* Section 3: Điều Hành Game */}
+
+        {/* Section 4: Điều Hành Game */}
         <div className={styles.navSection}>
           <span className={styles.sectionLabel}>Điều Hành Trận Đấu</span>
           <div className={styles.navGroup}>

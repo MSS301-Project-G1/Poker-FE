@@ -1,24 +1,38 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Icon, Button } from '@/shared/ui'
+import { paths } from '@/shared/config/paths'
 import AdminSidebar from './components/AdminSidebar'
 import ProductManagementTab from './components/ProductManagementTab'
 import AddProductControlPanel from './components/AddProductControlPanel'
 import BundleManagementTab from './components/BundleManagementTab'
+import CategoryManagementTab from './components/CategoryManagementTab'
 import { useAdminProducts } from './hooks/useAdminProducts'
 import { useAdminBundles } from './hooks/useAdminBundles'
 
 export default function AdminShopPage() {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('PRODUCTS') // 'PRODUCTS' | 'ADD_PRODUCT' | 'BUNDLES'
+  const [activeTab, setActiveTab] = useState('PRODUCTS') // 'PRODUCTS' | 'ADD_PRODUCT' | 'CATEGORIES' | 'BUNDLES'
+  const [editingProduct, setEditingProduct] = useState(null)
 
   // Products state & actions
   const {
     products,
     categories,
     loading: productsLoading,
+    page,
+    setPage,
+    size,
+    setSize,
+    totalPages,
+    totalElements,
+    selectedCategory,
+    setSelectedCategory,
+    selectedTier,
+    setSelectedTier,
     refreshProducts,
     createProduct,
+    updateProduct,
     deleteProduct,
     uploadDeckSkinZip,
     uploadDeckSkinFiles,
@@ -34,7 +48,7 @@ export default function AdminShopPage() {
   } = useAdminBundles()
 
   return (
-    <div className="relative w-full pb-space-lg text-white font-body-md">
+    <div className="relative w-full pb-32 text-white font-body-md">
       {/* Background ambient lighting */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
         <div className="absolute -top-32 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[140px]" />
@@ -52,7 +66,7 @@ export default function AdminShopPage() {
               <h1 className="font-headline font-black text-xl md:text-2xl text-white">
                 Cổng Quản Trị Hệ Thống Shop & Nạp Tiền
               </h1>
-              <p className="text-xs text-white/50">Admin Management Portal • PayOS • S3 / MinIO Ingestion</p>
+              <p className="text-xs text-white/50">Quản lý sản phẩm, danh mục, gói nạp và tài nguyên mỹ phẩm</p>
             </div>
           </div>
 
@@ -70,8 +84,11 @@ export default function AdminShopPage() {
         <div className="flex flex-col md:flex-row gap-6 items-start">
           <AdminSidebar
             activeTab={activeTab}
-            onSelectTab={setActiveTab}
-            productCount={products.length}
+            onSelectTab={tab => {
+              setEditingProduct(null)
+              setActiveTab(tab)
+            }}
+            productCount={totalElements || products.length}
             bundleCount={bundles.length}
           />
 
@@ -84,8 +101,22 @@ export default function AdminShopPage() {
                 deleteProduct={deleteProduct}
                 uploadDeckSkinZip={uploadDeckSkinZip}
                 onRefresh={refreshProducts}
+                page={page}
+                setPage={setPage}
+                size={size}
+                setSize={setSize}
+                totalPages={totalPages}
+                totalElements={totalElements}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+                selectedTier={selectedTier}
+                setSelectedTier={setSelectedTier}
                 onOpenAddProduct={type => {
+                  setEditingProduct(null)
                   setActiveTab('ADD_PRODUCT')
+                }}
+                onEditProduct={product => {
+                  navigate(paths.adminShopEditProduct(product.id))
                 }}
               />
             )}
@@ -93,14 +124,27 @@ export default function AdminShopPage() {
             {activeTab === 'ADD_PRODUCT' && (
               <AddProductControlPanel
                 categories={categories}
+                onRefreshCategories={refreshProducts}
                 createProduct={createProduct}
+                updateProduct={updateProduct}
+                editingProduct={editingProduct}
                 uploadDeckSkinZip={uploadDeckSkinZip}
                 uploadDeckSkinFiles={uploadDeckSkinFiles}
                 onSuccess={() => {
+                  setEditingProduct(null)
                   refreshProducts()
                   setActiveTab('PRODUCTS')
                 }}
-                onCancel={() => setActiveTab('PRODUCTS')}
+                onCancel={() => {
+                  setEditingProduct(null)
+                  setActiveTab('PRODUCTS')
+                }}
+              />
+            )}
+
+            {activeTab === 'CATEGORIES' && (
+              <CategoryManagementTab
+                onCategoryUpdated={refreshProducts}
               />
             )}
 

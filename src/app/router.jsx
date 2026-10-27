@@ -4,8 +4,8 @@ import { paths } from '@/shared/config/paths'
 import { AccountPage } from '@/features/account'
 import { AdminAvatarsPage } from '@/features/admin/avatars'
 import { MatchSettingsPage } from '@/features/admin/match-settings'
+import { AdminShopPage, AdminEditProductPage } from '@/features/admin/shop'
 import { AdminSeasonsPage } from '@/features/admin/seasons'
-import { AdminShopPage } from '@/features/admin/shop'
 import { AdminTournamentsPage } from '@/features/admin/tournaments'
 import { AuthPage } from '@/features/auth'
 import { DemoPage } from '@/features/demo'
@@ -47,6 +47,8 @@ export default function AppRoutes() {
       <Route element={<AdminOnlyRoute />}>
         <Route path={paths.adminAvatars} element={<AdminAvatarsPage />} />
         <Route path={paths.adminShop} element={<AdminShopPage />} />
+        <Route path={paths.adminShopEditProduct(':id')} element={<AdminEditProductPage />} />
+        <Route path={paths.adminShopAddProduct} element={<AdminEditProductPage />} />
         <Route path={paths.adminSeasons} element={<AdminSeasonsPage />} />
         <Route path={paths.adminTournaments} element={<AdminTournamentsPage />} />
         {!env.gameDevMode && <Route path={paths.adminMatchSettings} element={<MatchSettingsPage />} />}
