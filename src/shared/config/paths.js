@@ -19,9 +19,13 @@ export const paths = {
   seasons: '/seasons',
   rooms: '/rooms',
   roomByCode: roomCode => `/rooms/${roomCode}`,
+  tournaments: '/tournaments',
+  tournamentById: tournamentId => `/tournaments/${tournamentId}`,
   adminAvatars: '/admin/avatars',
   adminMatchSettings: '/admin/match-settings',
   adminShop: '/admin/shop',
   adminShopEditProduct: id => `/admin/shop/products/${id}/edit`,
   adminShopAddProduct: '/admin/shop/products/new',
+  adminSeasons: '/admin/seasons',
+  adminTournaments: '/admin/tournaments',
 }

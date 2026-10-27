@@ -5,6 +5,8 @@ import { AccountPage } from '@/features/account'
 import { AdminAvatarsPage } from '@/features/admin/avatars'
 import { MatchSettingsPage } from '@/features/admin/match-settings'
 import { AdminShopPage, AdminEditProductPage } from '@/features/admin/shop'
+import { AdminSeasonsPage } from '@/features/admin/seasons'
+import { AdminTournamentsPage } from '@/features/admin/tournaments'
 import { AuthPage } from '@/features/auth'
 import { DemoPage } from '@/features/demo'
 import { RoomLobbyPage, RoomsPage } from '@/features/custom-room'
@@ -16,6 +18,7 @@ import { RankedPage } from '@/features/ranked'
 import { LeaderboardPage } from '@/features/ranking'
 import { SeasonPage } from '@/features/season'
 import { ShopPage, BundlePage, ProductDetailPage, PaymentResultPage } from '@/features/shop'
+import { TournamentPage, TournamentsPage } from '@/features/tournament'
 import AdminOnlyRoute from './AdminOnlyRoute'
 import NotFoundPage from './NotFoundPage'
 import AuthenticatedLayout from './AuthenticatedLayout'
@@ -39,11 +42,15 @@ export default function AppRoutes() {
       <Route path={paths.seasons} element={<SeasonPage />} />
       <Route path={paths.rooms} element={<RoomsPage />} />
       <Route path={paths.roomByCode(':roomCode')} element={<RoomLobbyPage />} />
+      <Route path={paths.tournaments} element={<TournamentsPage />} />
+      <Route path={paths.tournamentById(':tournamentId')} element={<TournamentPage />} />
       <Route element={<AdminOnlyRoute />}>
         <Route path={paths.adminAvatars} element={<AdminAvatarsPage />} />
         <Route path={paths.adminShop} element={<AdminShopPage />} />
         <Route path={paths.adminShopEditProduct(':id')} element={<AdminEditProductPage />} />
         <Route path={paths.adminShopAddProduct} element={<AdminEditProductPage />} />
+        <Route path={paths.adminSeasons} element={<AdminSeasonsPage />} />
+        <Route path={paths.adminTournaments} element={<AdminTournamentsPage />} />
         {!env.gameDevMode && <Route path={paths.adminMatchSettings} element={<MatchSettingsPage />} />}
       </Route>
     </Route>

@@ -6,8 +6,8 @@ export const PAGE_SIZE = 20
 const DAY = 24 * 60 * 60 * 1000
 const initial = { phase: 'loading', season: null, daysLeft: null, board: null, me: null, error: '' }
 
-// Season, leaderboard page and own standing load together; own standing needs an identity.
-export function useLeaderboard({ page, devUser, getAccessToken, attempt }) {
+// Season, leaderboard page and own standing load together; the page is only shown to signed-in players.
+export function useLeaderboard({ page, devUser, attempt }) {
   const [state, setState] = useState(initial)
 
   useEffect(() => {
@@ -15,12 +15,11 @@ export function useLeaderboard({ page, devUser, getAccessToken, attempt }) {
     async function load() {
       setState(current => ({ ...current, phase: current.board ? 'refreshing' : 'loading', error: '' }))
       try {
-        const accessToken = await getAccessToken()
-        const identity = { accessToken, devUser, signal: abort.signal }
+        const identity = { devUser, signal: abort.signal }
         const [season, board, me] = await Promise.all([
           fetchCurrentSeason(identity),
           fetchLeaderboard(page, PAGE_SIZE, identity),
-          accessToken || devUser ? fetchMyStanding(identity) : Promise.resolve(null),
+          fetchMyStanding(identity),
         ])
         const daysLeft = Math.max(0, Math.ceil((Date.parse(season.endAt) - Date.now()) / DAY))
         setState({ phase: board.totalElements ? 'ready' : 'empty', season, daysLeft, board, me, error: '' })
@@ -30,7 +29,7 @@ export function useLeaderboard({ page, devUser, getAccessToken, attempt }) {
     }
     void load()
     return () => abort.abort()
-  }, [page, devUser, getAccessToken, attempt])
+  }, [page, devUser, attempt])
 
   return state
 }
