@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router'
 import { paths } from '@/shared/config/paths'
 import { Icon, useToast } from '@/shared/ui'
@@ -33,6 +33,8 @@ export default function ProductDetailPage() {
   const [is3DFlipped, setIs3DFlipped] = useState(false)
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
   const [isPurchasing, setIsPurchasing] = useState(false)
+  const [isPlayingSound, setIsPlayingSound] = useState(false)
+  const soundAudioRef = useRef(null)
 
   const { vipCoin, isLoggedIn, refreshWallet } = useWallet()
   const { items: inventoryItems, equipItem, refreshInventory } = useInventory()
@@ -101,6 +103,26 @@ export default function ProductDetailPage() {
   const currentCardCode = `${focusedCard.rank}${focusedCard.suit}`
   const currentFaceUrl = deckManifest?.cards?.[currentCardCode] || null
   const currentBackUrl = deckManifest?.cardBackUrl || product?.previewUrl || product?.assetUrl
+  const soundUrl = deckManifest?.soundUrl || null
+
+  const handleTogglePlaySound = () => {
+    if (!soundUrl) return
+    if (!soundAudioRef.current) {
+      soundAudioRef.current = new Audio(soundUrl)
+      soundAudioRef.current.onended = () => setIsPlayingSound(false)
+      soundAudioRef.current.onerror = () => setIsPlayingSound(false)
+    }
+    if (isPlayingSound) {
+      soundAudioRef.current.pause()
+      soundAudioRef.current.currentTime = 0
+      setIsPlayingSound(false)
+    } else {
+      soundAudioRef.current
+        .play()
+        .then(() => setIsPlayingSound(true))
+        .catch(() => setIsPlayingSound(false))
+    }
+  }
 
   // Handle Purchase
   const handleConfirmPurchase = async () => {
@@ -295,6 +317,27 @@ export default function ProductDetailPage() {
                 {product.description || 'Vật phẩm trang trí cao cấp trên nền tảng MSS Poker.'}
               </p>
             </div>
+
+            {soundUrl && (
+              <div className="flex items-center gap-3 p-3 rounded-2xl bg-purple-950/40 border border-purple-400/30">
+                <button
+                  type="button"
+                  onClick={handleTogglePlaySound}
+                  className="w-10 h-10 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center hover:bg-amber-300 transition-transform active:scale-95 shadow-md shrink-0"
+                  title={isPlayingSound ? 'Dừng âm thanh' : 'Nghe âm thanh hiệu ứng'}
+                >
+                  <Icon name={isPlayingSound ? 'pause' : 'volume_up'} className="text-xl" />
+                </button>
+                <div className="text-xs">
+                  <span className="font-bold text-amber-300 flex items-center gap-1.5">
+                    <Icon name="music_note" className="text-sm" /> Âm thanh vui nhộn đính kèm
+                  </span>
+                  <p className="text-[11px] text-white/60 mt-0.5">
+                    Nhấn nút để nghe thử hiệu ứng âm thanh trêu đùa của vật phẩm
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Specs Grid: Dynamic per cosmetic type */}
             {isDeckSkin ? (

@@ -109,3 +109,25 @@ export async function toggleBundleActive(id, isActive) {
     errorMessage: 'Không thể thay đổi trạng thái mở bán gói nạp',
   })
 }
+
+/**
+ * Sound file management (mp3/ogg/wav, max 2MB)
+ */
+export async function uploadProductSound(productId, file) {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  return gatewayRequest(`/api/admin/products/${productId}/sound`, {
+    method: 'POST',
+    body: formData,
+    errorMessage: 'Tải lên tệp âm thanh thất bại',
+  })
+}
+
+export async function deleteProductSound(productId) {
+  return gatewayRequest(`/api/admin/products/${productId}/sound`, {
+    method: 'DELETE',
+    errorMessage: 'Gỡ tệp âm thanh thất bại',
+  })
+}
+

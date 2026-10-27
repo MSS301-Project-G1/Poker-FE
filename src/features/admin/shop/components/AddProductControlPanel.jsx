@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react'
 import { Icon, Button, useToast } from '@/shared/ui'
 import { formatVipCoin, formatVnd } from '../utils/adminFormatters'
 import CosmeticRenderer from '@/features/shop/components/CosmeticRenderer'
+import ProductSoundField from './ProductSoundField'
+import { uploadProductSound } from '../services/adminShopService'
 
 export default function AddProductControlPanel({
   categories = [],
@@ -25,6 +27,7 @@ export default function AddProductControlPanel({
   const [isExclusive, setIsExclusive] = useState(false)
   const [assetUrl, setAssetUrl] = useState('')
   const [previewVideoUrl, setPreviewVideoUrl] = useState('')
+  const [soundFile, setSoundFile] = useState(null)
 
   // Card Skin specific options
   const [ingestionMethod, setIngestionMethod] = useState('ZIP') // 'ZIP' | 'FILES' | 'URL'
@@ -194,6 +197,12 @@ export default function AddProductControlPanel({
         )
       } else {
         notify(`Tạo sản phẩm "${name}" thành công!`, { type: 'success' })
+      }
+
+      // 3. If Sound File attached -> Upload sound
+      if (soundFile && newProductId) {
+        setSubmitStep('Đang tải lên tệp âm thanh hiệu ứng...')
+        await uploadProductSound(newProductId, soundFile)
       }
 
       onSuccess?.()
@@ -427,6 +436,12 @@ export default function AddProductControlPanel({
                 className="w-full px-4 py-2.5 rounded-2xl bg-black/50 border border-white/15 text-sm text-white placeholder-white/30 focus:outline-none focus:border-amber-400 transition-colors"
               />
             </div>
+
+            {/* Sound Attachment */}
+            <ProductSoundField
+              soundFile={soundFile}
+              onSoundChange={setSoundFile}
+            />
           </div>
 
           {/* Section 2: Card Skin Special Options (Hiển thị khi chọn Card Skin) */}
