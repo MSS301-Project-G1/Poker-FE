@@ -40,13 +40,15 @@ export function getTierBadge(tier) {
 export function isCardProduct(product) {
   if (!product) return false
   const code = String(product.categoryCode || '').toUpperCase()
+  if (code) {
+    return code === 'CARD_SKIN' || code === 'CARD' || code === 'DECK'
+  }
   const name = String(product.categoryName || '').toLowerCase()
+  if (name.includes('người chia bài') || name.includes('dealer')) return false
   const pName = String(product.name || '').toLowerCase()
   return (
-    code.includes('CARD') ||
-    code.includes('DECK') ||
-    name.includes('bài') ||
-    name.includes('card') ||
+    name.includes('bộ bài') ||
+    name.includes('skin bài') ||
     name.includes('deck') ||
     pName.includes('bộ bài') ||
     pName.includes('lá bài')

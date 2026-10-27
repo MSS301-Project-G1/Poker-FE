@@ -54,9 +54,6 @@ export default function AdminSidebar({
                 </span>
                 <span className={styles.navLabel}>Quản Lý Kho Hàng</span>
               </div>
-              {productCount > 0 && (
-                <span className={styles.badge}>{productCount}</span>
-              )}
             </button>
 
             <button
@@ -70,9 +67,19 @@ export default function AdminSidebar({
                 </span>
                 <span className={styles.navLabel}>Thêm Vật Phẩm & Skin</span>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-amber-400 text-slate-950 shadow-sm">
-                + Thêm
-              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onSelectTab('CATEGORIES')}
+              className={`${styles.navItem} ${activeTab === 'CATEGORIES' ? styles.navItemActiveGold : ''}`}
+            >
+              <div className={styles.navItemLeft}>
+                <span className={styles.navIcon}>
+                  <Icon name="category" />
+                </span>
+                <span className={styles.navLabel}>Quản Lý Danh Mục</span>
+              </div>
             </button>
           </div>
         </div>
@@ -92,11 +99,6 @@ export default function AdminSidebar({
                 </span>
                 <span className={styles.navLabel}>Gói Nạp VIP Coin (PayOS)</span>
               </div>
-              {bundleCount > 0 && (
-                <span className={`${styles.badge} ${activeTab === 'BUNDLES' ? styles.badgeGold : ''}`}>
-                  {bundleCount}
-                </span>
-              )}
             </button>
           </div>
         </div>
@@ -114,11 +116,8 @@ export default function AdminSidebar({
                 <span className={styles.navIcon}>
                   <Icon name="auto_awesome" />
                 </span>
-                <span className={styles.navLabel}>✨ AI Studio (Tạo Mẫu)</span>
+                <span className={styles.navLabel}>AI Studio (Tạo Mẫu)</span>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-pink-500/20 text-pink-300 border border-pink-500/30">
-                Dealer/Skin
-              </span>
             </button>
 
             <button
@@ -132,9 +131,6 @@ export default function AdminSidebar({
                 </span>
                 <span className={styles.navLabel}>Cấu Hình AI Models</span>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                Gemini
-              </span>
             </button>
           </div>
         </div>

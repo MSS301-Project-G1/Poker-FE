@@ -9,10 +9,11 @@ import {
   applyAiBatch,
 } from '../services/adminShopService'
 import PromptPreviewModal from './PromptPreviewModal'
-import AiGeneratorTutorialModal from './AiGeneratorTutorialModal'
+import ApproveAiProductModal from './ApproveAiProductModal'
 
 export default function AiAssetGeneratorPanel({
   categoryCode: initialCategoryCode = 'DEALER',
+  categories = [],
   onAssetGenerated,
   soundFile = null,
   allowCategoryChange = true,
@@ -41,7 +42,8 @@ export default function AiAssetGeneratorPanel({
   // Modals
   const [showPreviewModal, setShowPreviewModal] = useState(false)
   const [previewText, setPreviewText] = useState('')
-  const [showTutorialModal, setShowTutorialModal] = useState(false)
+  const [showApprovalModal, setShowApprovalModal] = useState(false)
+  const [lightboxImage, setLightboxImage] = useState(null)
 
   // Generation status & result
   const [isGenerating, setIsGenerating] = useState(false)
@@ -49,7 +51,6 @@ export default function AiAssetGeneratorPanel({
   const [generatedBatch, setGeneratedBatch] = useState(null)
   const [refineFeedback, setRefineFeedback] = useState('')
   const [isRefining, setIsRefining] = useState(false)
-  const [isApplying, setIsApplying] = useState(false)
 
   // Load models & presets on mount or category change
   useEffect(() => {
@@ -217,50 +218,17 @@ export default function AiAssetGeneratorPanel({
     }
   }
 
-  // Handle Apply into Shop directly
-  const handleApplyToShop = async () => {
-    if (!generatedBatch?.batchId) return
-    setIsApplying(true)
-    try {
-      const defaultName = currentCategory === 'DEALER'
-        ? 'Cô Em Chia Bài Sexy Nơ Hồng (AI)'
-        : 'Vật Phẩm AI #' + generatedBatch.batchId.substring(0, 6)
-
-      await applyAiBatch(generatedBatch.batchId, {
-        productName: defaultName,
-        priceVipCoin: 150,
-        priceVnd: 150000,
-      })
-      notify('🎉 Đã thêm vật phẩm vào Cửa Hàng thành công!', { type: 'success' })
-      onProductApplied?.()
-    } catch (err) {
-      notify(err.message || 'Không thể áp dụng vào Cửa Hàng', { type: 'error' })
-    } finally {
-      setIsApplying(false)
-    }
-  }
-
   return (
     <div className="p-6 rounded-3xl bg-gradient-to-b from-[#180b2f] to-[#110622] border border-purple-500/40 shadow-2xl space-y-5 relative">
       {/* Header bar */}
       <div className="flex items-center justify-between pb-3 border-b border-white/10 flex-wrap gap-2">
         <div className="flex items-center gap-2 text-purple-300 font-headline font-black text-base">
           <Icon name="auto_awesome" className="text-xl text-purple-400" />
-          <span>AI Asset Synthesis (Google Gemini & Python Sandbox)</span>
+          <span>AI Asset Synthesis Studio</span>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setShowTutorialModal(true)}
-            className="px-3 py-1 rounded-full bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/40 text-xs font-bold flex items-center gap-1.5 transition-all"
-          >
-            <Icon name="play_circle" className="text-sm" />
-            <span>Xem Video Hướng Dẫn (Tutorial)</span>
-          </button>
-          <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold uppercase tracking-wider">
-            Tạo Tự Động 100%
-          </span>
-        </div>
+        <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold uppercase tracking-wider">
+          Gemini 1.5 Pro & Python Engine
+        </span>
       </div>
 
       {/* Category selector */}
@@ -545,77 +513,253 @@ export default function AiAssetGeneratorPanel({
         </Button>
       </div>
 
-      {/* Generated Batch Showcase & Refine Area */}
+      {/* Generated Batch Showcase & Approval Area */}
       {generatedBatch && (
-        <div className="mt-4 p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-4">
-          <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="mt-6 p-6 rounded-3xl bg-[#140a28] border-2 border-amber-400/50 shadow-2xl space-y-6">
+          {/* Status Header */}
+          <div className="flex items-center justify-between flex-wrap gap-3 pb-4 border-b border-white/10">
             <div className="flex items-center gap-3">
-              <Icon name="check_circle" className="text-emerald-400 text-2xl" />
+              <span className="w-10 h-10 rounded-2xl bg-amber-400/20 border border-amber-400/40 text-amber-300 flex items-center justify-center font-black">
+                <Icon name="palette" className="text-2xl" />
+              </span>
               <div>
-                <span className="font-bold text-sm text-emerald-300 block">
+                <div className="flex items-center gap-2">
+                  <span className="font-headline font-black text-base text-amber-300">
+                    Bản Thảo AI Vừa Sinh (Chưa Phê Duyệt)
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 font-bold uppercase">
+                    Chờ Admin Duyệt
+                  </span>
+                </div>
+                <p className="text-xs text-white/60">
                   {currentCategory === 'DEALER'
-                    ? '🎉 Đã tạo thành công Cô Em Chia Bài (4 Tư Thế)'
-                    : `🎉 Đã tạo thành công gói tài nguyên (${generatedBatch.fileCount || 53} files)`}
-                </span>
-                <span className="text-[11px] text-white/60">
-                  Batch ID: {generatedBatch.batchId?.substring(0, 8)}... • Sẵn sàng nạp vào Shop
-                </span>
+                    ? 'Hệ thống đã sinh đầy đủ 4 tư thế động và ảnh đại diện tròn. Admin hãy kiểm tra kỹ trước khi đưa lên Cửa Hàng.'
+                    : `Hệ thống đã kết xuất gói tài nguyên (${generatedBatch.fileCount || 53} files). Sẵn sàng để phê duyệt.`}
+                </p>
               </div>
             </div>
 
-            {/* Preview image */}
-            {generatedBatch.s3PreviewUrl && (
-              <div className="flex items-center gap-3">
-                <div className="w-16 h-16 rounded-2xl bg-black/60 border-2 border-amber-400 p-1 overflow-hidden shrink-0 shadow-lg shadow-amber-500/20">
-                  <img
-                    src={generatedBatch.s3PreviewUrl}
-                    alt="Generated Preview"
-                    className="w-full h-full object-cover rounded-xl"
-                  />
-                </div>
-                <Button
-                  variant="gold"
-                  size="sm"
-                  icon="add_shopping_cart"
-                  loading={isApplying}
-                  onClick={handleApplyToShop}
-                >
-                  Tạo Thành Sản Phẩm Shop
-                </Button>
-              </div>
-            )}
+            <div className="flex items-center gap-2.5">
+              <Button
+                variant="secondary"
+                size="sm"
+                icon="close"
+                onClick={() => setGeneratedBatch(null)}
+              >
+                Hủy Bản Thảo
+              </Button>
+              <Button
+                variant="gold"
+                size="md"
+                icon="verified"
+                onClick={() => setShowApprovalModal(true)}
+              >
+                Duyệt & Đưa Vào Cửa Hàng
+              </Button>
+            </div>
           </div>
 
-          {/* 4 Pose badges for DEALER */}
+          {/* 4 Poses Showcase for DEALER */}
           {currentCategory === 'DEALER' && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-emerald-500/20 text-center">
-              <div className="p-2 rounded-xl bg-black/40 border border-amber-400/30">
-                <span className="text-[10px] text-amber-300 font-bold block">1. Đứng Chờ</span>
-                <span className="text-xs text-white">idle.png ✓</span>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="font-bold text-sm text-white flex items-center gap-2">
+                  <Icon name="sports_esports" className="text-amber-400 text-base" />
+                  <span>Bộ Sưu Tập 4 Tư Thế Hoạt Họa Dealer & Avatar Bàn Cược:</span>
+                </h4>
+                <span className="text-[11px] text-white/50">
+                  Nhấp vào ảnh để phóng to xem chi tiết
+                </span>
               </div>
-              <div className="p-2 rounded-xl bg-black/40 border border-cyan-400/30">
-                <span className="text-[10px] text-cyan-300 font-bold block">2. Chia Bài</span>
-                <span className="text-xs text-white">deal.png ✓</span>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+                {/* 1. Idle Pose */}
+                <div
+                  onClick={() =>
+                    setLightboxImage({
+                      url: generatedBatch.poseUrls?.idle || generatedBatch.s3PreviewUrl,
+                      title: 'Tư Thế 1: Đứng Chờ (Idle)',
+                      desc: 'Trạng thái đứng chào người chơi và chờ bắt đầu ván bài mới (idle.png).',
+                    })
+                  }
+                  className="group relative rounded-2xl overflow-hidden bg-black/60 border border-amber-400/30 hover:border-amber-400 p-2 flex flex-col items-center cursor-pointer transition-all hover:scale-[1.02] shadow-lg"
+                >
+                  <div className="w-full aspect-square rounded-xl overflow-hidden bg-[#180b2f] relative">
+                    <img
+                      src={generatedBatch.poseUrls?.idle || generatedBatch.s3PreviewUrl}
+                      alt="Tư thế đứng chờ"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                      <span className="px-2.5 py-1 rounded-lg bg-black/70 text-white text-[11px] font-bold flex items-center gap-1">
+                        <Icon name="zoom_in" className="text-sm text-amber-400" />
+                        <span>Xem Lớn</span>
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-amber-300 mt-2 block text-center">
+                    1. Đứng Chờ (Idle)
+                  </span>
+                  <span className="text-[10px] text-white/50 text-center">idle.png ✓</span>
+                </div>
+
+                {/* 2. Deal Pose */}
+                <div
+                  onClick={() =>
+                    setLightboxImage({
+                      url: generatedBatch.poseUrls?.deal || generatedBatch.s3PreviewUrl,
+                      title: 'Tư Thế 2: Chia Bài (Deal)',
+                      desc: 'Động tác phóng 2 lá bài tẩy Hole Cards cho người chơi (deal.png).',
+                    })
+                  }
+                  className="group relative rounded-2xl overflow-hidden bg-black/60 border border-cyan-400/30 hover:border-cyan-400 p-2 flex flex-col items-center cursor-pointer transition-all hover:scale-[1.02] shadow-lg"
+                >
+                  <div className="w-full aspect-square rounded-xl overflow-hidden bg-[#180b2f] relative">
+                    <img
+                      src={generatedBatch.poseUrls?.deal || generatedBatch.s3PreviewUrl}
+                      alt="Tư thế chia bài"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                      <span className="px-2.5 py-1 rounded-lg bg-black/70 text-white text-[11px] font-bold flex items-center gap-1">
+                        <Icon name="zoom_in" className="text-sm text-cyan-400" />
+                        <span>Xem Lớn</span>
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-cyan-300 mt-2 block text-center">
+                    2. Chia Bài (Deal)
+                  </span>
+                  <span className="text-[10px] text-white/50 text-center">deal.png ✓</span>
+                </div>
+
+                {/* 3. Flip Pose */}
+                <div
+                  onClick={() =>
+                    setLightboxImage({
+                      url: generatedBatch.poseUrls?.flip || generatedBatch.s3PreviewUrl,
+                      title: 'Tư Thế 3: Lật Bài (Flip)',
+                      desc: 'Động tác lật các lá bài chung Flop, Turn, River (flip.png).',
+                    })
+                  }
+                  className="group relative rounded-2xl overflow-hidden bg-black/60 border border-emerald-400/30 hover:border-emerald-400 p-2 flex flex-col items-center cursor-pointer transition-all hover:scale-[1.02] shadow-lg"
+                >
+                  <div className="w-full aspect-square rounded-xl overflow-hidden bg-[#180b2f] relative">
+                    <img
+                      src={generatedBatch.poseUrls?.flip || generatedBatch.s3PreviewUrl}
+                      alt="Tư thế lật bài"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                      <span className="px-2.5 py-1 rounded-lg bg-black/70 text-white text-[11px] font-bold flex items-center gap-1">
+                        <Icon name="zoom_in" className="text-sm text-emerald-400" />
+                        <span>Xem Lớn</span>
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-emerald-300 mt-2 block text-center">
+                    3. Lật Bài (Flip)
+                  </span>
+                  <span className="text-[10px] text-white/50 text-center">flip.png ✓</span>
+                </div>
+
+                {/* 4. Win Pose */}
+                <div
+                  onClick={() =>
+                    setLightboxImage({
+                      url: generatedBatch.poseUrls?.win || generatedBatch.s3PreviewUrl,
+                      title: 'Tư Thế 4: Ăn Mừng (Win)',
+                      desc: 'Động tác chúc mừng người chiến thắng với pháo hoa và chip vàng (win.png).',
+                    })
+                  }
+                  className="group relative rounded-2xl overflow-hidden bg-black/60 border border-pink-400/30 hover:border-pink-400 p-2 flex flex-col items-center cursor-pointer transition-all hover:scale-[1.02] shadow-lg"
+                >
+                  <div className="w-full aspect-square rounded-xl overflow-hidden bg-[#180b2f] relative">
+                    <img
+                      src={generatedBatch.poseUrls?.win || generatedBatch.s3PreviewUrl}
+                      alt="Tư thế ăn mừng"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                      <span className="px-2.5 py-1 rounded-lg bg-black/70 text-white text-[11px] font-bold flex items-center gap-1">
+                        <Icon name="zoom_in" className="text-sm text-pink-400" />
+                        <span>Xem Lớn</span>
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-pink-300 mt-2 block text-center">
+                    4. Ăn Mừng (Win)
+                  </span>
+                  <span className="text-[10px] text-white/50 text-center">win.png ✓</span>
+                </div>
+
+                {/* 5. Avatar Round Badge */}
+                <div
+                  onClick={() =>
+                    setLightboxImage({
+                      url: generatedBatch.poseUrls?.avatar || generatedBatch.s3PreviewUrl,
+                      title: 'Avatar Huy Chương Tròn Dát Vàng',
+                      desc: 'Biểu tượng tròn đại diện của Dealer hiển thị tại bàn cược Poker (avatar_preview.png).',
+                    })
+                  }
+                  className="group relative rounded-2xl overflow-hidden bg-black/60 border border-yellow-400/40 hover:border-yellow-400 p-2 flex flex-col items-center cursor-pointer transition-all hover:scale-[1.02] shadow-lg"
+                >
+                  <div className="w-full aspect-square rounded-xl overflow-hidden bg-[#180b2f] relative flex items-center justify-center p-2">
+                    <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 shadow-xl overflow-hidden">
+                      <img
+                        src={generatedBatch.poseUrls?.avatar || generatedBatch.s3PreviewUrl}
+                        alt="Avatar tròn đại diện"
+                        className="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                      <span className="px-2.5 py-1 rounded-lg bg-black/70 text-white text-[11px] font-bold flex items-center gap-1">
+                        <Icon name="zoom_in" className="text-sm text-amber-400" />
+                        <span>Xem Lớn</span>
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-yellow-300 mt-2 block text-center">
+                    Avatar Huy Chương
+                  </span>
+                  <span className="text-[10px] text-white/50 text-center">avatar.png ✓</span>
+                </div>
               </div>
-              <div className="p-2 rounded-xl bg-black/40 border border-emerald-400/30">
-                <span className="text-[10px] text-emerald-300 font-bold block">3. Lật Bài</span>
-                <span className="text-xs text-white">flip.png ✓</span>
+            </div>
+          )}
+
+          {/* Non-Dealer Preview */}
+          {currentCategory !== 'DEALER' && generatedBatch.s3PreviewUrl && (
+            <div className="flex items-center gap-4 p-4 rounded-2xl bg-black/40 border border-white/10">
+              <div className="w-24 h-24 rounded-2xl overflow-hidden border border-amber-400/40 bg-black/60 shrink-0">
+                <img
+                  src={generatedBatch.s3PreviewUrl}
+                  alt="Asset Preview"
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <div className="p-2 rounded-xl bg-black/40 border border-pink-400/30">
-                <span className="text-[10px] text-pink-300 font-bold block">4. Ăn Mừng</span>
-                <span className="text-xs text-white">win.png ✓</span>
+              <div>
+                <span className="font-bold text-sm text-white block">
+                  Tài nguyên đã sinh thành công
+                </span>
+                <span className="text-xs text-white/60 block mt-0.5">
+                  Gói gồm {generatedBatch.fileCount || 53} files kết xuất sẵn sàng cho Cửa Hàng.
+                </span>
+                <span className="text-[10px] text-amber-300/80 font-mono mt-1 block">
+                  ZIP Package: {generatedBatch.s3ZipUrl}
+                </span>
               </div>
             </div>
           )}
 
           {/* Refine Feedback Input */}
-          <div className="pt-2 border-t border-emerald-500/20 flex items-center gap-2">
+          <div className="pt-3 border-t border-white/10 flex items-center gap-2">
             <input
               type="text"
               placeholder="Chưa ưng ý? Nhập góp ý tinh chỉnh (vd: Làm nơ to hơn, váy màu hồng đậm hơn...)"
               value={refineFeedback}
               onChange={e => setRefineFeedback(e.target.value)}
-              className="flex-grow px-3 py-2 rounded-xl bg-black/50 border border-emerald-500/20 text-xs text-white placeholder-white/30 focus:outline-none focus:border-emerald-400"
+              className="flex-grow px-3.5 py-2.5 rounded-2xl bg-black/50 border border-purple-500/20 text-xs text-white placeholder-white/30 focus:outline-none focus:border-purple-400"
             />
             <Button
               variant="secondary"
@@ -625,7 +769,7 @@ export default function AiAssetGeneratorPanel({
               onClick={handleRefine}
               disabled={!refineFeedback.trim()}
             >
-              Tinh Chỉnh
+              Tinh Chỉnh Thêm
             </Button>
           </div>
         </div>
@@ -638,11 +782,66 @@ export default function AiAssetGeneratorPanel({
         onClose={() => setShowPreviewModal(false)}
       />
 
-      {/* Tutorial Video Modal */}
-      <AiGeneratorTutorialModal
-        isOpen={showTutorialModal}
-        onClose={() => setShowTutorialModal(false)}
+      {/* Approval Modal */}
+      <ApproveAiProductModal
+        isOpen={showApprovalModal}
+        onClose={() => setShowApprovalModal(false)}
+        batch={generatedBatch}
+        categories={categories}
+        currentCategoryCode={currentCategory}
+        onSuccess={() => {
+          setGeneratedBatch(null)
+          onProductApplied?.()
+        }}
       />
+
+      {/* Lightbox Modal for Full Size Inspection */}
+      {lightboxImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in"
+          onClick={() => setLightboxImage(null)}
+        >
+          <div
+            className="relative max-w-xl max-h-[90vh] bg-[#140a28] rounded-3xl border-2 border-amber-400/60 p-4 flex flex-col items-center shadow-2xl space-y-3"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="w-full flex items-center justify-between pb-2 border-b border-white/10">
+              <div>
+                <h4 className="font-headline font-black text-sm text-amber-300">
+                  {lightboxImage.title}
+                </h4>
+                <p className="text-[11px] text-white/60">{lightboxImage.desc}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLightboxImage(null)}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center"
+              >
+                <Icon name="close" className="text-base" />
+              </button>
+            </div>
+
+            <div className="rounded-2xl overflow-hidden bg-black/80 max-h-[65vh] flex items-center justify-center">
+              <img
+                src={lightboxImage.url}
+                alt={lightboxImage.title}
+                className="max-w-full max-h-[65vh] object-contain"
+              />
+            </div>
+
+            <div className="w-full flex items-center justify-between pt-2 border-t border-white/10 text-xs text-white/50">
+              <span>Độ phân giải kết xuất: 512 x 512 px</span>
+              <button
+                type="button"
+                onClick={() => setLightboxImage(null)}
+                className="text-amber-400 hover:text-amber-300 font-bold"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

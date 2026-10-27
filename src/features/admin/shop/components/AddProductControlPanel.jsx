@@ -4,10 +4,12 @@ import { formatVipCoin, formatVnd } from '../utils/adminFormatters'
 import CosmeticRenderer from '@/features/shop/components/CosmeticRenderer'
 import ProductSoundField from './ProductSoundField'
 import AiAssetGeneratorPanel from './AiAssetGeneratorPanel'
+import AddCategoryModal from './AddCategoryModal'
 import { uploadProductSound, applyAiBatch } from '../services/adminShopService'
 
 export default function AddProductControlPanel({
   categories = [],
+  onRefreshCategories,
   createProduct,
   uploadDeckSkinZip,
   uploadDeckSkinFiles,
@@ -15,6 +17,9 @@ export default function AddProductControlPanel({
   onCancel,
 }) {
   const notify = useToast()
+
+  // Modal create category
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false)
 
   // Mode: 'STANDARD' (Cosmetic items like felts, avatars, vfx) vs 'CARD_SKIN' (Card deck skins)
   const [productType, setProductType] = useState('STANDARD')
@@ -77,8 +82,7 @@ export default function AddProductControlPanel({
       c =>
         c.code === 'CARD_SKIN' ||
         c.code.includes('CARD') ||
-        c.code.includes('DECK') ||
-        c.name.toLowerCase().includes('bài')
+        c.code.includes('DECK')
     )
   }, [categories])
 
@@ -91,8 +95,7 @@ export default function AddProductControlPanel({
       c =>
         c.code !== 'CARD_SKIN' &&
         !c.code.includes('CARD') &&
-        !c.code.includes('DECK') &&
-        !c.name.toLowerCase().includes('bài')
+        !c.code.includes('DECK')
     )
     return nonCard[0] || categories[0]
   }, [productType, categories, cardCategories])
@@ -410,9 +413,19 @@ export default function AddProductControlPanel({
               </div>
 
               <div>
-                <label className="text-xs font-bold text-white/70 block mb-1.5">
-                  Danh mục hiển thị: <span className="text-rose-400">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-bold text-white/70">
+                    Danh mục hiển thị: <span className="text-rose-400">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddCategoryModal(true)}
+                    className="text-[11px] font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 transition-colors px-2 py-0.5 rounded-lg bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30"
+                  >
+                    <Icon name="add" className="text-sm" />
+                    <span>+ Thêm danh mục mới</span>
+                  </button>
+                </div>
                 <select
                   value={selectedCategoryId}
                   onChange={e => setSelectedCategoryId(e.target.value)}
@@ -988,6 +1001,18 @@ export default function AddProductControlPanel({
           </div>
         </div>
       </div>
+
+      {/* Modal tạo Category mới */}
+      <AddCategoryModal
+        isOpen={showAddCategoryModal}
+        onClose={() => setShowAddCategoryModal(false)}
+        onSuccess={newCat => {
+          onRefreshCategories?.()
+          if (newCat?.id) {
+            setSelectedCategoryId(newCat.id)
+          }
+        }}
+      />
     </div>
   )
 }

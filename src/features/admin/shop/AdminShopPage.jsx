@@ -7,13 +7,14 @@ import AddProductControlPanel from './components/AddProductControlPanel'
 import BundleManagementTab from './components/BundleManagementTab'
 import AiConfigTab from './components/AiConfigTab'
 import AiAssetGeneratorPanel from './components/AiAssetGeneratorPanel'
+import CategoryManagementTab from './components/CategoryManagementTab'
 import AiGeneratorTutorialModal from './components/AiGeneratorTutorialModal'
 import { useAdminProducts } from './hooks/useAdminProducts'
 import { useAdminBundles } from './hooks/useAdminBundles'
 
 export default function AdminShopPage() {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('PRODUCTS') // 'PRODUCTS' | 'ADD_PRODUCT' | 'BUNDLES' | 'AI_CONFIG' | 'AI_STUDIO'
+  const [activeTab, setActiveTab] = useState('PRODUCTS') // 'PRODUCTS' | 'ADD_PRODUCT' | 'CATEGORIES' | 'BUNDLES' | 'AI_CONFIG' | 'AI_STUDIO'
   const [showTutorialModal, setShowTutorialModal] = useState(false)
 
   // Products state & actions
@@ -106,6 +107,7 @@ export default function AdminShopPage() {
             {activeTab === 'ADD_PRODUCT' && (
               <AddProductControlPanel
                 categories={categories}
+                onRefreshCategories={refreshProducts}
                 createProduct={createProduct}
                 uploadDeckSkinZip={uploadDeckSkinZip}
                 uploadDeckSkinFiles={uploadDeckSkinFiles}
@@ -114,6 +116,12 @@ export default function AdminShopPage() {
                   setActiveTab('PRODUCTS')
                 }}
                 onCancel={() => setActiveTab('PRODUCTS')}
+              />
+            )}
+
+            {activeTab === 'CATEGORIES' && (
+              <CategoryManagementTab
+                onCategoryUpdated={refreshProducts}
               />
             )}
 
@@ -129,29 +137,20 @@ export default function AdminShopPage() {
 
             {activeTab === 'AI_STUDIO' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between pb-3 border-b border-white/10 flex-wrap gap-3">
-                  <div>
-                    <h2 className="font-headline font-black text-xl text-white flex items-center gap-2">
-                      <Icon name="auto_awesome" className="text-purple-400" />
-                      <span>AI Asset Synthesis Studio</span>
-                    </h2>
-                    <p className="text-xs text-white/50">
-                      Tạo nhanh Dealer 4 tư thế, bộ bài 52 lá dát vàng, hoặc bàn poker từ 1 ảnh tham chiếu bằng Google Gemini.
-                    </p>
-                  </div>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    icon="play_circle"
-                    onClick={() => setShowTutorialModal(true)}
-                  >
-                    Xem Video Hướng Dẫn
-                  </Button>
+                <div className="pb-3 border-b border-white/10">
+                  <h2 className="font-headline font-black text-xl text-white flex items-center gap-2">
+                    <Icon name="auto_awesome" className="text-purple-400" />
+                    <span>AI Asset Synthesis Studio</span>
+                  </h2>
+                  <p className="text-xs text-white/50">
+                    Tạo nhanh Dealer 4 tư thế, bộ bài 52 lá dát vàng, hoặc bàn poker từ 1 ảnh tham chiếu bằng Google Gemini.
+                  </p>
                 </div>
 
                 <AiAssetGeneratorPanel
                   allowCategoryChange={true}
                   categoryCode="DEALER"
+                  categories={categories}
                   onProductApplied={() => {
                     refreshProducts()
                     setActiveTab('PRODUCTS')

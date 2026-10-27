@@ -43,6 +43,40 @@ export async function deleteProduct(id) {
 }
 
 /**
+ * Category Management APIs
+ */
+export async function getCategories({ signal } = {}) {
+  return gatewayRequest('/api/shop/categories', {
+    signal,
+    auth: false,
+    errorMessage: 'Không thể tải danh sách danh mục',
+  })
+}
+
+export async function createCategory(payload) {
+  return gatewayRequest('/api/shop/categories', {
+    method: 'POST',
+    body: payload,
+    errorMessage: 'Không thể tạo danh mục mới',
+  })
+}
+
+export async function updateCategory(id, payload) {
+  return gatewayRequest(`/api/shop/categories/${id}`, {
+    method: 'PUT',
+    body: payload,
+    errorMessage: 'Không thể cập nhật danh mục',
+  })
+}
+
+export async function deleteCategory(id) {
+  return gatewayRequest(`/api/shop/categories/${id}`, {
+    method: 'DELETE',
+    errorMessage: 'Không thể xóa danh mục',
+  })
+}
+
+/**
  * Upload 53-card deck ZIP file to MinIO / S3 via Admin API
  */
 export async function uploadDeckSkinZip(productId, file) {
@@ -69,14 +103,6 @@ export async function uploadDeckSkinFiles(productId, files) {
     method: 'POST',
     body: formData,
     errorMessage: 'Tải lên danh sách ảnh skin thất bại',
-  })
-}
-
-export async function getCategories({ signal } = {}) {
-  return gatewayRequest('/api/shop/categories', {
-    signal,
-    auth: false,
-    errorMessage: 'Không thể tải danh mục sản phẩm',
   })
 }
 
