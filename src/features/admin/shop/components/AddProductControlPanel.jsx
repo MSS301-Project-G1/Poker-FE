@@ -49,6 +49,26 @@ const DEALER_POSES_SCHEMA = [
   },
 ]
 
+const getCategoryAssetDefaults = (code) => {
+  try {
+    const saved = localStorage.getItem(`cat_asset_config_${code}`)
+    if (saved) return JSON.parse(saved)
+  } catch {}
+  switch (code) {
+    case 'DEALER':
+      return { hasImage: true, hasVideo: false, hasSound: false, hasPoses: true, hasDeckZip: false }
+    case 'CARD_SKIN':
+      return { hasImage: false, hasVideo: false, hasSound: false, hasPoses: false, hasDeckZip: true }
+    case 'SOUND':
+      return { hasImage: true, hasVideo: false, hasSound: true, hasPoses: false, hasDeckZip: false }
+    case 'ALL_IN_EFFECT':
+    case 'VICTORY_EFFECT':
+      return { hasImage: true, hasVideo: true, hasSound: false, hasPoses: false, hasDeckZip: false }
+    default:
+      return { hasImage: true, hasVideo: true, hasSound: false, hasPoses: false, hasDeckZip: false }
+  }
+}
+
 export default function AddProductControlPanel({
   categories = [],
   onRefreshCategories,
@@ -92,6 +112,39 @@ export default function AddProductControlPanel({
   const catCode = useMemo(() => {
     return String(currentCategory?.code || editingProduct?.categoryCode || '').toUpperCase()
   }, [currentCategory, editingProduct])
+
+  // Asset Requirements Configuration (Dynamic per category & per product)
+  const [assetConfig, setAssetConfig] = useState(() => {
+    if (editingProduct?.metadata) {
+      try {
+        const meta =
+          typeof editingProduct.metadata === 'string'
+            ? JSON.parse(editingProduct.metadata)
+            : editingProduct.metadata
+        if (meta?.assetConfig) {
+          return {
+            hasImage: Boolean(meta.assetConfig.hasImage ?? true),
+            hasVideo: Boolean(meta.assetConfig.hasVideo ?? editingProduct?.previewVideoUrl),
+            hasSound: Boolean(meta.assetConfig.hasSound ?? false),
+            hasPoses: Boolean(meta.assetConfig.hasPoses ?? (catCode === 'DEALER')),
+            hasDeckZip: Boolean(meta.assetConfig.hasDeckZip ?? (catCode === 'CARD_SKIN')),
+          }
+        }
+      } catch (err) {
+        console.error('Error parsing assetConfig from metadata:', err)
+      }
+    }
+    return getCategoryAssetDefaults(catCode)
+  })
+
+  // When category changes, switch to its configured default asset requirements
+  const prevCatCodeRef = useRef(catCode)
+  useEffect(() => {
+    if (prevCatCodeRef.current !== catCode) {
+      prevCatCodeRef.current = catCode
+      setAssetConfig(getCategoryAssetDefaults(catCode))
+    }
+  }, [catCode])
 
   // Form Fields
   const [name, setName] = useState(editingProduct?.name || '')
@@ -445,12 +498,26 @@ export default function AddProductControlPanel({
     try {
       let finalAssetUrl = manualAssetUrl.trim()
       let finalVideoUrl = manualVideoUrl.trim()
-      let metadataString = editingProduct?.metadata || null
 
-      // DEALER Multi-Pose Upload Logic
-      if (catCode === 'DEALER') {
+      const metaObj = {}
+      if (editingProduct?.metadata) {
+        try {
+          const parsed =
+            typeof editingProduct.metadata === 'string'
+              ? JSON.parse(editingProduct.metadata)
+              : editingProduct.metadata
+          Object.assign(metaObj, parsed)
+        } catch {
+          // ignore
+        }
+      }
+      metaObj.assetConfig = assetConfig
+      metaObj.updatedAt = new Date().toISOString()
+
+      // 1. DEALER / Multi-Pose Upload Logic if active
+      if (assetConfig.hasPoses) {
         setSubmitStep('Đang đồng bộ các tư thế Dealer lên S3...')
-        const uploadedPoses = {}
+        const uploadedPoses = metaObj.poses || {}
 
         for (const pose of DEALER_POSES_SCHEMA) {
           const key = pose.key
@@ -466,30 +533,26 @@ export default function AddProductControlPanel({
           }
         }
 
-        // Default avatar or idle as primary assetUrl
+        metaObj.poses = uploadedPoses
+
         if (uploadedPoses.avatar) {
           finalAssetUrl = uploadedPoses.avatar
         } else if (uploadedPoses.idle) {
           finalAssetUrl = uploadedPoses.idle
         }
+      }
 
-        metadataString = JSON.stringify({
-          poses: uploadedPoses,
-          updatedAt: new Date().toISOString(),
-        })
-      } else {
-        // Generic asset upload
-        if (localAssetFile) {
-          setSubmitStep('Đang tải tệp tài nguyên lên S3...')
-          const res = await uploadAssetFile(localAssetFile, 'assets')
-          if (res?.data?.url) {
-            finalAssetUrl = res.data.url
-          }
+      // 2. Generic / Texture image upload if active
+      if (assetConfig.hasImage && localAssetFile) {
+        setSubmitStep('Đang tải tệp hình ảnh / texture lên S3...')
+        const res = await uploadAssetFile(localAssetFile, 'assets')
+        if (res?.data?.url) {
+          finalAssetUrl = res.data.url
         }
       }
 
-      // Video upload if provided
-      if (localVideoFile) {
+      // 3. Video review upload if active
+      if (assetConfig.hasVideo && localVideoFile) {
         setSubmitStep('Đang tải video review lên S3...')
         const res = await uploadAssetFile(localVideoFile, 'videos')
         if (res?.data?.url) {
@@ -519,10 +582,10 @@ export default function AddProductControlPanel({
         priceVnd,
         priceVipCoin,
         assetUrl: finalAssetUrl,
-        previewVideoUrl: finalVideoUrl || null,
+        previewVideoUrl: assetConfig.hasVideo ? (finalVideoUrl || null) : null,
         isExclusive,
         saleExpiresAt: computedSaleExpiresAt,
-        metadata: metadataString,
+        metadata: JSON.stringify(metaObj),
       }
 
       let productId = editingProduct?.id
@@ -544,14 +607,14 @@ export default function AddProductControlPanel({
         notify(`Tạo sản phẩm "${name}" thành công!`, { type: 'success' })
       }
 
-      // Sound upload if provided
-      if (localSoundFile && productId) {
+      // Sound upload if provided and active
+      if (assetConfig.hasSound && localSoundFile && productId) {
         setSubmitStep('Đang liên kết tệp âm thanh...')
         await uploadProductSound(productId, localSoundFile)
       }
 
-      // Card Skin Ingestion if CARD_SKIN and new files selected
-      if (catCode === 'CARD_SKIN' && productId) {
+      // Card Skin Ingestion if active and new files selected
+      if (assetConfig.hasDeckZip && productId) {
         if (selectedZipFile) {
           setSubmitStep('Đang giải nén và nạp bộ bài 52 lá...')
           await uploadDeckSkinZip(productId, selectedZipFile)
@@ -624,8 +687,8 @@ export default function AddProductControlPanel({
           </div>
           <p className="text-xs text-white/50 mt-1">
             {isEditing
-              ? 'Cập nhật phân hạng, giá bán, tệp tài nguyên hoặc chỉnh sửa các tư thế Dealer'
-              : 'Form động tự điều chỉnh theo danh mục • Chọn file trực tiếp từ máy tính (S3 Ingestion khi Lưu)'}
+              ? 'Cập nhật phân hạng, giá bán và cấu hình tệp tài nguyên của sản phẩm'
+              : 'Tùy biến cấu hình tệp tài nguyên linh hoạt theo từng danh mục vật phẩm'}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -659,10 +722,10 @@ export default function AddProductControlPanel({
               <span>1. Chọn Danh Mục & Thông Tin Nhận Diện</span>
             </h3>
 
-            {/* Row 1: Category Selector */}
+            {/* Row 1: Category Selector & Product Name */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <div className="flex items-center justify-between mb-1.5">
+                <div className="min-h-[26px] flex items-center justify-between mb-1.5">
                   <label className="text-xs font-bold text-white/80">
                     Danh mục hiển thị: <span className="text-amber-400">*</span>
                   </label>
@@ -697,9 +760,12 @@ export default function AddProductControlPanel({
               </div>
 
               <div>
-                <label className="text-xs font-bold text-white/80 block mb-1.5">
-                  Tên sản phẩm mở bán: <span className="text-rose-400">*</span>
-                </label>
+                <div className="min-h-[26px] flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-bold text-white/80">
+                    Tên sản phẩm mở bán: <span className="text-rose-400">*</span>
+                  </label>
+                  <span className="text-[11px] text-white/40">Bắt buộc</span>
+                </div>
                 <input
                   type="text"
                   required
@@ -766,12 +832,64 @@ export default function AddProductControlPanel({
                 </span>
               </h3>
               <span className="text-[11px] text-white/50">
-                {catCode === 'DEALER' ? '5 giai đoạn động của Người chia bài' : 'Chọn trực tiếp từ máy tính'}
+                Chọn trực tiếp từ máy tính • Tự động xử lý & tải lên S3
               </span>
             </div>
 
-            {/* Case A: DEALER - 5 Stages/Poses Management */}
-            {catCode === 'DEALER' && (
+            {/* Asset Requirement Configuration Bar */}
+            <div className="p-3.5 rounded-2xl bg-black/40 border border-amber-400/20 space-y-2">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <span className="text-xs font-bold text-white/80 flex items-center gap-1.5">
+                  <Icon name="tune" className="text-amber-400 text-sm" />
+                  <span>Cấu hình loại tệp nhận diện cho danh mục này:</span>
+                </span>
+                <span className="text-[11px] text-white/40">
+                  (Bấm để bật / tắt các mục tài nguyên cần tải lên)
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                {[
+                  { key: 'hasImage', label: 'Ảnh Texture / Icon', icon: 'image' },
+                  { key: 'hasVideo', label: 'Video Review (MP4)', icon: 'videocam' },
+                  { key: 'hasSound', label: 'Âm Thanh (MP3)', icon: 'volume_up' },
+                  { key: 'hasPoses', label: 'Đa Tư Thế Động (Poses)', icon: 'accessibility_new' },
+                  { key: 'hasDeckZip', label: 'Bộ Bài 52 Lá (ZIP)', icon: 'style' },
+                ].map(item => {
+                  const active = Boolean(assetConfig[item.key])
+                  return (
+                    <button
+                      key={item.key}
+                      type="button"
+                      onClick={() =>
+                        setAssetConfig(prev => ({
+                          ...prev,
+                          [item.key]: !prev[item.key],
+                        }))
+                      }
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border ${
+                        active
+                          ? 'bg-amber-400/20 text-amber-300 border-amber-400 shadow-sm shadow-amber-400/10'
+                          : 'bg-white/5 text-white/40 border-white/10 hover:border-white/20 hover:text-white/70'
+                      }`}
+                    >
+                      <Icon name={item.icon} className="text-sm" />
+                      <span>{item.label}</span>
+                      <span
+                        className={`text-[9px] px-1 py-0.2 rounded font-black ${
+                          active ? 'bg-amber-400 text-slate-950' : 'bg-white/10 text-white/40'
+                        }`}
+                      >
+                        {active ? 'BẬT' : 'TẮT'}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Case A: Poses Management (DEALER / Multi-Pose) */}
+            {assetConfig.hasPoses && (
               <div className="space-y-4">
                 {/* Batch upload bar */}
                 <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-transparent border border-amber-400/30 flex items-center justify-between flex-wrap gap-3">
@@ -921,8 +1039,8 @@ export default function AddProductControlPanel({
               </div>
             )}
 
-            {/* Case B: CARD_SKIN */}
-            {catCode === 'CARD_SKIN' && (
+            {/* Case B: Deck Zip / Files */}
+            {assetConfig.hasDeckZip && (
               <div className="space-y-4">
                 <div className="flex items-center gap-2 p-1.5 bg-black/40 rounded-2xl border border-white/10 max-w-md">
                   <button
@@ -1002,8 +1120,104 @@ export default function AddProductControlPanel({
               </div>
             )}
 
-            {/* Case C: SOUND */}
-            {catCode === 'SOUND' && (
+            {/* Case C: Generic Image Texture & Video Review */}
+            {(assetConfig.hasImage || assetConfig.hasVideo) && (
+              <div className="space-y-4">
+                <div
+                  className={`grid gap-4 ${
+                    assetConfig.hasImage && assetConfig.hasVideo
+                      ? 'grid-cols-1 md:grid-cols-2'
+                      : 'grid-cols-1'
+                  }`}
+                >
+                  {/* Asset File (Texture, Sprite, Frame) */}
+                  {assetConfig.hasImage && (
+                    <div className="border-2 border-dashed border-white/20 hover:border-amber-400 rounded-3xl p-5 text-center bg-black/30 transition-all flex flex-col justify-center items-center">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        id="ctrl-panel-generic-asset"
+                        onChange={handleAssetFileSelect}
+                        className="hidden"
+                      />
+                      <label htmlFor="ctrl-panel-generic-asset" className="cursor-pointer flex flex-col items-center">
+                        <Icon name="image" className="text-3xl text-amber-400 mb-2" />
+                        <span className="text-xs font-bold text-white block">
+                          {localAssetFile
+                            ? localAssetFile.name
+                            : localAssetPreviewUrl
+                              ? 'Đã có tệp ảnh (Bấm để thay thế)'
+                              : 'Tải ảnh tài nguyên (Texture / Frame / Icon)'}
+                        </span>
+                        <span className="text-[10px] text-white/50 mt-1">Chọn từ máy tính (PNG, JPG, WebP)</span>
+                      </label>
+                      {localAssetPreviewUrl && (
+                        <div className="mt-3 flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCropperSource(localAssetPreviewUrl)
+                              setCropTargetPoseKey(null)
+                              setCropShape('square')
+                              setShowCropperModal(true)
+                            }}
+                            className="text-[11px] font-bold text-amber-300 hover:text-amber-200 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-400/15 border border-amber-400/30"
+                          >
+                            <Icon name="crop" className="text-xs" />
+                            <span>Cắt & Căn Chỉnh Khung</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Video Review File */}
+                  {assetConfig.hasVideo && (
+                    <div className="border-2 border-dashed border-white/20 hover:border-amber-400 rounded-3xl p-5 text-center bg-black/30 transition-all flex flex-col justify-center items-center">
+                      <input
+                        type="file"
+                        accept="video/mp4,video/webm"
+                        id="ctrl-panel-generic-video"
+                        onChange={handleVideoFileSelect}
+                        className="hidden"
+                      />
+                      <label htmlFor="ctrl-panel-generic-video" className="cursor-pointer flex flex-col items-center">
+                        <Icon name="videocam" className="text-3xl text-cyan-400 mb-2" />
+                        <span className="text-xs font-bold text-white block">
+                          {localVideoFile
+                            ? localVideoFile.name
+                            : localVideoPreviewUrl
+                              ? 'Đã có video review (Bấm để thay)'
+                              : 'Tải Video Review (MP4, WebM)'}
+                        </span>
+                        <span className="text-[10px] text-white/50 mt-1">Tùy chọn - Hiển thị demo chuyển động</span>
+                      </label>
+                    </div>
+                  )}
+                </div>
+
+                {/* Video Player Preview if selected */}
+                {assetConfig.hasVideo && localVideoPreviewUrl && (
+                  <div className="p-3 rounded-2xl bg-black/50 border border-cyan-400/30 space-y-2">
+                    <span className="text-xs font-bold text-cyan-300 flex items-center gap-1.5">
+                      <Icon name="play_circle" className="text-sm" />
+                      Xem thử Video Review:
+                    </span>
+                    <video
+                      src={localVideoPreviewUrl}
+                      controls
+                      autoPlay
+                      loop
+                      muted
+                      className="w-full max-h-48 rounded-xl object-contain bg-black"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Case D: SOUND */}
+            {assetConfig.hasSound && (
               <div className="space-y-4">
                 <div className="border-2 border-dashed border-purple-500/40 hover:border-purple-400 rounded-3xl p-6 text-center bg-black/30 transition-all">
                   <input
@@ -1064,72 +1278,11 @@ export default function AddProductControlPanel({
               </div>
             )}
 
-            {/* Case D: Generic (TABLE, EFFECT, FRAME, ETC) */}
-            {catCode !== 'CARD_SKIN' && catCode !== 'SOUND' && catCode !== 'DEALER' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Asset File (Texture, Sprite, Frame) */}
-                  <div className="border-2 border-dashed border-white/20 hover:border-amber-400 rounded-3xl p-5 text-center bg-black/30 transition-all flex flex-col justify-center items-center">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      id="ctrl-panel-generic-asset"
-                      onChange={handleAssetFileSelect}
-                      className="hidden"
-                    />
-                    <label htmlFor="ctrl-panel-generic-asset" className="cursor-pointer flex flex-col items-center">
-                      <Icon name="image" className="text-3xl text-amber-400 mb-2" />
-                      <span className="text-xs font-bold text-white block">
-                        {localAssetFile
-                          ? localAssetFile.name
-                          : localAssetPreviewUrl
-                            ? 'Đã có tệp ảnh (Bấm để thay thế)'
-                            : 'Tải ảnh tài nguyên (Texture / Frame / Icon)'}
-                      </span>
-                      <span className="text-[10px] text-white/50 mt-1">Chọn từ máy tính (PNG, JPG, WebP)</span>
-                    </label>
-                  </div>
-
-                  {/* Video Review File (Optional for Effects / Tables) */}
-                  <div className="border-2 border-dashed border-white/20 hover:border-amber-400 rounded-3xl p-5 text-center bg-black/30 transition-all flex flex-col justify-center items-center">
-                    <input
-                      type="file"
-                      accept="video/mp4,video/webm"
-                      id="ctrl-panel-generic-video"
-                      onChange={handleVideoFileSelect}
-                      className="hidden"
-                    />
-                    <label htmlFor="ctrl-panel-generic-video" className="cursor-pointer flex flex-col items-center">
-                      <Icon name="videocam" className="text-3xl text-cyan-400 mb-2" />
-                      <span className="text-xs font-bold text-white block">
-                        {localVideoFile
-                          ? localVideoFile.name
-                          : localVideoPreviewUrl
-                            ? 'Đã có video review (Bấm để thay)'
-                            : 'Tải Video Review (MP4, WebM)'}
-                      </span>
-                      <span className="text-[10px] text-white/50 mt-1">Tùy chọn - Hiển thị demo chuyển động</span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Video Player Preview if selected */}
-                {localVideoPreviewUrl && (
-                  <div className="p-3 rounded-2xl bg-black/50 border border-cyan-400/30 space-y-2">
-                    <span className="text-xs font-bold text-cyan-300 flex items-center gap-1.5">
-                      <Icon name="play_circle" className="text-sm" />
-                      Xem thử Video Review:
-                    </span>
-                    <video
-                      src={localVideoPreviewUrl}
-                      controls
-                      autoPlay
-                      loop
-                      muted
-                      className="w-full max-h-48 rounded-xl object-contain bg-black"
-                    />
-                  </div>
-                )}
+            {/* Empty state when all toggles are turned off */}
+            {!assetConfig.hasImage && !assetConfig.hasVideo && !assetConfig.hasSound && !assetConfig.hasPoses && !assetConfig.hasDeckZip && (
+              <div className="p-8 text-center rounded-2xl bg-black/30 border border-dashed border-white/20 text-white/40">
+                <Icon name="upload_file" className="text-3xl mx-auto mb-2 text-white/20" />
+                <p className="text-xs">Vui lòng bật ít nhất một loại tệp tài nguyên từ thanh cấu hình bên trên để tải lên.</p>
               </div>
             )}
           </div>
@@ -1143,9 +1296,12 @@ export default function AddProductControlPanel({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-white/80 block mb-1.5">
-                  Giá VIP Coin (Trong Game):
-                </label>
+                <div className="min-h-[26px] flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-bold text-white/80">
+                    Giá VIP Coin (Trong Game): <span className="text-amber-400">*</span>
+                  </label>
+                  <span className="text-[11px] text-amber-300/70 font-mono">1 VIP ≈ 1.000 VNĐ</span>
+                </div>
                 <div className="relative">
                   <input
                     type="number"
@@ -1160,12 +1316,18 @@ export default function AddProductControlPanel({
                     className="absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-400 text-lg pointer-events-none"
                   />
                 </div>
+                <span className="text-[11px] text-amber-300/80 mt-1.5 block">
+                  Đơn vị: {formatVipCoin(priceVipCoin)} VIP Coin
+                </span>
               </div>
 
               <div>
-                <label className="text-xs font-bold text-white/80 block mb-1.5">
-                  Giá niêm yết tương đương (VNĐ):
-                </label>
+                <div className="min-h-[26px] flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-bold text-white/80">
+                    Giá niêm yết tương đương (VNĐ): <span className="text-amber-400">*</span>
+                  </label>
+                  <span className="text-[11px] text-white/40">Tự động đồng bộ</span>
+                </div>
                 <input
                   type="number"
                   min="0"
@@ -1174,7 +1336,7 @@ export default function AddProductControlPanel({
                   onChange={e => handlePriceVndChange(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-2xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400 font-mono"
                 />
-                <span className="text-[11px] text-white/40 mt-1 block">
+                <span className="text-[11px] text-white/50 mt-1.5 block">
                   Quy đổi: {formatVnd(priceVnd)}
                 </span>
               </div>

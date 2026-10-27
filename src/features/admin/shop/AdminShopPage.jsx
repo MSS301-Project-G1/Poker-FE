@@ -9,14 +9,12 @@ import BundleManagementTab from './components/BundleManagementTab'
 import AiConfigTab from './components/AiConfigTab'
 import AiAssetGeneratorPanel from './components/AiAssetGeneratorPanel'
 import CategoryManagementTab from './components/CategoryManagementTab'
-import AiGeneratorTutorialModal from './components/AiGeneratorTutorialModal'
 import { useAdminProducts } from './hooks/useAdminProducts'
 import { useAdminBundles } from './hooks/useAdminBundles'
 
 export default function AdminShopPage() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('PRODUCTS') // 'PRODUCTS' | 'ADD_PRODUCT' | 'CATEGORIES' | 'BUNDLES' | 'AI_CONFIG' | 'AI_STUDIO'
-  const [showTutorialModal, setShowTutorialModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
 
   // Products state & actions
@@ -60,20 +58,11 @@ export default function AdminShopPage() {
               <h1 className="font-headline font-black text-xl md:text-2xl text-white">
                 Cổng Quản Trị Hệ Thống Shop & Nạp Tiền
               </h1>
-              <p className="text-xs text-white/50">Admin Management Portal • PayOS • S3 / MinIO Ingestion</p>
+              <p className="text-xs text-white/50">Quản lý sản phẩm, danh mục, gói nạp và tài nguyên mỹ phẩm</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <Button
-              variant="secondary"
-              size="sm"
-              icon="play_circle"
-              onClick={() => setShowTutorialModal(true)}
-              className="text-pink-300 border-pink-500/40 bg-pink-500/10 hover:bg-pink-500/20"
-            >
-              Video Hướng Dẫn
-            </Button>
             <Button variant="secondary" size="sm" icon="storefront" onClick={() => navigate('/shop')}>
               Xem Cửa Hàng
             </Button>
@@ -179,12 +168,6 @@ export default function AdminShopPage() {
           </main>
         </div>
       </div>
-
-      {/* Tutorial Video Modal */}
-      <AiGeneratorTutorialModal
-        isOpen={showTutorialModal}
-        onClose={() => setShowTutorialModal(false)}
-      />
     </div>
   )
 }

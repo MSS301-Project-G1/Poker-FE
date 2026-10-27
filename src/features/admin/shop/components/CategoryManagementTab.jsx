@@ -59,29 +59,6 @@ export default function CategoryManagementTab({ onCategoryUpdated }) {
     onCategoryUpdated?.()
   }
 
-  const getCategoryIcon = code => {
-    switch (code) {
-      case 'DEALER':
-        return 'face'
-      case 'CARD_SKIN':
-        return 'style'
-      case 'TABLE':
-        return 'crop_16_9'
-      case 'FRAME':
-        return 'account_circle'
-      case 'ALL_IN_EFFECT':
-      case 'VICTORY_EFFECT':
-        return 'auto_awesome'
-      case 'COIN_SKIN':
-        return 'monetization_on'
-      case 'EMOJI':
-        return 'mood'
-      case 'SOUND':
-        return 'volume_up'
-      default:
-        return 'category'
-    }
-  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -138,7 +115,6 @@ export default function CategoryManagementTab({ onCategoryUpdated }) {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-white/10 bg-white/5 text-[11px] font-bold text-white/60 uppercase tracking-wider">
-                  <th className="py-3.5 px-6">Biểu Tượng</th>
                   <th className="py-3.5 px-6">Mã Danh Mục (Code)</th>
                   <th className="py-3.5 px-6">Tên Hiển Thị</th>
                   <th className="py-3.5 px-6">Loại Định Danh</th>
@@ -153,11 +129,6 @@ export default function CategoryManagementTab({ onCategoryUpdated }) {
                       key={cat.id || cat.code}
                       className="hover:bg-white/[0.03] transition-colors"
                     >
-                      <td className="py-4 px-6">
-                        <span className="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-500/30 text-purple-300 flex items-center justify-center">
-                          <Icon name={getCategoryIcon(cat.code)} className="text-lg" />
-                        </span>
-                      </td>
                       <td className="py-4 px-6 font-mono font-bold text-amber-300">
                         {cat.code}
                       </td>

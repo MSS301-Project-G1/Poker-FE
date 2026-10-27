@@ -15,6 +15,22 @@ export default function AddCategoryModal({
   const [name, setName] = useState(categoryToEdit?.name || '')
   const [loading, setLoading] = useState(false)
 
+  const [catConfig, setCatConfig] = useState(() => {
+    if (categoryToEdit?.code) {
+      try {
+        const saved = localStorage.getItem(`cat_asset_config_${categoryToEdit.code}`)
+        if (saved) return JSON.parse(saved)
+      } catch {}
+    }
+    return {
+      hasImage: true,
+      hasVideo: true,
+      hasSound: false,
+      hasPoses: false,
+      hasDeckZip: false,
+    }
+  })
+
   if (!isOpen) return null
 
   const handleSubmit = async e => {
@@ -37,6 +53,10 @@ export default function AddCategoryModal({
 
     setLoading(true)
     try {
+      try {
+        localStorage.setItem(`cat_asset_config_${cleanCode}`, JSON.stringify(catConfig))
+      } catch {}
+
       if (isEditing) {
         const res = await updateCategory(categoryToEdit.id, {
           name: cleanName,
@@ -116,6 +136,55 @@ export default function AddCategoryModal({
               onChange={e => setName(e.target.value)}
               className="w-full px-4 py-2.5 rounded-2xl bg-black/50 border border-white/15 text-sm text-white placeholder-white/30 focus:outline-none focus:border-amber-400"
             />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-white/80 block mb-1.5">
+              Định dạng tệp tài nguyên danh mục tiếp nhận:
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { key: 'hasImage', label: 'Ảnh Texture / Icon', icon: 'image' },
+                { key: 'hasVideo', label: 'Video Review (MP4)', icon: 'videocam' },
+                { key: 'hasSound', label: 'Âm Thanh (MP3)', icon: 'volume_up' },
+                { key: 'hasPoses', label: 'Đa Tư Thế (Poses)', icon: 'accessibility_new' },
+                { key: 'hasDeckZip', label: 'Bộ Bài 52 Lá (ZIP)', icon: 'style' },
+              ].map(item => {
+                const active = Boolean(catConfig[item.key])
+                return (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() =>
+                      setCatConfig(prev => ({
+                        ...prev,
+                        [item.key]: !prev[item.key],
+                      }))
+                    }
+                    className={`p-2 rounded-xl text-xs font-bold transition-all flex items-center justify-between border ${
+                      active
+                        ? 'bg-amber-400/20 text-amber-300 border-amber-400'
+                        : 'bg-black/40 text-white/40 border-white/10 hover:border-white/20'
+                    }`}
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Icon name={item.icon} className="text-sm" />
+                      <span>{item.label}</span>
+                    </span>
+                    <span
+                      className={`text-[9px] px-1 py-0.2 rounded font-black ${
+                        active ? 'bg-amber-400 text-slate-950' : 'bg-white/10 text-white/40'
+                      }`}
+                    >
+                      {active ? 'BẬT' : 'TẮT'}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+            <span className="text-[10px] text-white/40 mt-1 block">
+              Admin có thể tùy chỉnh lại linh hoạt khi thêm từng sản phẩm cụ thể.
+            </span>
           </div>
 
           {/* Actions */}
