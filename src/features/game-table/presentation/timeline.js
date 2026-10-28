@@ -36,7 +36,7 @@ const ended = street => street === 'HAND_FINISHED' || street === 'FINISHED'
  */
 export function planTransition(previous, next) {
   const plan = {
-    key: `${next.tableId}:${next.actionSequence}`, startedAt: next.receivedAt, deal: null, board: [], reveals: {},
+    key: `${next.tableId}:${next.actionSequence}:${next.street}`, startedAt: next.receivedAt, deal: null, board: [], reveals: {},
     betsToPot: false, pots: next.distribution?.pots ?? [], sounds: [],
     milestones: { result: next.distribution ? 0 : null, pay: null, paid: null, dialog: next.street === 'FINISHED' ? 0 : null, dealt: null, flipped: null },
   }
@@ -76,7 +76,7 @@ function sameHand(previous, next, plan, viewer) {
     done = at + timing.flip
   }
   if (plan.board.length) plan.milestones.flipped = done + timing.dealerPoseHold
-  const shown =seat => previous.seats.find(old => old.seatIndex === seat.seatIndex)?.cards.length > 0
+  const shown = seat => previous.seats.find(old => old.seatIndex === seat.seatIndex)?.cards.length > 0
   const revealed = next.seats.filter(seat => seat.accountId !== next.accountId && seat.cards.length && !shown(seat))
   revealed.forEach((seat, order) => {
     const start = done + timing.revealGap + order * timing.revealStagger
