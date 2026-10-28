@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router'
 import { useAuth } from '@/features/auth'
 import { paths } from '@/shared/config/paths'
 import { useSound } from '@/shared/audio'
-import { useConfirm } from '@/shared/ui'
+import { useConfirm, useToast } from '@/shared/ui'
 import { leaveMatchPrompt } from '@/features/game-table'
 import { MatchmakingContext } from './MatchmakingContext'
 import { fetchMyParty } from './api/matchmakingApi'
@@ -29,6 +29,20 @@ function PlayerQueue({ accountId, children }) {
   const location = useLocation()
   const { play } = useSound()
   const confirm = useConfirm()
+  const notify = useToast()
+  const previousNormal = useRef(null)
+  useEffect(() => {
+    const previous = previousNormal.current
+    previousNormal.current = normal.queue
+    // Only a server-confirmed terminal transition ends this search. A failed poll
+    // leaves the last queue intact; Rank can legitimately return to WAITING.
+    if (!['PROPOSED', 'CREATING_TABLE'].includes(previous?.status)
+      || !['NONE', 'FAILED'].includes(normal.queue?.status)) return
+    notify('Trận đã hủy vì hết thời gian xác nhận hoặc có người từ chối. Bạn có thể tìm trận mới.')
+    if (location.pathname === paths.ranked && (selection === 'NORMAL' || location.search.includes('mode=NORMAL') || location.search.includes('mode=PARTY'))) {
+      navigate(paths.lobby, { replace: true })
+    }
+  }, [normal.queue, location.pathname, location.search, selection, notify, navigate])
   const activeMode = isActive(normal.queue) ? 'NORMAL' : isActive(rank.queue) ? 'RANK' : null
   const mode = activeMode || selection
   const current = mode === 'NORMAL' ? normal : rank

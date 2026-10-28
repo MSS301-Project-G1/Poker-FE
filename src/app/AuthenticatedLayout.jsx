@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router'
 import { AuthStatusScreen, useAuth } from '@/features/auth'
+import LobbyHeaderActions from '@/features/lobby/components/LobbyHeaderActions'
 import { MainLayout } from '@/shared/layout'
 import { paths } from '@/shared/config/paths'
 import { useToast } from '@/shared/ui'
@@ -29,5 +30,5 @@ export default function AuthenticatedLayout() {
     } finally { setLogoutPending(false) }
   }
 
-  return <><MainLayout user={auth.user} coins={wallet ? coin : null} onLogout={logout} logoutPending={logoutPending} /><MatchmakingCard /></>
+  return <><MainLayout renderHeaderActions={props => <LobbyHeaderActions {...props} />} user={auth.user} coins={wallet ? coin : null} onLogout={logout} logoutPending={logoutPending} /><MatchmakingCard /></>
 }

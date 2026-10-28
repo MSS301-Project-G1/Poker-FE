@@ -7,7 +7,7 @@ import { paths } from '@/shared/config/paths'
 import { Icon } from '@/shared/ui'
 import styles from './SoloTestButton.module.css'
 
-export default function SoloTestButton({ className }) {
+export default function SoloTestButton({ className, iconOnly = false }) {
   const navigate = useNavigate()
   const { activeMode, pending } = useQueue()
   const { play } = useSound()
@@ -35,11 +35,11 @@ export default function SoloTestButton({ className }) {
   }, [deadline, navigate, play, activeMode, pending])
 
   return <>
-    <button type="button" className={className} disabled={Boolean(activeMode || pending || deadline)} onClick={() => {
+    <button type="button" aria-label="Test 1 người · 10 giây" title="Chơi thử với bot · 10 giây" className={className} disabled={Boolean(activeMode || pending || deadline)} onClick={() => {
       setSeconds(10)
       setDeadline(Date.now() + 10000)
       play('shuffle')
-    }}><Icon name="smart_toy" />Test 1 người · 10 giây</button>
+    }}><Icon name="smart_toy" />{!iconOnly && 'Test 1 người · 10 giây'}</button>
     {deadline !== null && createPortal(<section className={styles.card} role="dialog" aria-modal="false" aria-labelledby="solo-test-title" data-testid="solo-test-countdown">
       <span className={styles.badge}>CHƠI THỬ VỚI BOT</span>
       <h2 id="solo-test-title">Đang chuẩn bị bàn chơi</h2>

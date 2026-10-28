@@ -37,14 +37,15 @@ test('lobby ports the lounge controls and party membership from the server', asy
     return route.fulfill({ json: party })
   })
   await page.goto('/lobby')
+  await page.getByRole('button', { name: 'Chơi Poker', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Đấu hạng', exact: true })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Chơi thường', exact: true })).toBeVisible()
+  await expect(page.getByTestId('lobby-3d-scene')).toHaveAttribute('data-render-status', 'ready', { timeout: 20000 })
   await page.getByRole('button', { name: 'Tạo nhóm', exact: true }).click()
   await expect(page.getByText('AB12CD34', { exact: true })).toBeVisible()
   await expect(page.getByText('482913', { exact: true })).toBeVisible()
   await expect(page.getByPlaceholder('UUID của người chơi')).toHaveCount(0)
   await expect(page.getByRole('link', { name: 'Ranked', exact: true })).toHaveAttribute('href', '/ranked')
-  await expect(page.getByTestId('lobby-3d-scene')).toHaveAttribute('data-render-status', 'ready', { timeout: 20000 })
   await page.screenshot({ path: 'artifacts/community-lobby-desktop.png', fullPage: true })
 })
 
@@ -108,7 +109,8 @@ test('removing a friend asks first, and Escape closes only the popup, not the co
   expect(removed).toBe(true)
 })
 
-test('matchmaking stays on the 3D lobby and the floating card can be minimized and restored', async ({ page }) => {
+for (const [mode, button, heading] of [['RANK', 'Tìm trận Rank', 'Ranked Match'], ['NORMAL', 'Chơi nhanh', 'Normal Match']]) {
+test(mode + ' matchmaking opens from the lobby and restores the active queue', async ({ page }) => {
   let queue = { status: 'NONE' }
   let joins = 0
   await page.route(`**/api/matchmaking/${mode.toLowerCase()}/status`, route => route.fulfill({ json: queue }))
@@ -119,11 +121,12 @@ test('matchmaking stays on the 3D lobby and the floating card can be minimized a
   })
   await page.route(`**/api/matchmaking/${mode.toLowerCase()}/leave`, route => { queue = { status: 'NONE' }; return route.fulfill({ status: 204 }) })
   await page.goto('/lobby')
+  await page.getByRole('button', { name: 'Chơi Poker', exact: true }).click()
   await page.getByRole('button', { name: button, exact: true }).click()
   await expect(page).toHaveURL(mode === 'NORMAL' ? /\/ranked\?mode=NORMAL$/ : /\/ranked$/)
   await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible()
   await expect(page.getByTestId('matchmaking-card')).toHaveCount(0)
-  await expect(page.getByRole('heading', { name: 'Đang tìm người chơi' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Hủy tìm trận', exact: true })).toBeVisible()
   await page.getByRole('link', { name: 'Lobby', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Bạn đang trong hàng chờ' })).toBeVisible()
   await expect(page.getByTestId('matchmaking-card')).toHaveCount(0)
@@ -134,6 +137,7 @@ test('matchmaking stays on the 3D lobby and the floating card can be minimized a
   await page.getByRole('button', { name: 'Hủy tìm trận', exact: true }).click()
   await expect(page.getByTestId('matchmaking-card')).toHaveCount(0)
   await expect(page).toHaveURL(/\/lobby$/)
+  await page.getByRole('button', { name: 'Chơi Poker', exact: true }).click()
   await expect(page.getByRole('button', { name: button, exact: true })).toBeVisible()
 })
 }
@@ -327,4 +331,30 @@ test('table resolves MATCH chat by matchId across pages and keeps a closed conve
   await expect(page.getByRole('heading', { name: 'Trò chuyện trong trận' })).toBeVisible()
   await expect(page.getByRole('textbox', { name: 'Nội dung tin nhắn' })).toBeDisabled()
   expect(historyRead).toBe(true)
+})
+
+test('desktop lobby fits the viewport and the mode picker floats without moving the party', async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 768 })
+  await page.goto('/lobby')
+  for (const viewport of [{ width: 1366, height: 768 }, { width: 1536, height: 864 }, { width: 1920, height: 1080 }]) {
+    await page.setViewportSize(viewport)
+    const trigger = page.getByRole('button', { name: 'Chơi Poker', exact: true })
+    const party = page.getByRole('heading', { name: 'Nhóm chơi', exact: true })
+    await expect(party).toBeVisible()
+    const before = await party.boundingBox()
+    await trigger.focus()
+    await page.keyboard.press('Enter')
+    await expect(trigger).toHaveAttribute('aria-expanded', 'true')
+    await expect(page.getByRole('heading', { name: 'Đấu hạng', exact: true })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Chơi thường', exact: true })).toBeVisible()
+    expect((await party.boundingBox()).y).toBeCloseTo(before.y, 0)
+    const dimensions = await page.evaluate(() => ({ height: document.documentElement.scrollHeight, width: document.documentElement.scrollWidth }))
+    expect(dimensions.height).toBeLessThanOrEqual(viewport.height + 1)
+    expect(dimensions.width).toBeLessThanOrEqual(viewport.width + 1)
+    const chooser = await page.getByRole('region', { name: 'Chọn chế độ chơi' }).boundingBox()
+    expect(chooser.y + chooser.height).toBeLessThan(viewport.height - 40)
+    await page.keyboard.press('Escape')
+    await expect(trigger).toBeFocused()
+    await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+  }
 })

@@ -18,38 +18,39 @@ const navClass = ({ isActive }) => `px-space-md py-space-sm font-label-action tr
 const iconButton = 'w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors'
 
 /** coins: the wallet's coin balance, or null while it is not loaded. */
-export default function AppHeader({ user, coins, onLogout, logoutPending }) {
+export default function AppHeader({ user, coins, onLogout, logoutPending, headerActions }) {
   const { enabled: soundEnabled, toggle: toggleSound } = useSound()
   const displayName = user?.profile?.displayName || user?.email || 'Player'
   const avatarUrl = user?.profile?.avatarUrl || '/stitch-assets/avatar.svg'
   return <header className="fixed top-0 left-0 right-0 z-header bg-surface-container-lowest/85 backdrop-blur-2xl shadow-header">
-    <div className="h-20 w-full px-margin flex items-center justify-between gap-space-md">
-      <div className="flex items-center gap-space-lg">
+    <div className="h-20 w-full px-4 xl:px-margin flex items-center justify-between gap-2">
+      <div className="flex items-center gap-3 xl:gap-space-lg">
         <div className="flex items-center gap-space-sm">
           <img alt="Poker Rank Logo" className="h-9 w-auto object-contain rounded-md" src="/stitch-assets/logo.svg" />
-          <span className="font-headline-sm text-headline-sm uppercase tracking-wider text-primary">POKER RANK</span>
+          <span className="hidden sm:inline font-headline-sm text-headline-sm uppercase tracking-wider text-primary">POKER RANK</span>
         </div>
-        <nav className="hidden lg:flex items-center gap-space-xs">
+        <nav className="hidden xl:flex items-center gap-space-xs">
           {navItems.map(item => <NavLink key={item.to} to={item.to} className={navClass}>{item.label}</NavLink>)}
         </nav>
       </div>
-      <div className="flex items-center gap-space-md">
+      <div className="flex items-center gap-2">
         <div className="hidden sm:flex items-center bg-surface-container-low px-space-md py-space-xs rounded-full gap-space-xs shadow-inner">
           <span className="material-symbols-outlined text-tertiary text-lg">toll</span>
           <span className="font-label-numeric-md text-label-numeric-md text-tertiary">{coins == null ? '—' : coins.toLocaleString()}</span>
         </div>
         <div className="flex items-center gap-space-xs">
+          {headerActions}
           <button className={iconButton} title={soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh'} aria-label={soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh'} aria-pressed={soundEnabled} onClick={toggleSound} type="button"><span className="material-symbols-outlined text-lg">{soundEnabled ? 'volume_up' : 'volume_off'}</span></button>
           {user?.role === 'ADMIN' && <>
-            <NavLink className={iconButton} title="Admin shop" aria-label="Admin shop" to={paths.adminShop}><Icon name="storefront" className="text-lg" /></NavLink>
-            <NavLink className={iconButton} title="Manage avatars" aria-label="Manage avatars" to={paths.adminAvatars}><Icon name="admin_panel_settings" className="text-lg" /></NavLink>
+            <NavLink className={iconButton + " hidden sm:flex"} title="Admin shop" aria-label="Admin shop" to={paths.adminShop}><Icon name="storefront" className="text-lg" /></NavLink>
+            <NavLink className={iconButton + " hidden sm:flex"} title="Manage avatars" aria-label="Manage avatars" to={paths.adminAvatars}><Icon name="admin_panel_settings" className="text-lg" /></NavLink>
           </>}
           <NavLink className={iconButton} title="Account settings" aria-label="Account settings" to={paths.account}><Icon name="settings" className="text-lg" /></NavLink>
         </div>
         <div className="flex items-center gap-space-xs">
-          <img alt={displayName} className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/40" src={avatarUrl}
+          <img alt={displayName} className="hidden sm:block w-8 h-8 rounded-full object-cover ring-2 ring-primary/40" src={avatarUrl}
             onError={event => { event.currentTarget.src = '/stitch-assets/avatar.svg' }} />
-          <span className="hidden xl:block max-w-36 truncate text-sm font-semibold text-on-surface">{displayName}</span>
+          <span className="hidden 2xl:block max-w-36 truncate text-sm font-semibold text-on-surface">{displayName}</span>
           <button className={iconButton} title="Sign out" aria-label="Sign out" type="button" onClick={onLogout} disabled={logoutPending}>
             <Icon name="logout" className="text-lg" />
           </button>

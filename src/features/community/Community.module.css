@@ -407,3 +407,11 @@
   .tool { padding: var(--space-sm) var(--space-gutter-mobile); }
   .composer { padding-bottom: max(var(--space-gutter-mobile), env(safe-area-inset-bottom)); }
 }
+
+/* Lobby party card: retain all real membership actions and gentle pointer tilt. */
+.card,.card:hover { height:auto; min-height:210px; max-height:none; gap:15px; transform:perspective(900px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg)); transition:transform .16s ease-out,border-color .2s; background:linear-gradient(135deg,#291326,#120c1b); }
+.card::before { top:-8px; height:8px; left:5px; right:-5px; }
+.card::after { right:-8px; width:8px; top:-5px; bottom:5px; }
+.card:hover::before,.card:hover::after { opacity:1; }
+.card:hover { z-index:20; box-shadow:0 12px 30px #0006,inset 0 1px #ffffff33; }
+@media(prefers-reduced-motion:reduce) { .card,.card:hover { transform:none; transition:none; } }

@@ -94,6 +94,7 @@ test('Normal match in progress offers a way back to the table or a forfeit from 
   await expect(page.getByRole('heading', { name: 'Bạn đang trong một ván đấu' })).toBeVisible()
   await page.getByRole('button', { name: 'Rời ván' }).click()
   await page.getByRole('alertdialog', { name: 'Rời ván?' }).getByRole('button', { name: 'Rời ván' }).click()
+  await page.getByRole('button', { name: 'Chơi Poker', exact: true }).click()
   await expect(page.getByRole('button', { name: 'Chơi nhanh' })).toBeVisible()
   expect(leaveMethod).toBe('POST')
 })

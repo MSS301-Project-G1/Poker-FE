@@ -8,6 +8,7 @@ import { communityApi as api } from '../api/communityApi'
 import { useResource } from '../hooks/useResource'
 import { useLeaveParty } from '../hooks/useLeaveParty'
 import { Avatar, Empty, ErrorNotice, Name } from './CommunityUI'
+import { pointerTilt } from '@/shared/ui/pointerTilt'
 import styles from '../Community.module.css'
 
 const partyCodePattern = /^[A-Z0-9]{8}$/
@@ -56,7 +57,7 @@ export default function PartyPanel({ room = false }) {
     } catch (failure) { setFailure(failure.message) }
     finally { setBusy(false) }
   }
-  return <section className={room ? styles.partyRoom : styles.card} aria-labelledby="party-title">
+  return <section {...(!room ? pointerTilt : {})} className={room ? styles.partyRoom : styles.card} aria-labelledby="party-title">
     <header className={styles.cardHead}>
       <div className="flex items-center gap-space-sm min-w-0">
         <div className={styles.cubeBadge} aria-hidden="true">

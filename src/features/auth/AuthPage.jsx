@@ -16,8 +16,7 @@ const trustBadges = [
 ]
 
 function messageOf(error) {
-  const message = error?.message || 'Something went wrong. Please try again.'
-  return error?.requestId ? `${message} Reference: ${error.requestId}` : message
+  return error?.message || 'Something went wrong. Please try again.'
 }
 
 export default function AuthPage() {
