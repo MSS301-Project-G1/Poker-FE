@@ -3,6 +3,8 @@ import { Client } from '@stomp/stompjs'
 import { fetchActiveTable, fetchTable, gameSocketUrl } from '../api/gameApi'
 
 const initial = { snapshot: null, tableId: null, phase: 'loading', connection: 'connecting', error: '', pending: false }
+// Refusals of a taunt sound; they never concern the game, so a pending action keeps waiting for its answer.
+const tauntErrorCodes = new Set(['GAME_TAUNT_COOLDOWN', 'GAME_TAUNT_UNAVAILABLE'])
 
 function reducer(state, event) {
   if (event.type === 'snapshot') {
@@ -14,10 +16,14 @@ function reducer(state, event) {
   return { ...state, ...event.value }
 }
 
-export function useGameSession({ tableId, devUser, getAccessToken }) {
+/** onTaunt receives { accountId, productId, soundUrl } for every taunt at the table; onTauntError the refusal message. */
+export function useGameSession({ tableId, devUser, getAccessToken, onTaunt, onTauntError }) {
   const [state, dispatch] = useReducer(reducer, initial)
   const clientRef = useRef(null)
   const sequenceSent = useRef(null)
+  // Kept in a ref so new handlers never reconnect the socket.
+  const tauntHandlers = useRef({ onTaunt, onTauntError })
+  useEffect(() => { tauntHandlers.current = { onTaunt, onTauntError } })
 
   useEffect(() => {
     let disposed = false
@@ -59,12 +65,21 @@ export function useGameSession({ tableId, devUser, getAccessToken }) {
             if (disposed) return
             dispatch({ value: { connection: 'connected', pending: false, error: '' } })
             client.subscribe(`/user/queue/tables/${id}`, receive)
+            client.subscribe(`/user/queue/tables/${id}/taunts`, message => {
+              let taunt
+              try { taunt = JSON.parse(message.body) } catch { return }
+              tauntHandlers.current.onTaunt?.(taunt)
+            })
             client.subscribe('/user/queue/game-errors', message => {
+              let payload
+              try { payload = JSON.parse(message.body) } catch { payload = { message: 'Unable to perform that action.' } }
+              if (tauntErrorCodes.has(payload.code)) {
+                tauntHandlers.current.onTauntError?.(payload.message)
+                return
+              }
               clearTimeout(acknowledgementTimer)
               sequenceSent.current = null
-              let error
-              try { error = JSON.parse(message.body).message } catch { error = 'Unable to perform that action.' }
-              dispatch({ type: 'error', error })
+              dispatch({ type: 'error', error: payload.message })
               client.publish({ destination: `/app/tables/${id}/sync` })
             })
             client.publish({ destination: `/app/tables/${id}/sync` })
@@ -126,5 +141,12 @@ export function useGameSession({ tableId, devUser, getAccessToken }) {
     active.waitForAcknowledgement()
   }
 
-  return { ...state, send }
+  // Plays an owned taunt sound for the table; the sender hears it when the server sends it back to every seat.
+  const sendTaunt = productId => {
+    const active = clientRef.current
+    if (!active?.client.connected) return
+    active.client.publish({ destination: `/app/tables/${active.id}/taunt`, body: JSON.stringify({ productId }), headers: { 'content-type': 'application/json' } })
+  }
+
+  return { ...state, send, sendTaunt }
 }

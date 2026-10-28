@@ -54,6 +54,23 @@
 }
 
 .avatar { position: relative; flex: none; }
+/* Speaker over the avatar while this player's taunt sound plays. */
+.taunt {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgb(var(--color-tertiary));
+  color: rgb(var(--color-on-tertiary));
+  box-shadow: 0 0 0 3px rgb(var(--color-tertiary) / 0.3);
+  animation: taunt 0.6s ease-in-out infinite alternate;
+}
+.taunt :global(.material-symbols-outlined) { font-size: 14px; }
+@keyframes taunt { to { transform: scale(1.15); box-shadow: 0 0 0 6px rgb(var(--color-tertiary) / 0.15); } }
 .badges { position: absolute; right: -6px; bottom: -6px; display: flex; gap: 2px; }
 .badge {
   min-width: 19px;
@@ -187,6 +204,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bet, .paid, .hero.active .plate { animation: none; }
+  .bet, .paid, .hero.active .plate, .taunt { animation: none; }
   .turnBar { animation-timing-function: steps(1, end); }
 }
