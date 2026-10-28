@@ -285,8 +285,11 @@ export default function CosmeticRenderer({
   // 8. Playing Card & Deck Renderer (CARD_SKIN or default)
   const isShowingBack = effectiveFlipped
   const isAtlas = assetUrl && (assetUrl.includes('deck_atlas') || assetUrl.endsWith('.json'))
-  const cardBackSrc = !isAtlas && assetUrl ? assetUrl : previewUrl
-  const cardFaceSrc = previewUrl || (!isAtlas && assetUrl ? assetUrl : null)
+  const isPreviewAtlas = previewUrl && (previewUrl.includes('deck_atlas') || previewUrl.endsWith('.json'))
+  const safeAssetUrl = !isAtlas ? assetUrl : null
+  const safePreviewUrl = !isPreviewAtlas ? previewUrl : null
+  const cardBackSrc = safeAssetUrl || safePreviewUrl
+  const cardFaceSrc = safePreviewUrl || (!interactive ? safeAssetUrl : null)
 
   return (
     <div className={`${styles.rendererWrapper} ${className}`}>

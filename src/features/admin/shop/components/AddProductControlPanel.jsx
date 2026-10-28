@@ -160,17 +160,22 @@ export const CATEGORY_ASSET_RULES = {
   },
 }
 
+export const ASSET_CONFIG_ITEMS = [
+  { key: 'hasImage', label: 'Ảnh Texture / Icon', icon: 'image' },
+  { key: 'hasVideo', label: 'Video Review (MP4)', icon: 'videocam' },
+  { key: 'hasSound', label: 'Âm Thanh (MP3)', icon: 'volume_up' },
+  { key: 'hasPoses', label: 'Đa Tư Thế Động (Poses)', icon: 'accessibility_new' },
+  { key: 'hasDeckZip', label: 'Bộ Bài 52 Lá (ZIP)', icon: 'style' },
+]
+
 export const DEFAULT_FALLBACK_RULE = {
-  name: 'Vật Phẩm Khác',
-  required: ['hasImage'],
-  allowed: ['hasImage', 'hasVideo'],
-  disallowedReasons: {
-    hasSound: 'Danh mục này không dùng âm thanh MP3',
-    hasPoses: 'Danh mục này không có tư thế Dealer',
-    hasDeckZip: 'Danh mục này không dùng tệp bài tây ZIP',
-  },
+  name: 'Danh Mục Tùy Chỉnh',
+  isCustom: true,
+  required: [],
+  allowed: ['hasImage', 'hasVideo', 'hasSound', 'hasPoses', 'hasDeckZip'],
+  disallowedReasons: {},
   default: { hasImage: true, hasVideo: false, hasSound: false, hasPoses: false, hasDeckZip: false },
-  guide: 'Vui lòng tải lên ảnh texture hoặc icon đại diện cho vật phẩm.',
+  guide: 'Danh mục tùy chỉnh mới: Bạn có thể bật/tắt tự do bất kỳ loại tệp tài nguyên nào phù hợp cho vật phẩm này.',
 }
 
 export const getCategoryRule = (code) => {
@@ -224,7 +229,7 @@ export default function AddProductControlPanel({
 
   const categoryRule = useMemo(() => getCategoryRule(catCode), [catCode])
 
-  // Asset Requirements Configuration (Enforced per category & product)
+  // Asset Requirements Configuration (All 5 options unlocked; validated on Save)
   const [assetConfig, setAssetConfig] = useState(() => {
     const rule = getCategoryRule(catCode)
     const initial = { ...rule.default }
@@ -236,15 +241,10 @@ export default function AddProductControlPanel({
             ? JSON.parse(editingProduct.metadata)
             : editingProduct.metadata
         if (meta?.assetConfig) {
-          // Only accept keys that are allowed for this category
-          rule.allowed.forEach(k => {
-            if (meta.assetConfig[k] !== undefined) {
-              initial[k] = Boolean(meta.assetConfig[k])
+          ASSET_CONFIG_ITEMS.forEach(item => {
+            if (meta.assetConfig[item.key] !== undefined) {
+              initial[item.key] = Boolean(meta.assetConfig[item.key])
             }
-          })
-          // Force required keys to true
-          rule.required.forEach(k => {
-            initial[k] = true
           })
         }
       } catch (err) {
@@ -254,7 +254,7 @@ export default function AddProductControlPanel({
     return initial
   })
 
-  // When category changes, auto-select and enforce the new category's asset configuration
+  // When category changes, auto-select default asset configuration for that category
   const prevCatCodeRef = useRef(catCode)
   useEffect(() => {
     if (prevCatCodeRef.current !== catCode) {
@@ -263,27 +263,8 @@ export default function AddProductControlPanel({
     }
   }, [catCode, categoryRule])
 
-  // Smart Handler for toggling asset configuration with warnings
-  const handleToggleAssetConfig = (key, itemLabel) => {
-    const isAllowed = categoryRule.allowed.includes(key)
-    const isRequired = categoryRule.required.includes(key)
-
-    // 1. Incompatible / Disallowed: Show clear warning and block
-    if (!isAllowed) {
-      const reason = categoryRule.disallowedReasons?.[key] || `Danh mục ${currentCategory?.name || catCode} không hỗ trợ loại tệp này`
-      notify(`⚠️ Không thể chọn! ${reason}.`, { type: 'warning' })
-      return
-    }
-
-    // 2. Required asset: cannot turn off
-    if (isRequired && assetConfig[key]) {
-      notify(`ℹ️ Mục "${itemLabel}" là tệp bắt buộc cho danh mục ${currentCategory?.name || catCode}, không thể tắt!`, {
-        type: 'info',
-      })
-      return
-    }
-
-    // 3. Optional asset: toggle freely
+  // Allow toggling all 5 asset options freely; validation occurs on Save
+  const handleToggleAssetConfig = key => {
     setAssetConfig(prev => ({
       ...prev,
       [key]: !prev[key],
@@ -360,10 +341,30 @@ export default function AddProductControlPanel({
   const [localSoundFile, setLocalSoundFile] = useState(null)
   const [localSoundPreviewUrl, setLocalSoundPreviewUrl] = useState('')
 
-  // Card Skin specific files
-  const [deckMethod, setDeckMethod] = useState('ZIP') // 'ZIP' | 'FILES'
+  // Card Skin specific files & live preview URLs
   const [selectedZipFile, setSelectedZipFile] = useState(null)
-  const [selectedImageFiles, setSelectedImageFiles] = useState([])
+  const [isCardPreviewFlipped, setIsCardPreviewFlipped] = useState(false)
+  const [zipPreviewCards, setZipPreviewCards] = useState(() => {
+    let frontUrl = ''
+    let backUrl = editingProduct?.previewUrl || ''
+    if (editingProduct?.metadata) {
+      try {
+        const meta =
+          typeof editingProduct.metadata === 'string'
+            ? JSON.parse(editingProduct.metadata)
+            : editingProduct.metadata
+        if (meta?.cards) {
+          frontUrl = meta.cards.AS || meta.cards['AS'] || Object.values(meta.cards)[0] || ''
+        }
+        if (meta?.cardBackUrl || meta?.card_back_url || meta?.previewUrl) {
+          backUrl = meta.cardBackUrl || meta.card_back_url || meta.previewUrl
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return { frontUrl, backUrl }
+  })
 
   // Fallback URLs
   const [manualAssetUrl, setManualAssetUrl] = useState(editingProduct?.assetUrl || '')
@@ -390,7 +391,11 @@ export default function AddProductControlPanel({
       setIsExclusive(Boolean(editingProduct.isExclusive))
       setManualAssetUrl(editingProduct.assetUrl || '')
       setManualVideoUrl(editingProduct.previewVideoUrl || '')
-      setLocalAssetPreviewUrl(editingProduct.assetUrl || '')
+      setLocalAssetPreviewUrl(
+        editingProduct.assetUrl && !editingProduct.assetUrl.includes('deck_atlas')
+          ? editingProduct.assetUrl
+          : editingProduct.previewUrl || ''
+      )
       setLocalVideoPreviewUrl(editingProduct.previewVideoUrl || '')
 
       const matchedCat = categories.find(
@@ -431,6 +436,9 @@ export default function AddProductControlPanel({
               avatar: { file: null, previewUrl: meta.poses.avatar || editingProduct.assetUrl || '' },
             })
           }
+          const frontUrl = meta?.cards?.AS || meta?.cards?.['AS'] || (meta?.cards ? Object.values(meta.cards)[0] : '') || ''
+          const backUrl = meta?.cardBackUrl || meta?.card_back_url || meta?.previewUrl || editingProduct.previewUrl || ''
+          setZipPreviewCards({ frontUrl, backUrl })
         } catch (e) {
           console.error('Error parsing product metadata on change:', e)
         }
@@ -597,16 +605,81 @@ export default function AddProductControlPanel({
     }
   }
 
-  const handleZipFileSelect = e => {
+  const handleZipFileSelect = async e => {
     const file = e.target.files?.[0]
     if (!file) return
     setSelectedZipFile(file)
-  }
 
-  const handleMultiFilesSelect = e => {
-    const files = Array.from(e.target.files || [])
-    if (files.length > 0) {
-      setSelectedImageFiles(files)
+    // Extract AS.png (front) and BACK.png (back) in browser for instant Live Preview
+    try {
+      const arrayBuf = await file.arrayBuffer()
+      const bytes = new Uint8Array(arrayBuf)
+      const view = new DataView(arrayBuf)
+
+      // Locate End of Central Directory (EOCD: 0x06054b50)
+      let eocdOffset = -1
+      const minEocd = Math.max(0, bytes.length - 65557)
+      for (let i = bytes.length - 22; i >= minEocd; i--) {
+        if (view.getUint32(i, true) === 0x06054b50) {
+          eocdOffset = i
+          break
+        }
+      }
+
+      if (eocdOffset >= 0) {
+        const totalEntries = view.getUint16(eocdOffset + 10, true)
+        let cdPos = view.getUint32(eocdOffset + 16, true)
+        const decoder = new TextDecoder('utf-8')
+        let extractedFront = ''
+        let extractedBack = ''
+
+        const extractEntryBlobUrl = async (method, compBytes) => {
+          if (method === 0) {
+            return URL.createObjectURL(new Blob([compBytes], { type: 'image/png' }))
+          }
+          if (method === 8 && typeof DecompressionStream !== 'undefined') {
+            const ds = new DecompressionStream('deflate-raw')
+            const stream = new Blob([compBytes]).stream().pipeThrough(ds)
+            const decompressedBlob = await new Response(stream).blob()
+            return URL.createObjectURL(new Blob([decompressedBlob], { type: 'image/png' }))
+          }
+          return ''
+        }
+
+        for (let idx = 0; idx < totalEntries && cdPos + 46 <= bytes.length; idx++) {
+          if (view.getUint32(cdPos, true) !== 0x02014b50) break
+          const method = view.getUint16(cdPos + 10, true)
+          const compSize = view.getUint32(cdPos + 20, true)
+          const nameLen = view.getUint16(cdPos + 28, true)
+          const extraLen = view.getUint16(cdPos + 30, true)
+          const commentLen = view.getUint16(cdPos + 32, true)
+          const localHdrOffset = view.getUint32(cdPos + 42, true)
+          const entryName = decoder.decode(bytes.subarray(cdPos + 46, cdPos + 46 + nameLen))
+          cdPos += 46 + nameLen + extraLen + commentLen
+
+          const baseName = entryName.split('/').pop().replace(/\.[^.]+$/, '').toUpperCase()
+          if (baseName === 'BACK' || baseName === 'AS' || (!extractedFront && baseName === 'AH')) {
+            const localNameLen = view.getUint16(localHdrOffset + 26, true)
+            const localExtraLen = view.getUint16(localHdrOffset + 28, true)
+            const dataStart = localHdrOffset + 30 + localNameLen + localExtraLen
+            const compBytes = bytes.subarray(dataStart, dataStart + compSize)
+            const url = await extractEntryBlobUrl(method, compBytes)
+            if (url) {
+              if (baseName === 'BACK') extractedBack = url
+              else if (baseName === 'AS' || !extractedFront) extractedFront = url
+            }
+          }
+        }
+
+        if (extractedFront || extractedBack) {
+          setZipPreviewCards(prev => ({
+            frontUrl: extractedFront || prev.frontUrl,
+            backUrl: extractedBack || prev.backUrl,
+          }))
+        }
+      }
+    } catch (err) {
+      console.warn('Could not preview zip entries in browser:', err)
     }
   }
 
@@ -636,6 +709,40 @@ export default function AddProductControlPanel({
     if (!selectedCategoryId) {
       notify('Vui lòng chọn danh mục cho sản phẩm', { type: 'error' })
       return
+    }
+
+    // Validate assetConfig on Save
+    const hasAnyEnabled = ASSET_CONFIG_ITEMS.some(item => Boolean(assetConfig[item.key]))
+    if (!hasAnyEnabled) {
+      notify('Vui lòng bật ít nhất 1 loại tệp tài nguyên cho sản phẩm!', { type: 'error' })
+      return
+    }
+
+    if (!categoryRule.isCustom) {
+      // 1. Check if admin enabled any incompatible asset type for this category
+      for (const item of ASSET_CONFIG_ITEMS) {
+        if (assetConfig[item.key] && !categoryRule.allowed.includes(item.key)) {
+          const reason =
+            categoryRule.disallowedReasons?.[item.key] ||
+            `Danh mục ${currentCategory?.name || catCode} không hỗ trợ loại tệp này`
+          notify(
+            `❌ Chọn sai loại tệp! "${item.label}" không hợp lệ cho danh mục ${currentCategory?.name || catCode} (${reason}). Vui lòng tắt mục này trước khi lưu!`,
+            { type: 'error' }
+          )
+          return
+        }
+      }
+
+      // 2. Check if admin turned off any required asset type for this category
+      for (const item of ASSET_CONFIG_ITEMS) {
+        if (!assetConfig[item.key] && categoryRule.required.includes(item.key)) {
+          notify(
+            `❌ Thiếu loại tệp bắt buộc! Danh mục ${currentCategory?.name || catCode} yêu cầu phải bật "${item.label}". Vui lòng bật mục này trước khi lưu!`,
+            { type: 'error' }
+          )
+          return
+        }
+      }
     }
 
     setIsSubmitting(true)
@@ -757,15 +864,10 @@ export default function AddProductControlPanel({
         await uploadProductSound(productId, localSoundFile)
       }
 
-      // Card Skin Ingestion if active and new files selected
-      if (assetConfig.hasDeckZip && productId) {
-        if (selectedZipFile) {
-          setSubmitStep('Đang giải nén và nạp bộ bài 52 lá...')
-          await uploadDeckSkinZip(productId, selectedZipFile)
-        } else if (selectedImageFiles.length > 0) {
-          setSubmitStep('Đang nạp các lá bài rời...')
-          await uploadDeckSkinFiles(productId, selectedImageFiles)
-        }
+      // Card Skin Ingestion if active and new ZIP file selected
+      if (assetConfig.hasDeckZip && productId && selectedZipFile) {
+        setSubmitStep('Đang giải nén và nạp bộ bài 52 lá...')
+        await uploadDeckSkinZip(productId, selectedZipFile)
       }
 
       onSuccess?.()
@@ -966,110 +1068,120 @@ export default function AddProductControlPanel({
           </div>
 
           {/* Step 2: Dynamic Asset Upload Area */}
-          <div className="p-6 rounded-3xl bg-[#140a24]/95 border border-white/10 shadow-xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/10 flex-wrap gap-2">
-              <h3 className="font-headline font-bold text-base text-white flex items-center gap-2">
-                <Icon name="upload_file" className="text-amber-400 text-xl" />
+          <div className="p-6 sm:p-7 rounded-3xl bg-[#140a24]/95 border border-white/10 shadow-xl space-y-5">
+            <div className="flex items-center justify-between pb-3.5 border-b border-white/10 flex-wrap gap-2">
+              <h3 className="font-headline font-bold text-lg text-white flex items-center gap-2.5">
+                <Icon name="upload_file" className="text-amber-400 text-2xl" />
                 <span>2. Tải Lên Tệp Tài Nguyên Cho:</span>
-                <span className="px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 text-xs font-black">
+                <span className="px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 text-xs sm:text-sm font-black">
                   {currentCategory?.name || 'Vật Phẩm'} ({catCode})
                 </span>
               </h3>
-              <span className="text-[11px] text-white/50">
+              <span className="text-xs text-white/60">
                 Chọn trực tiếp từ máy tính • Tự động xử lý & tải lên S3
               </span>
             </div>
 
             {/* Asset Requirement Configuration Bar */}
-            <div className="p-4 rounded-2xl bg-black/40 border border-amber-400/20 space-y-3">
+            <div className="p-5 rounded-2xl bg-black/40 border border-amber-400/25 space-y-4">
               {/* Smart Category Guidance Banner */}
-              <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-400/10 border border-amber-400/25">
-                <Icon name="auto_awesome" className="text-amber-400 text-lg mt-0.5 shrink-0" />
-                <div className="text-xs space-y-0.5">
+              <div className="flex items-start gap-3.5 p-4 rounded-xl bg-amber-400/10 border border-amber-400/25">
+                <Icon name="auto_awesome" className="text-amber-400 text-xl mt-0.5 shrink-0" />
+                <div className="text-xs sm:text-sm space-y-1">
                   <div className="font-bold text-amber-300 flex items-center gap-2 flex-wrap">
                     <span>Tự động tối ưu định dạng tệp cho: <strong>{currentCategory?.name || catCode}</strong></span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 font-mono border border-amber-400/30">
+                    <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 font-mono border border-amber-400/30">
                       {catCode}
                     </span>
                   </div>
-                  <p className="text-white/70 text-[11px] leading-relaxed">
+                  <p className="text-white/80 text-xs sm:text-[13px] leading-relaxed">
                     {categoryRule.guide}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
-                <span className="text-xs font-bold text-white/80 flex items-center gap-1.5">
-                  <Icon name="tune" className="text-amber-400 text-sm" />
+                <span className="text-sm font-bold text-white/90 flex items-center gap-2">
+                  <Icon name="tune" className="text-amber-400 text-base" />
                   <span>Cấu hình loại tệp nhận diện:</span>
                 </span>
-                <span className="text-[11px] text-white/40">
-                  (Hệ thống tự động khóa loại tệp không tương thích để tránh admin bấm nhầm)
+                <span className="text-xs text-white/50">
+                  (Mở toàn bộ tùy chọn • Nếu chọn sai loại tệp của danh mục sẽ cảnh báo khi bấm Lưu)
                 </span>
               </div>
 
-              <div className="flex items-center gap-2 flex-wrap">
-                {[
-                  { key: 'hasImage', label: 'Ảnh Texture / Icon', icon: 'image' },
-                  { key: 'hasVideo', label: 'Video Review (MP4)', icon: 'videocam' },
-                  { key: 'hasSound', label: 'Âm Thanh (MP3)', icon: 'volume_up' },
-                  { key: 'hasPoses', label: 'Đa Tư Thế Động (Poses)', icon: 'accessibility_new' },
-                  { key: 'hasDeckZip', label: 'Bộ Bài 52 Lá (ZIP)', icon: 'style' },
-                ].map(item => {
-                  const isAllowed = categoryRule.allowed.includes(item.key)
-                  const isRequired = categoryRule.required.includes(item.key)
+              <div className="flex items-center gap-3 flex-wrap pt-0.5">
+                {ASSET_CONFIG_ITEMS.map(item => {
+                  const isAllowed = categoryRule.isCustom || categoryRule.allowed.includes(item.key)
+                  const isRequired = !categoryRule.isCustom && categoryRule.required.includes(item.key)
                   const active = Boolean(assetConfig[item.key])
+                  const isWronglyEnabled = active && !isAllowed
+                  const isMissingRequired = !active && isRequired
                   const disallowedReason = categoryRule.disallowedReasons?.[item.key]
 
                   return (
                     <button
                       key={item.key}
                       type="button"
-                      onClick={() => handleToggleAssetConfig(item.key, item.label)}
+                      onClick={() => handleToggleAssetConfig(item.key)}
                       title={
-                        !isAllowed
-                          ? `⚠️ Không hỗ trợ: ${disallowedReason}`
+                        isWronglyEnabled
+                          ? `⚠️ Không tương thích: ${disallowedReason}`
                           : isRequired
-                            ? `Bắt buộc cho danh mục ${currentCategory?.name || catCode}`
+                            ? `Tệp chuẩn bắt buộc cho danh mục ${currentCategory?.name || catCode}`
                             : active
-                              ? 'Bấm để tắt tệp tùy chọn này'
-                              : 'Bấm để bật tệp tùy chọn này'
+                              ? 'Đang bật • Bấm để tắt loại tệp này'
+                              : 'Đang tắt • Bấm để bật loại tệp này'
                       }
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border ${
-                        !isAllowed
-                          ? 'opacity-35 bg-white/[0.02] text-white/30 border-white/5 cursor-not-allowed hover:border-rose-500/40 hover:text-rose-300 hover:opacity-70'
-                          : isRequired
-                            ? 'bg-amber-400/20 text-amber-300 border-amber-400/80 shadow-sm shadow-amber-400/10 cursor-default'
+                      className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2.5 border cursor-pointer active:scale-95 ${
+                        isWronglyEnabled
+                          ? 'bg-rose-500/20 text-rose-200 border-rose-400/80 shadow-md shadow-rose-500/10'
+                          : active && isRequired
+                            ? 'bg-amber-400/20 text-amber-300 border-amber-400 shadow-md shadow-amber-400/10'
                             : active
-                              ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400 shadow-sm shadow-cyan-400/10'
-                              : 'bg-white/5 text-white/50 border-white/10 hover:border-white/20 hover:text-white/80'
+                              ? 'bg-cyan-500/20 text-cyan-200 border-cyan-400 shadow-md shadow-cyan-400/10'
+                              : isMissingRequired
+                                ? 'bg-amber-500/10 text-amber-200/90 border-amber-400/40 hover:bg-amber-500/20 hover:border-amber-400'
+                                : 'bg-white/[0.08] text-white/85 border-white/15 hover:bg-white/[0.14] hover:border-white/30 hover:text-white'
                       }`}
                     >
                       <Icon
-                        name={!isAllowed ? 'block' : item.icon}
-                        className={`text-sm ${
-                          !isAllowed
-                            ? 'text-white/30'
-                            : isRequired
+                        name={item.icon}
+                        className={`text-lg ${
+                          isWronglyEnabled
+                            ? 'text-rose-400'
+                            : active && isRequired
                               ? 'text-amber-400'
                               : active
                                 ? 'text-cyan-400'
-                                : 'text-white/40'
+                                : isMissingRequired
+                                  ? 'text-amber-400/80'
+                                  : 'text-white/70'
                         }`}
                       />
                       <span>{item.label}</span>
                       <span
-                        className={`text-[9px] px-1.5 py-0.5 rounded font-black tracking-wider uppercase ${
-                          !isAllowed
-                            ? 'bg-white/5 text-white/30 border border-white/10'
-                            : isRequired
+                        className={`text-[11px] px-2 py-0.5 rounded-md font-black tracking-wider uppercase ${
+                          isWronglyEnabled
+                            ? 'bg-rose-500 text-white'
+                            : active && isRequired
                               ? 'bg-amber-400 text-slate-950 font-black'
                               : active
-                                ? 'bg-cyan-400 text-slate-950'
-                                : 'bg-white/10 text-white/40'
+                                ? 'bg-cyan-400 text-slate-950 font-black'
+                                : isMissingRequired
+                                  ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40'
+                                  : 'bg-white/15 text-white/75'
                         }`}
                       >
-                        {!isAllowed ? 'KHÔNG HỖ TRỢ' : isRequired ? 'BẮT BUỘC' : active ? 'BẬT' : 'TẮT'}
+                        {isWronglyEnabled
+                          ? 'SAI LOẠI'
+                          : active && isRequired
+                            ? 'BẮT BUỘC'
+                            : active
+                              ? 'BẬT'
+                              : isMissingRequired
+                                ? 'TẮT (BẮT BUỘC)'
+                                : 'TẮT'}
                       </span>
                     </button>
                   )
@@ -1081,13 +1193,13 @@ export default function AddProductControlPanel({
             {assetConfig.hasPoses && (
               <div className="space-y-4">
                 {/* Batch upload bar */}
-                <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-transparent border border-amber-400/30 flex items-center justify-between flex-wrap gap-3">
-                  <div className="space-y-0.5">
-                    <span className="text-xs font-black text-amber-300 flex items-center gap-1.5">
-                      <Icon name="bolt" className="text-amber-400 text-sm" />
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-transparent border border-amber-400/30 flex items-center justify-between flex-wrap gap-3">
+                  <div className="space-y-1">
+                    <span className="text-sm font-black text-amber-300 flex items-center gap-1.5">
+                      <Icon name="bolt" className="text-amber-400 text-base" />
                       Tải Nhanh Cả 4 - 5 Ảnh Cùng Lúc (Multi-Upload)
                     </span>
-                    <p className="text-[11px] text-white/60">
+                    <p className="text-xs text-white/70">
                       Chọn 4 hoặc 5 ảnh từ máy tính. Hệ thống sẽ tự động gán theo thứ tự: 1. Đứng chờ ➔ 2. Chia bài ➔ 3. Lật bài ➔ 4. Ăn mừng ➔ 5. Avatar.
                     </p>
                   </div>
@@ -1102,9 +1214,9 @@ export default function AddProductControlPanel({
                     />
                     <label
                       htmlFor="dealer-batch-upload"
-                      className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black shadow-lg cursor-pointer transition-transform active:scale-95"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs sm:text-sm font-black shadow-lg cursor-pointer transition-transform active:scale-95"
                     >
-                      <Icon name="drive_folder_upload" className="text-base" />
+                      <Icon name="drive_folder_upload" className="text-lg" />
                       <span>⚡ Chọn 4-5 Tệp Ảnh Rời</span>
                     </label>
                   </div>
@@ -1228,84 +1340,36 @@ export default function AddProductControlPanel({
               </div>
             )}
 
-            {/* Case B: Deck Zip / Files */}
+            {/* Case B: Deck Zip */}
             {assetConfig.hasDeckZip && (
               <div className="space-y-4">
-                <div className="flex items-center gap-2 p-1.5 bg-black/40 rounded-2xl border border-white/10 max-w-md">
-                  <button
-                    type="button"
-                    onClick={() => setDeckMethod('ZIP')}
-                    className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                      deckMethod === 'ZIP'
-                        ? 'bg-amber-400 text-slate-950 shadow-md'
-                        : 'text-white/60 hover:text-white'
-                    }`}
-                  >
-                    File ZIP (52/53 Lá Nhanh)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setDeckMethod('FILES')}
-                    className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                      deckMethod === 'FILES'
-                        ? 'bg-amber-400 text-slate-950 shadow-md'
-                        : 'text-white/60 hover:text-white'
-                    }`}
-                  >
-                    Tải Danh Sách Ảnh Rời
-                  </button>
+                <div className="border-2 border-dashed border-amber-400/40 hover:border-amber-400 rounded-3xl p-6 text-center bg-black/30 transition-all">
+                  <input
+                    type="file"
+                    accept=".zip"
+                    id="ctrl-panel-zip"
+                    onChange={handleZipFileSelect}
+                    className="hidden"
+                  />
+                  <label htmlFor="ctrl-panel-zip" className="cursor-pointer flex flex-col items-center">
+                    <div className="w-14 h-14 rounded-2xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 mb-3 shadow-inner">
+                      <Icon name="folder_zip" className="text-3xl" />
+                    </div>
+                    <span className="text-sm font-bold text-white">
+                      {selectedZipFile ? selectedZipFile.name : 'Nhấp để chọn file ZIP 52 lá bài từ máy tính'}
+                    </span>
+                    <span className="text-xs text-white/50 mt-1 max-w-md">
+                      {selectedZipFile
+                        ? `Dung lượng: ${(selectedZipFile.size / 1024).toFixed(1)} KB • Sẵn sàng nạp S3 khi bấm Lưu`
+                        : 'File ZIP chứa 52 lá mặt trước (2H.png, AS.png...) và 1 lá mặt sau (back.png).'}
+                    </span>
+                    {selectedZipFile && (
+                      <span className="mt-3 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold border border-emerald-500/30">
+                        <Icon name="check_circle" className="text-sm" /> Đã chọn file ZIP
+                      </span>
+                    )}
+                  </label>
                 </div>
-
-                {deckMethod === 'ZIP' ? (
-                  <div className="border-2 border-dashed border-amber-400/40 hover:border-amber-400 rounded-3xl p-6 text-center bg-black/30 transition-all">
-                    <input
-                      type="file"
-                      accept=".zip"
-                      id="ctrl-panel-zip"
-                      onChange={handleZipFileSelect}
-                      className="hidden"
-                    />
-                    <label htmlFor="ctrl-panel-zip" className="cursor-pointer flex flex-col items-center">
-                      <div className="w-14 h-14 rounded-2xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 mb-3 shadow-inner">
-                        <Icon name="folder_zip" className="text-3xl" />
-                      </div>
-                      <span className="text-sm font-bold text-white">
-                        {selectedZipFile ? selectedZipFile.name : 'Nhấp để chọn file ZIP 52 lá bài từ máy tính'}
-                      </span>
-                      <span className="text-xs text-white/50 mt-1 max-w-md">
-                        {selectedZipFile
-                          ? `Dung lượng: ${(selectedZipFile.size / 1024).toFixed(1)} KB • Sẵn sàng nạp S3 khi bấm Lưu`
-                          : 'File ZIP chứa 52 lá mặt trước (2H.png, AS.png...) và 1 lá mặt sau (back.png).'}
-                      </span>
-                      {selectedZipFile && (
-                        <span className="mt-3 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold border border-emerald-500/30">
-                          <Icon name="check_circle" className="text-sm" /> Đã chọn file ZIP
-                        </span>
-                      )}
-                    </label>
-                  </div>
-                ) : (
-                  <div className="border-2 border-dashed border-white/20 hover:border-amber-400 rounded-3xl p-6 text-center bg-black/30 transition-all">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      id="ctrl-panel-files"
-                      onChange={handleMultiFilesSelect}
-                      className="hidden"
-                    />
-                    <label htmlFor="ctrl-panel-files" className="cursor-pointer flex flex-col items-center">
-                      <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 mb-3">
-                        <Icon name="photo_library" className="text-3xl" />
-                      </div>
-                      <span className="text-sm font-bold text-white">
-                        {selectedImageFiles.length > 0
-                          ? `Đã chọn ${selectedImageFiles.length} ảnh lá bài`
-                          : 'Bấm để chọn nhiều file ảnh lá bài (2H.png, AS.png...)'}
-                      </span>
-                    </label>
-                  </div>
-                )}
               </div>
             )}
 
@@ -1558,75 +1622,179 @@ export default function AddProductControlPanel({
               ))}
             </div>
 
-            {/* Flash sale settings */}
-            <div className="space-y-3 pt-3 border-t border-white/10">
-              <div className="flex items-start gap-3">
-                <input
-                  type="checkbox"
-                  id="flash-sale-chk"
-                  checked={isFlashSale}
-                  onChange={e => setIsFlashSale(e.target.checked)}
-                  className="mt-1 rounded accent-amber-400 w-4 h-4 cursor-pointer"
-                />
-                <label htmlFor="flash-sale-chk" className="text-xs text-white/90 cursor-pointer">
-                  <strong className="text-amber-300 flex items-center gap-1.5 inline-flex">
-                    <Icon name="bolt" className="text-amber-400 text-sm" />
-                    Mở Bán Giới Hạn Thời Gian (Flash Sale Độc Quyền)
-                  </strong>
-                  <span className="block text-white/50 text-[11px] mt-0.5">
-                    Hết thời hạn đếm ngược, Scheduler hệ thống sẽ tự động khóa và ngắt bán sản phẩm này.
-                  </span>
-                </label>
+            {/* Ownership & Flash Sale iOS-style Toggles (Unified UI) */}
+            <div className="space-y-3 pt-4 border-t border-white/10">
+              {/* Row 1: Exclusive Mode Toggle */}
+              <div
+                onClick={() => {
+                  const next = !isExclusive
+                  setIsExclusive(next)
+                  if (next) setIsFlashSale(false)
+                }}
+                className={`flex items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer select-none ${
+                  isExclusive
+                    ? 'bg-amber-400/10 border-amber-400/35'
+                    : 'bg-black/40 border-white/10 hover:border-white/20'
+                }`}
+              >
+                <div className="space-y-1 pr-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Icon
+                      name={isExclusive ? 'lock' : 'storefront'}
+                      className="text-amber-400 text-lg"
+                    />
+                    <span className="text-sm font-bold text-white">
+                      Chế Độ Hàng Độc Quyền (Khóa Mua Trực Tiếp)
+                    </span>
+                    <span
+                      className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                        isExclusive
+                          ? 'bg-amber-400/20 text-amber-300 border-amber-400/40'
+                          : 'bg-white/10 text-white/70 border-white/15'
+                      }`}
+                    >
+                      {isExclusive ? 'Đang bật Độc Quyền' : 'Đang Mở Bán'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-white/55">
+                    {isExclusive
+                      ? 'Sản phẩm đang gắn nhãn Độc Quyền (người chơi không thể mua trực tiếp). Gạt tắt công tắc để mở bán lại.'
+                      : 'Sản phẩm đang mở bán công khai trong Cửa Hàng. Gạt bật công tắc nếu muốn khóa thành Hàng Độc Quyền.'}
+                  </p>
+                </div>
+
+                {/* iPhone-style Toggle Switch */}
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={isExclusive}
+                  onClick={e => {
+                    e.stopPropagation()
+                    const next = !isExclusive
+                    setIsExclusive(next)
+                    if (next) setIsFlashSale(false)
+                  }}
+                  className={`relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none ${
+                    isExclusive ? 'bg-amber-400 shadow-md shadow-amber-500/25' : 'bg-white/20'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-7 w-7 transform rounded-full bg-white shadow-lg ring-0 transition duration-300 ease-in-out ${
+                      isExclusive ? 'translate-x-6' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
               </div>
 
-              {isFlashSale && (
-                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-400/30 space-y-3">
-                  <div className="flex items-center justify-between flex-wrap gap-2">
-                    <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
-                      <Icon name="timer" className="text-base" />
-                      Thời Hạn Mở Bán:
-                    </span>
-                    <span className="text-[11px] text-white/60 font-mono">
-                      Hết hạn: {computedSaleExpiresAt ? new Date(computedSaleExpiresAt).toLocaleString() : 'Chưa thiết lập'}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
-                    {[
-                      { id: '12_HOURS', label: '12 Giờ' },
-                      { id: '1_DAY', label: '1 Ngày' },
-                      { id: '2_DAYS', label: '2 Ngày' },
-                      { id: '3_DAYS', label: '3 Ngày' },
-                      { id: '7_DAYS', label: '7 Ngày' },
-                      { id: 'CUSTOM', label: 'Tùy Chọn' },
-                    ].map(opt => (
-                      <button
-                        key={opt.id}
-                        type="button"
-                        onClick={() => setFlashSalePreset(opt.id)}
-                        className={`px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all text-center ${
-                          flashSalePreset === opt.id
-                            ? 'bg-amber-400 text-slate-950 border-amber-400 shadow-sm shadow-amber-500/20'
-                            : 'bg-black/40 border-white/10 text-white/70 hover:border-white/20'
+              {/* Row 2: Flash Sale Toggle */}
+              <div
+                className={`p-4 sm:p-5 rounded-2xl border transition-all space-y-4 ${
+                  isFlashSale
+                    ? 'bg-amber-400/10 border-amber-400/35'
+                    : 'bg-black/40 border-white/10 hover:border-white/20'
+                }`}
+              >
+                <div
+                  onClick={() => {
+                    const next = !isFlashSale
+                    setIsFlashSale(next)
+                    if (next) setIsExclusive(false)
+                  }}
+                  className="flex items-center justify-between gap-4 cursor-pointer select-none"
+                >
+                  <div className="space-y-1 pr-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Icon name="bolt" className="text-amber-400 text-lg" />
+                      <span className="text-sm font-bold text-white">
+                        Mở Bán Giới Hạn Thời Gian (Flash Sale Độc Quyền)
+                      </span>
+                      <span
+                        className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                          isFlashSale
+                            ? 'bg-amber-400/20 text-amber-300 border-amber-400/40'
+                            : 'bg-white/10 text-white/70 border-white/15'
                         }`}
                       >
-                        {opt.label}
-                      </button>
-                    ))}
+                        {isFlashSale ? 'Đang bật Flash Sale' : 'Tắt'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-white/55">
+                      Hết thời hạn đếm ngược, Scheduler hệ thống sẽ tự động khóa và chuyển vật phẩm sang Hàng Độc Quyền.
+                    </p>
                   </div>
 
-                  {flashSalePreset === 'CUSTOM' && (
-                    <div className="pt-2">
-                      <input
-                        type="datetime-local"
-                        value={customSaleExpiresAt}
-                        onChange={e => setCustomSaleExpiresAt(e.target.value)}
-                        className="w-full sm:w-72 px-3 py-2 rounded-xl bg-black/60 border border-amber-400/30 text-xs text-amber-300 focus:outline-none focus:border-amber-400"
-                      />
-                    </div>
-                  )}
+                  {/* iPhone-style Toggle Switch */}
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={isFlashSale}
+                    onClick={e => {
+                      e.stopPropagation()
+                      const next = !isFlashSale
+                      setIsFlashSale(next)
+                      if (next) setIsExclusive(false)
+                    }}
+                    className={`relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none ${
+                      isFlashSale ? 'bg-amber-400 shadow-md shadow-amber-500/25' : 'bg-white/20'
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-7 w-7 transform rounded-full bg-white shadow-lg ring-0 transition duration-300 ease-in-out ${
+                        isFlashSale ? 'translate-x-6' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
                 </div>
-              )}
+
+                {isFlashSale && (
+                  <div className="pt-3 border-t border-amber-400/20 space-y-3">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                        <Icon name="timer" className="text-base" />
+                        Thời Hạn Mở Bán:
+                      </span>
+                      <span className="text-xs text-white/70 font-mono">
+                        Hết hạn: {computedSaleExpiresAt ? new Date(computedSaleExpiresAt).toLocaleString() : 'Chưa thiết lập'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
+                      {[
+                        { id: '12_HOURS', label: '12 Giờ' },
+                        { id: '1_DAY', label: '1 Ngày' },
+                        { id: '2_DAYS', label: '2 Ngày' },
+                        { id: '3_DAYS', label: '3 Ngày' },
+                        { id: '7_DAYS', label: '7 Ngày' },
+                        { id: 'CUSTOM', label: 'Tùy Chọn' },
+                      ].map(opt => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => setFlashSalePreset(opt.id)}
+                          className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all text-center cursor-pointer ${
+                            flashSalePreset === opt.id
+                              ? 'bg-amber-400 text-slate-950 border-amber-400 shadow-sm shadow-amber-500/20'
+                              : 'bg-black/40 border-white/10 text-white/70 hover:border-white/20'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {flashSalePreset === 'CUSTOM' && (
+                      <div className="pt-1">
+                        <input
+                          type="datetime-local"
+                          value={customSaleExpiresAt}
+                          onChange={e => setCustomSaleExpiresAt(e.target.value)}
+                          className="w-full sm:w-72 px-3.5 py-2 rounded-xl bg-black/60 border border-amber-400/30 text-xs text-amber-300 focus:outline-none focus:border-amber-400"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -1796,11 +1964,21 @@ export default function AddProductControlPanel({
                   </div>
                 )
               ) : (
-                /* Case 4: Default CosmeticRenderer (Only CARD_SKIN or Table falls back to this) */
+                /* Case 4: Default CosmeticRenderer (CARD_SKIN, COIN_SKIN, TABLE, etc.) */
                 <CosmeticRenderer
                   categoryCode={catCode}
-                  previewUrl={localAssetPreviewUrl || manualAssetUrl}
-                  assetUrl={localAssetPreviewUrl || manualAssetUrl}
+                  previewUrl={
+                    catCode === 'CARD_SKIN'
+                      ? zipPreviewCards.frontUrl || null
+                      : localAssetPreviewUrl || manualAssetUrl
+                  }
+                  assetUrl={
+                    catCode === 'CARD_SKIN'
+                      ? zipPreviewCards.backUrl || localAssetPreviewUrl || editingProduct?.previewUrl || null
+                      : localAssetPreviewUrl || manualAssetUrl
+                  }
+                  isFlipped={catCode === 'CARD_SKIN' ? isCardPreviewFlipped : false}
+                  onFlip={catCode === 'CARD_SKIN' ? setIsCardPreviewFlipped : null}
                   productName={name}
                   rank="A"
                   suit="S"
@@ -1811,6 +1989,18 @@ export default function AddProductControlPanel({
               <span className="absolute bottom-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/70 text-white/80 border border-white/10 z-10 backdrop-blur-sm">
                 {currentCategory?.name || 'Vật phẩm'}
               </span>
+
+              {catCode === 'CARD_SKIN' && (
+                <button
+                  type="button"
+                  onClick={() => setIsCardPreviewFlipped(f => !f)}
+                  className="absolute bottom-2 right-2 text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/40 z-10 backdrop-blur-sm flex items-center gap-1 cursor-pointer transition-all"
+                  title="Bấm để lật xem mặt trước / mặt lưng lá bài"
+                >
+                  <Icon name="3d_rotation" className="text-xs" />
+                  <span>{isCardPreviewFlipped ? 'Xem Mặt Trước' : 'Lật Mặt Lưng'}</span>
+                </button>
+              )}
             </div>
 
             {/* Product Meta Summary */}
@@ -1836,6 +2026,26 @@ export default function AddProductControlPanel({
                 <span className="font-bold text-white/80 font-mono">
                   {formatVnd(priceVnd)}
                 </span>
+              </div>
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-white/50">Trạng thái bán:</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = !isExclusive
+                    setIsExclusive(next)
+                    if (next) setIsFlashSale(false)
+                  }}
+                  title="Bấm để chuyển đổi Mở Bán / Hàng Độc Quyền"
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all flex items-center gap-1 cursor-pointer ${
+                    isExclusive
+                      ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 hover:bg-rose-500/30'
+                      : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30'
+                  }`}
+                >
+                  <Icon name={isExclusive ? 'lock' : 'check_circle'} className="text-xs" />
+                  <span>{isExclusive ? 'Độc Quyền (Bấm để Mở Bán)' : 'Đang Mở Bán (Bấm để Khóa)'}</span>
+                </button>
               </div>
             </div>
 
