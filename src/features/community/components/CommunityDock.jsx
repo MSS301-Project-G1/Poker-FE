@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useLocation } from 'react-router'
 import { SoloTestButton } from '@/features/demo'
 import { Icon } from '@/shared/ui'
 import { useCommunity } from '../CommunityContext'
@@ -18,7 +19,9 @@ export function CommunityToolbar() {
 }
 
 export default function CommunityDock() {
+  const { pathname } = useLocation()
   const { user, panel, setPanel, unreadCount, clearChat } = useCommunity()
+  if (!user || pathname.startsWith('/admin')) return null
   return user ? <>{createPortal(<nav className={styles.dock} aria-label="Kết nối nhanh"><button className={styles.dockButton} type="button" aria-label="Tìm đội và bạn bè" onClick={() => { if (unreadCount) { clearChat(); setPanel('chat') } else setPanel('friends') }}><Icon name="forum" /><span>Tìm đội và bạn bè</span>{unreadCount > 0 && <span className={styles.unreadBadge} aria-label={`${unreadCount} tin nhắn chưa đọc`}>{unreadCount > 99 ? '99+' : unreadCount}</span>}</button></nav>, document.body)}<MessageAlert />{panel && <CommunityDialog key={panel === 'notifications' ? 'notifications' : 'community'} />}</> : null
 }
 
