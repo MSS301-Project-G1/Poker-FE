@@ -17,7 +17,8 @@ const navClass = ({ isActive }) => `px-space-md py-space-sm font-label-action tr
 
 const iconButton = 'w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors'
 
-export default function AppHeader({ user, onLogout, logoutPending }) {
+/** coins: the wallet's coin balance, or null while it is not loaded. */
+export default function AppHeader({ user, coins, onLogout, logoutPending }) {
   const { enabled: soundEnabled, toggle: toggleSound } = useSound()
   const displayName = user?.profile?.displayName || user?.email || 'Player'
   const avatarUrl = user?.profile?.avatarUrl || '/stitch-assets/avatar.svg'
@@ -35,7 +36,7 @@ export default function AppHeader({ user, onLogout, logoutPending }) {
       <div className="flex items-center gap-space-md">
         <div className="hidden sm:flex items-center bg-surface-container-low px-space-md py-space-xs rounded-full gap-space-xs shadow-inner">
           <span className="material-symbols-outlined text-tertiary text-lg">toll</span>
-          <span className="font-label-numeric-md text-label-numeric-md text-tertiary">1,250,000</span>
+          <span className="font-label-numeric-md text-label-numeric-md text-tertiary">{coins == null ? '—' : coins.toLocaleString()}</span>
         </div>
         <div className="flex items-center gap-space-xs">
           <button className={iconButton} title={soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh'} aria-label={soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh'} aria-pressed={soundEnabled} onClick={toggleSound} type="button"><span className="material-symbols-outlined text-lg">{soundEnabled ? 'volume_up' : 'volume_off'}</span></button>
