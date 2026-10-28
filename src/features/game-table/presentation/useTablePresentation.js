@@ -54,5 +54,9 @@ export function useTablePresentation(snapshot, { play, tableRef, layerRef }) {
     // Winnings join the stacks only when the chips land.
     paying: plan?.milestones.paid > 0 && !isReached('paid'),
     dialogShown: isReached('dialog'),
+    // An equipped dealer deals the hole cards, turns the board, then presents the pot.
+    dealerPose: isReached('result') && snapshot?.distribution ? 'win'
+      : plan?.deal && !isReached('dealt') ? 'deal'
+        : plan?.board.length && !isReached('flipped') ? 'flip' : 'idle',
   }
 }

@@ -17,6 +17,8 @@ export const timing = {
   payDelay: 400,
   payFlight: 700,
   resultDialog: 2600,
+  // How long an equipped dealer keeps the deal or flip pose after the cards land, so it reads as a gesture.
+  dealerPoseHold: 700,
 }
 
 const flopCards = 3
@@ -26,15 +28,17 @@ const ended = street => street === 'HAND_FINISHED' || street === 'FINISHED'
 /**
  * @returns {{ key: string, startedAt: number, deal: Record<number, number[]> | null, board: number[],
  *   reveals: Record<number, number[]>, betsToPot: boolean, pots: object[], sounds: { name: string, at: number }[],
- *   milestones: { result: number | null, pay: number | null, paid: number | null, dialog: number | null } }}
+ *   milestones: { result: number | null, pay: number | null, paid: number | null, dialog: number | null,
+ *     dealt: number | null, flipped: number | null } }}
  *   A milestone is null when it does not apply, 0 when it is already reached, otherwise when it is reached.
- *   pay starts the chips flying to the winners; paid is when they land.
+ *   pay starts the chips flying to the winners; paid is when they land. dealt and flipped end the dealer's
+ *   deal and flip poses: the hole cards or the new board cards have landed, plus a short hold.
  */
 export function planTransition(previous, next) {
   const plan = {
     key: `${next.tableId}:${next.actionSequence}`, startedAt: next.receivedAt, deal: null, board: [], reveals: {},
     betsToPot: false, pots: next.distribution?.pots ?? [], sounds: [],
-    milestones: { result: next.distribution ? 0 : null, pay: null, paid: null, dialog: next.street === 'FINISHED' ? 0 : null },
+    milestones: { result: next.distribution ? 0 : null, pay: null, paid: null, dialog: next.street === 'FINISHED' ? 0 : null, dealt: null, flipped: null },
   }
   // The first snapshot, or one from another table, shows its end state at once.
   if (!previous || previous.tableId !== next.tableId) return plan
@@ -46,6 +50,7 @@ export function planTransition(previous, next) {
     // Your cards land face down and turn over.
     if (viewer && plan.deal[viewer.seatIndex]) plan.reveals[viewer.seatIndex] = plan.deal[viewer.seatIndex].map(at => at + timing.dealFlight)
     done = Math.max(0, ...Object.values(plan.deal).flat()) + timing.dealFlight
+    plan.milestones.dealt = done + timing.dealerPoseHold
   } else {
     done = sameHand(previous, next, plan, viewer)
   }
@@ -70,7 +75,8 @@ function sameHand(previous, next, plan, viewer) {
     plan.sounds.push({ name: 'card', at })
     done = at + timing.flip
   }
-  const shown = seat => previous.seats.find(old => old.seatIndex === seat.seatIndex)?.cards.length > 0
+  if (plan.board.length) plan.milestones.flipped = done + timing.dealerPoseHold
+  const shown =seat => previous.seats.find(old => old.seatIndex === seat.seatIndex)?.cards.length > 0
   const revealed = next.seats.filter(seat => seat.accountId !== next.accountId && seat.cards.length && !shown(seat))
   revealed.forEach((seat, order) => {
     const start = done + timing.revealGap + order * timing.revealStagger
@@ -82,7 +88,7 @@ function sameHand(previous, next, plan, viewer) {
     const result = done + timing.resultGap
     const pay = result + timing.payDelay
     const paid = pay + timing.payFlight
-    plan.milestones = { result, pay, paid, dialog: next.street === 'FINISHED' ? paid + timing.resultDialog : null }
+    Object.assign(plan.milestones, { result, pay, paid, dialog: next.street === 'FINISHED' ? paid + timing.resultDialog : null })
     const won = viewer && next.distribution.pots.some(pot => pot.winnerSeats.includes(viewer.seatIndex))
     plan.sounds.push(won ? { name: 'win', at: result } : { name: 'chip', at: pay })
   } else if (next.street === 'FINISHED' && previous.street !== 'FINISHED') {
