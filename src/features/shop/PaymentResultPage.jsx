@@ -5,6 +5,7 @@ import { Icon } from '@/shared/ui'
 import { Button } from './shared/ui'
 import { useWallet } from './hooks/useWallet'
 import { usePendingOrder } from './hooks/usePendingOrder'
+import * as paymentService from './services/paymentService'
 import { formatVipCoin } from './utils/shopFormatters'
 import PendingPaymentModal from './components/PendingPaymentModal/PendingPaymentModal'
 
@@ -29,10 +30,56 @@ export default function PaymentResultPage() {
     return status === 'PAID' || code === '00'
   }, [cancel, status, code])
 
-  // Automatically refresh user wallet on landing so balance is updated
+  // Synchronize payment order status with PayOS first, then refresh wallet balance immediately
   useEffect(() => {
-    void refreshWallet()
-  }, [refreshWallet])
+    let disposed = false
+    let timer1 = null
+    let timer2 = null
+
+    async function syncAndRefreshBalance() {
+      try {
+        // 1. Trigger pending order check (which syncs active pending order with PayOS on backend)
+        const activeOrder = await checkPendingOrder()
+        if (disposed) return
+
+        // 2. If still pending or if orderCode is provided on a success return URL, explicitly sync that order
+        if (activeOrder?.id && activeOrder.status === 'PENDING') {
+          await syncPendingOrder(activeOrder.id)
+        } else if (isSuccess && orderCode) {
+          try {
+            const ordersRes = await paymentService.getMyOrders()
+            const matchedOrder = (ordersRes?.data || []).find(
+              o => String(o.payosOrderCode) === String(orderCode)
+            )
+            if (matchedOrder?.id && matchedOrder.status === 'PENDING') {
+              await paymentService.syncOrder(matchedOrder.id)
+            }
+          } catch {
+            // ignore fallback lookup error
+          }
+        }
+      } finally {
+        if (!disposed) {
+          refreshWallet()
+          // Follow-up refreshes to catch async RabbitMQ wallet credit completion without needing F5
+          timer1 = setTimeout(() => {
+            if (!disposed) refreshWallet()
+          }, 400)
+          timer2 = setTimeout(() => {
+            if (!disposed) refreshWallet()
+          }, 1200)
+        }
+      }
+    }
+
+    void syncAndRefreshBalance()
+
+    return () => {
+      disposed = true
+      if (timer1) clearTimeout(timer1)
+      if (timer2) clearTimeout(timer2)
+    }
+  }, [isSuccess, orderCode, checkPendingOrder, syncPendingOrder, refreshWallet])
 
   // Safe navigation helpers
   const handleGoToWallet = useCallback(() => {
