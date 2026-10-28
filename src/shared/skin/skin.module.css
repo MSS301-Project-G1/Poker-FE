@@ -64,8 +64,9 @@
   justify-content: center;
 }
 .back span { font-size: 30px; }
-/* An equipped deck skin: its image fills the whole card. */
-.card.skinned { padding: 0; border: 0; background: none; overflow: hidden; }
+/* An equipped deck skin: its image fills the whole card. The default face or back stays under it, because skin art
+   may be see-through (the mock deck's court cards are) and must not show the empty slot behind the card. */
+.card.skinned { padding: 0; border: 0; overflow: hidden; }
 .skinned img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
 /* Equipped dealer: placed in the board's box, standing just behind the pot, so it follows the board on every screen.
