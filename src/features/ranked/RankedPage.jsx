@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router'
 import { useAuth } from '@/features/auth'
 import { Button, Icon, useToast } from '@/shared/ui'
 import { paths } from '@/shared/config/paths'
-import { PartyPanel, useParty } from '@/features/community'
+import { PartyPanel, useLeaveParty, useParty } from '@/features/community'
 import { useQueue } from './MatchmakingContext'
 import MatchRadar from './components/MatchRadar'
 import QueueRoster from './components/QueueRoster'
@@ -19,6 +19,8 @@ export default function RankedPage() {
   const navigate = useNavigate()
   const notify = useToast()
   const lastParty = useRef(null)
+  const leaveParty = useLeaveParty()
+  const [leaving, setLeaving] = useState(false)
   const [now, setNow] = useState(Date.now)
   useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 250); return () => clearInterval(timer) }, [])
   const partyRequested = params.get('mode') === 'PARTY'
@@ -50,6 +52,15 @@ export default function RankedPage() {
   const roster = preparing ? { status: isParty ? 'PARTY' : 'PREPARING', playerIds: isParty ? party?.memberIds || [] : [user.accountId], leaderId: party?.leaderId } : queue
   const count = Math.max(0, preparing ? roster.playerIds.length : queue?.playerCount ?? queue?.playerIds?.length ?? 0)
   const inMatch = status === 'READY' && Boolean(queue?.tableId)
+  // Back to the lobby also takes you out of your party, so the lobby no longer keeps you in the party room.
+  async function backToLobby() {
+    if (!party) { navigate(paths.lobby); return }
+    setLeaving(true)
+    try {
+      const message = await leaveParty(party.leaderId === user?.accountId)
+      if (message) { notify(message); navigate(paths.lobby) }
+    } catch (failure) { notify(failure.message) } finally { setLeaving(false) }
+  }
   async function cancel() {
     if (await current.leave()) { state.close(); if (!isParty) navigate(paths.lobby) }
   }
@@ -77,7 +88,7 @@ export default function RankedPage() {
       {current.error && <p className={styles.error} role="alert">{current.error}</p>}
       {partyState.error && <p className={styles.error} role="alert">{partyState.error}</p>}
       <footer className={styles.footer}><span><Icon name="lock" /><span>{isParty ? canManageParty ? 'Trưởng nhóm bắt đầu và hủy tìm trận cho cả nhóm' : 'Chờ trưởng nhóm bắt đầu tìm trận' : 'Xác nhận và tạo bàn do máy chủ xử lý'}</span></span><div className={styles.actions}>
-        {idle && <><Button onClick={() => navigate(paths.lobby)}>Về lobby</Button><Button variant="primary" disabled={state.pending || !canManageParty || (mode === 'NORMAL' && (partyState.loading || Boolean(partyState.error))) || (isParty && !party)} onClick={() => state.start(mode)}>{isParty ? 'Tìm trận cùng nhóm' : 'Tìm trận'}</Button></>}
+        {idle && <><Button disabled={leaving} onClick={backToLobby}>Về lobby</Button><Button variant="primary" disabled={state.pending || !canManageParty || (mode === 'NORMAL' && (partyState.loading || Boolean(partyState.error))) || (isParty && !party)} onClick={() => state.start(mode)}>{isParty ? 'Tìm trận cùng nhóm' : 'Tìm trận'}</Button></>}
         {['WAITING', 'COUNTDOWN'].includes(status) && <Button disabled={state.pending || !canManageParty || state.leaderOnly} onClick={cancel}>Hủy tìm trận</Button>}
         {proposed && <><Button disabled={state.pending || remaining === 0} onClick={state.decline}>Từ chối</Button><Button variant="primary" disabled={state.pending || current.accepted || remaining === 0} onClick={state.accept}>{current.accepted ? 'Đã xác nhận' : 'Chấp nhận trận'}</Button></>}
         {inMatch && <Button variant="primary" onClick={() => navigate(paths.tableById(queue.tableId))}>Quay lại bàn</Button>}

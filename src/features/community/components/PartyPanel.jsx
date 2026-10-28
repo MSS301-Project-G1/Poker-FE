@@ -6,6 +6,7 @@ import { gatewayRequest } from '@/shared/api/gatewayClient'
 import { useCommunity } from '../CommunityContext'
 import { communityApi as api } from '../api/communityApi'
 import { useResource } from '../hooks/useResource'
+import { useLeaveParty } from '../hooks/useLeaveParty'
 import { Avatar, Empty, ErrorNotice, Name } from './CommunityUI'
 import styles from '../Community.module.css'
 
@@ -15,10 +16,6 @@ const kickPrompt = name => ({
   title: 'Mời khỏi nhóm?', message: `${name} sẽ rời nhóm. Mật khẩu nhóm sẽ được đổi để người này không vào lại bằng mật khẩu cũ.`,
   confirmLabel: 'Mời rời nhóm', icon: 'person_remove', danger: true,
 })
-const leavePrompt = {
-  title: 'Rời nhóm?', message: 'Bạn sẽ rời nhóm chơi này. Muốn vào lại, bạn cần mã và mật khẩu từ thành viên trong nhóm.',
-  confirmLabel: 'Rời nhóm', icon: 'logout', danger: true,
-}
 
 export default function PartyPanel({ room = false }) {
   const navigate = useNavigate()
@@ -26,6 +23,7 @@ export default function PartyPanel({ room = false }) {
   const { user, loadProfiles, profiles } = useCommunity()
   const confirm = useConfirm()
   const notify = useToast()
+  const leaveParty = useLeaveParty()
   const loader = useCallback(async signal => {
     const [party, queue] = await Promise.all([api.party(signal), apiQueue(signal)])
     return { party: party?.partyId ? party : null, queue }
@@ -49,16 +47,10 @@ export default function PartyPanel({ room = false }) {
   }
   async function leaveGroup() {
     if (busy) return
-    const prompt = leader ? {
-      title: 'Giải tán nhóm?',
-      message: 'Bạn là chủ phòng. Rời nhóm sẽ giải tán phòng và đưa toàn bộ thành viên ra khỏi nhóm.',
-      confirmLabel: 'Rời và giải tán', icon: 'group_remove', danger: true,
-    } : leavePrompt
-    if (!await confirm(prompt)) return
     setBusy(true); setFailure('')
     try {
-      await api.leaveParty()
-      const message = leader ? 'Đã giải tán nhóm. Toàn bộ thành viên đã rời nhóm.' : 'Đã rời nhóm.'
+      const message = await leaveParty(leader)
+      if (!message) return
       if (room) { notify(message); navigate(paths.lobby) }
       else { setMessage(message); reload() }
     } catch (failure) { setFailure(failure.message) }
