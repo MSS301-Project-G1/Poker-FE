@@ -4,11 +4,15 @@ import { useSearchParams } from 'react-router'
 import { useQueue } from '@/features/ranked'
 import { LobbyBackdrop } from '@/features/demo'
 import { CommunityToolbar, PartyPanel } from '@/features/community'
+import { useLeaderboardPreview } from '@/features/ranking'
+import { useNextTournament } from '@/features/tournament'
+import { useTutorialStatus } from '@/features/tutorial'
 import { Icon } from '@/shared/ui'
 import LoungeModes from './components/LoungeModes'
 import ChampionshipBanner from './components/ChampionshipBanner'
 import DailyCheckInModal from './components/DailyCheckInModal'
 import Leaderboard from './components/Leaderboard'
+import MoreModes from './components/MoreModes'
 import PlayerSummary from './components/PlayerSummary'
 import { useDailyCheckIn } from './hooks/useDailyCheckIn'
 
@@ -25,6 +29,9 @@ export default function LobbyPage() {
   const [checkInOpen, setCheckInOpen] = useDailyCheckIn()
   const [zenMode, setZenMode] = useState(false)
   const [leaderboardCollapsed, setLeaderboardCollapsed] = useState(false)
+  const standings = useLeaderboardPreview(5)
+  const featured = useNextTournament()
+  const [tutorial] = useTutorialStatus()
 
   useEffect(() => {
     const handleKeyDown = event => {
@@ -70,7 +77,7 @@ export default function LobbyPage() {
       </div>
 
       {/* Top Sub-Bar: PlayerSummary */}
-      <PlayerSummary player={{ ...user?.profile, email: user?.email }} onOpenCheckIn={() => setCheckInOpen(true)} />
+      <PlayerSummary player={{ ...user?.profile, email: user?.email }} standing={standings.me} onOpenCheckIn={() => setCheckInOpen(true)} />
 
       {/* 3-Zone Spatial Cockpit: Left Flank | Unobstructed Center Stage | Right Flank */}
       <div className="flex flex-col lg:flex-row gap-space-md w-full items-start relative mt-4">
@@ -95,18 +102,20 @@ export default function LobbyPage() {
           </div>
         </div>
 
-        {/* Right Flank: Leaderboard */}
-        <aside className={`w-full ${leaderboardCollapsed ? 'lg:w-[64px]' : 'lg:w-[300px] xl:w-[320px]'} shrink-0 z-20 transition-all duration-300`}>
+        {/* Right Flank: Leaderboard, then the other modes (rooms, tournaments, tutorial) */}
+        <aside className={`w-full ${leaderboardCollapsed ? 'lg:w-[64px]' : 'lg:w-[300px] xl:w-[320px]'} shrink-0 z-20 transition-all duration-300 flex flex-col gap-space-md`}>
           <Leaderboard
+            standings={standings}
             collapsed={leaderboardCollapsed}
             onToggleCollapse={() => setLeaderboardCollapsed(current => !current)}
           />
+          <MoreModes tutorial={tutorial} collapsed={leaderboardCollapsed} />
         </aside>
       </div>
 
       {/* Bottom Championship Banner - Positioned below the table so it never obstructs the felt */}
       <div className="w-full mt-2 z-20">
-        <ChampionshipBanner />
+        <ChampionshipBanner featured={featured} />
       </div>
     </div>
     {checkInOpen && <DailyCheckInModal onClose={() => setCheckInOpen(false)} />}

@@ -1,7 +1,7 @@
 # Ranking, season, Custom Room and tournament integration
 
 Owned by Hoài Anh (`features/ranking`, `features/season`, `features/custom-room`,
-`features/tournament`, `features/admin/seasons`, `features/admin/tournaments`).
+`features/tournament`, `features/tutorial`, `features/admin/seasons`, `features/admin/tournaments`).
 Data comes from ranking-service and competition-service; the screens never
 calculate Elo, rewards, coins or table state themselves. The features follow
 [ARCHITECTURE.md](ARCHITECTURE.md): pages, `components/` with CSS Modules,
@@ -19,12 +19,25 @@ calculate Elo, rewards, coins or table state themselves. The features follow
 | `/tournaments/:tournamentId` (`paths.tournamentById`) | Own entry (register, accept invitation, open table), prize pool, bracket, players | `GET /api/tournaments/{id}`, `POST .../register`, `POST .../confirm` |
 | `/admin/seasons` (`paths.adminSeasons`), ADMIN only | Seasons, new season (rewards copied from another), coins and skins per tier, close the active season | `/api/admin/seasons/**`, skins from `GET /api/shop/products` |
 | `/admin/tournaments` (`paths.adminTournaments`), ADMIN only | Schedule Open/Elite tournaments, start early, cancel with refunds | `/api/admin/tournaments/**`, `GET /api/tournaments?past=` |
+| `/tutorial` (`paths.tutorial`), full screen like `/table` | Scripted lesson on the game table, then the one-time reward | `GET /api/tutorial/me`, `POST /api/tutorial/complete` |
 
 The routes sit inside `AuthenticatedLayout` in `src/app/router.jsx`, so only
-signed-in players reach them and they use the shared header and footer. `/ranking` and `/seasons` link to each other. Nothing
-else links to them yet: the Lobby's "Create Private Room" button and menu items
-belong to the Lobby and layout owners. `features/ranking` exports `TierBadge`,
-`tiers` and `tierOrder` for Lobby, Profile and season screens.
+signed-in players reach them and they use the shared header and footer. `/ranking` and `/seasons` link to each other.
+
+Entry points (done at Khanh's request in the Lobby and the header):
+
+- Header: Rooms, Tournaments and Leaderboard from 1360 px wide (the player's name
+  moved to 2xl to make room); admins get Rank seasons and Manage tournaments icons.
+- Lobby: the leaderboard title and the player's row open `/ranking`; the "Chế độ khác"
+  panel under it opens `/rooms`, `/tournaments` and `/tutorial` (with the unclaimed
+  reward); the championship banner shows the next tournament and opens it.
+
+Exports for other features: `features/ranking` has `TierBadge`, `tiers`, `tierOrder`
+and `useLeaderboardPreview(size)` (season, top `size`, own standing, profiles), which
+feeds the Lobby leaderboard and the tier/Elo/rank line of its player summary.
+`features/tournament` has `useNextTournament()` (the soonest scheduled tournament,
+else the soonest running one) for the Lobby banner. `features/tutorial` has
+`useTutorialStatus()` for the reward badge.
 
 ## Gateway
 
@@ -52,28 +65,38 @@ directly, so the adapters read the payload as is (no `result`/`data`).
   replaces the card with the server's answer and shows a toast; coins and skins
   are delivered by wallet and shop in the background. Skin names are not shown
   yet because shop-service has no product lookup for them.
-- The waiting room polls `GET /api/rooms/{code}` every 3 seconds until the
-  `/ws/social` notification socket (Duy) delivers `ROOM_UPDATED`/`ROOM_STARTED`.
-  When the room switches from `WAITING` to `PLAYING`, every member is sent to
+- The waiting room reloads `GET /api/rooms/{code}` as soon as `useCommunity().notifications`
+  (Duy's `/ws/social`) receives `ROOM_UPDATED`/`ROOM_STARTED` for its code. Polling stays
+  as the fallback: every 15 seconds while that socket is connected, every 3 seconds
+  while it is down and for `?devUser` identities. When the room switches from `WAITING` to `PLAYING`, every member is sent to
   `paths.tableById(tableId)`; players returning later see an "Open table" button.
 - A player belongs to one open room; `/rooms` resumes it after a reload.
 - Invitations take a friend's account id until the friends feature can supply a
-  picker. Backend error messages (Vietnamese) are shown as returned.
+  picker. Backend error messages (Vietnamese) are shown as returned. `ROOM_INVITE`
+  notifications of the session are listed on `/rooms` ("Friends invited you") with a
+  Join button and a password field when the room has one.
 - Tournaments: the detail polls `GET /api/tournaments/{id}` every 5 seconds until
-  the tournament finishes or is cancelled, standing in for `TOURNAMENT_INVITE` and
-  `TOURNAMENT_TABLE_READY` on `/ws/social`. When the player's table turns `PLAYING`
+  the tournament finishes or is cancelled (the bracket changes without a notification),
+  and reloads at once on `TOURNAMENT_INVITE` or `TOURNAMENT_TABLE_READY` for its id.
+  When the player's table turns `PLAYING`
   while they wait on the page they are sent to `paths.tableById(tableId)`; later
   visits show "Open your table". Paid registration asks first (`useConfirm`).
   The prize split comes from the server (`prizes[]`), the champion's skin is only
-  announced (no product lookup yet). Nothing links to `/tournaments` yet: the
-  Lobby's championship banner and the header's Events item belong to their owners.
+  announced (no product lookup yet).
 - Admin screens: dates are entered in Vietnam time (`datetime-local`, fixed +07:00).
   Skin pickers list `GET /api/shop/products`; without shop-service they accept a
-  product id. Closing a season, starting early and cancelling ask first. Nothing
-  links to them yet: the header's admin icons and the shop admin sidebar belong to
-  their owners; the two pages link to each other.
+  product id. Closing a season, starting early and cancelling ask first. The header's
+  admin icons open them and the two pages link to each other; the shop admin sidebar
+  (Tùng) does not list them yet.
 - My new pages keep 8rem below the content so the floating community dock (fixed
   56px from the bottom) never covers the last button.
+- Tutorial: two scripted hands against two bots in `tutorial/script.js` (no game-service).
+  The first teaches blinds and the dealer button, RAISE, CHECK, CALL, RAISE on the river
+  and the showdown; the second teaches FOLD. Only the step's action is enabled in the
+  game-table `ActionDock`; the felt, `Board`, `PlayerSeat` and `HandGuide` are game-table's
+  public components. The route sits outside `AuthenticatedLayout` like `/table` and
+  redirects to sign-in itself. Finishing calls `POST /api/tutorial/complete`; the status
+  read on arrival tells the dialog whether this run paid the coins.
 - Tier colors reuse existing tokens (`TierBadge.module.css`); dedicated tier
   tokens can be added to `tokens.css` later with the design owner.
 - Loading, empty and error states exist on every screen; layouts were checked at
@@ -105,4 +128,5 @@ entries must stay above the `/api/admin` entry that sends the rest of
 ## Review
 
 `src/app/router.jsx`, `src/shared/config/paths.js` and `vite.config.js` are shared
-files and need the owner's review. The tutorial is the next GĐ2 batch.
+files and need the owner's review, as do the Lobby files (`LobbyPage`, `Leaderboard`,
+`PlayerSummary`, `ChampionshipBanner`, `MoreModes`) and `AppHeader`.

@@ -1,14 +1,21 @@
 import { useEffect, useState } from 'react'
+import { useCommunity } from '@/features/community'
 import { fetchTournament } from '../api/tournamentApi'
 
-// Polling stands in for TOURNAMENT_TABLE_READY on /ws/social until the notification socket exists.
+// Polling keeps the bracket and the field current for everyone watching. Seated players also get
+// TOURNAMENT_TABLE_READY (and invitees TOURNAMENT_INVITE) on /ws/social, which reloads at once instead of
+// waiting for the next poll.
 export const POLL_MILLIS = 5000
+const TOURNAMENT_EVENTS = new Set(['TOURNAMENT_TABLE_READY', 'TOURNAMENT_INVITE'])
 
 const ENDED = new Set(['FINISHED', 'CANCELLED'])
 const initial = { phase: 'loading', tournament: null, error: '' }
 
 export function useTournament({ id, devUser }) {
   const [state, setState] = useState(initial)
+  const { notifications } = useCommunity()
+  // The newest notification about this tournament; each new one restarts the load below.
+  const nudge = notifications.find(row => TOURNAMENT_EVENTS.has(row.type) && row.data?.tournamentId === id)?.eventId
 
   useEffect(() => {
     let disposed = false
@@ -36,7 +43,7 @@ export function useTournament({ id, devUser }) {
       abort.abort()
       window.clearTimeout(timer)
     }
-  }, [id, devUser])
+  }, [id, devUser, nudge])
 
   // Register and confirm return the updated tournament, which replaces the polled copy immediately.
   const apply = tournament => setState({ phase: 'ready', tournament, error: '' })

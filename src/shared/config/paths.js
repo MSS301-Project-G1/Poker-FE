@@ -15,6 +15,7 @@ export const paths = {
   mailbox: '/mailbox',
   table: '/table',
   tableById: tableId => `/table/${tableId}`,
+  tutorial: '/tutorial',
   ranking: '/ranking',
   seasons: '/seasons',
   rooms: '/rooms',

@@ -6,6 +6,10 @@ import { useSound } from '@/shared/audio'
 const navItems = [
   { to: paths.lobby, label: 'Lobby' },
   { to: paths.ranked, label: 'Ranked' },
+  // Wide screens only: narrower ones reach these from the lobby (Leaderboard and the other-modes panel).
+  { to: paths.rooms, label: 'Rooms', wide: true },
+  { to: paths.tournaments, label: 'Tournaments', wide: true },
+  { to: paths.ranking, label: 'Leaderboard', wide: true },
   { to: paths.shop, label: 'Shop' },
   { to: paths.events, label: 'Events' },
   { to: paths.mailbox, label: 'Mailbox' },
@@ -30,7 +34,8 @@ export default function AppHeader({ user, coins, onLogout, logoutPending }) {
           <span className="font-headline-sm text-headline-sm uppercase tracking-wider text-primary">POKER RANK</span>
         </div>
         <nav className="hidden lg:flex items-center gap-space-xs">
-          {navItems.map(item => <NavLink key={item.to} to={item.to} className={navClass}>{item.label}</NavLink>)}
+          {navItems.map(item => <NavLink key={item.to} to={item.to}
+            className={state => `${navClass(state)}${item.wide ? ' hidden min-[1360px]:block' : ''}`}>{item.label}</NavLink>)}
         </nav>
       </div>
       <div className="flex items-center gap-space-md">
@@ -43,13 +48,15 @@ export default function AppHeader({ user, coins, onLogout, logoutPending }) {
           {user?.role === 'ADMIN' && <>
             <NavLink className={iconButton} title="Admin shop" aria-label="Admin shop" to={paths.adminShop}><Icon name="storefront" className="text-lg" /></NavLink>
             <NavLink className={iconButton} title="Manage avatars" aria-label="Manage avatars" to={paths.adminAvatars}><Icon name="admin_panel_settings" className="text-lg" /></NavLink>
+            <NavLink className={iconButton} title="Rank seasons" aria-label="Rank seasons" to={paths.adminSeasons}><Icon name="calendar_month" className="text-lg" /></NavLink>
+            <NavLink className={iconButton} title="Manage tournaments" aria-label="Manage tournaments" to={paths.adminTournaments}><Icon name="emoji_events" className="text-lg" /></NavLink>
           </>}
           <NavLink className={iconButton} title="Account settings" aria-label="Account settings" to={paths.account}><Icon name="settings" className="text-lg" /></NavLink>
         </div>
         <div className="flex items-center gap-space-xs">
           <img alt={displayName} className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/40" src={avatarUrl}
             onError={event => { event.currentTarget.src = '/stitch-assets/avatar.svg' }} />
-          <span className="hidden xl:block max-w-36 truncate text-sm font-semibold text-on-surface">{displayName}</span>
+          <span className="hidden 2xl:block max-w-36 truncate text-sm font-semibold text-on-surface">{displayName}</span>
           <button className={iconButton} title="Sign out" aria-label="Sign out" type="button" onClick={onLogout} disabled={logoutPending}>
             <Icon name="logout" className="text-lg" />
           </button>

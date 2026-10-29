@@ -1,6 +1,8 @@
+import { tiers } from '@/features/ranking'
 import { Icon } from '@/shared/ui'
 
-export default function PlayerSummary({ player, onOpenCheckIn }) {
+/** standing: the player's season standing from ranking-service, or null until it loads. */
+export default function PlayerSummary({ player, standing, onOpenCheckIn }) {
   const displayName = player?.displayName || player?.email || 'Player'
   const avatarUrl = player?.avatarUrl || '/stitch-assets/avatar.svg'
   return <div className="flex flex-col md:flex-row items-center justify-between gap-space-md bg-surface-container-lowest/40 backdrop-blur-xl px-space-md py-space-sm rounded-2xl border border-white/10 shadow-2xl relative overflow-hidden transition-all duration-300 hover:border-white/20">
@@ -15,11 +17,13 @@ export default function PlayerSummary({ player, onOpenCheckIn }) {
           <span className="font-headline-sm text-headline-sm text-on-surface truncate">{displayName}</span>
           <Icon name="verified" filled className="text-tertiary text-sm" />
         </div>
-        <div className="flex items-center gap-space-sm text-body-sm font-body-sm text-on-surface-variant">
-          <span>Win Rate: <strong className="text-tertiary font-label-numeric-md">68.4%</strong></span>
+        {standing && <div className="flex items-center gap-space-sm text-body-sm font-body-sm text-on-surface-variant">
+          <span>Tier: <strong className="text-tertiary font-label-numeric-md">{tiers[standing.tier]?.label || standing.tier}</strong></span>
           <span className="text-outline-variant">•</span>
-          <span>Best Hand: <strong className="text-primary font-label-numeric-md">Royal Flush</strong></span>
-        </div>
+          <span>Elo: <strong className="text-primary font-label-numeric-md">{standing.elo.toLocaleString()}</strong></span>
+          <span className="text-outline-variant">•</span>
+          <span>Rank: <strong className="text-primary font-label-numeric-md">{standing.position ? `#${standing.position.toLocaleString()}` : '—'}</strong></span>
+        </div>}
       </div>
     </div>
     <div className="flex items-center gap-space-sm w-full md:w-auto justify-end z-10">
