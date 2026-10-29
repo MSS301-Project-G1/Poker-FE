@@ -7,7 +7,10 @@ import CreateRoomForm from './components/CreateRoomForm'
 import JoinRoomForm from './components/JoinRoomForm'
 import Message from './components/Message'
 import PublicRooms from './components/PublicRooms'
+import RoomInvites from './components/RoomInvites'
 import { useDevUser } from './hooks/useDevUser'
+import { useProfiles } from './hooks/useProfiles'
+import { useRoomInvites } from './hooks/useRoomInvites'
 import styles from './RoomsPage.module.css'
 
 const PAGE_SIZE = 10
@@ -20,6 +23,8 @@ export default function RoomsPage() {
   const [listError, setListError] = useState('')
   const [page, setPage] = useState(0)
   const [version, setVersion] = useState(0)
+  const invites = useRoomInvites()
+  const inviters = useProfiles(invites.map(invite => invite.inviterId))
 
   const identity = useCallback(async signal => ({ devUser, signal }), [devUser])
 
@@ -58,6 +63,7 @@ export default function RoomsPage() {
     <div className={styles.grid}>
       <CreateRoomForm disabled={signedOut} onCreate={create} />
       <div className={styles.side}>
+        {invites.length > 0 && <RoomInvites invites={invites} profiles={inviters} disabled={signedOut} onJoin={join} />}
         <JoinRoomForm disabled={signedOut} onJoin={join} />
         <PublicRooms result={rooms} error={listError} page={page} disabled={signedOut} onPage={setPage}
           onRefresh={() => setVersion(value => value + 1)} onJoin={join} />

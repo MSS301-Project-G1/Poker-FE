@@ -19,6 +19,7 @@ import { LeaderboardPage } from '@/features/ranking'
 import { SeasonPage } from '@/features/season'
 import { ShopPage, BundlePage, ProductDetailPage, PaymentResultPage } from '@/features/shop'
 import { TournamentPage, TournamentsPage } from '@/features/tournament'
+import { TutorialPage } from '@/features/tutorial'
 import AdminOnlyRoute from './AdminOnlyRoute'
 import NotFoundPage from './NotFoundPage'
 import AuthenticatedLayout from './AuthenticatedLayout'
@@ -56,6 +57,8 @@ export default function AppRoutes() {
     <Route path={paths.mailbox} element={<MailboxPage />} />
     <Route path={paths.table} element={<GameTablePage />} />
     <Route path={paths.tableById(':tableId')} element={<GameTablePage />} />
+    {/* Full-screen like the table; the page checks the session itself. */}
+    <Route path={paths.tutorial} element={<TutorialPage />} />
     {/* Local game tooling only: ?devUser identities exercise Admin settings without a gateway session. */}
     {env.gameDevMode && <Route path={paths.adminMatchSettings} element={<MatchSettingsPage />} />}
     <Route path="*" element={<NotFoundPage />} />

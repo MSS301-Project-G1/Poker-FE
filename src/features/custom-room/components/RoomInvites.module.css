@@ -1,0 +1,3 @@
+.panel { display: grid; gap: 14px; align-content: start; }
+.title { margin: 6px 0 0; font: 600 20px var(--font-display); }
+.list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }

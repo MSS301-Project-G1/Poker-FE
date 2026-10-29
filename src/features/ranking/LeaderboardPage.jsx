@@ -38,7 +38,7 @@ export default function LeaderboardPage() {
       <div className={styles.intro}>
         <Eyebrow>{season ? `${season.name.toUpperCase()} · ${daysLeft} DAYS LEFT` : 'RANKED SEASON'}</Eyebrow>
         <h1 className={styles.title}>Leaderboard</h1>
-        <p className={styles.muted}>Players are ranked by Elo. Finish in the top three of a ranked table to climb and extend your streak.</p>
+        <p className={styles.muted}>Players are ranked by Elo. Finish in the top half of a ranked table to climb and extend your streak; the last places lose Elo.</p>
       </div>
       <StandingCard standing={me} signedIn={Boolean(devUser || me)} loading={state.phase === 'loading'} />
     </section>
