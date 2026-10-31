@@ -4,7 +4,7 @@ import { formatVipCoin, formatVnd } from '../utils/adminFormatters'
 import CosmeticRenderer from '@/features/shop/components/CosmeticRenderer'
 import AddCategoryModal from './AddCategoryModal'
 import ImageCropperModal from './ImageCropperModal'
-import { uploadProductSound, uploadAssetFile } from '../services/adminShopService'
+import { uploadProductSound, deleteProductSound, uploadAssetFile } from '../services/adminShopService'
 
 const DEALER_POSES_SCHEMA = [
   {
@@ -339,7 +339,22 @@ export default function AddProductControlPanel({
   const [localVideoFile, setLocalVideoFile] = useState(null)
   const [localVideoPreviewUrl, setLocalVideoPreviewUrl] = useState(editingProduct?.previewVideoUrl || '')
   const [localSoundFile, setLocalSoundFile] = useState(null)
-  const [localSoundPreviewUrl, setLocalSoundPreviewUrl] = useState('')
+  const [localSoundPreviewUrl, setLocalSoundPreviewUrl] = useState(() => {
+    if (editingProduct?.soundUrl) return editingProduct.soundUrl
+    if (editingProduct?.metadata) {
+      try {
+        const meta =
+          typeof editingProduct.metadata === 'string'
+            ? JSON.parse(editingProduct.metadata)
+            : editingProduct.metadata
+        return meta?.soundUrl || meta?.sound_url || ''
+      } catch {
+        return ''
+      }
+    }
+    return ''
+  })
+  const [shouldDeleteExistingSound, setShouldDeleteExistingSound] = useState(false)
 
   // Card Skin specific files & live preview URLs
   const [selectedZipFile, setSelectedZipFile] = useState(null)
@@ -439,9 +454,15 @@ export default function AddProductControlPanel({
           const frontUrl = meta?.cards?.AS || meta?.cards?.['AS'] || (meta?.cards ? Object.values(meta.cards)[0] : '') || ''
           const backUrl = meta?.cardBackUrl || meta?.card_back_url || meta?.previewUrl || editingProduct.previewUrl || ''
           setZipPreviewCards({ frontUrl, backUrl })
+          const existingSound = editingProduct.soundUrl || meta?.soundUrl || meta?.sound_url || ''
+          setLocalSoundPreviewUrl(existingSound)
+          setShouldDeleteExistingSound(false)
         } catch (e) {
           console.error('Error parsing product metadata on change:', e)
         }
+      } else if (editingProduct.soundUrl) {
+        setLocalSoundPreviewUrl(editingProduct.soundUrl)
+        setShouldDeleteExistingSound(false)
       }
     }
   }, [editingProduct, categories])
@@ -858,10 +879,17 @@ export default function AddProductControlPanel({
         notify(`Tạo sản phẩm "${name}" thành công!`, { type: 'success' })
       }
 
-      // Sound upload if provided and active
+      // Sound upload or removal
       if (assetConfig.hasSound && localSoundFile && productId) {
         setSubmitStep('Đang liên kết tệp âm thanh...')
         await uploadProductSound(productId, localSoundFile)
+      } else if (
+        isEditing &&
+        productId &&
+        (shouldDeleteExistingSound || (!assetConfig.hasSound && editingProduct?.soundUrl))
+      ) {
+        setSubmitStep('Đang gỡ tệp âm thanh cũ...')
+        await deleteProductSound(productId)
       }
 
       // Card Skin Ingestion if active and new ZIP file selected
@@ -1475,7 +1503,7 @@ export default function AddProductControlPanel({
                 <div className="border-2 border-dashed border-purple-500/40 hover:border-purple-400 rounded-3xl p-6 text-center bg-black/30 transition-all">
                   <input
                     type="file"
-                    accept="audio/mp3,audio/wav,audio/ogg"
+                    accept=".mp3,.wav,.ogg,audio/mpeg,audio/mp3,audio/wav,audio/ogg"
                     id="ctrl-panel-sound"
                     onChange={handleSoundFileSelect}
                     className="hidden"
@@ -1518,9 +1546,15 @@ export default function AddProductControlPanel({
                     <button
                       type="button"
                       onClick={() => {
+                        if (audioRef.current) {
+                          audioRef.current.pause()
+                        }
                         setLocalSoundFile(null)
                         setLocalSoundPreviewUrl('')
                         setIsPlayingAudio(false)
+                        if (isEditing) {
+                          setShouldDeleteExistingSound(true)
+                        }
                       }}
                       className="text-xs text-rose-400 hover:text-rose-300 font-bold"
                     >
