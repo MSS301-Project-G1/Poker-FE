@@ -69,18 +69,7 @@ export default function AdminSidebar({
               </div>
             </button>
 
-            <button
-              type="button"
-              onClick={() => onSelectTab('CATEGORIES')}
-              className={`${styles.navItem} ${activeTab === 'CATEGORIES' ? styles.navItemActiveGold : ''}`}
-            >
-              <div className={styles.navItemLeft}>
-                <span className={styles.navIcon}>
-                  <Icon name="category" />
-                </span>
-                <span className={styles.navLabel}>Quản Lý Danh Mục</span>
-              </div>
-            </button>
+            
           </div>
         </div>
 
