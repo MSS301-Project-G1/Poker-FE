@@ -33,6 +33,9 @@ function formatAuditRef(idempotencyKey, txId) {
   if (idempotencyKey.startsWith('ORDER:')) {
     return `NẠP #${idempotencyKey.slice(6, 14)}`
   }
+  if (idempotencyKey.startsWith('AUTO_REFUND_') || idempotencyKey.startsWith('AUTO_REFUND:')) {
+    return `HOÀN #${idempotencyKey.slice(-8).toUpperCase()}`
+  }
   if (idempotencyKey.startsWith('checkin:')) {
     return 'CHECK-IN'
   }
@@ -49,6 +52,14 @@ function getReasonInfo(reason, amount) {
         icon: 'shopping_bag',
         bg: 'rgba(244, 63, 94, 0.15)',
         color: '#f43f5e',
+      }
+    case 'REFUND_COIN':
+      return {
+        title: 'Hoàn Tiền Vật Phẩm',
+        desc: 'Tự động hoàn 100% VIP Coin khi vật phẩm bị xóa khỏi hệ thống',
+        icon: 'currency_exchange',
+        bg: 'rgba(16, 185, 129, 0.15)',
+        color: '#10b981',
       }
     case 'TOPUP_BUNDLE_PAYOS':
     case 'DEPOSIT':

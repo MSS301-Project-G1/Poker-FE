@@ -6,6 +6,7 @@ import ShopSidebar from './components/ShopSidebar'
 import FeaturedBundle from './components/FeaturedBundle'
 import ProductCard from './components/ProductCard'
 import InventoryGrid from './components/InventoryGrid'
+import DeletingProductsBanner from './components/DeletingProductsBanner'
 import WalletOverviewTab from './components/WalletOverviewTab'
 import ConfirmPurchaseModal from './components/ConfirmPurchaseModal'
 import { Button } from './shared/ui'
@@ -111,7 +112,6 @@ export default function ShopPage() {
     }
   }
 
-
   const handleSelectCategory = useCallback(categoryCode => {
     setActiveCategory(categoryCode)
     if (categoryCode === 'MY_WALLET') {
@@ -200,6 +200,7 @@ export default function ShopPage() {
 
           {/* Right Main Content */}
           <main className={styles.contentArea}>
+            <DeletingProductsBanner />
             {activeCategory === 'MY_INVENTORY' ? (
               !isLoggedIn ? (
                 <div className="flex flex-col items-center justify-center py-20 px-4 text-center rounded-3xl bg-white/[0.02] border border-white/10 shadow-2xl my-4">
@@ -223,23 +224,54 @@ export default function ShopPage() {
                 </div>
               ) : (
                 <div>
-                  <div className="flex items-center justify-between mb-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                     <div>
                       <h3 className="font-headline font-bold text-xl text-white">
                         Túi Đồ Trang Trí Của Bạn
                       </h3>
                       <p className="text-xs text-white/60">
-                        Quản lý và kích hoạt các mặt bài, bàn chơi và avatar bạn đã sở hữu.
+                        Quản lý và kích hoạt sử dụng các skin bài tây, dealer, đồng xu và bàn chơi của bạn.
                       </p>
                     </div>
+
                     <button
                       type="button"
                       onClick={() => refreshInventory()}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 text-xs font-semibold hover:bg-white/10 transition-colors border border-white/10"
+                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 text-xs font-semibold hover:bg-white/10 transition-colors border border-white/10 self-start sm:self-auto text-white/80 hover:text-white"
                     >
-                      <Icon name="refresh" className="text-sm" /> Làm mới
+                      <Icon name="refresh" className="text-sm" /> Làm mới túi đồ
                     </button>
                   </div>
+
+                  {/* Banner thông báo các vật phẩm trong kho đang được bảo trì */}
+                  {inventoryItems.some(i => i.productStatus === 'MAINTAIN' || i.isDeleting) && (
+                    <div className="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-start gap-3.5 mb-6 text-amber-200 shadow-xl">
+                      <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30 shadow-md">
+                        <Icon name="build" className="text-xl" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-headline font-bold text-sm text-white">
+                            Thông Báo Bảo Trì Kỹ Thuật Vật Phẩm
+                          </h4>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-slate-950 uppercase tracking-wider">
+                            Tạm Khóa Trang Bị
+                          </span>
+                        </div>
+                        <p className="text-xs text-amber-200/90 leading-relaxed">
+                          Vật phẩm sau trong túi đồ của bạn hiện đang được bảo trì hệ thống để sửa lỗi hoặc nâng cấp:
+                          {' '}
+                          <strong className="text-white underline font-semibold">
+                            {inventoryItems
+                              .filter(i => i.productStatus === 'MAINTAIN' || i.isDeleting)
+                              .map(i => i.productName)
+                              .join(', ')}
+                          </strong>.
+                          Bạn vẫn được bảo lưu 100% quyền sở hữu trong kho đồ, nhưng tạm thời không thể kích hoạt trang bị cho đến khi bảo trì hoàn tất!
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   <InventoryGrid
                     items={inventoryItems}

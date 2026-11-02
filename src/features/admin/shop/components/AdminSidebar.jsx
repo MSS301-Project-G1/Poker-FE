@@ -68,8 +68,6 @@ export default function AdminSidebar({
                 <span className={styles.navLabel}>Thêm Vật Phẩm & Skin</span>
               </div>
             </button>
-
-            
           </div>
         </div>
 
@@ -91,7 +89,6 @@ export default function AdminSidebar({
             </button>
           </div>
         </div>
-
 
         {/* Section 4: Điều Hành Game */}
         <div className={styles.navSection}>
