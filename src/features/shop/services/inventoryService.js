@@ -1,7 +1,7 @@
 import { gatewayRequest } from '@/shared/api/gatewayClient'
 
 /**
- * Raw HTTP Service for User Inventory & Item Equipping
+ * Raw HTTP Service for User Inventory, Equipping & Refund Tickets
  */
 
 export async function getMyInventory({ signal } = {}) {
@@ -31,3 +31,5 @@ export async function unequipItem(productId) {
     errorMessage: 'Không thể gỡ trang bị vật phẩm',
   })
 }
+
+

@@ -15,6 +15,7 @@ export function useAdminProducts({ initialPage = 0, initialSize = 10 } = {}) {
   const [totalElements, setTotalElements] = useState(0)
   const [selectedCategory, setSelectedCategory] = useState('ALL')
   const [selectedTier, setSelectedTier] = useState('ALL')
+  const [selectedStatus, setSelectedStatus] = useState('ALL')
 
   useEffect(() => {
     let disposed = false
@@ -25,6 +26,7 @@ export function useAdminProducts({ initialPage = 0, initialSize = 10 } = {}) {
           adminService.getAdminProducts({
             category: selectedCategory !== 'ALL' ? selectedCategory : undefined,
             tier: selectedTier !== 'ALL' ? selectedTier : undefined,
+            status: selectedStatus !== 'ALL' && selectedStatus !== 'DELETING' ? selectedStatus : undefined,
             page,
             size,
           }),
@@ -54,7 +56,7 @@ export function useAdminProducts({ initialPage = 0, initialSize = 10 } = {}) {
     return () => {
       disposed = true
     }
-  }, [page, size, selectedCategory, selectedTier, reloadTrigger])
+  }, [page, size, selectedCategory, selectedTier, selectedStatus, reloadTrigger])
 
   const refresh = useCallback(() => {
     setReloadTrigger(v => v + 1)
@@ -67,6 +69,11 @@ export function useAdminProducts({ initialPage = 0, initialSize = 10 } = {}) {
 
   const handleTierChange = useCallback((tier) => {
     setSelectedTier(tier)
+    setPage(0)
+  }, [])
+
+  const handleStatusChange = useCallback((status) => {
+    setSelectedStatus(status)
     setPage(0)
   }, [])
 
@@ -90,6 +97,8 @@ export function useAdminProducts({ initialPage = 0, initialSize = 10 } = {}) {
     setSelectedCategory: handleCategoryChange,
     selectedTier,
     setSelectedTier: handleTierChange,
+    selectedStatus,
+    setSelectedStatus: handleStatusChange,
     refreshProducts: refresh,
     createProduct: adminService.createProduct,
     updateProduct: adminService.updateProduct,
@@ -98,4 +107,3 @@ export function useAdminProducts({ initialPage = 0, initialSize = 10 } = {}) {
     uploadDeckSkinFiles: adminService.uploadDeckSkinFiles,
   }
 }
-

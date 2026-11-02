@@ -5,16 +5,16 @@ import { gatewayRequest } from '@/shared/api/gatewayClient'
  * Handles Products, Categories, 53-Card Deck Skin ZIP Ingestion, and VIP Coin Bundles.
  */
 
-export async function getAdminProducts({ category, tier, page = 0, size = 50, signal } = {}) {
+export async function getAdminProducts({ category, tier, status, page = 0, size = 50, signal } = {}) {
   const params = new URLSearchParams()
   if (category && category !== 'ALL') params.append('category', category)
   if (tier && tier !== 'ALL') params.append('tier', tier)
+  if (status && status !== 'ALL') params.append('status', status)
   params.append('page', String(page))
   params.append('size', String(size))
 
-  return gatewayRequest(`/api/shop/products?${params.toString()}`, {
+  return gatewayRequest(`/api/admin/products?${params.toString()}`, {
     signal,
-    auth: false,
     errorMessage: 'Không thể tải danh sách sản phẩm',
   })
 }
@@ -43,6 +43,13 @@ export async function updateProduct(id, payload) {
   })
 }
 
+export async function activateProduct(id) {
+  return gatewayRequest(`/api/admin/products/${id}/activate`, {
+    method: 'PUT',
+    errorMessage: 'Không thể mở bán lại sản phẩm',
+  })
+}
+
 export async function deleteProduct(id) {
   return gatewayRequest(`/api/admin/products/${id}`, {
     method: 'DELETE',
@@ -50,14 +57,41 @@ export async function deleteProduct(id) {
   })
 }
 
-/**
- * Category Management APIs
- */
+export async function scheduleProductDeletion(id, { durationHours, notice }) {
+  return gatewayRequest(`/api/admin/products/${id}/schedule-deletion`, {
+    method: 'POST',
+    body: { durationHours, notice },
+    errorMessage: 'Không thể lên lịch xóa sản phẩm',
+  })
+}
+
+export async function cancelScheduledProductDeletion(id) {
+  return gatewayRequest(`/api/admin/products/${id}/cancel-deletion`, {
+    method: 'POST',
+    errorMessage: 'Không thể hủy lệnh xóa sản phẩm',
+  })
+}
+
+export async function executeProductDeletion(id) {
+  return gatewayRequest(`/api/admin/products/${id}/execute-deletion`, {
+    method: 'POST',
+    errorMessage: 'Không thể thực thi xóa và hoàn tiền sản phẩm',
+  })
+}
+
+export async function getDeletingAnnouncements({ signal } = {}) {
+  return gatewayRequest('/api/shop/products/deleting-announcements', {
+    signal,
+    auth: false,
+    errorMessage: 'Không thể tải thông báo sản phẩm sắp xóa',
+  })
+}
+
 export async function getCategories({ signal } = {}) {
   return gatewayRequest('/api/shop/categories', {
     signal,
     auth: false,
-    errorMessage: 'Không thể tải danh sách danh mục',
+    errorMessage: 'Không thể tải danh mục sản phẩm',
   })
 }
 
@@ -84,9 +118,6 @@ export async function deleteCategory(id) {
   })
 }
 
-/**
- * Upload 53-card deck ZIP file to MinIO / S3 via Admin API
- */
 export async function uploadDeckSkinZip(productId, file) {
   const formData = new FormData()
   formData.append('file', file)
@@ -94,18 +125,13 @@ export async function uploadDeckSkinZip(productId, file) {
   return gatewayRequest(`/api/admin/products/${productId}/deck-skin/upload-zip`, {
     method: 'POST',
     body: formData,
-    errorMessage: 'Tải lên file ZIP thất bại',
+    errorMessage: 'Tải lên bộ skin bài thất bại',
   })
 }
 
-/**
- * Upload multiple individual card images to MinIO / S3 via Admin API
- */
 export async function uploadDeckSkinFiles(productId, files) {
   const formData = new FormData()
-  Array.from(files).forEach(file => {
-    formData.append('files', file)
-  })
+  files.forEach(file => formData.append('files', file))
 
   return gatewayRequest(`/api/admin/products/${productId}/deck-skin/upload-files`, {
     method: 'POST',
@@ -114,9 +140,6 @@ export async function uploadDeckSkinFiles(productId, files) {
   })
 }
 
-/**
- * Upload general media asset file (image, video mp4, sprite) to MinIO / S3 via Admin API
- */
 export async function uploadAssetFile(file, folder = 'assets') {
   const formData = new FormData()
   formData.append('file', file)
@@ -180,7 +203,12 @@ export async function deleteProductSound(productId) {
   })
 }
 
-
-
-
-
+/**
+ * Chuyển sản phẩm sang trạng thái Bảo Trì (tạm dừng trên Shop, kho đồ người chơi bảo lưu 100%)
+ */
+export async function maintainProduct(productId) {
+  return gatewayRequest(`/api/admin/products/${productId}/maintain`, {
+    method: 'POST',
+    errorMessage: 'Không thể chuyển sản phẩm sang trạng thái Bảo Trì',
+  })
+}

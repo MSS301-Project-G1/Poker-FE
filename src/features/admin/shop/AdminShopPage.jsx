@@ -30,6 +30,8 @@ export default function AdminShopPage() {
     setSelectedCategory,
     selectedTier,
     setSelectedTier,
+    selectedStatus,
+    setSelectedStatus,
     refreshProducts,
     createProduct,
     updateProduct,
@@ -111,6 +113,8 @@ export default function AdminShopPage() {
                 setSelectedCategory={setSelectedCategory}
                 selectedTier={selectedTier}
                 setSelectedTier={setSelectedTier}
+                selectedStatus={selectedStatus}
+                setSelectedStatus={setSelectedStatus}
                 onOpenAddProduct={type => {
                   setEditingProduct(null)
                   setActiveTab('ADD_PRODUCT')

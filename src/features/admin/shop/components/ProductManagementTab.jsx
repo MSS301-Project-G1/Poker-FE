@@ -3,6 +3,14 @@ import { Icon, Button, useToast } from '@/shared/ui'
 import { getTierBadge, formatVipCoin, formatVnd } from '../utils/adminFormatters'
 import { isCardProduct } from '@/features/shop'
 import DeckSkinZipModal from './DeckSkinZipModal'
+import ProductDeletionZoneModal from './ProductDeletionZoneModal'
+import ScheduleDeletionModal from './ScheduleDeletionModal'
+import {
+  maintainProduct,
+  activateProduct,
+  cancelScheduledProductDeletion,
+  executeProductDeletion,
+} from '../services/adminShopService'
 
 export default function ProductManagementTab({
   products = [],
@@ -23,18 +31,31 @@ export default function ProductManagementTab({
   setSelectedCategory,
   selectedTier = 'ALL',
   setSelectedTier,
+  selectedStatus = 'ALL',
+  setSelectedStatus,
 }) {
   const notify = useToast()
   const [searchTerm, setSearchTerm] = useState('')
   const [zipModalProduct, setZipModalProduct] = useState(null)
-  const [productToDelete, setProductToDelete] = useState(null)
-  const [isDeleting, setIsDeleting] = useState(false)
+  const [isDeleteZoneOpen, setIsDeleteZoneOpen] = useState(false)
+  const [productToScheduleDelete, setProductToScheduleDelete] = useState(null)
+  const [productToImmediateDelete, setProductToImmediateDelete] = useState(null)
+  const [isDeletingExecuting, setIsDeletingExecuting] = useState(false)
+  const [isActivatingId, setIsActivatingId] = useState(null)
+  const [isCancellingId, setIsCancellingId] = useState(null)
+
+  // Revocation state
+  const [productToRevoke, setProductToRevoke] = useState(null)
+  const [revokeReason, setRevokeReason] = useState('')
+  const [isRevoking, setIsRevoking] = useState(false)
 
   // Local fallback filters if not controlled by parent
   const [localCategory, setLocalCategory] = useState('ALL')
   const [localTier, setLocalTier] = useState('ALL')
+  const [localStatus, setLocalStatus] = useState('ALL')
   const activeCategory = setSelectedCategory ? selectedCategory : localCategory
   const activeTier = setSelectedTier ? selectedTier : localTier
+  const activeStatus = setSelectedStatus ? selectedStatus : localStatus
 
   const handleCategorySelect = cat => {
     if (setSelectedCategory) setSelectedCategory(cat)
@@ -46,19 +67,30 @@ export default function ProductManagementTab({
     else setLocalTier(tier)
   }
 
+  const handleStatusSelect = status => {
+    if (setSelectedStatus) setSelectedStatus(status)
+    else setLocalStatus(status)
+  }
+
   // KPI Dashboard Stats
   const stats = useMemo(() => {
     const total = totalElements || products.length
     const cardDecks = products.filter(p => isCardProduct(p)).length
     const vipItems = products.filter(p => p.tier === 'VIP' || p.tier === 'SUPER_VIP').length
-    const exclusive = products.filter(p => p.isExclusive).length
-    return { total, cardDecks, vipItems, exclusive }
+    const maintenanceItems = products.filter(p => p.status === 'MAINTAIN').length
+    const deletingItems = products.filter(p => p.isDeleting).length
+    return { total, cardDecks, vipItems, maintenanceItems, deletingItems }
   }, [products, totalElements])
 
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
       if (!setSelectedCategory && activeCategory !== 'ALL' && p.categoryCode !== activeCategory) return false
       if (!setSelectedTier && activeTier !== 'ALL' && p.tier !== activeTier) return false
+      if (!setSelectedStatus && activeStatus !== 'ALL') {
+        if (activeStatus === 'MAINTAIN' && p.status !== 'MAINTAIN') return false
+        if (activeStatus === 'ACTIVE' && p.status !== 'ACTIVE') return false
+        if (activeStatus === 'DELETING' && !p.isDeleting) return false
+      }
       if (searchTerm) {
         const q = searchTerm.toLowerCase()
         const name = (p.name || '').toLowerCase()
@@ -67,26 +99,78 @@ export default function ProductManagementTab({
       }
       return true
     })
-  }, [products, setSelectedCategory, activeCategory, setSelectedTier, activeTier, searchTerm])
+  }, [products, setSelectedCategory, activeCategory, setSelectedTier, activeTier, setSelectedStatus, activeStatus, searchTerm])
 
-  const handleConfirmDelete = async () => {
-    if (!productToDelete) return
-    setIsDeleting(true)
+  const handleConfirmRevoke = async () => {
+    if (!productToRevoke) return
+    setIsRevoking(true)
     try {
-      await deleteProduct(productToDelete.id)
-      notify(`Đã xóa vĩnh viễn sản phẩm "${productToDelete.name}" thành công!`, { type: 'success' })
-      setProductToDelete(null)
+      const response = await maintainProduct(productToRevoke.id)
+      notify(
+        response?.data?.message ||
+          response?.message ||
+          'Đã chuyển sản phẩm sang trạng thái Bảo Trì. Kho đồ người chơi được bảo lưu an toàn 100%!',
+        { type: 'success' }
+      )
+      setProductToRevoke(null)
+      setRevokeReason('')
+      onRefresh?.()
+    } catch (err) {
+      notify(err.message || 'Chuyển trạng thái bảo trì thất bại', { type: 'error' })
+    } finally {
+      setIsRevoking(false)
+    }
+  }
+
+  const handleActivateProduct = async product => {
+    setIsActivatingId(product.id)
+    try {
+      await activateProduct(product.id)
+      notify(`Đã mở bán lại sản phẩm "${product.name}" trên Cửa Hàng thành công!`, { type: 'success' })
+      onRefresh?.()
+    } catch (err) {
+      notify(err.message || 'Mở bán lại sản phẩm thất bại', { type: 'error' })
+    } finally {
+      setIsActivatingId(null)
+    }
+  }
+
+  const handleCancelScheduledDeletion = async product => {
+    setIsCancellingId(product.id)
+    try {
+      await cancelScheduledProductDeletion(product.id)
+      notify(`Đã hủy lệnh xóa sản phẩm "${product.name}", đưa về Bảo Trì an toàn!`, { type: 'success' })
+      onRefresh?.()
+    } catch (err) {
+      notify(err.message || 'Hủy lệnh xóa sản phẩm thất bại', { type: 'error' })
+    } finally {
+      setIsCancellingId(null)
+    }
+  }
+
+  const handleConfirmExecuteDeletion = async () => {
+    if (!productToImmediateDelete) return
+    setIsDeletingExecuting(true)
+    try {
+      const res = await executeProductDeletion(productToImmediateDelete.id)
+      notify(
+        res?.data?.message ||
+          res?.message ||
+          `Đã xóa vĩnh viễn sản phẩm "${productToImmediateDelete.name}" và tự động hoàn tiền thành công!`,
+        { type: 'success' }
+      )
+      setProductToImmediateDelete(null)
       onRefresh?.()
     } catch (err) {
       notify(err.message || 'Xóa sản phẩm thất bại', { type: 'error' })
     } finally {
-      setIsDeleting(false)
+      setIsDeletingExecuting(false)
     }
   }
 
   return (
     <div className="space-y-6">
-      {/* Top Action Header with Control Panel Buttons */}
+      {/* Top Action Header with Delete Button on Header as Requested */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-6 rounded-3xl bg-gradient-to-r from-[#170a2c] via-[#140926] to-[#0d041a] border border-white/10 shadow-2xl relative overflow-hidden">
         <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-amber-500/10 to-transparent pointer-events-none" />
 
@@ -101,28 +185,18 @@ export default function ProductManagementTab({
             <Icon name="inventory_2" className="text-amber-400 text-3xl" />
             <span>Bảng Điều Khiển Kho Vật Phẩm</span>
           </h2>
-          <p className="text-xs text-white/60 mt-1 max-w-xl">
-            Quản lý toàn bộ danh mục skin poker, thiết lập đơn giá VIP Coin, xóa hoặc nạp bộ texture 53 lá bài trực tiếp lên S3 / MinIO.
-          </p>
         </div>
 
-        <div className="flex items-center gap-3 relative z-10 flex-wrap">
-          <Button
-            variant="gold"
-            size="md"
-            icon="add_circle"
-            onClick={() => onOpenAddProduct?.('STANDARD')}
-          >
-            Thêm Vật Phẩm Mới
-          </Button>
-
+        {/* Action Button on Header: Tiêu Hủy / Xóa Sản Phẩm */}
+        <div className="flex items-center gap-3 relative z-10">
           <button
             type="button"
-            onClick={() => onOpenAddProduct?.('CARD_SKIN')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-400/50 text-amber-300 hover:bg-amber-500/30 font-bold text-xs shadow-lg shadow-amber-500/10 transition-all"
+            onClick={() => setIsDeleteZoneOpen(true)}
+            className="px-4 py-2.5 rounded-2xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 hover:text-white border border-rose-500/30 transition-all font-bold text-xs flex items-center gap-2 shadow-lg shadow-rose-950/40 group"
+            title="Mở khu vực tiêu hủy & xóa vĩnh viễn sản phẩm khỏi hệ thống (hỗ trợ chọn hoặc kéo thả)"
           >
-            <Icon name="style" className="text-base" />
-            <span>Thêm Skin Lá Bài (52 Lá)</span>
+            <Icon name="delete_sweep" className="text-lg text-rose-400 group-hover:scale-110 transition-transform" />
+            <span>Khu Vực Tiêu Hủy (Xóa Sản Phẩm)</span>
           </button>
         </div>
       </div>
@@ -172,15 +246,15 @@ export default function ProductManagementTab({
         </div>
 
         <div className="p-4 rounded-2xl bg-[#140a24]/90 border border-white/10 shadow-lg flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center font-black">
-            <Icon name="lock" className="text-2xl" />
+          <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-black">
+            <Icon name="build_circle" className="text-2xl" />
           </div>
           <div>
             <span className="text-[11px] font-bold text-white/50 uppercase tracking-wider block">
-              Vật Phẩm Độc Quyền
+              Đang Bảo Trì (Maintain)
             </span>
-            <span className="font-headline font-black text-xl text-rose-300">
-              {stats.exclusive}
+            <span className="font-headline font-black text-xl text-amber-300">
+              {stats.maintenanceItems}
             </span>
           </div>
         </div>
@@ -215,9 +289,10 @@ export default function ProductManagementTab({
         ))}
       </div>
 
-      {/* Search & Tier Filter Toolbar */}
+      {/* Search & Tier + Status Filter Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
         <div className="flex items-center gap-3 flex-wrap">
+          {/* Tier Filter */}
           <select
             value={activeTier}
             onChange={e => handleTierSelect(e.target.value)}
@@ -227,6 +302,18 @@ export default function ProductManagementTab({
             <option value="NORMAL">Standard</option>
             <option value="VIP">VIP</option>
             <option value="SUPER_VIP">SUPER VIP</option>
+          </select>
+
+          {/* Status Filter */}
+          <select
+            value={activeStatus}
+            onChange={e => handleStatusSelect(e.target.value)}
+            className="px-3.5 py-2 rounded-xl bg-black/50 border border-white/15 text-xs font-bold text-white focus:outline-none focus:border-amber-400"
+          >
+            <option value="ALL">Tất cả Trạng Thái</option>
+            <option value="ACTIVE">Đang Mở Bán (ACTIVE)</option>
+            <option value="MAINTAIN">Đang Bảo Trì (MAINTAIN)</option>
+            <option value="DELETING">Đang Chờ Xóa (Đếm Ngược)</option>
           </select>
         </div>
 
@@ -275,11 +362,13 @@ export default function ProductManagementTab({
               ) : (
                 filteredProducts.map(p => {
                   const tier = getTierBadge(p.tier)
+                  const isMaintain = p.status === 'MAINTAIN'
+                  const isDeleting = p.isDeleting
 
                   return (
                     <tr key={p.id} className="hover:bg-white/5 transition-colors">
                       <td className="p-4">
-                        <div className="w-14 h-14 rounded-2xl bg-black/60 border border-white/10 flex items-center justify-center p-1.5 shadow-md overflow-hidden">
+                        <div className="w-14 h-14 rounded-2xl bg-black/60 border border-white/10 flex items-center justify-center p-1.5 shadow-md overflow-hidden relative">
                           <img
                             alt={p.name}
                             src={p.previewUrl || p.assetUrl}
@@ -288,6 +377,15 @@ export default function ProductManagementTab({
                               e.currentTarget.style.display = 'none'
                             }}
                           />
+                          {isDeleting ? (
+                            <div className="absolute inset-0 bg-rose-950/80 flex items-center justify-center text-rose-400">
+                              <Icon name="timer" className="text-xl animate-pulse" />
+                            </div>
+                          ) : isMaintain ? (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-amber-400">
+                              <Icon name="build" className="text-lg" />
+                            </div>
+                          ) : null}
                         </div>
                       </td>
                       <td className="p-4">
@@ -317,7 +415,15 @@ export default function ProductManagementTab({
                         </span>
                       </td>
                       <td className="p-4">
-                        {p.isExclusive ? (
+                        {isDeleting ? (
+                          <span className="text-rose-400 font-bold px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-[11px] inline-flex items-center gap-1 shadow-sm animate-pulse">
+                            <Icon name="timer" className="text-xs" /> Đang Chờ Xóa
+                          </span>
+                        ) : isMaintain ? (
+                          <span className="text-amber-300 font-bold px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-[11px] inline-flex items-center gap-1 shadow-sm">
+                            <Icon name="build_circle" className="text-xs text-amber-400" /> Đang Bảo Trì
+                          </span>
+                        ) : p.isExclusive ? (
                           <span className="text-rose-300 font-bold px-2 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-[11px] inline-flex items-center gap-1">
                             <Icon name="lock" className="text-xs" /> Độc Quyền
                           </span>
@@ -328,24 +434,90 @@ export default function ProductManagementTab({
                         )}
                       </td>
                       <td className="p-4 text-right space-x-2 whitespace-nowrap">
-                        <button
-                          type="button"
-                          onClick={() => onEditProduct?.(p)}
-                          className="px-3 py-1.5 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 border border-amber-400/40 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
-                          title="Chỉnh sửa thông tin sản phẩm"
-                        >
-                          <Icon name="edit" className="text-sm" />
-                          <span>Sửa</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setProductToDelete(p)}
-                          className="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
-                          title="Xóa sản phẩm"
-                        >
-                          <Icon name="delete" className="text-sm" />
-                          <span>Xóa</span>
-                        </button>
+                        {/* CASE 1: Đang lên lịch xóa (isDeleting) */}
+                        {isDeleting ? (
+                          <>
+                            <button
+                              type="button"
+                              disabled={isCancellingId === p.id}
+                              onClick={() => handleCancelScheduledDeletion(p)}
+                              className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 border border-white/20 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
+                              title="Hủy lệnh đếm ngược xóa, đưa sản phẩm về Bảo Trì an toàn"
+                            >
+                              <Icon name="undo" className="text-sm" />
+                              <span>Hủy Xóa</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setProductToImmediateDelete(p)}
+                              className="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
+                              title="Hoàn tất tiêu hủy ngay và tự động hoàn trả 100% VIP Coin vào ví của toàn bộ người chơi sở hữu"
+                            >
+                              <Icon name="delete_forever" className="text-sm" />
+                              <span>Tiêu Hủy Ngay</span>
+                            </button>
+                          </>
+                        ) : isMaintain ? (
+                          /* CASE 2: Đang Bảo Trì (Maintain) */
+                          <>
+                            <button
+                              type="button"
+                              disabled={isActivatingId === p.id}
+                              onClick={() => handleActivateProduct(p)}
+                              className="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
+                              title="Hoàn tất sửa lỗi và mở bán lại sản phẩm trên Cửa Hàng (người chơi cũ vẫn giữ nguyên đồ)"
+                            >
+                              <Icon
+                                name={isActivatingId === p.id ? 'progress_activity' : 'storefront'}
+                                className={`text-sm ${isActivatingId === p.id ? 'animate-spin' : ''}`}
+                              />
+                              <span>Mở Bán Lại</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => onEditProduct?.(p)}
+                              className="px-3 py-1.5 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 border border-amber-400/40 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
+                              title="Chỉnh sửa thông tin, giá bán, hoặc texture của sản phẩm"
+                            >
+                              <Icon name="edit" className="text-sm" />
+                              <span>Sửa</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setProductToScheduleDelete(p)}
+                              className="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
+                              title="Lên lịch xóa vĩnh viễn kèm thông báo toàn server và tự động hoàn tiền cho người chơi"
+                            >
+                              <Icon name="timer" className="text-sm" />
+                              <span>Lên Lịch Xóa</span>
+                            </button>
+                          </>
+                        ) : (
+                          /* CASE 3: Đang Mở Bán (ACTIVE) - Tuyệt đối không cho xóa trực tiếp! */
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setProductToRevoke(p)
+                                setRevokeReason('')
+                              }}
+                              className="px-3 py-1.5 rounded-xl bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 border border-orange-500/30 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
+                              title="Tạm dừng bán trên Shop và chuyển sang Bảo Trì (Kho đồ người chơi được bảo lưu an toàn 100%)"
+                            >
+                              <Icon name="build" className="text-sm" />
+                              <span>Bảo Trì</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => onEditProduct?.(p)}
+                              className="px-3 py-1.5 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 border border-amber-400/40 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
+                              title="Chỉnh sửa thông tin, giá bán, hoặc texture của sản phẩm"
+                            >
+                              <Icon name="edit" className="text-sm" />
+                              <span>Sửa</span>
+                            </button>
+                          </>
+                        )}
                       </td>
                     </tr>
                   )
@@ -392,51 +564,48 @@ export default function ProductManagementTab({
             </div>
           </div>
 
-          {/* Right: Page Navigation Buttons */}
-          <div className="flex items-center gap-1.5">
+          {/* Right: Page navigation */}
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              disabled={page <= 0 || loading}
-              onClick={() => setPage?.(prev => Math.max(0, prev - 1))}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all font-semibold"
+              disabled={page === 0}
+              onClick={() => setPage?.(page - 1)}
+              className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center gap-1"
             >
               <Icon name="chevron_left" className="text-base" />
               <span>Trước</span>
             </button>
 
-            {/* Page pills */}
+            {/* Numeric page pills */}
             <div className="flex items-center gap-1">
-              {Array.from({ length: Math.max(1, totalPages) }, (_, i) => i)
-                .filter(p => p === 0 || p === totalPages - 1 || Math.abs(p - page) <= 1)
-                .map((p, idx, arr) => {
-                  const prev = arr[idx - 1]
-                  const showEllipsis = prev !== undefined && p - prev > 1
+              {Array.from({ length: Math.min(totalPages, 5) }).map((_, idx) => {
+                let pageNumber = idx
+                if (totalPages > 5 && page > 2) {
+                  pageNumber = Math.min(page - 2 + idx, totalPages - 1)
+                }
 
-                  return (
-                    <div key={p} className="flex items-center gap-1">
-                      {showEllipsis && <span className="text-white/30 px-1">...</span>}
-                      <button
-                        type="button"
-                        onClick={() => setPage?.(p)}
-                        disabled={loading}
-                        className={`w-8 h-8 rounded-xl font-bold flex items-center justify-center transition-all ${
-                          page === p
-                            ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
-                            : 'bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10'
-                        }`}
-                      >
-                        {p + 1}
-                      </button>
-                    </div>
-                  )
-                })}
+                return (
+                  <button
+                    key={pageNumber}
+                    type="button"
+                    onClick={() => setPage?.(pageNumber)}
+                    className={`w-8 h-8 rounded-xl font-bold transition-all text-xs flex items-center justify-center ${
+                      page === pageNumber
+                        ? 'bg-amber-400 text-slate-950 font-black shadow-md'
+                        : 'bg-white/5 hover:bg-white/10 text-white/70'
+                    }`}
+                  >
+                    {pageNumber + 1}
+                  </button>
+                )
+              })}
             </div>
 
             <button
               type="button"
-              disabled={page >= totalPages - 1 || loading}
-              onClick={() => setPage?.(prev => Math.min(totalPages - 1, prev + 1))}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all font-semibold"
+              disabled={page >= totalPages - 1}
+              onClick={() => setPage?.(page + 1)}
+              className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center gap-1"
             >
               <span>Tiếp</span>
               <Icon name="chevron_right" className="text-base" />
@@ -454,27 +623,46 @@ export default function ProductManagementTab({
         uploadDeckSkinZip={uploadDeckSkinZip}
       />
 
-      {/* Custom Confirmation Modal for Deletion */}
-      {productToDelete && (
+      {/* Dedicated Deletion Zone Modal */}
+      <ProductDeletionZoneModal
+        isOpen={isDeleteZoneOpen}
+        onClose={() => setIsDeleteZoneOpen(false)}
+        products={products}
+        onDeleteProduct={deleteProduct}
+        onRefresh={onRefresh}
+      />
+
+      {/* Schedule Deletion Modal */}
+      <ScheduleDeletionModal
+        product={productToScheduleDelete}
+        isOpen={Boolean(productToScheduleDelete)}
+        onClose={() => setProductToScheduleDelete(null)}
+        onSuccess={onRefresh}
+      />
+
+      {/* Custom Confirmation Modal for Putting into Maintain (BẢO TRÌ) */}
+      {productToRevoke && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-          <div className="w-full max-w-md rounded-3xl bg-[#170c2a] border border-rose-500/30 p-6 shadow-2xl space-y-4">
+          <div className="w-full max-w-md rounded-3xl bg-[#170c2a] border border-orange-500/30 p-6 shadow-2xl space-y-4">
             <div className="flex items-center gap-3">
-              <span className="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center shrink-0">
-                <Icon name="warning" className="text-2xl" />
+              <span className="w-12 h-12 rounded-2xl bg-orange-500/20 text-orange-400 border border-orange-500/30 flex items-center justify-center shrink-0">
+                <Icon name="build" className="text-2xl" />
               </span>
               <div>
                 <h3 className="font-headline font-black text-lg text-white">
-                  Xác Nhận Xóa Sản Phẩm
+                  Chuyển Sang Trạng Thái Bảo Trì
                 </h3>
-                <p className="text-xs text-white/50">Hành động này không thể hoàn tác</p>
+                <p className="text-xs text-amber-300/80">
+                  Tạm dừng bán trên Shop để sửa lỗi • Kho đồ người chơi được bảo lưu an toàn 100%
+                </p>
               </div>
             </div>
 
             <div className="p-3.5 rounded-2xl bg-black/40 border border-white/10 flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 p-1 flex items-center justify-center shrink-0">
                 <img
-                  alt={productToDelete.name}
-                  src={productToDelete.previewUrl || productToDelete.assetUrl}
+                  alt={productToRevoke.name}
+                  src={productToRevoke.previewUrl || productToRevoke.assetUrl}
                   className="w-full h-full object-contain"
                   onError={e => {
                     e.currentTarget.style.display = 'none'
@@ -483,35 +671,112 @@ export default function ProductManagementTab({
               </div>
               <div className="min-w-0">
                 <span className="font-headline font-bold text-sm text-white block truncate">
-                  {productToDelete.name}
+                  {productToRevoke.name}
                 </span>
                 <span className="text-xs text-amber-400 font-mono block">
-                  {formatVipCoin(productToDelete.priceVipCoin)} VIP Coin
+                  {formatVipCoin(productToRevoke.priceVipCoin)} VIP Coin
                 </span>
               </div>
             </div>
 
-            <p className="text-xs text-white/70 leading-relaxed">
-              Bạn có chắc chắn muốn xóa vĩnh viễn vật phẩm này? Sản phẩm sẽ bị gỡ khỏi Shop và dữ liệu liên quan sẽ bị xóa.
+            <p className="text-xs text-white/80 leading-relaxed bg-amber-500/10 p-3 rounded-xl border border-amber-500/20">
+              Sản phẩm sẽ được chuyển sang <strong>Đang Bảo Trì (Maintain)</strong> và tạm dừng bán trên Cửa Hàng. <strong>Người chơi đã mua trước đó vẫn giữ nguyên vật phẩm trong kho đồ</strong>. Bạn có thể bấm <strong>Sửa</strong> để sửa lỗi và bấm <strong>Mở Bán Lại</strong> bất kỳ lúc nào mà không làm ảnh hưởng đến người chơi.
+            </p>
+
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-white/80">
+                Ghi chú lý do bảo trì <span className="text-rose-400">*</span>:
+              </label>
+              <textarea
+                rows={3}
+                value={revokeReason}
+                onChange={e => setRevokeReason(e.target.value)}
+                placeholder="Ví dụ: Tạm dừng để cập nhật animation / Sửa texture lá bài lỗi..."
+                className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 text-white placeholder-white/30 text-xs focus:outline-none focus:border-orange-400"
+              />
+            </div>
+
+            <div className="pt-2 flex items-center justify-end gap-3">
+              <Button
+                variant="secondary"
+                size="md"
+                disabled={isRevoking}
+                onClick={() => setProductToRevoke(null)}
+              >
+                Hủy Bỏ
+              </Button>
+              <Button
+                variant="primary"
+                size="md"
+                loading={isRevoking}
+                onClick={handleConfirmRevoke}
+                className="bg-orange-600 hover:bg-orange-500 text-white border-none shadow-lg shadow-orange-950 font-bold"
+              >
+                Xác Nhận Bảo Trì
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal for Immediate Final Delete & Auto-Refund */}
+      {productToImmediateDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-md rounded-3xl bg-[#170a2a] border border-rose-500/40 p-6 shadow-2xl space-y-4 text-white">
+            <div className="flex items-center gap-3">
+              <span className="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center shrink-0">
+                <Icon name="delete_forever" className="text-2xl" />
+              </span>
+              <div>
+                <h3 className="font-headline font-black text-lg text-white">
+                  Xác Nhận Tiêu Hủy & Auto-Refund
+                </h3>
+                <p className="text-xs text-rose-300/80">Xóa vĩnh viễn và hoàn 100% coin cho người chơi</p>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-black/50 border border-white/10 flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 p-1 flex items-center justify-center shrink-0">
+                <img
+                  alt={productToImmediateDelete.name}
+                  src={productToImmediateDelete.previewUrl || productToImmediateDelete.assetUrl}
+                  className="w-full h-full object-contain"
+                  onError={e => {
+                    e.currentTarget.style.display = 'none'
+                  }}
+                />
+              </div>
+              <div className="min-w-0">
+                <span className="font-headline font-bold text-sm text-white block truncate">
+                  {productToImmediateDelete.name}
+                </span>
+                <span className="text-xs text-amber-400 font-mono block">
+                  {formatVipCoin(productToImmediateDelete.priceVipCoin)} VIP Coin
+                </span>
+              </div>
+            </div>
+
+            <p className="text-xs text-rose-200/90 leading-relaxed bg-rose-500/15 p-3 rounded-xl border border-rose-500/30">
+              Hệ thống sẽ xóa vĩnh viễn sản phẩm này khỏi toàn bộ database, đồng thời <strong>TỰ ĐỘNG CỘNG THẲNG 100% VIP COIN</strong> vào ví của tất cả người chơi đang sở hữu vật phẩm này. Người chơi không cần phải gửi ticket.
             </p>
 
             <div className="pt-2 flex items-center justify-end gap-3">
               <Button
                 variant="secondary"
                 size="md"
-                disabled={isDeleting}
-                onClick={() => setProductToDelete(null)}
+                disabled={isDeletingExecuting}
+                onClick={() => setProductToImmediateDelete(null)}
               >
                 Hủy Bỏ
               </Button>
               <Button
                 variant="danger"
                 size="md"
-                icon="delete_forever"
-                loading={isDeleting}
-                onClick={handleConfirmDelete}
+                loading={isDeletingExecuting}
+                onClick={handleConfirmExecuteDeletion}
+                className="bg-rose-600 hover:bg-rose-500 text-white font-bold shadow-lg shadow-rose-950"
               >
-                Xác Nhận Xóa
+                Xác Nhận Xóa & Hoàn Tiền Ngay
               </Button>
             </div>
           </div>

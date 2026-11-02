@@ -14,16 +14,11 @@ export default function FeaturedBundle() {
         <div className={styles.contentGrid}>
           <div className={styles.textColumn}>
             <div className={styles.tagGroup}>
-              <span className={styles.tagPromo}>Ưu Đãi Đặc Biệt</span>
-              <span className={styles.tagBonus}>+30% Bonus Coin</span>
             </div>
 
             <h2 className={styles.bannerTitle}>Gói Nạp Khuyến Mãi VIP Coin</h2>
 
-            <p className={styles.bannerDescription}>
-              Nhận thêm tới 30% VIP Coin thưởng khi nạp qua PayOS. Sử dụng VIP Coin để sở hữu các bộ
-              bài Hoàng Gia, hiệu ứng All-In Rồng Lửa và khung avatar danh giá.
-            </p>
+            
 
             <div className={styles.ctaRow}>
               <Button
@@ -32,7 +27,7 @@ export default function FeaturedBundle() {
                 icon="bolt"
                 onClick={() => navigate('/shop/bundles')}
               >
-                Khám Phá Gói Nạp PayOS
+                Khám Phá Gói Nạp
               </Button>
             </div>
           </div>
@@ -51,7 +46,7 @@ export default function FeaturedBundle() {
               />
               <div className={styles.imageOverlay}>
                 <div className={styles.overlayInfo}>
-                  <span className={styles.payosTag}>PayOS Cổng Thanh Toán</span>
+                  <span className={styles.payosTag}>Cổng Thanh Toán</span>
                   <span className={styles.hotTag}>HOT DEALS</span>
                 </div>
               </div>
