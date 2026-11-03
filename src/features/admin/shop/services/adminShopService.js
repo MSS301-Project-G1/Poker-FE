@@ -57,10 +57,10 @@ export async function deleteProduct(id) {
   })
 }
 
-export async function scheduleProductDeletion(id, { durationHours, notice }) {
+export async function scheduleProductDeletion(id, { durationHours, durationMinutes, notice }) {
   return gatewayRequest(`/api/admin/products/${id}/schedule-deletion`, {
     method: 'POST',
-    body: { durationHours, notice },
+    body: { durationHours, durationMinutes, notice },
     errorMessage: 'Không thể lên lịch xóa sản phẩm',
   })
 }

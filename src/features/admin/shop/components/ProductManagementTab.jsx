@@ -109,14 +109,14 @@ export default function ProductManagementTab({
       notify(
         response?.data?.message ||
           response?.message ||
-          'Đã chuyển sản phẩm sang trạng thái Bảo Trì. Kho đồ người chơi được bảo lưu an toàn 100%!',
+          'Đã chuyển sản phẩm sang trạng thái Tạm Ngưng Bán. Kho đồ người chơi được bảo lưu an toàn 100%!',
         { type: 'success' }
       )
       setProductToRevoke(null)
       setRevokeReason('')
       onRefresh?.()
     } catch (err) {
-      notify(err.message || 'Chuyển trạng thái bảo trì thất bại', { type: 'error' })
+      notify(err.message || 'Chuyển trạng thái tạm ngưng bán thất bại', { type: 'error' })
     } finally {
       setIsRevoking(false)
     }
@@ -139,7 +139,7 @@ export default function ProductManagementTab({
     setIsCancellingId(product.id)
     try {
       await cancelScheduledProductDeletion(product.id)
-      notify(`Đã hủy lệnh xóa sản phẩm "${product.name}", đưa về Bảo Trì an toàn!`, { type: 'success' })
+      notify(`Đã hủy lệnh xóa sản phẩm "${product.name}", đưa về Tạm Ngưng an toàn!`, { type: 'success' })
       onRefresh?.()
     } catch (err) {
       notify(err.message || 'Hủy lệnh xóa sản phẩm thất bại', { type: 'error' })
@@ -170,7 +170,7 @@ export default function ProductManagementTab({
 
   return (
     <div className="space-y-6">
-      {/* Top Action Header with Delete Button on Header as Requested */}
+      {/* Top Action Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-6 rounded-3xl bg-gradient-to-r from-[#170a2c] via-[#140926] to-[#0d041a] border border-white/10 shadow-2xl relative overflow-hidden">
         <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-amber-500/10 to-transparent pointer-events-none" />
 
@@ -185,19 +185,6 @@ export default function ProductManagementTab({
             <Icon name="inventory_2" className="text-amber-400 text-3xl" />
             <span>Bảng Điều Khiển Kho Vật Phẩm</span>
           </h2>
-        </div>
-
-        {/* Action Button on Header: Tiêu Hủy / Xóa Sản Phẩm */}
-        <div className="flex items-center gap-3 relative z-10">
-          <button
-            type="button"
-            onClick={() => setIsDeleteZoneOpen(true)}
-            className="px-4 py-2.5 rounded-2xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 hover:text-white border border-rose-500/30 transition-all font-bold text-xs flex items-center gap-2 shadow-lg shadow-rose-950/40 group"
-            title="Mở khu vực tiêu hủy & xóa vĩnh viễn sản phẩm khỏi hệ thống (hỗ trợ chọn hoặc kéo thả)"
-          >
-            <Icon name="delete_sweep" className="text-lg text-rose-400 group-hover:scale-110 transition-transform" />
-            <span>Khu Vực Tiêu Hủy (Xóa Sản Phẩm)</span>
-          </button>
         </div>
       </div>
 
@@ -247,11 +234,11 @@ export default function ProductManagementTab({
 
         <div className="p-4 rounded-2xl bg-[#140a24]/90 border border-white/10 shadow-lg flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-black">
-            <Icon name="build_circle" className="text-2xl" />
+            <Icon name="pause_circle" className="text-2xl" />
           </div>
           <div>
             <span className="text-[11px] font-bold text-white/50 uppercase tracking-wider block">
-              Đang Bảo Trì (Maintain)
+              Đang Tạm Ngưng
             </span>
             <span className="font-headline font-black text-xl text-amber-300">
               {stats.maintenanceItems}
@@ -312,7 +299,7 @@ export default function ProductManagementTab({
           >
             <option value="ALL">Tất cả Trạng Thái</option>
             <option value="ACTIVE">Đang Mở Bán (ACTIVE)</option>
-            <option value="MAINTAIN">Đang Bảo Trì (MAINTAIN)</option>
+            <option value="MAINTAIN">Đang Tạm Ngưng (MAINTAIN)</option>
             <option value="DELETING">Đang Chờ Xóa (Đếm Ngược)</option>
           </select>
         </div>
@@ -382,8 +369,8 @@ export default function ProductManagementTab({
                               <Icon name="timer" className="text-xl animate-pulse" />
                             </div>
                           ) : isMaintain ? (
-                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-amber-400">
-                              <Icon name="build" className="text-lg" />
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-amber-400" title="Đang tạm ngưng bán">
+                              <Icon name="pause_circle" className="text-lg" />
                             </div>
                           ) : null}
                         </div>
@@ -421,7 +408,7 @@ export default function ProductManagementTab({
                           </span>
                         ) : isMaintain ? (
                           <span className="text-amber-300 font-bold px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-[11px] inline-flex items-center gap-1 shadow-sm">
-                            <Icon name="build_circle" className="text-xs text-amber-400" /> Đang Bảo Trì
+                            <Icon name="pause_circle" className="text-xs text-amber-400" /> Tạm Ngưng Bán
                           </span>
                         ) : p.isExclusive ? (
                           <span className="text-rose-300 font-bold px-2 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-[11px] inline-flex items-center gap-1">
@@ -442,7 +429,7 @@ export default function ProductManagementTab({
                               disabled={isCancellingId === p.id}
                               onClick={() => handleCancelScheduledDeletion(p)}
                               className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 border border-white/20 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
-                              title="Hủy lệnh đếm ngược xóa, đưa sản phẩm về Bảo Trì an toàn"
+                              title="Hủy lệnh đếm ngược xóa, đưa sản phẩm về Tạm Ngưng an toàn"
                             >
                               <Icon name="undo" className="text-sm" />
                               <span>Hủy Xóa</span>
@@ -458,14 +445,14 @@ export default function ProductManagementTab({
                             </button>
                           </>
                         ) : isMaintain ? (
-                          /* CASE 2: Đang Bảo Trì (Maintain) */
+                          /* CASE 2: Đang Tạm Ngưng (Maintain) - Cho phép Sửa và Lên Lịch Xóa */
                           <>
                             <button
                               type="button"
                               disabled={isActivatingId === p.id}
                               onClick={() => handleActivateProduct(p)}
                               className="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
-                              title="Hoàn tất sửa lỗi và mở bán lại sản phẩm trên Cửa Hàng (người chơi cũ vẫn giữ nguyên đồ)"
+                              title="Hoàn tất sửa đổi và mở bán lại sản phẩm trên Cửa Hàng (người chơi cũ vẫn giữ nguyên đồ)"
                             >
                               <Icon
                                 name={isActivatingId === p.id ? 'progress_activity' : 'storefront'}
@@ -493,7 +480,7 @@ export default function ProductManagementTab({
                             </button>
                           </>
                         ) : (
-                          /* CASE 3: Đang Mở Bán (ACTIVE) - Tuyệt đối không cho xóa trực tiếp! */
+                          /* CASE 3: Đang Mở Bán (ACTIVE) - Khóa chức năng Sửa & Xóa, bắt buộc Tạm Ngưng trước */
                           <>
                             <button
                               type="button"
@@ -501,19 +488,21 @@ export default function ProductManagementTab({
                                 setProductToRevoke(p)
                                 setRevokeReason('')
                               }}
-                              className="px-3 py-1.5 rounded-xl bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 border border-orange-500/30 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
-                              title="Tạm dừng bán trên Shop và chuyển sang Bảo Trì (Kho đồ người chơi được bảo lưu an toàn 100%)"
+                              className="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
+                              title="Tạm ngưng bán trên Shop để bảo trì / sửa chữa (Kho đồ người chơi được bảo lưu an toàn 100%)"
                             >
-                              <Icon name="build" className="text-sm" />
-                              <span>Bảo Trì</span>
+                              <Icon name="pause_circle" className="text-sm" />
+                              <span>Tạm Ngưng</span>
                             </button>
                             <button
                               type="button"
-                              onClick={() => onEditProduct?.(p)}
-                              className="px-3 py-1.5 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 border border-amber-400/40 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
-                              title="Chỉnh sửa thông tin, giá bán, hoặc texture của sản phẩm"
+                              onClick={() => {
+                                notify('Vui lòng chuyển sản phẩm sang trạng thái Tạm Ngưng trước khi chỉnh sửa!', { type: 'warning' })
+                              }}
+                              className="px-3 py-1.5 rounded-xl bg-white/5 text-white/30 border border-white/10 text-xs font-bold cursor-not-allowed inline-flex items-center gap-1 opacity-60 hover:opacity-80 transition-opacity"
+                              title="Vui lòng chuyển sản phẩm sang trạng thái Tạm Ngưng trước khi chỉnh sửa"
                             >
-                              <Icon name="edit" className="text-sm" />
+                              <Icon name="lock" className="text-sm text-white/40" />
                               <span>Sửa</span>
                             </button>
                           </>
@@ -638,22 +627,26 @@ export default function ProductManagementTab({
         isOpen={Boolean(productToScheduleDelete)}
         onClose={() => setProductToScheduleDelete(null)}
         onSuccess={onRefresh}
+        onImmediateDelete={prod => {
+          setProductToScheduleDelete(null)
+          setProductToImmediateDelete(prod)
+        }}
       />
 
-      {/* Custom Confirmation Modal for Putting into Maintain (BẢO TRÌ) */}
+      {/* Custom Confirmation Modal for Putting into Maintain (TẠM NGƯNG BÁN) */}
       {productToRevoke && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-          <div className="w-full max-w-md rounded-3xl bg-[#170c2a] border border-orange-500/30 p-6 shadow-2xl space-y-4">
+          <div className="w-full max-w-md rounded-3xl bg-[#170c2a] border border-amber-500/30 p-6 shadow-2xl space-y-4">
             <div className="flex items-center gap-3">
-              <span className="w-12 h-12 rounded-2xl bg-orange-500/20 text-orange-400 border border-orange-500/30 flex items-center justify-center shrink-0">
-                <Icon name="build" className="text-2xl" />
+              <span className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0">
+                <Icon name="pause_circle" className="text-2xl" />
               </span>
               <div>
                 <h3 className="font-headline font-black text-lg text-white">
-                  Chuyển Sang Trạng Thái Bảo Trì
+                  Chuyển Sang Trạng Thái Tạm Ngưng Bán
                 </h3>
                 <p className="text-xs text-amber-300/80">
-                  Tạm dừng bán trên Shop để sửa lỗi • Kho đồ người chơi được bảo lưu an toàn 100%
+                  Tạm dừng bán trên Cửa Hàng • Kho đồ người chơi được bảo lưu an toàn 100%
                 </p>
               </div>
             </div>
@@ -680,19 +673,19 @@ export default function ProductManagementTab({
             </div>
 
             <p className="text-xs text-white/80 leading-relaxed bg-amber-500/10 p-3 rounded-xl border border-amber-500/20">
-              Sản phẩm sẽ được chuyển sang <strong>Đang Bảo Trì (Maintain)</strong> và tạm dừng bán trên Cửa Hàng. <strong>Người chơi đã mua trước đó vẫn giữ nguyên vật phẩm trong kho đồ</strong>. Bạn có thể bấm <strong>Sửa</strong> để sửa lỗi và bấm <strong>Mở Bán Lại</strong> bất kỳ lúc nào mà không làm ảnh hưởng đến người chơi.
+              Sản phẩm sẽ được chuyển sang <strong>Tạm Ngưng Bán (Maintain)</strong> và tạm dừng bán trên Cửa Hàng. <strong>Người chơi đã mua trước đó vẫn giữ nguyên vật phẩm trong kho đồ</strong>. Bạn có thể bấm <strong>Sửa</strong> để sửa lỗi hoặc bấm <strong>Mở Bán Lại</strong> bất kỳ lúc nào mà không làm ảnh hưởng đến người chơi.
             </p>
 
             <div className="space-y-1.5">
               <label className="block text-xs font-medium text-white/80">
-                Ghi chú lý do bảo trì <span className="text-rose-400">*</span>:
+                Ghi chú lý do tạm ngưng bán <span className="text-rose-400">*</span>:
               </label>
               <textarea
                 rows={3}
                 value={revokeReason}
                 onChange={e => setRevokeReason(e.target.value)}
-                placeholder="Ví dụ: Tạm dừng để cập nhật animation / Sửa texture lá bài lỗi..."
-                className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 text-white placeholder-white/30 text-xs focus:outline-none focus:border-orange-400"
+                placeholder="Ví dụ: Tạm dừng để cập nhật texture / Chuẩn bị kết thúc mùa giải..."
+                className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 text-white placeholder-white/30 text-xs focus:outline-none focus:border-amber-400"
               />
             </div>
 
@@ -710,9 +703,9 @@ export default function ProductManagementTab({
                 size="md"
                 loading={isRevoking}
                 onClick={handleConfirmRevoke}
-                className="bg-orange-600 hover:bg-orange-500 text-white border-none shadow-lg shadow-orange-950 font-bold"
+                className="bg-amber-600 hover:bg-amber-500 text-white border-none shadow-lg shadow-amber-950 font-bold"
               >
-                Xác Nhận Bảo Trì
+                Xác Nhận Tạm Ngưng
               </Button>
             </div>
           </div>
