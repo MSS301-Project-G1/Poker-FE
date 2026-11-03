@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, Navigate, useLocation, useNavigate } from 'react-router'
+import { Link, Navigate, useLocation } from 'react-router'
 import { paths } from '@/shared/config/paths'
 import { Icon, useToast } from '@/shared/ui'
 import { useAuth } from './useAuth'
@@ -23,7 +23,6 @@ function messageOf(error) {
 export default function AuthPage() {
   const auth = useAuth()
   const location = useLocation()
-  const navigate = useNavigate()
   const notify = useToast()
   const [mode, setMode] = useState('sign-in')
   const [pending, setPending] = useState(false)
@@ -52,10 +51,10 @@ export default function AuthPage() {
     try { await action() } catch (failure) { setError(messageOf(failure)); throw failure } finally { setPending(false) }
   }
 
+  // On success the provider opens a running table itself; otherwise the authenticated redirect above applies.
   const login = values => run(async () => {
     try {
-      const user = await auth.login(values)
-      navigate(resolveDestination(user), { replace: true })
+      await auth.login(values)
     } catch (failure) {
       if (failure.code === 'AUTH_EMAIL_VERIFICATION_PENDING') {
         setVerification({ email: values.email, otpExpiresAt: null, resendAvailableAt: null })

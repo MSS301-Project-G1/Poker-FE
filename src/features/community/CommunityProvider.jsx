@@ -3,6 +3,7 @@ import { useAuth } from '@/features/auth'
 import { fetchProfilesByIds } from '@/features/account'
 import { Client } from '@stomp/stompjs'
 import { env } from '@/shared/config/env'
+import { tabId } from '@/shared/api/tabSession'
 import { useSound } from '@/shared/audio'
 import { communityApi } from './api/communityApi'
 import { CommunityContext } from './CommunityContext'
@@ -84,7 +85,7 @@ function AccountCommunity({ user, children }) {
         try {
           const jwt = await accessToken()
           if (stopped) return
-          client.connectHeaders = { Authorization: `Bearer ${jwt}` }
+          client.connectHeaders = { Authorization: `Bearer ${jwt}`, 'X-Tab-Id': tabId }
         } catch {
           status(name, 'offline')
           // Do not open an unauthenticated socket when the token request fails.

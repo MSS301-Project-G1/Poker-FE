@@ -1,25 +1,52 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { clearGatewaySession } from '@/shared/api/gatewayClient'
+import { onSessionChange, onSessionLost, sessionErrors } from '@/shared/api/tabSession'
 import { AuthContext } from './AuthContext'
-import { fetchCurrentUser, initializeAuth, loginAccount, logoutAccount } from './api/authApi'
+import { checkSession, claimSession, fetchCurrentUser, initializeAuth, loginAccount, logoutAccount } from './api/authApi'
+import SessionLockScreen from './components/SessionLockScreen'
 
 const initialState = { status: 'loading', user: null, error: null }
+const anonymous = { status: 'anonymous', user: null, error: null }
+// BE contract: the owner tab is re-checked about every 2 seconds and on focus.
+const sessionCheckMs = 2000
 
-export default function AuthProvider({ children }) {
+// A tab taken over meanwhile locks; an ended session asks for sign-in again.
+function failedState(error) {
+  if (error.code === sessionErrors.tabReplaced) return { status: 'locked', user: null, error }
+  return error.status === 401 ? anonymous : { status: 'error', user: null, error }
+}
+
+/** resumePath() resolves the page the account must reopen first (its running table), or null. */
+export default function AuthProvider({ resumePath, children }) {
   const [state, setState] = useState(initialState)
   const bootstrapSequence = useRef(0)
+  // useNavigate changes on every route; kept in a ref so navigating never restarts the bootstrap.
+  const navigate = useNavigate()
+  const navigateRef = useRef(navigate)
+  useEffect(() => { navigateRef.current = navigate })
 
-  const restoreSession = useCallback(async sequence => {
+  // Only a page reload leaves the locked state.
+  const update = useCallback(next => setState(current => current.status === 'locked' ? current : next), [])
+
+  // Loads the account, then opens its running table before any other screen can mount.
+  const enter = useCallback(async (sequence, start) => {
     try {
-      await initializeAuth()
+      await start?.()
       const user = await fetchCurrentUser()
-      if (sequence === bootstrapSequence.current) setState({ status: 'authenticated', user, error: null })
-    } catch (error) {
+      const path = await resumePath?.()
       if (sequence !== bootstrapSequence.current) return
-      if (error.status === 401) setState({ status: 'anonymous', user: null, error: null })
-      else setState({ status: 'error', user: null, error })
+      if (path && window.location.pathname !== path) navigateRef.current(path, { replace: true })
+      update({ status: 'authenticated', user, error: null })
+    } catch (error) {
+      if (sequence === bootstrapSequence.current) update(failedState(error))
     }
-  }, [])
+  }, [resumePath, update])
+
+  const restoreSession = useCallback(sequence => enter(sequence, async () => {
+    await initializeAuth()
+    await claimSession()
+  }), [enter])
 
   const bootstrap = useCallback(() => {
     const sequence = ++bootstrapSequence.current
@@ -32,37 +59,57 @@ export default function AuthProvider({ children }) {
     void restoreSession(sequence)
   }, [restoreSession])
 
+  useEffect(() => onSessionLost(error => {
+    setState(current => current.status === 'authenticated' ? { status: 'locked', user: null, error } : current)
+  }), [])
+
+  useEffect(() => {
+    if (state.status !== 'authenticated') return undefined
+    const check = () => checkSession().catch(error => {
+      // Lost ownership is reported by the client; a session that ended (refresh rejected) needs sign-in.
+      if (error.status === 401 && error.code !== sessionErrors.replaced) {
+        bootstrapSequence.current += 1
+        clearGatewaySession()
+        update(anonymous)
+      }
+    })
+    const timer = window.setInterval(check, sessionCheckMs)
+    window.addEventListener('focus', check)
+    const stopListening = onSessionChange(check)
+    return () => { window.clearInterval(timer); window.removeEventListener('focus', check); stopListening() }
+  }, [state.status, update])
+
   const login = useCallback(async credentials => {
     await loginAccount(credentials)
-    const user = await fetchCurrentUser()
-    bootstrapSequence.current += 1
-    setState({ status: 'authenticated', user, error: null })
-    return user
-  }, [])
+    await enter(++bootstrapSequence.current)
+  }, [enter])
 
   const logout = useCallback(async () => {
     await logoutAccount()
     bootstrapSequence.current += 1
     clearGatewaySession()
-    setState({ status: 'anonymous', user: null, error: null })
-  }, [])
+    update(anonymous)
+  }, [update])
 
   const refreshUser = useCallback(async () => {
     const user = await fetchCurrentUser()
     bootstrapSequence.current += 1
-    setState({ status: 'authenticated', user, error: null })
+    update({ status: 'authenticated', user, error: null })
     return user
-  }, [])
+  }, [update])
 
   const endSession = useCallback(() => {
     bootstrapSequence.current += 1
     clearGatewaySession()
-    setState({ status: 'anonymous', user: null, error: null })
-  }, [])
+    update(anonymous)
+  }, [update])
 
   const value = useMemo(
     () => ({ ...state, bootstrap, login, logout, refreshUser, endSession }),
     [state, bootstrap, login, logout, refreshUser, endSession],
   )
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  // Unmounting everything else closes every socket and blocks every action, shop and wallet included.
+  return <AuthContext.Provider value={value}>
+    {state.status === 'locked' ? <SessionLockScreen error={state.error} /> : children}
+  </AuthContext.Provider>
 }

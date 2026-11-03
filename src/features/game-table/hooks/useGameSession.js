@@ -1,10 +1,13 @@
 import { useEffect, useReducer, useRef } from 'react'
 import { Client } from '@stomp/stompjs'
+import { reportSessionLost, sessionErrors, tabId } from '@/shared/api/tabSession'
 import { fetchActiveTable, fetchTable, gameSocketUrl } from '../api/gameApi'
 
 const initial = { snapshot: null, tableId: null, phase: 'loading', connection: 'connecting', error: '', pending: false }
 // Refusals of a taunt sound; they never concern the game, so a pending action keeps waiting for its answer.
 const tauntErrorCodes = new Set(['GAME_TAUNT_COOLDOWN', 'GAME_TAUNT_UNAVAILABLE'])
+// The game rejects a socket whose session or tab lost the account; the app locks as for the HTTP codes.
+const lostSessionCodes = { GAME_SESSION_REPLACED: sessionErrors.replaced, GAME_TAB_REPLACED: sessionErrors.tabReplaced }
 
 function reducer(state, event) {
   if (event.type === 'snapshot') {
@@ -59,7 +62,7 @@ export function useGameSession({ tableId, devUser, getAccessToken, onTaunt, onTa
           heartbeatIncoming: 0, heartbeatOutgoing: 10000,
           beforeConnect: async () => {
             const token = await getAccessToken()
-            client.connectHeaders = devUser ? { devUser } : token ? { Authorization: `Bearer ${token}` } : {}
+            client.connectHeaders = devUser ? { devUser } : token ? { Authorization: `Bearer ${token}`, 'X-Tab-Id': tabId } : {}
           },
           onConnect: () => {
             if (disposed) return
@@ -90,10 +93,12 @@ export function useGameSession({ tableId, devUser, getAccessToken, onTaunt, onTa
           },
           onStompError: frame => {
             let error
-            try { error = JSON.parse(frame.body).message } catch { error = frame.headers.message || 'Game connection rejected.' }
+            let code
+            try { ({ message: error, code } = JSON.parse(frame.body)) } catch { error = frame.headers.message || 'Game connection rejected.' }
             dispatch({ value: { connection: 'rejected', error, pending: false } })
             client.reconnectDelay = 0
             void client.deactivate()
+            reportSessionLost({ code: lostSessionCodes[code], message: error })
           },
           onWebSocketClose: () => {
             clearInterval(syncInterval)
