@@ -54,6 +54,8 @@
   letter-spacing: 1px;
 }
 .slot :global(.material-symbols-outlined) { font-size: 18px; }
+/* The skin's back fills the slot edge to edge; both follow the community card size. */
+.slot.skinned { border: 0; background: none; }
 .cell { position: relative; }
 .slot + * { position: absolute; top: 0; left: 0; }
 /* The YOUR TURN badge straddles the tray's lower edge. */

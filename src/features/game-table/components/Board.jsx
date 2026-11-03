@@ -1,4 +1,4 @@
-import { PlayingCard } from '@/shared/skin'
+import { CardBack, PlayingCard, useSkin } from '@/shared/skin'
 import { Icon } from '@/shared/ui'
 import { label, streetLabels } from '../labels'
 import styles from './Board.module.css'
@@ -7,6 +7,7 @@ const slotStreets = ['FLOP', 'FLOP', 'FLOP', 'TURN', 'RIVER']
 
 // revealDelays[i] turns community card i over after that many ms. result is the winner line once the hand is settled.
 export default function Board({ cards, pot, distribution, street, revealDelays = [], result, badge }) {
+  const { cardBack } = useSkin()
   const total = distribution ? distribution.pots.reduce((sum, award) => sum + award.amount, 0) : pot
   return <div className={styles.board}>
     {/* After a hand the street tag becomes the pot results toggle, so the board keeps its height and stays clear of your cards. */}
@@ -22,8 +23,9 @@ export default function Board({ cards, pot, distribution, street, revealDelays =
         const revealing = revealDelays[index] !== undefined
         return <div key={index} className={styles.cell}>
           {/* The empty slot stays under a card that is still waiting to turn over. */}
-          {(!cards[index] || revealing) && <div className={styles.slot} aria-label={cards[index] ? undefined : 'Unrevealed community card'} aria-hidden={cards[index] ? true : undefined}>
-            <Icon name="lock" /><span>{slotStreets[index]}</span></div>}
+          {/* An equipped deck shows its own back there instead of the default locked slot. */}
+          {(!cards[index] || revealing) && <div className={`${styles.slot} ${cardBack ? styles.skinned : ''}`} aria-label={cards[index] ? undefined : 'Unrevealed community card'} aria-hidden={cards[index] ? true : undefined}>
+            {cardBack ? <CardBack size="lg" decorative /> : <><Icon name="lock" /><span>{slotStreets[index]}</span></>}</div>}
           {cards[index] && <PlayingCard card={cards[index]} size="lg" revealDelay={revealDelays[index]} />}
         </div>
       })}
