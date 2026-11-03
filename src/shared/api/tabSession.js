@@ -2,7 +2,7 @@
 // The ID lives only in this document's memory: "Duplicate tab" copies sessionStorage, and F5 must start a new tab.
 export const tabId = crypto.randomUUID()
 
-export const sessionErrors = { replaced: 'AUTH_SESSION_REPLACED', tabReplaced: 'AUTH_TAB_REPLACED' }
+export const sessionErrors = { replaced: 'AUTH_SESSION_REPLACED', tabReplaced: 'AUTH_TAB_REPLACED', banned: 'AUTH_ACCOUNT_BANNED' }
 const lostCodes = new Set(Object.values(sessionErrors))
 
 const lockName = 'poker.auth.session'

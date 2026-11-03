@@ -1,8 +1,10 @@
-import { Navigate, Outlet } from 'react-router'
-import { useAuth } from '@/features/auth'
-import { paths } from '@/shared/config/paths'
+import { Outlet } from 'react-router'
+import { AuthStatusScreen, useAuth } from '@/features/auth'
+import NotFoundPage from './NotFoundPage'
 
 export default function AdminOnlyRoute() {
-  const { user } = useAuth()
-  return user?.role === 'ADMIN' ? <Outlet /> : <Navigate to={paths.lobby} replace />
+  const auth = useAuth()
+  if (auth.status === 'loading') return <AuthStatusScreen />
+  if (auth.status === 'error') return <AuthStatusScreen error={auth.error} onRetry={auth.bootstrap} />
+  return auth.status === 'authenticated' && auth.user?.role === 'ADMIN' ? <Outlet /> : <NotFoundPage />
 }
