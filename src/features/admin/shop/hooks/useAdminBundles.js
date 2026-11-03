@@ -13,7 +13,9 @@ export function useAdminBundles() {
       try {
         const res = await adminService.getAdminBundles()
         if (!disposed) {
-          setBundles(Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : []))
+          const list = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : [])
+          const sorted = [...list].sort((a, b) => (Number(a.priceVnd) || 0) - (Number(b.priceVnd) || 0))
+          setBundles(sorted)
           setError(null)
         }
       } catch (err) {
@@ -44,6 +46,7 @@ export function useAdminBundles() {
     refreshBundles: refresh,
     createBundle: adminService.createBundle,
     updateBundle: adminService.updateBundle,
+    deleteBundle: adminService.deleteBundle,
     toggleBundleActive: adminService.toggleBundleActive,
   }
 }

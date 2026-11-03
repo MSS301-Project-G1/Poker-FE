@@ -95,7 +95,7 @@ export default function ProductDeletionZoneModal({
     const activeItems = items.filter(p => p.status === 'ACTIVE')
     if (activeItems.length > 0) {
       notify(
-        `Vật phẩm "${activeItems[0].name}" đang Mở Bán (ACTIVE). Bạn cần chuyển sang Bảo Trì (Maintain) trước khi xóa!`,
+        `Vật phẩm "${activeItems[0].name}" đang Mở Bán (ACTIVE). Bạn cần chuyển sang Tạm Ngưng (Maintain) trước khi xóa!`,
         { type: 'error' }
       )
       return
@@ -110,7 +110,7 @@ export default function ProductDeletionZoneModal({
     const activeItems = dragQueue.filter(p => p.status === 'ACTIVE')
     if (activeItems.length > 0) {
       notify(
-        `Vật phẩm "${activeItems[0].name}" đang Mở Bán (ACTIVE). Bạn cần chuyển sang Bảo Trì (Maintain) trước khi xóa!`,
+        `Vật phẩm "${activeItems[0].name}" đang Mở Bán (ACTIVE). Bạn cần chuyển sang Tạm Ngưng (Maintain) trước khi xóa!`,
         { type: 'error' }
       )
       return
@@ -167,7 +167,7 @@ export default function ProductDeletionZoneModal({
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-500/30 text-rose-300 border border-rose-500/40">
                   Khu Vực Tiêu Hủy
                 </span>
-                <span className="text-xs text-white/50">• Xóa Vĩnh Viễn Khỏi Database</span>
+                <span className="text-xs text-white/50">• Xóa </span>
               </div>
               <h2 className="font-headline font-black text-xl text-white mt-0.5">
                 Quản Trị Tiêu Hủy & Xóa Sản Phẩm
@@ -188,7 +188,7 @@ export default function ProductDeletionZoneModal({
         <div className="px-6 py-3 bg-amber-500/10 border-b border-amber-500/20 flex items-center gap-2.5 text-xs text-amber-200/90">
           <Icon name="warning" className="text-amber-400 text-base shrink-0" />
           <span>
-            <strong>Lưu ý quan trọng:</strong> Hành động Xóa sẽ xóa vĩnh viễn sản phẩm khỏi hệ thống. Nếu sản phẩm chỉ bị lỗi texture hoặc âm thanh, vui lòng dùng chức năng <strong>Thu Hồi (Bảo Trì)</strong> ở bảng ngoài để sửa chữa thay vì xóa.
+            <strong>Lưu ý quan trọng:</strong> Hành động Xóa sẽ xóa vĩnh viễn sản phẩm khỏi hệ thống. Nếu sản phẩm chỉ bị lỗi texture hoặc âm thanh, vui lòng dùng chức năng <strong>Tạm Ngưng Bán</strong> ở bảng ngoài để sửa chữa thay vì xóa.
           </span>
         </div>
 
@@ -344,7 +344,7 @@ export default function ProductDeletionZoneModal({
                           <div className="mt-1">
                             {isMaintain ? (
                               <span className="text-[10px] text-amber-300 font-bold px-1.5 py-0.2 rounded bg-amber-500/10 border border-amber-500/20">
-                                Đang Bảo Trì
+                                Tạm Ngưng Bán
                               </span>
                             ) : (
                               <span className="text-[10px] text-emerald-400 font-bold px-1.5 py-0.2 rounded bg-emerald-500/10 border border-emerald-500/20">
@@ -416,7 +416,7 @@ export default function ProductDeletionZoneModal({
                             {formatVipCoin(product.priceVipCoin)} VIP
                           </span>
                           <span className="text-[9px] text-white/40 block truncate">
-                            {isMaintain ? 'Bảo Trì' : 'Mở Bán'} • {product.categoryCode}
+                            {isMaintain ? 'Tạm Ngưng' : 'Mở Bán'} • {product.categoryCode}
                           </span>
                         </div>
                       </div>

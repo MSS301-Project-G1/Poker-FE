@@ -57,10 +57,10 @@ export async function deleteProduct(id) {
   })
 }
 
-export async function scheduleProductDeletion(id, { durationHours, notice }) {
+export async function scheduleProductDeletion(id, { durationHours, durationMinutes, notice }) {
   return gatewayRequest(`/api/admin/products/${id}/schedule-deletion`, {
     method: 'POST',
-    body: { durationHours, notice },
+    body: { durationHours, durationMinutes, notice },
     errorMessage: 'Không thể lên lịch xóa sản phẩm',
   })
 }
@@ -175,8 +175,16 @@ export async function updateBundle(id, payload) {
   })
 }
 
+export async function deleteBundle(id) {
+  return gatewayRequest(`/api/admin/bundles/${id}`, {
+    method: 'DELETE',
+    errorMessage: 'Không thể xóa gói nạp',
+  })
+}
+
 export async function toggleBundleActive(id, isActive) {
-  return gatewayRequest(`/api/admin/bundles/${id}/active?isActive=${isActive}`, {
+  const query = typeof isActive === 'boolean' ? `?isActive=${isActive}` : ''
+  return gatewayRequest(`/api/admin/bundles/${id}/toggle${query}`, {
     method: 'PATCH',
     errorMessage: 'Không thể thay đổi trạng thái mở bán gói nạp',
   })

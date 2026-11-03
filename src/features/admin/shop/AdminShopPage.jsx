@@ -46,6 +46,8 @@ export default function AdminShopPage() {
     loading: bundlesLoading,
     refreshBundles,
     createBundle,
+    updateBundle,
+    deleteBundle,
     toggleBundleActive,
   } = useAdminBundles()
 
@@ -158,6 +160,8 @@ export default function AdminShopPage() {
                 loading={bundlesLoading}
                 toggleBundleActive={toggleBundleActive}
                 createBundle={createBundle}
+                updateBundle={updateBundle}
+                deleteBundle={deleteBundle}
                 onRefresh={refreshBundles}
               />
             )}

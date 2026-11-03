@@ -19,8 +19,10 @@ export function useBundleTopup() {
       try {
         const res = await paymentService.getCoinBundles()
         if (!disposed && res?.data) {
-          cachedBundles = res.data
-          setBundles(res.data)
+          const list = Array.isArray(res.data) ? res.data : []
+          const sorted = [...list].sort((a, b) => (Number(a.priceVnd) || 0) - (Number(b.priceVnd) || 0))
+          cachedBundles = sorted
+          setBundles(sorted)
           setLoading(false)
         }
       } catch (err) {

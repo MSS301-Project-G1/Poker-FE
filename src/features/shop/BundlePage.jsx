@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { paths } from '@/shared/config/paths'
 import { Icon, useToast } from '@/shared/ui'
@@ -20,6 +20,15 @@ export default function BundlePage() {
   const [isConflictModalOpen, setIsConflictModalOpen] = useState(false)
   const [conflictingBundle, setConflictingBundle] = useState(null)
   const [isCancellingOldOrder, setIsCancellingOldOrder] = useState(false)
+  const [priceSort, setPriceSort] = useState('ASC') // 'ASC' | 'DESC'
+
+  const sortedBundles = useMemo(() => {
+    return [...bundles].sort((a, b) => {
+      const priceA = Number(a.priceVnd) || 0
+      const priceB = Number(b.priceVnd) || 0
+      return priceSort === 'DESC' ? priceB - priceA : priceA - priceB
+    })
+  }, [bundles, priceSort])
 
   const hasAutoPromptedRef = useRef(false)
 
@@ -196,6 +205,50 @@ export default function BundlePage() {
           </div>
         </div>
 
+        {/* Sort & Filter Bar */}
+        {!loading && !error && bundles.length > 0 && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 px-1">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-tertiary animate-pulse" />
+              <span className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+                Tất cả các gói nạp khả dụng ({sortedBundles.length})
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 self-end sm:self-auto">
+              <span className="text-xs font-medium text-on-surface-variant">Sắp xếp theo giá:</span>
+              <div className="inline-flex rounded-xl p-1 bg-surface-container-high/90 border border-outline-variant/30 shadow-inner">
+                <button
+                  type="button"
+                  onClick={() => setPriceSort('ASC')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    priceSort === 'ASC'
+                      ? 'bg-tertiary text-on-tertiary shadow-md'
+                      : 'text-on-surface-variant hover:text-on-surface hover:bg-white/5'
+                  }`}
+                  title="Sắp xếp giá từ thấp đến cao"
+                >
+                  <Icon name="arrow_upward" className="text-xs" />
+                  <span>Thấp → Cao</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPriceSort('DESC')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    priceSort === 'DESC'
+                      ? 'bg-tertiary text-on-tertiary shadow-md'
+                      : 'text-on-surface-variant hover:text-on-surface hover:bg-white/5'
+                  }`}
+                  title="Sắp xếp giá từ cao đến thấp"
+                >
+                  <Icon name="arrow_downward" className="text-xs" />
+                  <span>Cao → Thấp</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Content State: Loading, Error, or Bundles Grid */}
         {loading ? (
           <div className="py-24 flex flex-col items-center justify-center gap-3">
@@ -210,7 +263,7 @@ export default function BundlePage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {bundles.map(bundle => {
+            {sortedBundles.map(bundle => {
               const isSelectedOrdering = orderingBundleId === bundle.id
               const hasBonus = bundle.bonusVipCoin > 0
 

@@ -243,23 +243,23 @@ export default function ShopPage() {
                     </button>
                   </div>
 
-                  {/* Banner thông báo các vật phẩm trong kho đang được bảo trì */}
+                  {/* Banner thông báo các vật phẩm trong kho đang tạm ngưng phục vụ */}
                   {inventoryItems.some(i => i.productStatus === 'MAINTAIN' || i.isDeleting) && (
                     <div className="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-start gap-3.5 mb-6 text-amber-200 shadow-xl">
                       <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30 shadow-md">
-                        <Icon name="build" className="text-xl" />
+                        <Icon name="pause_circle" className="text-xl" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <h4 className="font-headline font-bold text-sm text-white">
-                            Thông Báo Bảo Trì Kỹ Thuật Vật Phẩm
+                            Thông Báo Vật Phẩm Tạm Ngưng Phục Vụ
                           </h4>
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-slate-950 uppercase tracking-wider">
                             Tạm Khóa Trang Bị
                           </span>
                         </div>
                         <p className="text-xs text-amber-200/90 leading-relaxed">
-                          Vật phẩm sau trong túi đồ của bạn hiện đang được bảo trì hệ thống để sửa lỗi hoặc nâng cấp:
+                          Vật phẩm sau trong túi đồ của bạn hiện đang tạm ngưng phục vụ để cập nhật hoặc nâng cấp hệ thống:
                           {' '}
                           <strong className="text-white underline font-semibold">
                             {inventoryItems
@@ -267,7 +267,7 @@ export default function ShopPage() {
                               .map(i => i.productName)
                               .join(', ')}
                           </strong>.
-                          Bạn vẫn được bảo lưu 100% quyền sở hữu trong kho đồ, nhưng tạm thời không thể kích hoạt trang bị cho đến khi bảo trì hoàn tất!
+                          Bạn vẫn được bảo lưu 100% quyền sở hữu trong kho đồ, nhưng tạm thời không thể kích hoạt trang bị cho đến khi mở lại!
                         </p>
                       </div>
                     </div>

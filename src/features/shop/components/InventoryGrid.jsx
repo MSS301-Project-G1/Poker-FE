@@ -72,9 +72,9 @@ export default function InventoryGrid({
                 ) : item.productStatus === 'MAINTAIN' ? (
                   <span
                     className="flex items-center gap-1 text-amber-300 text-[10px] font-bold bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/30"
-                    title="Vật phẩm đang trong chế độ bảo trì hệ thống"
+                    title="Vật phẩm đang tạm ngưng phục vụ"
                   >
-                    <Icon name="build" className="text-xs text-amber-400" /> Đang bảo trì
+                    <Icon name="pause_circle" className="text-xs text-amber-400" /> Tạm ngưng
                   </span>
                 ) : null}
 
@@ -145,15 +145,15 @@ export default function InventoryGrid({
                   onClick={e => {
                     e.stopPropagation()
                     notify(
-                      `Vật phẩm "${item.productName}" hiện đang trong chế độ bảo trì hệ thống, tạm thời không thể kích hoạt trang bị!`,
+                      `Vật phẩm "${item.productName}" hiện đang tạm ngưng phục vụ, tạm thời không thể kích hoạt trang bị!`,
                       { type: 'warning' }
                     )
                   }}
                   className="px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
-                  title="Vật phẩm đang trong chế độ bảo trì kỹ thuật, tạm thời không thể trang bị"
+                  title="Vật phẩm đang tạm ngưng phục vụ, tạm thời không thể trang bị"
                 >
-                  <Icon name="lock" className="text-xs text-amber-400" />
-                  <span>Tạm khóa (Bảo trì)</span>
+                  <Icon name="pause_circle" className="text-xs text-amber-400" />
+                  <span>Tạm khóa (Tạm ngưng)</span>
                 </button>
               ) : (
                 <Button
