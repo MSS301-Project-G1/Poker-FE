@@ -494,17 +494,7 @@ export default function ProductManagementTab({
                               <Icon name="pause_circle" className="text-sm" />
                               <span>Tạm Ngưng</span>
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                notify('Vui lòng chuyển sản phẩm sang trạng thái Tạm Ngưng trước khi chỉnh sửa!', { type: 'warning' })
-                              }}
-                              className="px-3 py-1.5 rounded-xl bg-white/5 text-white/30 border border-white/10 text-xs font-bold cursor-not-allowed inline-flex items-center gap-1 opacity-60 hover:opacity-80 transition-opacity"
-                              title="Vui lòng chuyển sản phẩm sang trạng thái Tạm Ngưng trước khi chỉnh sửa"
-                            >
-                              <Icon name="lock" className="text-sm text-white/40" />
-                              <span>Sửa</span>
-                            </button>
+                            
                           </>
                         )}
                       </td>
@@ -635,24 +625,24 @@ export default function ProductManagementTab({
 
       {/* Custom Confirmation Modal for Putting into Maintain (TẠM NGƯNG BÁN) */}
       {productToRevoke && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-          <div className="w-full max-w-md rounded-3xl bg-[#170c2a] border border-amber-500/30 p-6 shadow-2xl space-y-4">
-            <div className="flex items-center gap-3">
-              <span className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0">
-                <Icon name="pause_circle" className="text-2xl" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-xl rounded-3xl bg-gradient-to-b from-[#1e0f36] to-[#140826] border border-amber-500/40 p-6 sm:p-8 shadow-2xl space-y-5 text-white">
+            <div className="flex items-center gap-4 pb-3 border-b border-white/10">
+              <span className="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-lg shadow-amber-950/50">
+                <Icon name="pause_circle" className="text-3xl" />
               </span>
               <div>
-                <h3 className="font-headline font-black text-lg text-white">
+                <h3 className="font-headline font-black text-xl text-white">
                   Chuyển Sang Trạng Thái Tạm Ngưng Bán
                 </h3>
-                <p className="text-xs text-amber-300/80">
+                <p className="text-sm text-amber-300/80 mt-0.5">
                   Tạm dừng bán trên Cửa Hàng • Kho đồ người chơi được bảo lưu an toàn 100%
                 </p>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-black/40 border border-white/10 flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 p-1 flex items-center justify-center shrink-0">
+            <div className="p-4 rounded-2xl bg-black/50 border border-white/10 flex items-center gap-4">
+              <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 p-1 flex items-center justify-center shrink-0">
                 <img
                   alt={productToRevoke.name}
                   src={productToRevoke.previewUrl || productToRevoke.assetUrl}
@@ -663,21 +653,21 @@ export default function ProductManagementTab({
                 />
               </div>
               <div className="min-w-0">
-                <span className="font-headline font-bold text-sm text-white block truncate">
+                <span className="font-headline font-bold text-base text-white block truncate">
                   {productToRevoke.name}
                 </span>
-                <span className="text-xs text-amber-400 font-mono block">
+                <span className="text-sm text-amber-400 font-mono font-bold block mt-0.5">
                   {formatVipCoin(productToRevoke.priceVipCoin)} VIP Coin
                 </span>
               </div>
             </div>
 
-            <p className="text-xs text-white/80 leading-relaxed bg-amber-500/10 p-3 rounded-xl border border-amber-500/20">
-              Sản phẩm sẽ được chuyển sang <strong>Tạm Ngưng Bán (Maintain)</strong> và tạm dừng bán trên Cửa Hàng. <strong>Người chơi đã mua trước đó vẫn giữ nguyên vật phẩm trong kho đồ</strong>. Bạn có thể bấm <strong>Sửa</strong> để sửa lỗi hoặc bấm <strong>Mở Bán Lại</strong> bất kỳ lúc nào mà không làm ảnh hưởng đến người chơi.
+            <p className="text-sm text-white/90 leading-relaxed bg-amber-500/10 p-4 rounded-2xl border border-amber-500/20">
+              Sản phẩm sẽ được chuyển sang <strong>Tạm Ngưng Bán (Maintain)</strong> và tạm dừng xuất hiện trên Cửa Hàng. <strong>Người chơi đã mua trước đó vẫn giữ nguyên vật phẩm trong kho đồ</strong>. Bạn có thể bấm <strong>Sửa</strong> để cập nhật thông tin/texture hoặc bấm <strong>Mở Bán Lại</strong> bất kỳ lúc nào mà không làm ảnh hưởng đến người chơi.
             </p>
 
-            <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-white/80">
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-white">
                 Ghi chú lý do tạm ngưng bán <span className="text-rose-400">*</span>:
               </label>
               <textarea
@@ -685,7 +675,7 @@ export default function ProductManagementTab({
                 value={revokeReason}
                 onChange={e => setRevokeReason(e.target.value)}
                 placeholder="Ví dụ: Tạm dừng để cập nhật texture / Chuẩn bị kết thúc mùa giải..."
-                className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 text-white placeholder-white/30 text-xs focus:outline-none focus:border-amber-400"
+                className="w-full px-4 py-3 rounded-2xl bg-black/60 border border-white/15 text-white placeholder-white/30 text-sm focus:outline-none focus:border-amber-400"
               />
             </div>
 
@@ -714,22 +704,24 @@ export default function ProductManagementTab({
 
       {/* Confirmation Modal for Immediate Final Delete & Auto-Refund */}
       {productToImmediateDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-          <div className="w-full max-w-md rounded-3xl bg-[#170a2a] border border-rose-500/40 p-6 shadow-2xl space-y-4 text-white">
-            <div className="flex items-center gap-3">
-              <span className="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center shrink-0">
-                <Icon name="delete_forever" className="text-2xl" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-xl rounded-3xl bg-gradient-to-b from-[#1e0a2e] to-[#12041d] border border-rose-500/40 p-6 sm:p-8 shadow-2xl space-y-5 text-white">
+            <div className="flex items-center gap-4 pb-3 border-b border-white/10">
+              <span className="w-14 h-14 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center shrink-0 shadow-lg shadow-rose-950/60">
+                <Icon name="delete_forever" className="text-3xl" />
               </span>
               <div>
-                <h3 className="font-headline font-black text-lg text-white">
+                <h3 className="font-headline font-black text-xl text-white">
                   Xác Nhận Tiêu Hủy & Auto-Refund
                 </h3>
-                <p className="text-xs text-rose-300/80">Xóa vĩnh viễn và hoàn 100% coin cho người chơi</p>
+                <p className="text-sm text-rose-300/80 mt-0.5">
+                  Xóa vĩnh viễn và TỰ ĐỘNG hoàn 100% coin cho toàn bộ người chơi
+                </p>
               </div>
             </div>
 
-            <div className="p-3 rounded-2xl bg-black/50 border border-white/10 flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 p-1 flex items-center justify-center shrink-0">
+            <div className="p-4 rounded-2xl bg-black/50 border border-white/10 flex items-center gap-4">
+              <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 p-1 flex items-center justify-center shrink-0">
                 <img
                   alt={productToImmediateDelete.name}
                   src={productToImmediateDelete.previewUrl || productToImmediateDelete.assetUrl}
@@ -740,17 +732,17 @@ export default function ProductManagementTab({
                 />
               </div>
               <div className="min-w-0">
-                <span className="font-headline font-bold text-sm text-white block truncate">
+                <span className="font-headline font-bold text-base text-white block truncate">
                   {productToImmediateDelete.name}
                 </span>
-                <span className="text-xs text-amber-400 font-mono block">
+                <span className="text-sm text-amber-400 font-mono font-bold block mt-0.5">
                   {formatVipCoin(productToImmediateDelete.priceVipCoin)} VIP Coin
                 </span>
               </div>
             </div>
 
-            <p className="text-xs text-rose-200/90 leading-relaxed bg-rose-500/15 p-3 rounded-xl border border-rose-500/30">
-              Hệ thống sẽ xóa vĩnh viễn sản phẩm này khỏi toàn bộ database, đồng thời <strong>TỰ ĐỘNG CỘNG THẲNG 100% VIP COIN</strong> vào ví của tất cả người chơi đang sở hữu vật phẩm này. Người chơi không cần phải gửi ticket.
+            <p className="text-sm text-rose-100/90 leading-relaxed bg-rose-500/15 p-4 rounded-2xl border border-rose-500/30">
+              Hệ thống sẽ xóa vĩnh viễn sản phẩm này khỏi toàn bộ database, đồng thời <strong>TỰ ĐỘNG CỘNG THẲNG 100% VIP COIN</strong> vào ví của tất cả người chơi đang sở hữu vật phẩm này. Người chơi không cần phải gửi ticket hay chờ duyệt.
             </p>
 
             <div className="pt-2 flex items-center justify-end gap-3">
@@ -767,7 +759,7 @@ export default function ProductManagementTab({
                 size="md"
                 loading={isDeletingExecuting}
                 onClick={handleConfirmExecuteDeletion}
-                className="bg-rose-600 hover:bg-rose-500 text-white font-bold shadow-lg shadow-rose-950"
+                className="bg-rose-600 hover:bg-rose-500 text-white font-bold shadow-lg shadow-rose-950 px-5 py-2.5"
               >
                 Xác Nhận Xóa & Hoàn Tiền Ngay
               </Button>
