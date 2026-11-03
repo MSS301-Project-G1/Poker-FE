@@ -22,6 +22,8 @@ export const paths = {
   roomByCode: roomCode => `/rooms/${roomCode}`,
   tournaments: '/tournaments',
   tournamentById: tournamentId => `/tournaments/${tournamentId}`,
+  admin: '/admin',
+  adminUsers: '/admin/users',
   adminAvatars: '/admin/avatars',
   adminMatchSettings: '/admin/match-settings',
   adminShop: '/admin/shop',

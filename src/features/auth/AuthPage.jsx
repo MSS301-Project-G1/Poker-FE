@@ -31,8 +31,10 @@ export default function AuthPage() {
   const [recovery, setRecovery] = useState({ email: '', resendAvailableAt: null })
   const from = location.state?.from
   const resolveDestination = user => {
-    if (from?.pathname) return `${from.pathname}${from.search || ''}`
-    return user?.role === 'ADMIN' ? paths.adminShop : paths.lobby
+    const adminPath = from?.pathname === paths.admin || from?.pathname?.startsWith(`${paths.admin}/`)
+    if (user?.role === 'ADMIN') return adminPath ? `${from.pathname}${from.search || ''}` : paths.admin
+    if (from?.pathname && !adminPath) return `${from.pathname}${from.search || ''}`
+    return paths.lobby
   }
   const destination = resolveDestination(auth.user)
 

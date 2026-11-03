@@ -7,7 +7,7 @@ const initial = { snapshot: null, tableId: null, phase: 'loading', connection: '
 // Refusals of a taunt sound; they never concern the game, so a pending action keeps waiting for its answer.
 const tauntErrorCodes = new Set(['GAME_TAUNT_COOLDOWN', 'GAME_TAUNT_UNAVAILABLE'])
 // The game rejects a socket whose session or tab lost the account; the app locks as for the HTTP codes.
-const lostSessionCodes = { GAME_SESSION_REPLACED: sessionErrors.replaced, GAME_TAB_REPLACED: sessionErrors.tabReplaced }
+const lostSessionCodes = { GAME_SESSION_REPLACED: sessionErrors.replaced, GAME_TAB_REPLACED: sessionErrors.tabReplaced, GAME_ACCOUNT_BANNED: sessionErrors.banned }
 
 function reducer(state, event) {
   if (event.type === 'snapshot') {

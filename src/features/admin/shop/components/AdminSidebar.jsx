@@ -90,6 +90,16 @@ export default function AdminSidebar({
           </div>
         </div>
 
+        <div className={styles.navSection}>
+          <span className={styles.sectionLabel}>Tài Khoản Người Chơi</span>
+          <div className={styles.navGroup}>
+            <button type="button" onClick={() => navigate(paths.adminUsers)} className={styles.navItem}>
+              <div className={styles.navItemLeft}><span className={styles.navIcon}><Icon name="manage_accounts" /></span><span className={styles.navLabel}>Quản Lý Người Dùng</span></div>
+              <Icon name="chevron_right" className="text-white/40 text-base" />
+            </button>
+          </div>
+        </div>
+
         {/* Section 4: Điều Hành Game */}
         <div className={styles.navSection}>
           <span className={styles.sectionLabel}>Điều Hành Trận Đấu</span>

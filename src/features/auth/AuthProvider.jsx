@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
+import { paths } from '@/shared/config/paths'
 import { clearGatewaySession } from '@/shared/api/gatewayClient'
 import { onSessionChange, onSessionLost, sessionErrors } from '@/shared/api/tabSession'
 import { AuthContext } from './AuthContext'
@@ -13,7 +14,7 @@ const sessionCheckMs = 2000
 
 // A tab taken over meanwhile locks; an ended session asks for sign-in again.
 function failedState(error) {
-  if (error.code === sessionErrors.tabReplaced) return { status: 'locked', user: null, error }
+  if ([sessionErrors.tabReplaced, sessionErrors.banned].includes(error.code)) return { status: 'locked', user: null, error }
   return error.status === 401 ? anonymous : { status: 'error', user: null, error }
 }
 
@@ -26,7 +27,7 @@ export default function AuthProvider({ resumePath, children }) {
   const navigateRef = useRef(navigate)
   useEffect(() => { navigateRef.current = navigate })
 
-  // Only a page reload leaves the locked state.
+  // A tab/login takeover stays locked until reload; a banned account can return to sign-in.
   const update = useCallback(next => setState(current => current.status === 'locked' ? current : next), [])
 
   // Loads the account, then opens its running table before any other screen can mount.
@@ -34,7 +35,7 @@ export default function AuthProvider({ resumePath, children }) {
     try {
       await start?.()
       const user = await fetchCurrentUser()
-      const path = await resumePath?.()
+      const path = user.role === 'ADMIN' ? null : await resumePath?.()
       if (sequence !== bootstrapSequence.current) return
       if (path && window.location.pathname !== path) navigateRef.current(path, { replace: true })
       update({ status: 'authenticated', user, error: null })
@@ -110,6 +111,11 @@ export default function AuthProvider({ resumePath, children }) {
   )
   // Unmounting everything else closes every socket and blocks every action, shop and wallet included.
   return <AuthContext.Provider value={value}>
-    {state.status === 'locked' ? <SessionLockScreen error={state.error} /> : children}
+    {state.status === 'locked' ? <SessionLockScreen error={state.error} onSignIn={() => {
+      bootstrapSequence.current += 1
+      clearGatewaySession()
+      setState(anonymous)
+      navigateRef.current(paths.auth, { replace: true })
+    }} /> : children}
   </AuthContext.Provider>
 }
