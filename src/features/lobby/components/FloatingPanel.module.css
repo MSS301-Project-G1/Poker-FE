@@ -1,0 +1,35 @@
+/* Glass panels orbit the 3D table: each leans toward the table and turns to face the player when pointed at.
+   The outer box never moves, so the hover target stays put while the inner surface slides toward the table. */
+.panel { position: relative; }
+.surface { transition: transform .5s cubic-bezier(.2, .9, .3, 1.12), filter .4s ease; }
+
+@media (min-width: 1024px) {
+  .surface {
+    transform: perspective(1100px) translateX(var(--arc-x, 0px)) rotateY(var(--tilt-y, 0deg)) rotateX(var(--tilt-x, 0deg));
+    filter: brightness(.88);
+  }
+
+  /* focus-within keeps the panel facing the player while they type in it or reach it by keyboard. */
+  .panel:hover,
+  .panel:focus-within { z-index: 40; }
+  .panel:hover > .surface,
+  .panel:focus-within > .surface {
+    transform: perspective(1100px) translate3d(calc(var(--arc-x, 0px) + var(--pull-x, 0px)), var(--pull-y, 0px), 60px);
+    filter: none;
+  }
+
+  .left { --tilt-y: 20deg; --pull-x: 56px; }
+  .right { --tilt-y: -20deg; --pull-x: -56px; }
+  .bottom { --tilt-x: 24deg; --pull-y: -24px; }
+  .left > .surface { transform-origin: left center; }
+  .right > .surface { transform-origin: right center; }
+  .bottom > .surface { transform-origin: center bottom; }
+
+  /* The lower panel of a column sits closer to the table, so each column curves around it. */
+  .left.arc { --arc-x: 28px; }
+  .right.arc { --arc-x: -28px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .surface { transition: none; }
+}

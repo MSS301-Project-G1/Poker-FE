@@ -39,7 +39,7 @@ export default function Leaderboard({ standings, collapsed = false, onToggleColl
     </div>
   }
 
-  return <div className="h-full flex flex-col gap-space-md bg-surface-container-lowest/30 backdrop-blur-md p-space-md rounded-2xl border border-amber-400/20 shadow-2xl relative overflow-hidden [transform-style:preserve-3d] lg:[transform:perspective(1200px)_rotateY(-12deg)_rotateX(4deg)_translateZ(0)] lg:hover:[transform:perspective(1200px)_rotateY(0deg)_rotateX(0deg)_translateZ(40px)_scale(1.02)] transition-all duration-500 ease-out hover:border-amber-400/60 hover:shadow-[0_24px_60px_-10px_rgba(0,0,0,0.85),0_0_30px_rgba(245,196,80,0.3)] will-change-transform z-20">
+  return <div className="h-full flex flex-col gap-space-md bg-surface-container-lowest/30 backdrop-blur-md p-space-md rounded-2xl border border-amber-400/20 shadow-2xl relative overflow-hidden transition-all duration-500 ease-out hover:border-amber-400/60 hover:shadow-[0_24px_60px_-10px_rgba(0,0,0,0.85),0_0_30px_rgba(245,196,80,0.3)] z-20">
     <div className="flex items-center justify-between pb-space-xs">
       <Link to={paths.ranking} className="flex items-center gap-space-xs hover:text-primary transition-colors" title="Mở bảng xếp hạng đầy đủ">
         <Icon name="military_tech" filled className="text-tertiary text-xl" />
@@ -61,7 +61,7 @@ export default function Leaderboard({ standings, collapsed = false, onToggleColl
       </div>
     </div>
 
-    <div className="flex-1 flex flex-col gap-space-xs">
+    <div className="flex-1 flex flex-col gap-space-xs short:[&>*:nth-child(n+4)]:hidden">
       {phase === 'loading' && Array.from({ length: 5 }, (_, index) => <div key={index} role={index ? undefined : 'status'} aria-label={index ? undefined : 'Đang tải bảng xếp hạng'}
         className="flex-1 min-h-12 rounded-xl bg-white/[0.04] border border-white/[0.05] animate-pulse motion-reduce:animate-none" />)}
       {phase === 'error' && <p role="alert" className="text-body-sm font-body-sm text-error">{standings.error}</p>}
@@ -91,9 +91,12 @@ export default function Leaderboard({ standings, collapsed = false, onToggleColl
       })}
     </div>
 
+    {/* The player's own standing: rank, tier and Elo live here rather than in a separate lobby bar. */}
     {me && <Link to={paths.ranking} className="p-space-sm bg-gradient-to-r from-primary-container/20 to-secondary-container/15 border border-primary/20 hover:border-primary/50 rounded-xl backdrop-blur-sm flex items-center justify-between transition-colors">
-      <div className="flex items-center gap-space-xs">
+      <div className="flex items-center gap-space-xs min-w-0">
         <span className="font-label-numeric-md text-label-numeric-md text-primary">{me.position ? `Rank ${position}` : 'Unranked'}</span>
+        <span className="text-outline-variant">•</span>
+        <span className="font-label-action text-label-action text-tertiary truncate">{tiers[me.tier]?.label || me.tier}</span>
         <span className="text-body-sm font-body-sm text-on-surface-variant">(You)</span>
       </div>
       <span className="font-label-numeric-md text-label-numeric-md text-tertiary">{me.elo.toLocaleString()} Elo</span>

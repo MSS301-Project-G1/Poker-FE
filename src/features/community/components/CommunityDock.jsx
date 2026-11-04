@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation } from 'react-router'
-import { SoloTestButton } from '@/features/demo'
 import { Icon } from '@/shared/ui'
 import { useCommunity } from '../CommunityContext'
 import FriendsPanel from './FriendsPanel'
@@ -10,13 +9,6 @@ import styles from '../Community.module.css'
 import ui from './FriendsPanel.module.css'
 import { communityApi } from '../api/communityApi'
 import { Avatar, Name } from './CommunityUI'
-
-const tools = [['friends', 'forum', 'Tìm đội và bạn bè'], ['notifications', 'notifications', 'Thông báo']]
-
-export function CommunityToolbar() {
-  const { setPanel } = useCommunity()
-  return <div className={styles.toolbar} aria-label="Kết nối người chơi"><div><span className={styles.eyebrow}>POKER LOUNGE</span><p>Cùng bàn chơi. Cùng kết nối.</p></div><div className={styles.actions}><SoloTestButton className={styles.tool} />{tools.filter(([key]) => key !== 'friends').map(([key, icon, label]) => <button type="button" className={styles.tool} key={key} onClick={() => setPanel(key)}><Icon name={icon} />{label}</button>)}</div></div>
-}
 
 export default function CommunityDock() {
   const { pathname } = useLocation()

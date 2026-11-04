@@ -27,7 +27,7 @@ export default function MoreModes({ tutorial, collapsed = false }) {
       <span className="w-9 h-9 shrink-0 rounded-lg bg-primary-container/30 text-primary flex items-center justify-center"><Icon name={mode.icon} /></span>
       <span className="flex flex-col min-w-0 flex-1">
         <span className="font-label-action text-label-action text-on-surface">{mode.title}</span>
-        <span className="font-label-micro text-label-micro text-on-surface-variant truncate">{mode.text}</span>
+        <span className="font-label-micro text-label-micro text-on-surface-variant truncate short:hidden">{mode.text}</span>
       </span>
       {mode.badge ? <span className="shrink-0 px-2 py-0.5 rounded-full bg-tertiary-container/60 text-tertiary text-label-micro font-label-micro font-bold">{mode.badge}</span>
         : <Icon name="chevron_right" className="shrink-0 text-on-surface-variant group-hover:text-primary transition-colors" />}

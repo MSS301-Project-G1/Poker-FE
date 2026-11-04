@@ -42,5 +42,21 @@
 .error { padding: 12px 36px; color: rgb(var(--color-error)); }
 .footer button { scroll-margin-block: 120px; }
 @media(max-width: 800px) { .page { padding: 12px; } .header, .footer { padding: 20px; flex-wrap: wrap; } .main { grid-template-columns: 1fr; padding: 12px 20px; } .gathering { padding: 20px; } .seats { grid-template-columns: repeat(3, minmax(0, 1fr)); } .progress { flex-wrap: wrap; } .actions { flex-wrap: wrap; } }
+/* Desktop: the whole panel fits one screen. It stays narrower than the window minus the fixed
+   "Tìm đội và bạn bè" dock on each side, so the dock never covers the action buttons. */
+@media(min-width: 1024px) {
+  .page { padding: 16px 24px; min-height: var(--page-height); }
+  .panel { width: min(1100px, max(880px, 100% - 400px)); }
+  .header { padding: 12px 28px 4px; }
+  .emblem { padding: 10px; }
+  .main { padding: 8px 28px; gap: 24px; }
+  .performance { padding: 18px; }
+  .stats { margin: 14px 0; }
+  .gathering { padding: 6px 28px 14px; }
+  .progress { margin-bottom: 10px; }
+  .seat { padding: 10px 6px; gap: 3px; }
+  .seat img, .avatar { width: 40px; height: 40px; margin-bottom: 4px; }
+  .footer { padding: 10px 28px; }
+}
 @media(prefers-reduced-motion: reduce) { .main :global([class*="animate-"]) { animation: none; } }
 @media(max-width: 800px) { .page { padding-bottom: 160px; } }

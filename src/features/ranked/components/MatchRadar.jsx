@@ -3,8 +3,8 @@ import { Icon } from '@/shared/ui'
 const rings = [{ r: 150, opacity: 0.4, dash: '4 6' }, { r: 110, opacity: 0.6, dash: '2 4' }, { r: 70, opacity: 0.5, dash: '6 6' }]
 
 export default function MatchRadar({ elapsed = '00:00', title = 'SẴN SÀNG TÌM TRẬN', detail = 'Chọn tìm trận để bắt đầu', active = false }) {
-  return <div className="lg:col-span-7 flex flex-col items-center justify-center relative p-space-sm">
-    <div className="relative w-64 h-64 sm:w-80 sm:h-80 flex items-center justify-center">
+  return <div className="lg:col-span-7 flex flex-col items-center justify-center relative p-space-sm lg:p-0">
+    <div className="relative w-64 h-64 sm:w-80 sm:h-80 lg:w-64 lg:h-64 short:w-56 short:h-56 flex items-center justify-center">
       <div className="absolute inset-0 rounded-full bg-secondary-container/15 animate-ping opacity-30"></div>
       <div className="absolute inset-4 rounded-full bg-surface-container-high/40 shadow-inner"></div>
       <div className="absolute inset-12 rounded-full bg-surface-container/60"></div>
@@ -35,7 +35,7 @@ export default function MatchRadar({ elapsed = '00:00', title = 'SẴN SÀNG TÌ
       </div>
     </div>
 
-    <div className="mt-space-md flex items-center gap-space-xs">
+    <div className="mt-space-md lg:mt-space-sm flex items-center gap-space-xs">
       <Icon name="sync" className="text-primary text-sm animate-spin" />
       <span className="font-body-sm text-body-sm text-on-surface-variant">{detail}</span>
     </div>

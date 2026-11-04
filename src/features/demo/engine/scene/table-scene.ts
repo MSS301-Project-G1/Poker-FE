@@ -88,8 +88,12 @@ export class TableScene {
   private entranceElapsed = -1;
   private entranceDuration = 3.2;
   private compactTableCamera = false;
+  private fixedLobbyCamera = false;
 
   useCompactTableCamera(): void { this.compactTableCamera = true; }
+
+  /** The lobby view faces the table head-on instead of orbiting it, so panels around it stay balanced. */
+  useFixedLobbyCamera(): void { this.fixedLobbyCamera = true; }
 
   /** Live matches can enter from floor height; the game clock never waits for this camera. */
   enterTable(duration = 3.2): void {
@@ -448,7 +452,7 @@ export class TableScene {
     const aspect = this.camera.aspect;
     const portrait = aspect < 0.9;
     if (this.view === 'lobby') {
-      const a = t * 0.06 + 0.6;
+      const a = this.fixedLobbyCamera ? 0 : t * 0.06 + 0.6;
       const radius = portrait ? 10.5 : 8.2;
       this.desiredPos.set(Math.sin(a) * radius, portrait ? 5.4 : 4.1, Math.cos(a) * radius);
       this.desiredLook.set(0, -0.2, 0);

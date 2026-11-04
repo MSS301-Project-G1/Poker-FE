@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router'
 import { AuthStatusScreen, useAuth } from '@/features/auth'
+import { useCommunity } from '@/features/community'
+import { DailyCheckInModal, useDailyCheckIn } from '@/features/lobby'
 import { MainLayout } from '@/shared/layout'
 import { paths } from '@/shared/config/paths'
 import { useToast } from '@/shared/ui'
@@ -13,6 +15,8 @@ export default function AuthenticatedLayout() {
   const notify = useToast()
   const [logoutPending, setLogoutPending] = useState(false)
   const { wallet, coin, refreshWallet } = useWallet()
+  const { setPanel } = useCommunity()
+  const checkIn = useDailyCheckIn(location.pathname === paths.lobby)
   // Matches, check-ins and purchases change the balance; reload it whenever the player moves to another screen.
   useEffect(() => { refreshWallet() }, [location.pathname, refreshWallet])
 
@@ -29,5 +33,10 @@ export default function AuthenticatedLayout() {
     } finally { setLogoutPending(false) }
   }
 
-  return <><MainLayout user={auth.user} coins={wallet ? coin : null} onLogout={logout} logoutPending={logoutPending} /><MatchmakingCard /></>
+  return <>
+    <MainLayout user={auth.user} coins={wallet ? coin : null} onLogout={logout} logoutPending={logoutPending}
+      onOpenCheckIn={checkIn.openCheckIn} onOpenNotifications={() => setPanel('notifications')} />
+    <MatchmakingCard />
+    {checkIn.open && <DailyCheckInModal onClose={checkIn.close} />}
+  </>
 }

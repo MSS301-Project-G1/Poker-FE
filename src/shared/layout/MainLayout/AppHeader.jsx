@@ -21,8 +21,11 @@ const navClass = ({ isActive }) => `px-space-md py-space-sm font-label-action tr
 
 const iconButton = 'w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors'
 
-/** coins: the wallet's coin balance, or null while it is not loaded. */
-export default function AppHeader({ user, coins, onLogout, logoutPending }) {
+/**
+ * coins: the wallet's coin balance, or null while it is not loaded.
+ * onOpenCheckIn / onOpenNotifications: open the daily check-in and the notifications panel.
+ */
+export default function AppHeader({ user, coins, onLogout, logoutPending, onOpenCheckIn, onOpenNotifications }) {
   const { enabled: soundEnabled, toggle: toggleSound } = useSound()
   const displayName = user?.profile?.displayName || user?.email || 'Player'
   const avatarUrl = user?.profile?.avatarUrl || '/stitch-assets/avatar.svg'
@@ -39,11 +42,18 @@ export default function AppHeader({ user, coins, onLogout, logoutPending }) {
         </nav>
       </div>
       <div className="flex items-center gap-space-md">
+        <button type="button" onClick={onOpenCheckIn} title="Daily Check-in" aria-label="Daily Check-in"
+          className="flex items-center gap-space-xs h-9 px-space-sm xl:px-space-md rounded-full bg-gradient-to-r from-primary-container to-secondary-container text-on-primary-container font-label-action text-label-action shadow-md hover:brightness-110 active:scale-95 transition-all">
+          <Icon name="calendar_month" filled className="text-tertiary text-lg" />
+          <span className="hidden xl:inline">Daily Check-in</span>
+          <span className="w-2 h-2 rounded-full bg-tertiary animate-pulse" aria-hidden="true"></span>
+        </button>
         <div className="hidden sm:flex items-center bg-surface-container-low px-space-md py-space-xs rounded-full gap-space-xs shadow-inner">
           <span className="material-symbols-outlined text-tertiary text-lg">toll</span>
           <span className="font-label-numeric-md text-label-numeric-md text-tertiary">{coins == null ? '—' : coins.toLocaleString()}</span>
         </div>
         <div className="flex items-center gap-space-xs">
+          <button className={iconButton} title="Thông báo" aria-label="Thông báo" onClick={onOpenNotifications} type="button"><Icon name="notifications" className="text-lg" /></button>
           <button className={iconButton} title={soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh'} aria-label={soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh'} aria-pressed={soundEnabled} onClick={toggleSound} type="button"><span className="material-symbols-outlined text-lg">{soundEnabled ? 'volume_up' : 'volume_off'}</span></button>
           {user?.role === 'ADMIN' && <>
             <NavLink className={iconButton} title="Admin shop" aria-label="Admin shop" to={paths.adminShop}><Icon name="storefront" className="text-lg" /></NavLink>

@@ -4,9 +4,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 220px;
-  min-height: 220px;
-  max-height: 220px;
+  gap: 10px;
   width: 100%;
   padding: 14px 16px;
   box-sizing: border-box;
@@ -16,16 +14,10 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 14px 35px 0 rgba(0, 0, 0, 0.6), inset 0 1px 1px 0 rgba(255, 255, 255, 0.2), 0 0 16px rgba(var(--cube-neon-rgb), 0.08);
-  transform-style: preserve-3d;
-  transform-origin: center center;
-  
-  /* Multi-dimensional Isometric Cube angle - exactly matches LoungeModes */
-  transform: perspective(900px) rotateX(10deg) rotateY(16deg) translateZ(0);
-  transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.25),
-              box-shadow 0.4s ease,
+  /* The tilt toward the table comes from the lobby's FloatingPanel wrapper. */
+  transition: box-shadow 0.4s ease,
               border-color 0.4s ease,
               background 0.4s ease;
-  will-change: transform, box-shadow;
   --cube-neon: #ec4899;
   --cube-neon-rgb: 236, 72, 153;
   --cube-core-color: #f472b6;
@@ -69,10 +61,7 @@
   transition: opacity 0.3s ease;
 }
 
-/* Hover: Bay thẳng về phía màn hình trước mắt người dùng để nhấn */
 .card:hover {
-  transform: perspective(900px) rotateX(0deg) rotateY(0deg) translate3d(65px, 0, 95px) scale(1.12);
-  z-index: 60;
   border-color: rgba(var(--cube-neon-rgb), 0.85);
   box-shadow: 0 30px 80px -10px rgba(0, 0, 0, 0.95),
               0 0 35px rgba(var(--cube-neon-rgb), 0.4),
@@ -132,9 +121,8 @@
 }
 .compactPassword::placeholder { color: rgba(255, 255, 255, 0.45); font-size: 11px; }
 
-.actionButtons { display: flex; gap: 8px; align-items: center; width: 100%; margin: 0 !important; box-sizing: border-box; }
 
-.createBtn {
+.secondaryAction {
   flex: 1;
   min-width: 0;
   min-height: 38px !important;
@@ -158,14 +146,14 @@
   cursor: pointer;
   transition: all 0.25s ease !important;
 }
-.createBtn:hover:not(:disabled) {
+.secondaryAction:hover:not(:disabled) {
   background: rgba(236, 72, 153, 0.28) !important;
   border-color: #ec4899 !important;
   box-shadow: 0 0 12px rgba(236, 72, 153, 0.4) !important;
   transform: translateY(-1px);
 }
 
-.joinBtn {
+.primaryAction {
   flex: 1;
   min-width: 0;
   min-height: 38px !important;
@@ -190,11 +178,11 @@
   cursor: pointer;
   transition: all 0.25s ease !important;
 }
-.joinBtn:hover:not(:disabled) {
+.primaryAction:hover:not(:disabled) {
   box-shadow: 0 0 16px rgba(236, 72, 153, 0.6) !important;
   transform: translateY(-1px);
 }
-.joinBtn:disabled {
+.primaryAction:disabled {
   opacity: 0.38 !important;
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.15) !important;
@@ -215,9 +203,6 @@
 .srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
 .tagline { color: rgb(var(--color-on-surface-variant)); font-size: 11.5px; line-height: 15px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-@media(max-width: 1023px) {
-  .card { transform: none !important; }
-}
 
 
 /* 3D Glass Cube Badge for PartyPanel */
@@ -290,15 +275,21 @@
 .cardHead h2 { display: flex; align-items: center; gap: var(--space-sm); font: 600 20px/28px var(--font-display); }
 .cardHead h2 > span, .chatHead > span { color: rgb(var(--color-primary)); }
 .muted { color: rgb(var(--color-on-surface-variant)); font-size: 13px; line-height: 18px; }
-.eyebrow { color: rgb(var(--color-tertiary)); font-size: 11px; font-weight: 700; letter-spacing: .16em; }
 .full { width: 100%; margin-top: var(--space-md); }
 .stack { display: flex; flex-direction: column; gap: var(--space-md); min-width: 0; }
-.partyRoom { display: grid; gap: 12px; min-width: 0; padding: 20px; border: 1px solid rgb(var(--color-outline-variant)); border-radius: 14px; background: rgb(var(--color-surface-container-low)); }
+.partyRoom { display: grid; gap: 8px; min-width: 0; padding: 14px 16px; border: 1px solid rgb(var(--color-outline-variant)); border-radius: 14px; background: rgb(var(--color-surface-container-low)); }
 .partyRoom .cardHead { margin: 0; }
 .partyRoom .cubeBadge { display: none; }
-.partyRoom .activePartyBody { max-height: none; overflow: visible; }
-.partyRoom .partyCode { padding: 8px 10px; }
-.partyRoom .full { min-height: 36px; font-size: 13px; }
+/* Party room: code and password side by side, each label above its value, so the ranked page fits one screen. */
+.partyRoom .activePartyBody { max-height: none; overflow: visible; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.partyRoom .activePartyBody > :not(.partyCode) { grid-column: 1 / -1; }
+.partyRoom .partyCode { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 6px; padding: 6px 10px; }
+.partyRoom .partyCode + .partyCode { margin-top: 0; }
+.partyRoom .partyCode > span { grid-column: 1; min-width: 0; font-size: 11px; }
+.partyRoom .partyCode code { grid-column: 1; text-align: left; }
+.partyRoom .partyCode button { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+.partyRoom .partyMembers { margin-top: 0; }
+.partyRoom .full { min-height: 36px; font-size: 13px; margin-top: 0; }
 .partyMembers { margin-top: 12px; }
 .partyMembers summary { padding: 8px 0; font-size: 13px; cursor: pointer; color: rgb(var(--color-on-surface-variant)); }
 .form { display: grid; gap: var(--space-sm); margin-top: var(--space-md); }
@@ -341,11 +332,6 @@
 .tab { background: rgb(var(--color-surface-container)); }
 .tabActive { background: rgb(var(--color-primary-container)); color: rgb(var(--color-on-primary-container)); }
 .pagination { display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); margin-top: var(--space-md); font-size: 13px; }
-.toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-md); align-items: center; }
-.toolbar p { margin-top: var(--space-xs); color: rgb(var(--color-on-surface-variant)); font-size: 13px; }
-.tool { display: flex; align-items: center; gap: var(--space-sm); border: 1px solid rgb(var(--color-outline-variant) / .5); border-radius: var(--radius-full); background: rgb(var(--color-surface-container-lowest) / .45); color: rgb(var(--color-on-surface)); padding: 10px 16px; font-size: 13px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: all 0.2s ease; }
-.tool:hover { border-color: rgb(var(--color-primary)); background: rgb(var(--color-surface-container-high) / .6); transform: translateY(-1px); }
-.tool > span { color: rgb(var(--color-primary)); font-size: 20px; }
 .dock { position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: calc(56px + env(safe-area-inset-bottom)); display: flex; padding: 4px; background: rgb(var(--color-surface-container-lowest) / .96); border: 1px solid rgb(var(--color-outline-variant)); border-radius: var(--radius-full); box-shadow: var(--shadow-popover); z-index: var(--z-overlay); }
 .dockButton { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 14px; color: rgb(var(--color-primary)); font-size: 13px; font-weight: 600; border-radius: var(--radius-full); white-space: nowrap; }
 .dockButton:hover { background: rgb(var(--color-surface-container-high)); }
@@ -403,7 +389,8 @@
   .input { font-size: 16px; }
   .socialRow .actions { padding-left: 0; }
   .dock { right: max(12px, env(safe-area-inset-right)); bottom: calc(64px + env(safe-area-inset-bottom)); }
-  .toolbar .actions { gap: var(--space-xs); }
-  .tool { padding: var(--space-sm) var(--space-gutter-mobile); }
   .composer { padding-bottom: max(var(--space-gutter-mobile), env(safe-area-inset-bottom)); }
 }
+
+/* Join button at the end of the code + password row */
+.inlineJoin { flex: none; padding: 0 12px !important; }
