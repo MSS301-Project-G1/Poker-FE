@@ -6,6 +6,10 @@ import AddCategoryModal from './AddCategoryModal'
 import ImageCropperModal from './ImageCropperModal'
 import { uploadProductSound, deleteProductSound, uploadAssetFile } from '../services/adminShopService'
 
+// The service needs a link to create a product, but a new deck has none until its ZIP is processed right after;
+// processing replaces this marker with the deck's own link.
+const PENDING_DECK_ASSET_URL = 'pending://deck-upload'
+
 const DEALER_POSES_SCHEMA = [
   {
     key: 'idle',
@@ -766,6 +770,26 @@ export default function AddProductControlPanel({
       }
     }
 
+    // 3. Each enabled file type needs its file, picked now or kept from the product being edited; otherwise the product
+    // is saved without it and shows nothing in the shop or at the table. The video review stays optional. The table
+    // shows a dealer from its idle pose, so that pose is the one a dealer cannot go without.
+    const filePresent = {
+      hasImage: Boolean(localAssetFile || manualAssetUrl.trim()),
+      hasSound: Boolean(localSoundFile || localSoundPreviewUrl),
+      hasPoses: Boolean(dealerPoses.idle?.previewUrl),
+      hasDeckZip: Boolean(selectedZipFile || isEditing),
+    }
+    const missingFile = ASSET_CONFIG_ITEMS.find(item => assetConfig[item.key] && filePresent[item.key] === false)
+    if (missingFile) {
+      notify(
+        missingFile.key === 'hasPoses'
+          ? '❌ Chưa có ảnh tư thế "Đứng chờ" của Dealer. Bàn chơi cần tư thế này để hiển thị Dealer, vui lòng chọn ảnh trước khi lưu!'
+          : `❌ Chưa chọn tệp cho "${missingFile.label}". Vui lòng chọn tệp trước khi lưu!`,
+        { type: 'error' }
+      )
+      return
+    }
+
     setIsSubmitting(true)
     try {
       let finalAssetUrl = manualAssetUrl.trim()
@@ -832,17 +856,8 @@ export default function AddProductControlPanel({
         }
       }
 
-      // Fallbacks
-      if (!finalAssetUrl) {
-        if (catCode === 'CARD_SKIN') {
-          finalAssetUrl = 'https://assets.msspoker.com/cards/gold_black/back.png'
-        } else if (catCode === 'TABLE') {
-          finalAssetUrl = 'https://assets.msspoker.com/tables/classic_green.png'
-        } else if (catCode === 'DEALER') {
-          finalAssetUrl = 'https://assets.msspoker.com/dealers/default_avatar.png'
-        } else {
-          finalAssetUrl = 'https://assets.msspoker.com/placeholders/cosmetic.png'
-        }
+      if (!finalAssetUrl && assetConfig.hasDeckZip) {
+        finalAssetUrl = PENDING_DECK_ASSET_URL
       }
 
       // Payload
