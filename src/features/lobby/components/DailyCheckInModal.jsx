@@ -39,16 +39,21 @@ function calendarCells(month, days) {
   ]
 }
 
-function DayCell({ cell, today }) {
+function DayCell({ cell, today, dailyReward }) {
   if (!cell.dayNumber) return <span aria-hidden="true" />
   const record = cell.record
   const isToday = cell.key === today
+  // ISO dates compare correctly as strings; a past day without a record can no longer be claimed.
+  const missed = !record && today && cell.key < today
+  const coins = record?.rewardCoins ?? dailyReward
   const statusClass = record?.rewardStatus === 'REWARDED'
     ? 'border-success/50 bg-success/15 text-success'
     : record ? 'border-tertiary/50 bg-tertiary-container/15 text-tertiary' : 'border-outline-variant/30 bg-surface-container-lowest text-on-surface-variant'
-  return <div className={`min-h-16 rounded-lg border p-2 ${statusClass} ${isToday ? 'ring-2 ring-primary' : ''}`}>
+  return <div className={`flex min-h-16 flex-col rounded-lg border p-2 ${statusClass} ${isToday ? 'ring-2 ring-primary' : ''}`}>
     <div className="flex items-start justify-between"><span className="text-xs font-semibold">{cell.dayNumber}</span>{record && <Icon name={record.rewardStatus === 'REWARDED' ? 'check_circle' : 'schedule'} filled className="text-base" />}</div>
-    {record && <p className="mt-1 text-[10px] font-semibold">+{record.rewardCoins} coins</p>}
+    {coins != null && <div className={`mt-auto flex items-center gap-1 ${missed ? 'opacity-40' : ''}`} title={`${coins} coins`}>
+      <Icon name="toll" filled className="text-lg text-tertiary" /><span className="text-xs font-bold">+{coins}</span>
+    </div>}
   </div>
 }
 
@@ -124,7 +129,7 @@ export default function DailyCheckInModal({ onClose }) {
         </div>
         <div className="mb-1 grid grid-cols-7 gap-1 text-center text-[10px] font-semibold uppercase tracking-wider text-outline">{weekDays.map(day => <span key={day}>{day}</span>)}</div>
         {loading ? <div className="py-space-xl text-center text-sm text-on-surface-variant" role="status">Loading calendar…</div>
-          : <div className="grid grid-cols-7 gap-1">{cells.map(cell => <DayCell key={cell.key} cell={cell} today={calendar?.today} />)}</div>}
+          : <div className="grid grid-cols-7 gap-1">{cells.map(cell => <DayCell key={cell.key} cell={cell} today={calendar?.today} dailyReward={calendar?.dailyRewardCoins} />)}</div>}
       </section>
 
       <footer className="relative z-10 flex flex-col gap-space-md sm:flex-row sm:items-center sm:justify-between">
