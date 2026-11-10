@@ -29,7 +29,7 @@ export default function LiveTableSurface({ snapshot, onStatus }) {
     return () => { stopped = true; node.removeEventListener('webglcontextlost', lost); view.current?.dispose(); view.current = null }
   }, [onStatus])
   return <div className={styles.surface}>
-    <canvas ref={canvas} className={styles.canvas} aria-label="Bàn poker 3D trực tiếp" data-testid="live-table-3d" />
-    {entering && <button type="button" className={styles.skip} onClick={() => view.current?.skip()}>Bỏ qua hiệu ứng</button>}
+    <canvas ref={canvas} className={styles.canvas} aria-label="Live 3D poker table" data-testid="live-table-3d" />
+    {entering && <button type="button" className={styles.skip} onClick={() => view.current?.skip()}>Skip animation</button>}
   </div>
 }

@@ -30,7 +30,6 @@ export default defineConfig({
     rolldownOptions: {
       input: {
         app: fileURLToPath(new URL('./index.html', import.meta.url)),
-        demo: fileURLToPath(new URL('./demo/poker.html', import.meta.url)),
       },
     },
   },

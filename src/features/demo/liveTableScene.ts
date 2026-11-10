@@ -3,7 +3,7 @@ import { createRenderer, resizeRenderer } from './engine/core/Renderer'
 import { TableScene } from './engine/scene/table-scene'
 import { Tweens } from './engine/scene/tweens'
 import { disposeObject3D } from './engine/utils/dispose'
-import type { AvatarStyle } from './engine/meta/bot-roster'
+import type { AvatarStyle } from './engine/meta/avatar-style'
 import type { Card } from './engine/poker/cards'
 
 type ServerCard = { rank: string; suit: string }

@@ -9,12 +9,9 @@ import { AdminShopPage, AdminEditProductPage } from '@/features/admin/shop'
 import { AdminSeasonsPage } from '@/features/admin/seasons'
 import { AdminTournamentsPage } from '@/features/admin/tournaments'
 import { AuthPage } from '@/features/auth'
-import { DemoPage } from '@/features/demo'
 import { RoomLobbyPage, RoomsPage } from '@/features/custom-room'
-import { EventsPage } from '@/features/events'
 import { GameTablePage } from '@/features/game-table'
 import { LobbyPage } from '@/features/lobby'
-import { MailboxPage } from '@/features/mailbox'
 import { RankedPage } from '@/features/ranked'
 import { LeaderboardPage } from '@/features/ranking'
 import { SeasonPage } from '@/features/season'
@@ -31,7 +28,6 @@ export default function AppRoutes() {
   return <Routes>
     <Route path={paths.home} element={<AuthPage />} />
     <Route path={paths.auth} element={<AuthPage />} />
-    <Route path={paths.demo} element={<DemoPage />} />
     <Route element={<AuthenticatedLayout />}>
       <Route path={paths.lobby} element={<LobbyPage />} />
       <Route path={paths.account} element={<AccountPage />} />
@@ -62,8 +58,6 @@ export default function AppRoutes() {
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Route>
-    <Route path={paths.events} element={<EventsPage />} />
-    <Route path={paths.mailbox} element={<MailboxPage />} />
     <Route path={paths.table} element={<GameTablePage />} />
     <Route path={paths.tableById(':tableId')} element={<GameTablePage />} />
     {/* Full-screen like the table; the page checks the session itself. */}

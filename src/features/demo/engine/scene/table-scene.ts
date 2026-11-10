@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { AvatarStyle } from '../meta/bot-roster';
+import type { AvatarStyle } from '../meta/avatar-style';
 import { cardKey, type Card } from '../poker/cards';
 import { Avatar, type AvatarMood } from './avatar-factory';
 import { ChipSystem, type ChipSpot } from './chip-system';
@@ -196,8 +196,11 @@ export class TableScene {
     scene.add(this.burst);
   }
 
-  /** Seat avatars for a new match. `styles[i]` null = the human seat (no avatar, camera sits there). */
-  setupPlayers(styles: (AvatarStyle | null)[], slots: number[]): void {
+  /**
+   * Seat avatars for a new match. `styles[i]` null = an empty seat; seat 0 is where the camera sits.
+   * `emptyChairs` puts an unoccupied chair at every empty seat except the camera's.
+   */
+  setupPlayers(styles: (AvatarStyle | null)[], slots: number[], emptyChairs = false): void {
     this.clearHand();
     for (const seat of this.seats) {
       if (seat.avatar) this.seatGroup.remove(seat.avatar.root);
@@ -215,6 +218,8 @@ export class TableScene {
         avatar.root.position.copy(seatPos);
         avatar.root.rotation.y = yaw;
         this.seatGroup.add(avatar.root);
+      }
+      if (style || (emptyChairs && i > 0)) {
         chair = buildChair();
         chair.position.copy(seatPos);
         chair.rotation.y = yaw;

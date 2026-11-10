@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { AvatarStyle } from '../meta/bot-roster';
+import type { AvatarStyle } from '../meta/avatar-style';
 
 export type AvatarMood = 'idle' | 'thinking' | 'folded' | 'celebrate' | 'allin';
 
