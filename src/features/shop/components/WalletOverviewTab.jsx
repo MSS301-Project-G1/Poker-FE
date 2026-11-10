@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router'
 import { paths } from '@/shared/config/paths'
-import { Icon, Button } from '@/shared/ui'
+import { Icon } from '@/shared/ui'
+import { Button } from '../shared/ui'
 import { useWalletTransactions } from '../hooks/useWalletTransactions'
 import styles from './WalletOverviewTab.module.css'
 
