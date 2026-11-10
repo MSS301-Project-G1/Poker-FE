@@ -350,7 +350,7 @@ export default function ShopPage() {
                           <span>Previous</span>
                         </button>
                         <span className="text-xs text-white/60 px-3">
-                          Trang <strong className="text-white font-bold">{page + 1}</strong> / {totalPages}
+                          Page <strong className="text-white font-bold">{page + 1}</strong> / {totalPages}
                         </span>
                         <button
                           type="button"
@@ -358,7 +358,7 @@ export default function ShopPage() {
                           onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
                           className="flex items-center gap-1 px-3.5 py-2 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xs font-bold"
                         >
-                          <span>Sau</span>
+                          <span>Next</span>
                           <Icon name="chevron_right" className="text-base" />
                         </button>
                       </div>

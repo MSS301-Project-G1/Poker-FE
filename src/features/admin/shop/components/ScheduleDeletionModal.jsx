@@ -207,7 +207,7 @@ export default function ScheduleDeletionModal({
 
         {/* Modal Actions Footer */}
         <div className="pt-3 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          {/* Design Button Tiêu Hủy Ngay as requested */}
+          {/* Destroy-now button */}
           {onImmediateDelete ? (
             <button
               type="button"

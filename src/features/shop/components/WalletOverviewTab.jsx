@@ -479,8 +479,8 @@ export default function WalletOverviewTab({
                     disabled={page >= totalPages - 1}
                     onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
                     className={styles.pageBtn}
-                    title="Trang sau"
-                    aria-label="Trang sau"
+                    title="Next page"
+                    aria-label="Next page"
                   >
                     <Icon name="chevron_right" />
                   </button>

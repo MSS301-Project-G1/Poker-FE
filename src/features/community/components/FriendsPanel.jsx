@@ -91,6 +91,6 @@ export default function FriendsPanel({ notifications = false, onChanged }) {
         </div>
       </li>
     })}</ul>}
-    {data?.totalPages > 1 && <nav className={ui.pagination} aria-label="Pagination"><Button disabled={page === 0} onClick={() => setPage(value => value - 1)}>Previous</Button><span>{page + 1} / {data.totalPages}</span><Button disabled={page + 1 >= data.totalPages} onClick={() => setPage(value => value + 1)}>Sau</Button></nav>}
+    {data?.totalPages > 1 && <nav className={ui.pagination} aria-label="Pagination"><Button disabled={page === 0} onClick={() => setPage(value => value - 1)}>Previous</Button><span>{page + 1} / {data.totalPages}</span><Button disabled={page + 1 >= data.totalPages} onClick={() => setPage(value => value + 1)}>Next</Button></nav>}
   </div>
 }

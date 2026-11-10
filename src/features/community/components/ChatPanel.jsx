@@ -112,7 +112,7 @@ function ConversationList() {
         {unread > 0 ? <span className={styles.unreadBadge} aria-label={`${unread} unread message${unread === 1 ? '' : 's'}`}>{unread > 99 ? '99+' : unread}</span> : <Icon name="chevron_right" />}
       </button></li>
     })}</ul>}
-    {data?.totalPages > 1 && <nav className={styles.pagination} aria-label="Chat pages"><Button disabled={page === 0} onClick={() => setPage(value => value - 1)}>Previous</Button><span>Trang {page + 1}</span><Button disabled={page + 1 >= data.totalPages} onClick={() => setPage(value => value + 1)}>Sau</Button></nav>}
+    {data?.totalPages > 1 && <nav className={styles.pagination} aria-label="Chat pages"><Button disabled={page === 0} onClick={() => setPage(value => value - 1)}>Previous</Button><span>Page {page + 1}</span><Button disabled={page + 1 >= data.totalPages} onClick={() => setPage(value => value + 1)}>Next</Button></nav>}
   </div>
 }
 

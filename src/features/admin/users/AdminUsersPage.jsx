@@ -50,7 +50,7 @@ export default function AdminUsersPage() {
             </tr>)}</tbody>
           </table></div>
           {state.data.content.length === 0 && <p className="p-space-lg text-center text-on-surface-variant">No matching accounts.</p>}
-          <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-outline-variant/30 p-4"><span className="text-sm">{state.data.totalElements} accounts · Page {filters.page + 1}/{Math.max(state.data.totalPages, 1)}</span><div className="flex gap-3"><Button disabled={filters.page === 0} onClick={() => setFilters(current => ({ ...current, page: current.page - 1 }))}>Previous</Button><Button disabled={filters.page + 1 >= state.data.totalPages} onClick={() => setFilters(current => ({ ...current, page: current.page + 1 }))}>Sau</Button></div></footer>
+          <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-outline-variant/30 p-4"><span className="text-sm">{state.data.totalElements} accounts · Page {filters.page + 1}/{Math.max(state.data.totalPages, 1)}</span><div className="flex gap-3"><Button disabled={filters.page === 0} onClick={() => setFilters(current => ({ ...current, page: current.page - 1 }))}>Previous</Button><Button disabled={filters.page + 1 >= state.data.totalPages} onClick={() => setFilters(current => ({ ...current, page: current.page + 1 }))}>Next</Button></div></footer>
         </>}
       </section>
       {selectedId && <UserBanDetails key={selectedId} accountId={selectedId} attempt={attempt} onClose={() => setSelectedId(null)} />}

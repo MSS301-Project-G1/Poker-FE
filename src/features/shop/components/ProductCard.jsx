@@ -187,7 +187,7 @@ export default function ProductCard({
                 onBuy?.(product)
               }}
             >
-              Mua ngay
+              Buy now
             </Button>
           )}
         </div>
