@@ -27,7 +27,7 @@ export default function AppHeader({ user, coins, onLogout, logoutPending, onOpen
   const { enabled: soundEnabled, toggle: toggleSound } = useSound()
   const displayName = user?.profile?.displayName || user?.email || 'Player'
   const avatarUrl = user?.profile?.avatarUrl || '/stitch-assets/avatar.svg'
-  return <header className="fixed top-0 left-0 right-0 z-header bg-surface-container-lowest/95 border-b border-outline-variant/40">
+  return <header className="fixed top-0 left-0 right-0 z-header bg-surface-container-lowest/98 backdrop-blur-xl border-b border-outline-variant/40 shadow-sm">
     <div className="h-20 w-full px-margin-mobile sm:px-margin flex items-center justify-between gap-space-sm sm:gap-space-md">
       <div className="flex items-center gap-space-lg">
         <Link to={user?.role === 'ADMIN' ? paths.admin : paths.lobby} className="flex items-center gap-space-sm hover:opacity-90 transition-opacity">

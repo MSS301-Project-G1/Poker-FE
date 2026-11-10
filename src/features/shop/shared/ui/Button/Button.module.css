@@ -30,9 +30,10 @@
 
 /* Sizes */
 .sm {
-  padding: 0.4rem 0.85rem;
-  font-size: 0.8125rem;
-  letter-spacing: 0.02em;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.775rem;
+  letter-spacing: 0.01em;
+  gap: 0.35rem;
 }
 
 .md {

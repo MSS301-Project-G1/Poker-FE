@@ -9,6 +9,7 @@ import {
   createProduct,
   updateProduct,
   maintainProduct,
+  activateProduct,
   uploadDeckSkinZip,
   uploadDeckSkinFiles,
 } from './services/adminShopService'
@@ -43,14 +44,26 @@ export default function AdminEditProductPage() {
   }
 
   const handleUpdateProduct = async (productId, payload) => {
+    const wasActive = product?.status === 'ACTIVE'
     if (product && product.status !== 'MAINTAIN') {
-      notify(
-        'Suspend the product before editing it.',
-        { type: 'error' }
-      )
-      throw new Error('Suspend the product before editing it')
+      try {
+        await maintainProduct(product.id)
+        setProduct(prev => ({ ...prev, status: 'MAINTAIN' }))
+      } catch (err) {
+        notify('Couldn’t prepare product for update: ' + err.message, { type: 'error' })
+        throw err
+      }
     }
-    return updateProduct(productId, payload)
+    const result = await updateProduct(productId, payload)
+    if (wasActive) {
+      try {
+        await activateProduct(productId)
+        setProduct(prev => ({ ...prev, status: 'ACTIVE' }))
+      } catch (activateErr) {
+        console.warn('Auto re-activation skipped:', activateErr)
+      }
+    }
+    return result
   }
 
   const loadData = useCallback(async () => {

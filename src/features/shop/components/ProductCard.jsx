@@ -71,26 +71,30 @@ export default function ProductCard({
           {getTierLabel(product.tier)}
         </span>
 
-        {isEquipped ? (
-          <span className={`${styles.statusBadge} ${styles.statusEquipped}`}>
-            <Icon name="check_circle" className="text-xs" /> In use
-          </span>
-        ) : product.isOwned ? (
-          <span className={`${styles.statusBadge} ${styles.statusOwned}`}>
-            <Icon name="verified" className="text-xs" /> Owned
-          </span>
-        ) : saleRemaining ? (
-          <span
-            className={`${styles.statusBadge} ${styles.statusFlashSale}`}
-            title={`On sale until ${new Date(product.saleExpiresAt).toLocaleString()}`}
-          >
-            <Icon name="bolt" className="text-xs text-tertiary-fixed" /> {saleRemaining}
-          </span>
-        ) : product.isExclusive ? (
-          <span className={`${styles.statusBadge} ${styles.statusExclusive}`}>
-            <Icon name="lock" className="text-xs" /> Exclusive
-          </span>
-        ) : null}
+        <div className="flex items-center gap-1.5 flex-wrap justify-end">
+          {saleRemaining && (
+            <span
+              className={`${styles.statusBadge} ${styles.statusFlashSale}`}
+              title={`On sale until ${new Date(product.saleExpiresAt).toLocaleString()}`}
+            >
+              <Icon name="bolt" className="text-xs text-tertiary-fixed" /> {saleRemaining}
+            </span>
+          )}
+
+          {isEquipped ? (
+            <span className={`${styles.statusBadge} ${styles.statusEquipped}`}>
+              <Icon name="check_circle" className="text-xs" /> In use
+            </span>
+          ) : product.isOwned ? (
+            <span className={`${styles.statusBadge} ${styles.statusOwned}`}>
+              <Icon name="verified" className="text-xs" /> Owned
+            </span>
+          ) : product.isExclusive ? (
+            <span className={`${styles.statusBadge} ${styles.statusExclusive}`}>
+              <Icon name="lock" className="text-xs" /> Exclusive
+            </span>
+          ) : null}
+        </div>
       </div>
 
       {/* Unified Cosmetic Visualizer (No AI placeholders or broken boxes) */}
