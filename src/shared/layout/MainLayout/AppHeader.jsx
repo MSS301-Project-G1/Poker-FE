@@ -11,8 +11,6 @@ const navItems = [
   { to: paths.tournaments, label: 'Tournaments', wide: true },
   { to: paths.ranking, label: 'Leaderboard', wide: true },
   { to: paths.shop, label: 'Shop' },
-  { to: paths.events, label: 'Events' },
-  { to: paths.mailbox, label: 'Mailbox' },
 ]
 
 const navClass = ({ isActive }) => `px-space-md py-space-sm font-label-action transition-all ${isActive
@@ -29,34 +27,33 @@ export default function AppHeader({ user, coins, onLogout, logoutPending, onOpen
   const { enabled: soundEnabled, toggle: toggleSound } = useSound()
   const displayName = user?.profile?.displayName || user?.email || 'Player'
   const avatarUrl = user?.profile?.avatarUrl || '/stitch-assets/avatar.svg'
-  return <header className="fixed top-0 left-0 right-0 z-header bg-surface-container-lowest/85 backdrop-blur-2xl shadow-header">
-    <div className="h-20 w-full px-margin flex items-center justify-between gap-space-md">
+  return <header className="fixed top-0 left-0 right-0 z-header bg-surface-container-lowest/95 border-b border-outline-variant/40">
+    <div className="h-20 w-full px-margin-mobile sm:px-margin flex items-center justify-between gap-space-sm sm:gap-space-md">
       <div className="flex items-center gap-space-lg">
         <Link to={user?.role === 'ADMIN' ? paths.admin : paths.lobby} className="flex items-center gap-space-sm hover:opacity-90 transition-opacity">
-          <img alt="Poker Rank Logo" className="h-9 w-auto object-contain rounded-md" src="/stitch-assets/logo.svg" />
-          <span className="font-headline-sm text-headline-sm uppercase tracking-wider text-primary">POKER RANK</span>
+          <img alt="" className="h-9 w-9" src="/stitch-assets/logo.svg" />
+          <span className="sr-only sm:not-sr-only whitespace-nowrap font-headline-sm text-headline-sm text-on-surface">Poker Rank</span>
         </Link>
         <nav className="hidden lg:flex items-center gap-space-xs">
           {navItems.map(item => <NavLink key={item.to} to={item.to}
-            className={state => `${navClass(state)}${item.wide ? ' hidden min-[1360px]:block' : ''}`}>{item.label}</NavLink>)}
+            className={state => `${navClass(state)}${item.wide ? ' hidden xl:block' : ''}`}>{item.label}</NavLink>)}
         </nav>
       </div>
-      <div className="flex items-center gap-space-md">
-        {onOpenCheckIn && <button type="button" onClick={onOpenCheckIn} title="Daily Check-in" aria-label="Daily Check-in"
-          className="flex items-center gap-space-xs h-9 px-space-sm xl:px-space-md rounded-full bg-gradient-to-r from-primary-container to-secondary-container text-on-primary-container font-label-action text-label-action shadow-md hover:brightness-110 active:scale-95 transition-all">
+      <div className="flex items-center gap-space-xs sm:gap-space-md">
+        {onOpenCheckIn && <button type="button" onClick={onOpenCheckIn} title="Daily check-in" aria-label="Daily check-in"
+          className="flex items-center gap-space-xs h-9 px-space-sm xl:px-space-md rounded-full bg-surface-container text-on-surface font-label-action text-label-action hover:bg-surface-container-high transition-colors">
           <Icon name="calendar_month" filled className="text-tertiary text-lg" />
-          <span className="hidden xl:inline">Daily Check-in</span>
-          <span className="w-2 h-2 rounded-full bg-tertiary animate-pulse" aria-hidden="true"></span>
+          <span className="hidden xl:inline">Daily check-in</span>
         </button>}
         {coins != null && <div className="hidden sm:flex items-center bg-surface-container-low px-space-md py-space-xs rounded-full gap-space-xs shadow-inner">
-          <span className="material-symbols-outlined text-tertiary text-lg">toll</span>
+          <Icon name="toll" className="text-tertiary text-lg" />
           <span className="font-label-numeric-md text-label-numeric-md text-tertiary">{coins.toLocaleString()}</span>
         </div>}
         <div className="flex items-center gap-space-xs">
-          {onOpenNotifications && <button className={iconButton} title="Thông báo" aria-label="Thông báo" onClick={onOpenNotifications} type="button"><Icon name="notifications" className="text-lg" /></button>}
-          <button className={iconButton} title={soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh'} aria-label={soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh'} aria-pressed={soundEnabled} onClick={toggleSound} type="button"><span className="material-symbols-outlined text-lg">{soundEnabled ? 'volume_up' : 'volume_off'}</span></button>
+          {onOpenNotifications && <button className={iconButton} title="Notifications" aria-label="Notifications" onClick={onOpenNotifications} type="button"><Icon name="notifications" className="text-lg" /></button>}
+          <button className={iconButton} title={soundEnabled ? 'Mute sound' : 'Unmute sound'} aria-label={soundEnabled ? 'Mute sound' : 'Unmute sound'} aria-pressed={soundEnabled} onClick={toggleSound} type="button"><Icon name={soundEnabled ? 'volume_up' : 'volume_off'} className="text-lg" /></button>
           {user?.role === 'ADMIN' && (
-            <NavLink className={iconButton} title="Quản trị hệ thống" aria-label="Quản trị hệ thống" to={paths.admin}>
+            <NavLink className={iconButton} title="Admin" aria-label="Admin" to={paths.admin}>
               <Icon name="admin_panel_settings" className="text-lg text-primary" />
             </NavLink>
           )}
@@ -66,7 +63,7 @@ export default function AppHeader({ user, coins, onLogout, logoutPending, onOpen
           <img alt={displayName} className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/40" src={avatarUrl}
             onError={event => { event.currentTarget.src = '/stitch-assets/avatar.svg' }} />
           <span className="hidden 2xl:block max-w-36 truncate text-sm font-semibold text-on-surface">{displayName}</span>
-          <button className={iconButton} title="Đăng xuất" aria-label="Đăng xuất" type="button" onClick={onLogout} disabled={logoutPending}>
+          <button className={iconButton} title="Sign out" aria-label="Sign out" type="button" onClick={onLogout} disabled={logoutPending}>
             <Icon name="logout" className="text-lg" />
           </button>
         </div>

@@ -1,2 +1,2 @@
-export { AppHeader, MainLayout, TickerFooter } from './MainLayout'
+export { AppHeader, MainLayout } from './MainLayout'
 

@@ -1,0 +1,4 @@
+.caption {
+  color: rgb(var(--color-on-surface-variant));
+  font: 500 13px/18px var(--font-body);
+}

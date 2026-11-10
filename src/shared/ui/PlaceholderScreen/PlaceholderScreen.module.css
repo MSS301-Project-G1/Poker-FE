@@ -5,10 +5,13 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-md);
-  background: radial-gradient(circle at top, rgb(var(--color-surface-bright)), rgb(var(--color-surface-container-lowest)) 70%);
+  padding: var(--space-margin-mobile);
+  background: rgb(var(--color-surface-container-lowest));
+  color: rgb(var(--color-on-surface-variant));
   text-align: center;
 }
 
 .title {
   font: 700 2rem var(--font-display);
+  color: rgb(var(--color-on-surface));
 }

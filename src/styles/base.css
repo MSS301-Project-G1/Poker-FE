@@ -10,6 +10,10 @@
   }
 
   body { margin: 0; }
+
+  /* Browser-drawn surfaces follow the palette too: selection, caret, native controls and scrollbars. */
+  ::selection { background: rgb(var(--color-primary-container)); color: rgb(var(--color-on-primary-container)); }
+  :root { caret-color: rgb(var(--color-primary)); accent-color: rgb(var(--color-primary-container)); scrollbar-color: rgb(var(--color-outline-variant)) transparent; }
   button { cursor: pointer; }
 
   /* Keyboard focus ring for every interactive element. Tailwind focus:outline-none still overrides it. */
