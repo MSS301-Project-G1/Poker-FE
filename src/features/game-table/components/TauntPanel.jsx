@@ -19,16 +19,16 @@ export default function TauntPanel({ sounds, disabled, onTaunt, muted, onToggleM
     setCooling(true)
   }
   return <details className={styles.panel}>
-    <summary><Icon name="campaign" className={styles.icon} /> Âm thanh</summary>
+    <summary><Icon name="campaign" className={styles.icon} /> Sounds</summary>
     <div className={styles.popover}>
-      <strong>PHÁT CHO CẢ BÀN</strong>
+      <strong>PLAY FOR THE TABLE</strong>
       {sounds.length ? <ul>{sounds.map(sound => <li key={sound.productId}>
         <button type="button" disabled={disabled || cooling} onClick={() => taunt(sound.productId)}>
           {sound.iconUrl ? <img src={sound.iconUrl} alt="" /> : <Icon name="volume_up" />}<span>{sound.name}</span>
         </button></li>)}</ul>
-        : <p>Bạn chưa có âm thanh nào. Mua trong Cửa hàng sau trận để phát cho cả bàn nghe.</p>}
-      {cooling && <p role="status">Chờ {TAUNT_COOLDOWN_MILLIS / 1000} giây rồi phát tiếp.</p>}
-      <label className={styles.mute}><input type="checkbox" checked={muted} onChange={onToggleMute} /> Tắt âm thanh trêu chọc</label>
+        : <p>You don’t have any sounds yet. Buy some in the Shop after the match to play them for the table.</p>}
+      {cooling && <p role="status">Wait {TAUNT_COOLDOWN_MILLIS / 1000} seconds before the next one.</p>}
+      <label className={styles.mute}><input type="checkbox" checked={muted} onChange={onToggleMute} /> Mute taunts</label>
     </div>
   </details>
 }

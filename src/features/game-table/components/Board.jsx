@@ -13,9 +13,9 @@ export default function Board({ cards, pot, distribution, street, revealDelays =
     {/* After a hand the street tag becomes the pot results toggle, so the board keeps its height and stays clear of your cards. */}
     <div className={`${styles.pot} ${result ? styles.result : ''}`} data-pot>
       <Icon name={result ? 'emoji_events' : 'monetization_on'} filled />
-      <span>{result ?? <>TỔNG POT: <strong>{total.toLocaleString()}</strong> CHIPS</>}</span>
-      {result ? <details className={styles.awards}><summary>KẾT QUẢ · {distribution.pots.length}</summary><div>{distribution.pots.map((award, index) => <span key={index}>
-        {index === 0 ? 'Pot chính' : `Pot phụ ${index}`}: {award.amount.toLocaleString()} → {award.winnerSeats.map(seat => `Ghế ${seat + 1}`).join(', ')}
+      <span>{result ?? <>TOTAL POT: <strong>{total.toLocaleString()}</strong> CHIPS</>}</span>
+      {result ? <details className={styles.awards}><summary>RESULT · {distribution.pots.length}</summary><div>{distribution.pots.map((award, index) => <span key={index}>
+        {index === 0 ? 'Main pot' : `Side pot ${index}`}: {award.amount.toLocaleString()} → {award.winnerSeats.map(seat => `Seat ${seat + 1}`).join(', ')}
       </span>)}</div></details> : <small>{label(streetLabels, street)}</small>}
     </div>
     <div className={styles.community} aria-label="Community cards" data-community-cards>

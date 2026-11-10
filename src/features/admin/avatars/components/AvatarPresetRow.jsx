@@ -10,7 +10,7 @@ export default function AvatarPresetRow({ preset, pending, onSave }) {
     <img src={preset.avatarUrl} alt={preset.name} className="h-14 w-14 rounded-lg object-cover md:h-16 md:w-16"
       onError={event => { event.currentTarget.src = '/stitch-assets/avatar.svg' }} />
     <div className="min-w-0">
-      <label className="mb-1 block text-xs uppercase tracking-wider text-on-surface-variant" htmlFor={`avatar-${preset.avatarId}`}>Preset name</label>
+      <label className="mb-1 block text-xs text-on-surface-variant" htmlFor={`avatar-${preset.avatarId}`}>Preset name</label>
       <input id={`avatar-${preset.avatarId}`} value={name} onChange={event => setName(event.target.value)} maxLength={100} disabled={pending}
         className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-primary" />
       <p className="mt-1 text-xs text-outline">Updated {new Date(preset.updatedAt).toLocaleString()}</p>

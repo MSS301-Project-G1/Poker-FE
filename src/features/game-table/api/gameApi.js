@@ -19,8 +19,8 @@ export const leaveTable = (tableId, identity) => call(`/api/game/tables/${tableI
 
 // The question asked before leaveTable, for useConfirm().
 export const leaveMatchPrompt = {
-  title: 'Rời ván?', message: 'Bạn sẽ bị xử thua và không thể quay lại bàn này.',
-  confirmLabel: 'Rời ván', cancelLabel: 'Ở lại', icon: 'logout', danger: true,
+  title: 'Leave table?', message: 'You’ll forfeit and can’t return to this table.',
+  confirmLabel: 'Leave table', cancelLabel: 'Stay', icon: 'logout', danger: true,
 }
 
 // Local development only: creates a table with the given number of human and bot seats.

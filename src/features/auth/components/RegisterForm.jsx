@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Icon } from '@/shared/ui'
 import { displayNameError, emailError, newPasswordError } from '../utils/authValidation'
 import PasswordField from './PasswordField'
 import { fieldErrorClass, inputClass, labelClass, submitClass } from './authFormStyles'
@@ -24,13 +23,13 @@ export default function RegisterForm({ pending, onSubmit }) {
 
   return <form className="space-y-4" onSubmit={submit} noValidate>
     <div>
-      <label className={labelClass} htmlFor="register-email">Email address <span className="text-primary">*</span></label>
+      <label className={labelClass} htmlFor="register-email">Email address</label>
       <input id="register-email" className={`${inputClass} px-4`} type="email" value={values.email}
         onChange={event => update('email')(event.target.value)} autoComplete="email" disabled={pending} aria-invalid={Boolean(errors.email)} />
       {errors.email && <p className={fieldErrorClass}>{errors.email}</p>}
     </div>
     <div>
-      <label className={labelClass} htmlFor="register-display-name">Display name <span className="text-primary">*</span></label>
+      <label className={labelClass} htmlFor="register-display-name">Display name</label>
       <input id="register-display-name" className={`${inputClass} px-4`} value={values.displayName}
         onChange={event => update('displayName')(event.target.value)} autoComplete="nickname" maxLength={100} disabled={pending} aria-invalid={Boolean(errors.displayName)} />
       {errors.displayName && <p className={fieldErrorClass}>{errors.displayName}</p>}
@@ -42,7 +41,7 @@ export default function RegisterForm({ pending, onSubmit }) {
         onChange={update('confirmPassword')} error={errors.confirmPassword} autoComplete="new-password" disabled={pending} />
     </div>
     <button className={submitClass} type="submit" disabled={pending}>
-      <span>{pending ? 'CREATING ACCOUNT…' : 'CREATE ACCOUNT'}</span><Icon name="person_add" className="text-base" />
+      <span>{pending ? 'Creating account…' : 'Create account'}</span>
     </button>
   </form>
 }

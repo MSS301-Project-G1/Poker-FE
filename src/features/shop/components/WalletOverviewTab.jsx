@@ -1,19 +1,20 @@
 import { useNavigate } from 'react-router'
 import { paths } from '@/shared/config/paths'
-import { Icon, Button } from '@/shared/ui'
+import { Icon } from '@/shared/ui'
+import { Button } from '../shared/ui'
 import { useWalletTransactions } from '../hooks/useWalletTransactions'
 import styles from './WalletOverviewTab.module.css'
 
 function formatCurrencyNumber(val) {
   if (val === null || val === undefined) return '0'
-  return Number(val).toLocaleString('vi-VN')
+  return Number(val).toLocaleString('en-US')
 }
 
 function formatDate(isoString) {
   if (!isoString) return '--'
   try {
     const d = new Date(isoString)
-    return d.toLocaleString('vi-VN', {
+    return d.toLocaleString('en-US', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -31,10 +32,10 @@ function formatAuditRef(idempotencyKey, txId) {
     return `MUA #${idempotencyKey.slice(9, 17)}`
   }
   if (idempotencyKey.startsWith('ORDER:')) {
-    return `NẠP #${idempotencyKey.slice(6, 14)}`
+    return `TOP-UP #${idempotencyKey.slice(6, 14)}`
   }
   if (idempotencyKey.startsWith('AUTO_REFUND_') || idempotencyKey.startsWith('AUTO_REFUND:')) {
-    return `HOÀN #${idempotencyKey.slice(-8).toUpperCase()}`
+    return `REFUND #${idempotencyKey.slice(-8).toUpperCase()}`
   }
   if (idempotencyKey.startsWith('checkin:')) {
     return 'CHECK-IN'
@@ -47,72 +48,72 @@ function getReasonInfo(reason, amount) {
     case 'SHOP_BUY_ITEM':
     case 'SHOP_PURCHASE':
       return {
-        title: 'Mua Vật Phẩm Cửa Hàng',
-        desc: 'Trừ VIP Coin sở hữu trang trí',
+        title: 'Item purchase',
+        desc: 'VIP Coin spent on a cosmetic',
         icon: 'shopping_bag',
-        bg: 'rgba(244, 63, 94, 0.15)',
-        color: '#f43f5e',
+        bg: 'rgb(var(--color-error) / 0.15)',
+        color: 'rgb(var(--color-error))',
       }
     case 'REFUND_COIN':
       return {
-        title: 'Hoàn Tiền Vật Phẩm',
-        desc: 'Tự động hoàn 100% VIP Coin khi vật phẩm bị xóa khỏi hệ thống',
+        title: 'Item refund',
+        desc: '100% VIP Coin refunded automatically when an item is removed',
         icon: 'currency_exchange',
-        bg: 'rgba(16, 185, 129, 0.15)',
-        color: '#10b981',
+        bg: 'rgb(var(--color-success) / 0.15)',
+        color: 'rgb(var(--color-success))',
       }
     case 'TOPUP_BUNDLE_PAYOS':
     case 'DEPOSIT':
     case 'PAYMENT_PAYOS':
     case 'BUNDLE_TOPUP':
       return {
-        title: 'Nạp VIP Coin (PayOS)',
-        desc: 'Cộng VIP Coin từ đơn thanh toán PayOS',
+        title: 'VIP Coin top-up (PayOS)',
+        desc: 'VIP Coin credited from a PayOS order',
         icon: 'add_card',
-        bg: 'rgba(16, 185, 129, 0.15)',
-        color: '#10b981',
+        bg: 'rgb(var(--color-success) / 0.15)',
+        color: 'rgb(var(--color-success))',
       }
 
     case 'DAILY_CHECKIN':
     case 'DAILY_REWARD':
       return {
-        title: 'Thưởng Điểm Danh Hàng Ngày',
-        desc: 'Phần thưởng đăng nhập mỗi ngày',
+        title: 'Daily check-in reward',
+        desc: 'Reward for signing in each day',
         icon: 'event_available',
-        bg: 'rgba(56, 189, 248, 0.15)',
-        color: '#38bdf8',
+        bg: 'rgb(var(--color-primary) / 0.15)',
+        color: 'rgb(var(--color-primary))',
       }
     case 'GAME_WIN':
       return {
-        title: 'Thắng cược ván bài',
-        desc: 'Cộng tiền thắng pot',
+        title: 'Hand won',
+        desc: 'Pot winnings credited',
         icon: 'emoji_events',
-        bg: 'rgba(234, 179, 8, 0.15)',
-        color: '#eab308',
+        bg: 'rgb(var(--color-tertiary) / 0.15)',
+        color: 'rgb(var(--color-tertiary))',
       }
     case 'GAME_BET':
       return {
-        title: 'Đặt cược bàn chơi',
-        desc: 'Trừ tiền vào pot bàn chơi',
+        title: 'Table bet',
+        desc: 'Chips put into the pot',
         icon: 'casino',
-        bg: 'rgba(168, 85, 247, 0.15)',
-        color: '#a855f7',
+        bg: 'rgb(var(--color-secondary) / 0.15)',
+        color: 'rgb(var(--color-secondary))',
       }
     case 'ADMIN_ADJUST':
       return {
-        title: 'Điều chỉnh bởi Admin',
-        desc: 'Biến động số dư từ quản trị viên',
+        title: 'Admin adjustment',
+        desc: 'Balance change by an admin',
         icon: 'admin_panel_settings',
-        bg: 'rgba(245, 158, 11, 0.15)',
-        color: '#f59e0b',
+        bg: 'rgb(var(--color-tertiary-container) / 0.15)',
+        color: 'rgb(var(--color-tertiary-container))',
       }
     default:
       return {
-        title: reason || (amount >= 0 ? 'Cộng tiền vào ví' : 'Trừ tiền khỏi ví'),
-        desc: 'Giao dịch hệ thống Poker',
+        title: reason || (amount >= 0 ? 'Credit' : 'Debit'),
+        desc: 'Poker system transaction',
         icon: amount >= 0 ? 'arrow_downward' : 'arrow_upward',
-        bg: amount >= 0 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)',
-        color: amount >= 0 ? '#10b981' : '#f43f5e',
+        bg: amount >= 0 ? 'rgb(var(--color-success) / 0.15)' : 'rgb(var(--color-error) / 0.15)',
+        color: amount >= 0 ? 'rgb(var(--color-success))' : 'rgb(var(--color-error))',
       }
   }
 }
@@ -140,15 +141,15 @@ export default function WalletOverviewTab({
 
   if (!isLoggedIn) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 px-4 text-center rounded-3xl bg-white/[0.02] border border-white/10 shadow-2xl my-4">
-        <div className="w-16 h-16 rounded-2xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 mb-4 shadow-lg shadow-amber-400/10">
+      <div className="flex flex-col items-center justify-center py-20 px-4 text-center rounded-3xl bg-on-surface/[0.02] border border-on-surface/10 shadow-2xl my-4">
+        <div className="w-16 h-16 rounded-2xl bg-tertiary/10 border border-tertiary/30 flex items-center justify-center text-tertiary mb-4 shadow-lg shadow-tertiary/10">
           <Icon name="account_balance_wallet" className="text-3xl" />
         </div>
-        <h3 className="font-headline font-bold text-2xl text-white mb-2">
-          Ví Cá Nhân & Lịch Sử Giao Dịch
+        <h3 className="font-headline font-bold text-2xl text-on-surface mb-2">
+          Wallet & history
         </h3>
-        <p className="text-sm text-white/60 max-w-md mb-6 leading-relaxed">
-          Bạn đang ở chế độ xem khách. Vui lòng đăng nhập tài khoản để kiểm tra số dư VIP Coin, Poker Chips và toàn bộ lịch sử biến động số dư.
+        <p className="text-sm text-on-surface/60 max-w-md mb-6 leading-relaxed">
+          You’re browsing as a guest. Sign in to see your VIP Coin and chip balances and full history.
         </p>
         <Button
           variant="gold"
@@ -156,7 +157,7 @@ export default function WalletOverviewTab({
           icon="login"
           onClick={() => navigate(paths.auth)}
         >
-          Đăng Nhập Ngay
+          Sign in
         </Button>
       </div>
     )
@@ -174,10 +175,10 @@ export default function WalletOverviewTab({
         <div className={styles.headerTitleCol}>
           <h2 className={styles.headerTitle}>
             <Icon name="account_balance_wallet" className={styles.headerIcon} />
-            <span>Trung Tâm Ví & Tài Sản</span>
+            <span>Wallet</span>
           </h2>
           <p className={styles.headerSubtitle}>
-            Theo dõi chi tiết số dư VIP Coin, Poker Chips và mọi biến động giao dịch minh bạch theo thời gian thực.
+            Your VIP Coin and chip balances, with every transaction in real time.
           </p>
         </div>
 
@@ -185,11 +186,11 @@ export default function WalletOverviewTab({
           <button
             type="button"
             onClick={handleRefreshAll}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-white/80 border border-white/10 transition-colors"
-            title="Làm mới số dư ví và lịch sử"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-on-surface/5 hover:bg-on-surface/10 text-xs font-semibold text-on-surface/80 border border-on-surface/10 transition-colors"
+            title="Refresh balance and history"
           >
             <Icon name="refresh" className={txLoading ? 'animate-spin' : ''} />
-            <span>Làm mới</span>
+            <span>Refresh</span>
           </button>
 
           <Button
@@ -198,7 +199,7 @@ export default function WalletOverviewTab({
             icon="add_circle"
             onClick={() => navigate('/shop/bundles')}
           >
-            Nạp VIP Coin (PayOS)
+            VIP Coin top-up (PayOS)
           </Button>
         </div>
       </div>
@@ -210,7 +211,7 @@ export default function WalletOverviewTab({
           <div>
             <div className={styles.kpiHeader}>
               <span className={`${styles.kpiBadge} ${styles.kpiBadgeGold}`}>
-                <Icon name="paid" /> Tiền Tệ VIP
+                <Icon name="paid" /> VIP currency
               </span>
               <div className={`${styles.kpiIconWrapper} ${styles.iconGold}`}>
                 <Icon name="diamond" />
@@ -218,20 +219,20 @@ export default function WalletOverviewTab({
             </div>
             <div className={styles.kpiValue}>
               {formatCurrencyNumber(wallet?.vipCoinBalance ?? wallet?.vipCoin ?? 0)}
-              <span className="text-sm font-semibold text-amber-400/90 ml-1.5">VIP Coin</span>
+              <span className="text-sm font-semibold text-tertiary/90 ml-1.5">VIP Coin</span>
             </div>
             <p className={styles.kpiDesc}>
-              Dùng để sở hữu các bộ lá bài Tây 3D nghệ thuật, hiệu ứng All-In và vật phẩm danh giá trong Cửa Hàng.
+              Used for 3D card decks, all-in effects and other items in the shop.
             </p>
           </div>
           <div className={styles.kpiFooter}>
-            <span className="text-xs text-white/50">Cổng thanh toán PayOS</span>
+            <span className="text-xs text-on-surface/50">PayOS checkout</span>
             <button
               type="button"
               onClick={() => navigate('/shop/bundles')}
-              className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 transition-colors"
+              className="text-xs font-bold text-tertiary hover:text-tertiary-fixed flex items-center gap-1 transition-colors"
             >
-              Nạp ngay <Icon name="arrow_forward" className="text-xs" />
+              Top up <Icon name="arrow_forward" className="text-xs" />
             </button>
           </div>
         </div>
@@ -241,7 +242,7 @@ export default function WalletOverviewTab({
           <div>
             <div className={styles.kpiHeader}>
               <span className={`${styles.kpiBadge} ${styles.kpiBadgeChips}`}>
-                <Icon name="casino" /> Chips Bàn Chơi
+                <Icon name="casino" /> Table chips
               </span>
               <div className={`${styles.kpiIconWrapper} ${styles.iconChips}`}>
                 <Icon name="token" />
@@ -249,20 +250,20 @@ export default function WalletOverviewTab({
             </div>
             <div className={styles.kpiValue}>
               {formatCurrencyNumber(wallet?.balance ?? wallet?.coin ?? 0)}
-              <span className="text-sm font-semibold text-purple-400/90 ml-1.5">Chips</span>
+              <span className="text-sm font-semibold text-secondary/90 ml-1.5">Chips</span>
             </div>
             <p className={styles.kpiDesc}>
-              Số dư chips đặt cược trên các bàn thi đấu Poker Ranked và Casual Tables với người chơi khác.
+              Chips you bet at Ranked and Casual tables against other players.
             </p>
           </div>
           <div className={styles.kpiFooter}>
-            <span className="text-xs text-white/50">Sẵn sàng thi đấu</span>
+            <span className="text-xs text-on-surface/50">Ready to play</span>
             <button
               type="button"
               onClick={() => navigate(paths.lobby)}
-              className="text-xs font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 transition-colors"
+              className="text-xs font-bold text-secondary hover:text-secondary flex items-center gap-1 transition-colors"
             >
-              Vào sảnh chơi <Icon name="arrow_forward" className="text-xs" />
+              Go to lobby <Icon name="arrow_forward" className="text-xs" />
             </button>
           </div>
         </div>
@@ -272,7 +273,7 @@ export default function WalletOverviewTab({
           <div>
             <div className={styles.kpiHeader}>
               <span className={`${styles.kpiBadge} ${styles.kpiBadgeStats}`}>
-                <Icon name="verified_user" /> Trạng Thái Ví
+                <Icon name="verified_user" /> Wallet status
               </span>
               <div className={`${styles.kpiIconWrapper} ${styles.iconStats}`}>
                 <Icon name="shield" />
@@ -280,20 +281,20 @@ export default function WalletOverviewTab({
             </div>
             <div className={styles.kpiValue}>
               {totalWalletCount}
-              <span className="text-sm font-semibold text-sky-400/90 ml-1.5">Giao dịch</span>
+              <span className="text-sm font-semibold text-primary/90 ml-1.5">Transactions</span>
             </div>
             <p className={styles.kpiDesc}>
               {wallet?.updatedAt
-                ? `Cập nhật số dư gần nhất lúc: ${formatDate(wallet.updatedAt)}`
-                : 'Tài khoản ví hoạt động bình thường, bảo mật bởi API Gateway.'}
+                ? `Balance last updated ${formatDate(wallet.updatedAt)}`
+                : 'Wallet is active and secured by the API gateway.'}
             </p>
           </div>
           <div className={styles.kpiFooter}>
-            <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Đã kết nối ví
+            <span className="text-xs text-success font-semibold flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-success animate-pulse" /> Wallet connected
             </span>
-            <span className="text-xs text-white/50 font-medium">
-              Bảo mật SSL 256-bit
+            <span className="text-xs text-on-surface/50 font-medium">
+              256-bit SSL
             </span>
           </div>
         </div>
@@ -303,8 +304,8 @@ export default function WalletOverviewTab({
       <div className={styles.historySection}>
         <div className={styles.historyTopRow}>
           <h3 className={styles.historyTitle}>
-            <Icon name="history" className="text-amber-400" />
-            <span>Lịch Sử Biến Động Số Dư</span>
+            <Icon name="history" className="text-tertiary" />
+            <span>Balance history</span>
           </h3>
 
           <div className={styles.filterTabs}>
@@ -313,7 +314,7 @@ export default function WalletOverviewTab({
               onClick={() => setCurrencyFilter('ALL')}
               className={`${styles.filterBtn} ${currencyFilter === 'ALL' ? styles.filterBtnActive : ''}`}
             >
-              Tất cả
+              All
             </button>
             <button
               type="button"
@@ -342,17 +343,17 @@ export default function WalletOverviewTab({
         {/* Table or Empty State */}
         {txLoading ? (
           <div className="py-16 flex flex-col items-center justify-center gap-3">
-            <span className="w-8 h-8 border-3 border-amber-400 border-t-transparent rounded-full animate-spin" />
-            <span className="text-xs text-white/60">Đang tải lịch sử giao dịch ví...</span>
+            <span className="w-8 h-8 border-3 border-tertiary border-t-transparent rounded-full animate-spin" />
+            <span className="text-xs text-on-surface/60">Loading wallet history…</span>
           </div>
         ) : transactions.length === 0 ? (
           <div className={styles.emptyState}>
             <Icon name="receipt_long" className={styles.emptyIcon} />
-            <h4 className={styles.emptyTitle}>Chưa có giao dịch nào</h4>
+            <h4 className={styles.emptyTitle}>No transactions yet</h4>
             <p className={styles.emptyDesc}>
               {currencyFilter === 'ALL'
-                ? 'Ví của bạn chưa ghi nhận biến động số dư nào. Khi bạn nạp coin hoặc mua vật phẩm, lịch sử sẽ hiển thị tại đây.'
-                : `Không có giao dịch nào thuộc bộ lọc "${currencyFilter}".`}
+                ? 'No balance changes yet. Top-ups and purchases will show up here.'
+                : `No transactions match “${currencyFilter}”.`}
             </p>
           </div>
         ) : (
@@ -361,12 +362,12 @@ export default function WalletOverviewTab({
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th>Giao dịch & Lý do</th>
-                    <th>Thời gian</th>
-                    <th>Loại ví</th>
-                    <th>Biến động</th>
-                    <th>Số dư sau GD</th>
-                    <th>Mã đối soát</th>
+                    <th>Transaction</th>
+                    <th>Time</th>
+                    <th>Wallet</th>
+                    <th>Change</th>
+                    <th>Balance after</th>
+                    <th>Reference</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -391,7 +392,7 @@ export default function WalletOverviewTab({
                           </div>
                         </td>
                         <td>
-                          <span className="text-xs text-white/70">{formatDate(tx.createdAt)}</span>
+                          <span className="text-xs text-on-surface/70">{formatDate(tx.createdAt)}</span>
                         </td>
                         <td>
                           <span
@@ -417,7 +418,7 @@ export default function WalletOverviewTab({
                           </span>
                         </td>
                         <td>
-                          <span className="font-mono text-[11px] text-white/60 tracking-wider">
+                          <span className="font-mono text-[11px] text-on-surface/60 tracking-wider">
                             {formatAuditRef(tx.idempotencyKey, tx.id)}
                           </span>
                         </td>
@@ -433,16 +434,16 @@ export default function WalletOverviewTab({
               <div className={styles.paginationRow}>
                 <div className="flex items-center gap-3 flex-wrap">
                   <span className={styles.pageInfo}>
-                    Hiển thị <strong className="text-white/90">{Math.min(page * pageSize + 1, totalElements)}</strong> - <strong className="text-white/90">{Math.min((page + 1) * pageSize, totalElements)}</strong> trong <strong className="text-amber-400">{totalElements}</strong> giao dịch
+                    Showing <strong className="text-on-surface/90">{Math.min(page * pageSize + 1, totalElements)}</strong> - <strong className="text-on-surface/90">{Math.min((page + 1) * pageSize, totalElements)}</strong> trong <strong className="text-tertiary">{totalElements}</strong> transactions
                   </span>
 
-                  <div className="flex items-center gap-1.5 text-xs text-white/50">
-                    <span>Số dòng:</span>
+                  <div className="flex items-center gap-1.5 text-xs text-on-surface/50">
+                    <span>Rows:</span>
                     <select
                       value={pageSize}
                       onChange={e => setPageSize(Number(e.target.value))}
                       className={styles.pageSizeSelect}
-                      aria-label="Chọn số giao dịch mỗi trang"
+                      aria-label="Transactions per page"
                     >
                       <option value={5}>5 / trang</option>
                       <option value={10}>10 / trang</option>
@@ -457,8 +458,8 @@ export default function WalletOverviewTab({
                     disabled={page === 0}
                     onClick={() => setPage(p => Math.max(0, p - 1))}
                     className={styles.pageBtn}
-                    title="Trang trước"
-                    aria-label="Trang trước"
+                    title="Previous page"
+                    aria-label="Previous page"
                   >
                     <Icon name="chevron_left" />
                   </button>
@@ -479,8 +480,8 @@ export default function WalletOverviewTab({
                     disabled={page >= totalPages - 1}
                     onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
                     className={styles.pageBtn}
-                    title="Trang sau"
-                    aria-label="Trang sau"
+                    title="Next page"
+                    aria-label="Next page"
                   >
                     <Icon name="chevron_right" />
                   </button>

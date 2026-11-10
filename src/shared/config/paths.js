@@ -2,7 +2,6 @@
 export const paths = {
   home: '/',
   auth: '/auth',
-  demo: '/demo',
   lobby: '/lobby',
   account: '/account',
   ranked: '/ranked',
@@ -11,8 +10,6 @@ export const paths = {
   shopProductDetail: id => `/shop/products/${id}`,
   shopPaymentSuccess: '/shop/payment/success',
   shopPaymentCancel: '/shop/payment/cancel',
-  events: '/events',
-  mailbox: '/mailbox',
   table: '/table',
   tableById: tableId => `/table/${tableId}`,
   tutorial: '/tutorial',

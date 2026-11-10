@@ -23,34 +23,34 @@ export default function AdminUsersPage() {
     setEditing(null)
     setFilters(current => ({ ...current, page: 0 }))
     reload()
-    notify(result.banned ? 'Đã khóa tài khoản và thu hồi phiên đang dùng.' : 'Đã gỡ khóa. Người dùng có thể đăng nhập lại.')
+    notify(result.banned ? 'Account banned and active sessions revoked.' : 'Unbanned. The user can sign in again.')
   }
   return <div className="w-full px-margin pb-space-lg pt-space-md">
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-space-md">
       <header className="flex flex-wrap items-center justify-between gap-space-md">
-        <div><p className="font-label-action text-label-action uppercase tracking-widest text-primary">Quản trị tài khoản</p><h1 className="font-headline-lg text-headline-lg">Người dùng</h1></div>
-        <div className="flex gap-3"><Button onClick={reload} disabled={state.loading}><Icon name="refresh" />Tải lại</Button><Button onClick={() => navigate(paths.admin)}>Về quản trị</Button></div>
+        <div><h1 className="font-headline-lg text-headline-lg">Users</h1></div>
+        <div className="flex gap-3"><Button onClick={reload} disabled={state.loading}><Icon name="refresh" />Reload</Button><Button onClick={() => navigate(paths.admin)}>Back to admin</Button></div>
       </header>
-      <p className="text-sm text-on-surface-variant">Khóa toàn tài khoản theo thời hạn hoặc đến khi gỡ. Tài khoản ADMIN được bảo vệ.</p>
+      <p className="text-sm text-on-surface-variant">Ban accounts for a set time or until lifted. ADMIN accounts are protected.</p>
       <form className="flex flex-wrap items-end gap-3 rounded-2xl border border-outline-variant/40 bg-surface-container-low p-space-md" onSubmit={event => { event.preventDefault(); setFilters(current => ({ ...current, keyword: keyword.trim(), page: 0 })) }}>
-        <div className="min-w-56 flex-1"><label className="mb-1 block text-sm" htmlFor="user-search">Tìm người dùng</label><input id="user-search" className={inputClass} value={keyword} maxLength={100} onChange={event => setKeyword(event.target.value)} placeholder="Email, tên hiển thị hoặc mã người chơi" /></div>
-        <div><label className="mb-1 block text-sm" htmlFor="user-ban-filter">Trạng thái khóa</label><select id="user-ban-filter" className={inputClass} value={filters.banned} onChange={event => setFilters(current => ({ ...current, banned: event.target.value, page: 0 }))}>
-          <option value="">Tất cả</option><option value="true">Đang khóa</option><option value="false">Không bị khóa</option>
-        </select></div><Button variant="primary" type="submit">Tìm kiếm</Button>
+        <div className="min-w-56 flex-1"><label className="mb-1 block text-sm" htmlFor="user-search">Search users</label><input id="user-search" className={inputClass} value={keyword} maxLength={100} onChange={event => setKeyword(event.target.value)} placeholder="Email, display name or player code" /></div>
+        <div><label className="mb-1 block text-sm" htmlFor="user-ban-filter">Ban status</label><select id="user-ban-filter" className={inputClass} value={filters.banned} onChange={event => setFilters(current => ({ ...current, banned: event.target.value, page: 0 }))}>
+          <option value="">All</option><option value="true">Banned</option><option value="false">Not banned</option>
+        </select></div><Button variant="primary" type="submit">Search</Button>
       </form>
-      <section className="overflow-hidden rounded-2xl border border-outline-variant/40 bg-surface-container-low" aria-label="Danh sách người dùng">
-        {state.loading ? <p role="status" className="p-space-lg">Đang tải người dùng…</p> : state.error ? <div role="alert" className="p-space-lg"><p>{errorMessage(state.error)}</p><Button className="mt-3" onClick={reload}>Thử lại</Button></div> : <>
+      <section className="overflow-hidden rounded-2xl border border-outline-variant/40 bg-surface-container-low" aria-label="Users">
+        {state.loading ? <p role="status" className="p-space-lg">Loading users…</p> : state.error ? <div role="alert" className="p-space-lg"><p>{errorMessage(state.error)}</p><Button className="mt-3" onClick={reload}>Try again</Button></div> : <>
           <div className="overflow-x-auto"><table className="w-full text-left text-sm">
-            <thead className="bg-surface-container text-on-surface-variant"><tr><th scope="col" className="p-4">Tài khoản</th><th scope="col" className="p-4">Vai trò / xác thực</th><th scope="col" className="p-4">Trạng thái</th><th scope="col" className="p-4">Thao tác</th></tr></thead>
+            <thead className="bg-surface-container text-on-surface-variant"><tr><th scope="col" className="p-4">Account</th><th scope="col" className="p-4">Role / verification</th><th scope="col" className="p-4">Status</th><th scope="col" className="p-4">Actions</th></tr></thead>
             <tbody>{state.data.content.map(user => <tr key={user.accountId} className="border-t border-outline-variant/30">
-              <td className="p-4"><p className="font-semibold">{user.displayName || 'Chưa đặt tên'}</p><p className="break-all text-on-surface-variant">{user.email}</p><p className="text-xs text-outline">{user.playerCode || user.accountId}</p></td>
-              <td className="p-4"><p>{user.role}{user.accountId === admin.accountId ? ' (bạn)' : ''}</p><p className="text-xs text-on-surface-variant">{user.emailVerified ? 'Đã xác thực email' : 'Chờ xác thực email'}</p></td>
-              <td className="p-4"><p className={user.banned ? 'font-semibold text-error' : 'text-success'}>{user.banned ? 'Đang khóa' : 'Không bị khóa'}</p>{user.banned && <><p className="text-xs text-on-surface-variant">{user.bannedUntil ? `Đến ${dateTime(user.bannedUntil)}` : 'Đến khi quản trị viên gỡ'}</p><p className="mt-1 max-w-xs break-words text-xs">{user.banReason}</p></>}</td>
-              <td className="p-4"><div className="flex flex-wrap gap-2"><Button onClick={() => setSelectedId(user.accountId)}>Chi tiết</Button><Button variant={user.banned ? 'primary' : 'danger'} disabled={user.role === 'ADMIN' || user.accountId === admin.accountId} onClick={() => setEditing(user)}>{user.banned ? 'Gỡ khóa' : 'Khóa'}</Button></div></td>
+              <td className="p-4"><p className="font-semibold">{user.displayName || 'No name'}</p><p className="break-all text-on-surface-variant">{user.email}</p><p className="text-xs text-outline">{user.playerCode || user.accountId}</p></td>
+              <td className="p-4"><p>{user.role}{user.accountId === admin.accountId ? ' (you)' : ''}</p><p className="text-xs text-on-surface-variant">{user.emailVerified ? 'Email verified' : 'Email not verified'}</p></td>
+              <td className="p-4"><p className={user.banned ? 'font-semibold text-error' : 'text-success'}>{user.banned ? 'Banned' : 'Not banned'}</p>{user.banned && <><p className="text-xs text-on-surface-variant">{user.bannedUntil ? `Until ${dateTime(user.bannedUntil)}` : 'Until an admin lifts it'}</p><p className="mt-1 max-w-xs break-words text-xs">{user.banReason}</p></>}</td>
+              <td className="p-4"><div className="flex flex-wrap gap-2"><Button onClick={() => setSelectedId(user.accountId)}>Details</Button><Button variant={user.banned ? 'primary' : 'danger'} disabled={user.role === 'ADMIN' || user.accountId === admin.accountId} onClick={() => setEditing(user)}>{user.banned ? 'Unban' : 'Ban'}</Button></div></td>
             </tr>)}</tbody>
           </table></div>
-          {state.data.content.length === 0 && <p className="p-space-lg text-center text-on-surface-variant">Không tìm thấy tài khoản phù hợp.</p>}
-          <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-outline-variant/30 p-4"><span className="text-sm">{state.data.totalElements} tài khoản · Trang {filters.page + 1}/{Math.max(state.data.totalPages, 1)}</span><div className="flex gap-3"><Button disabled={filters.page === 0} onClick={() => setFilters(current => ({ ...current, page: current.page - 1 }))}>Trước</Button><Button disabled={filters.page + 1 >= state.data.totalPages} onClick={() => setFilters(current => ({ ...current, page: current.page + 1 }))}>Sau</Button></div></footer>
+          {state.data.content.length === 0 && <p className="p-space-lg text-center text-on-surface-variant">No matching accounts.</p>}
+          <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-outline-variant/30 p-4"><span className="text-sm">{state.data.totalElements} accounts · Page {filters.page + 1}/{Math.max(state.data.totalPages, 1)}</span><div className="flex gap-3"><Button disabled={filters.page === 0} onClick={() => setFilters(current => ({ ...current, page: current.page - 1 }))}>Previous</Button><Button disabled={filters.page + 1 >= state.data.totalPages} onClick={() => setFilters(current => ({ ...current, page: current.page + 1 }))}>Next</Button></div></footer>
         </>}
       </section>
       {selectedId && <UserBanDetails key={selectedId} accountId={selectedId} attempt={attempt} onClose={() => setSelectedId(null)} />}

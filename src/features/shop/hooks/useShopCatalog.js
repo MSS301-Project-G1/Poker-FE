@@ -83,7 +83,7 @@ export function useShopCatalog({ ownedProductIds = new Set(), onPurchaseSuccess 
         }
       } catch (err) {
         if (!disposed && err.name !== 'AbortError') {
-          setError(err.message || 'Không thể tải danh sách sản phẩm')
+          setError(err.message || 'Couldn’t load products')
           setLoading(false)
         }
       }

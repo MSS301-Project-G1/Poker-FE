@@ -39,7 +39,7 @@ export default function ConfirmProvider({ children }) {
 }
 
 // A native modal <dialog>: the browser keeps focus inside it and makes the page behind it inert.
-function ConfirmDialog({ title, message, confirmLabel, cancelLabel = 'Hủy', icon, danger = false, onAnswer }) {
+function ConfirmDialog({ title, message, confirmLabel, cancelLabel = 'Cancel', icon, danger = false, onAnswer }) {
   const dialog = useRef(null)
   const [opener] = useState(() => document.activeElement)
   useEffect(() => {

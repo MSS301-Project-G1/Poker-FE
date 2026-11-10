@@ -15,7 +15,7 @@ export async function getAdminProducts({ category, tier, status, page = 0, size 
 
   return gatewayRequest(`/api/admin/products?${params.toString()}`, {
     signal,
-    errorMessage: 'Không thể tải danh sách sản phẩm',
+    errorMessage: 'Couldn’t load products',
   })
 }
 
@@ -23,7 +23,7 @@ export async function getProductById(id, { signal } = {}) {
   return gatewayRequest(`/api/shop/products/${id}`, {
     signal,
     auth: false,
-    errorMessage: 'Không thể tải chi tiết sản phẩm',
+    errorMessage: 'Couldn’t load product details',
   })
 }
 
@@ -31,7 +31,7 @@ export async function createProduct(payload) {
   return gatewayRequest('/api/admin/products', {
     method: 'POST',
     body: payload,
-    errorMessage: 'Không thể tạo sản phẩm mới',
+    errorMessage: 'Couldn’t create the product',
   })
 }
 
@@ -39,21 +39,21 @@ export async function updateProduct(id, payload) {
   return gatewayRequest(`/api/admin/products/${id}`, {
     method: 'PUT',
     body: payload,
-    errorMessage: 'Không thể cập nhật sản phẩm',
+    errorMessage: 'Couldn’t update the product',
   })
 }
 
 export async function activateProduct(id) {
   return gatewayRequest(`/api/admin/products/${id}/activate`, {
     method: 'PUT',
-    errorMessage: 'Không thể mở bán lại sản phẩm',
+    errorMessage: 'Couldn’t put the product back on sale',
   })
 }
 
 export async function deleteProduct(id) {
   return gatewayRequest(`/api/admin/products/${id}`, {
     method: 'DELETE',
-    errorMessage: 'Không thể xóa sản phẩm',
+    errorMessage: 'Couldn’t delete the product',
   })
 }
 
@@ -61,21 +61,21 @@ export async function scheduleProductDeletion(id, { durationHours, durationMinut
   return gatewayRequest(`/api/admin/products/${id}/schedule-deletion`, {
     method: 'POST',
     body: { durationHours, durationMinutes, notice },
-    errorMessage: 'Không thể lên lịch xóa sản phẩm',
+    errorMessage: 'Couldn’t schedule the deletion',
   })
 }
 
 export async function cancelScheduledProductDeletion(id) {
   return gatewayRequest(`/api/admin/products/${id}/cancel-deletion`, {
     method: 'POST',
-    errorMessage: 'Không thể hủy lệnh xóa sản phẩm',
+    errorMessage: 'Couldn’t cancel the deletion',
   })
 }
 
 export async function executeProductDeletion(id) {
   return gatewayRequest(`/api/admin/products/${id}/execute-deletion`, {
     method: 'POST',
-    errorMessage: 'Không thể thực thi xóa và hoàn tiền sản phẩm',
+    errorMessage: 'Couldn’t delete and refund the product',
   })
 }
 
@@ -83,7 +83,7 @@ export async function getDeletingAnnouncements({ signal } = {}) {
   return gatewayRequest('/api/shop/products/deleting-announcements', {
     signal,
     auth: false,
-    errorMessage: 'Không thể tải thông báo sản phẩm sắp xóa',
+    errorMessage: 'Couldn’t load removal notices',
   })
 }
 
@@ -91,7 +91,7 @@ export async function getCategories({ signal } = {}) {
   return gatewayRequest('/api/shop/categories', {
     signal,
     auth: false,
-    errorMessage: 'Không thể tải danh mục sản phẩm',
+    errorMessage: 'Couldn’t load categories',
   })
 }
 
@@ -99,7 +99,7 @@ export async function createCategory(payload) {
   return gatewayRequest('/api/shop/categories', {
     method: 'POST',
     body: payload,
-    errorMessage: 'Không thể tạo danh mục mới',
+    errorMessage: 'Couldn’t create the category',
   })
 }
 
@@ -107,14 +107,14 @@ export async function updateCategory(id, payload) {
   return gatewayRequest(`/api/shop/categories/${id}`, {
     method: 'PUT',
     body: payload,
-    errorMessage: 'Không thể cập nhật danh mục',
+    errorMessage: 'Couldn’t update the category',
   })
 }
 
 export async function deleteCategory(id) {
   return gatewayRequest(`/api/shop/categories/${id}`, {
     method: 'DELETE',
-    errorMessage: 'Không thể xóa danh mục',
+    errorMessage: 'Couldn’t delete the category',
   })
 }
 
@@ -125,7 +125,7 @@ export async function uploadDeckSkinZip(productId, file) {
   return gatewayRequest(`/api/admin/products/${productId}/deck-skin/upload-zip`, {
     method: 'POST',
     body: formData,
-    errorMessage: 'Tải lên bộ skin bài thất bại',
+    errorMessage: 'Card skin upload failed',
   })
 }
 
@@ -136,7 +136,7 @@ export async function uploadDeckSkinFiles(productId, files) {
   return gatewayRequest(`/api/admin/products/${productId}/deck-skin/upload-files`, {
     method: 'POST',
     body: formData,
-    errorMessage: 'Tải lên danh sách ảnh skin thất bại',
+    errorMessage: 'Skin image upload failed',
   })
 }
 
@@ -148,14 +148,14 @@ export async function uploadAssetFile(file, folder = 'assets') {
   return gatewayRequest('/api/admin/products/upload-asset', {
     method: 'POST',
     body: formData,
-    errorMessage: 'Tải lên tệp tài nguyên thất bại',
+    errorMessage: 'Asset upload failed',
   })
 }
 
 export async function getAdminBundles({ signal } = {}) {
   return gatewayRequest('/api/admin/bundles', {
     signal,
-    errorMessage: 'Không thể tải danh sách gói nạp',
+    errorMessage: 'Couldn’t load coin packs',
   })
 }
 
@@ -163,7 +163,7 @@ export async function createBundle(payload) {
   return gatewayRequest('/api/admin/bundles', {
     method: 'POST',
     body: payload,
-    errorMessage: 'Không thể tạo gói nạp mới',
+    errorMessage: 'Couldn’t create the coin pack',
   })
 }
 
@@ -171,14 +171,14 @@ export async function updateBundle(id, payload) {
   return gatewayRequest(`/api/admin/bundles/${id}`, {
     method: 'PUT',
     body: payload,
-    errorMessage: 'Không thể cập nhật gói nạp',
+    errorMessage: 'Couldn’t update the coin pack',
   })
 }
 
 export async function deleteBundle(id) {
   return gatewayRequest(`/api/admin/bundles/${id}`, {
     method: 'DELETE',
-    errorMessage: 'Không thể xóa gói nạp',
+    errorMessage: 'Couldn’t delete the coin pack',
   })
 }
 
@@ -186,7 +186,7 @@ export async function toggleBundleActive(id, isActive) {
   const query = typeof isActive === 'boolean' ? `?isActive=${isActive}` : ''
   return gatewayRequest(`/api/admin/bundles/${id}/toggle${query}`, {
     method: 'PATCH',
-    errorMessage: 'Không thể thay đổi trạng thái mở bán gói nạp',
+    errorMessage: 'Couldn’t change the pack’s sale status',
   })
 }
 
@@ -200,14 +200,14 @@ export async function uploadProductSound(productId, file) {
   return gatewayRequest(`/api/admin/products/${productId}/sound`, {
     method: 'POST',
     body: formData,
-    errorMessage: 'Tải lên tệp âm thanh thất bại',
+    errorMessage: 'Sound upload failed',
   })
 }
 
 export async function deleteProductSound(productId) {
   return gatewayRequest(`/api/admin/products/${productId}/sound`, {
     method: 'DELETE',
-    errorMessage: 'Gỡ tệp âm thanh thất bại',
+    errorMessage: 'Couldn’t remove the sound',
   })
 }
 
@@ -217,6 +217,6 @@ export async function deleteProductSound(productId) {
 export async function maintainProduct(productId) {
   return gatewayRequest(`/api/admin/products/${productId}/maintain`, {
     method: 'POST',
-    errorMessage: 'Không thể chuyển sản phẩm sang trạng thái Bảo Trì',
+    errorMessage: 'Couldn’t suspend the product',
   })
 }

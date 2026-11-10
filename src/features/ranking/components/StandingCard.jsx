@@ -1,17 +1,17 @@
-import { Eyebrow } from '@/shared/ui'
+import { Caption } from '@/shared/ui'
 import Panel from './Panel'
 import TierBadge from './TierBadge'
 import styles from './StandingCard.module.css'
 
 export default function StandingCard({ standing, signedIn, loading }) {
   if (!standing) return <Panel className={styles.standing} aria-label="Your standing">
-    <Eyebrow>YOUR STANDING</Eyebrow>
+    <Caption as="h2">Your standing</Caption>
     <p className={styles.muted}>{loading || signedIn ? 'Loading your standing…' : 'Sign in to see your position this season.'}</p>
   </Panel>
 
   const stats = [['Elo', standing.elo], ['Peak', standing.peakElo], ['Win streak', standing.winStreak], ['Matches', standing.matchesPlayed]]
   return <Panel className={styles.standing} aria-label="Your standing">
-    <Eyebrow>YOUR STANDING</Eyebrow>
+    <Caption as="h2">Your standing</Caption>
     <div className={styles.main}>
       <strong className={styles.position}>{standing.position ? `#${standing.position.toLocaleString()}` : 'Unranked'}</strong>
       <TierBadge tier={standing.tier} />

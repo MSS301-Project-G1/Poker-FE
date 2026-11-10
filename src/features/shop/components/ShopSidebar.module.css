@@ -8,11 +8,11 @@
   flex-direction: column;
   justify-content: space-between;
   border-radius: 1.25rem;
-  background: rgba(20, 10, 36, 0.95);
+  background: rgb(var(--color-page-base) / 0.95);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgb(var(--color-on-surface) / 0.08);
+  box-shadow: 0 20px 40px rgb(var(--color-obsidian) / 0.6);
   padding: 1.125rem 0.75rem;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
   max-height: calc(100vh - 8rem);
@@ -43,7 +43,7 @@
   justify-content: space-between;
   padding: 0.5rem 0.5rem 0.875rem 0.5rem;
   margin-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgb(var(--color-on-surface) / 0.08);
   width: 100%;
 }
 
@@ -58,14 +58,14 @@
   width: 2.35rem;
   height: 2.35rem;
   border-radius: 0.625rem;
-  background: linear-gradient(135deg, rgb(var(--color-tertiary)), #c89525);
-  color: #0b0514;
+  background: linear-gradient(135deg, rgb(var(--color-tertiary)), rgb(var(--color-tertiary-container)));
+  color: rgb(var(--color-obsidian));
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 900;
   font-size: 1.25rem;
-  box-shadow: 0 4px 12px rgba(var(--color-tertiary), 0.35);
+  box-shadow: 0 4px 12px rgb(var(--color-tertiary) / 0.35);
   flex-shrink: 0;
 }
 
@@ -80,18 +80,8 @@
   font-family: var(--font-headline, sans-serif);
   font-weight: 800;
   font-size: 1rem;
-  color: #ffffff;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  color: rgb(var(--color-on-surface));
   line-height: 1.2;
-}
-
-.brandSub {
-  font-size: 0.75rem;
-  color: rgba(var(--color-tertiary), 0.9);
-  font-family: var(--font-body, sans-serif);
-  font-weight: 600;
-  letter-spacing: 0.02em;
 }
 
 /* Toggle Collapse Button */
@@ -102,18 +92,18 @@
   width: 2rem;
   height: 2rem;
   border-radius: 0.5rem;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.8);
+  background: rgb(var(--color-on-surface) / 0.06);
+  border: 1px solid rgb(var(--color-on-surface) / 0.12);
+  color: rgb(var(--color-on-surface) / 0.8);
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
 .toggleBtn:hover {
-  background: rgba(var(--color-primary), 0.25);
-  color: #ffffff;
-  border-color: rgba(var(--color-primary), 0.5);
+  background: rgb(var(--color-primary) / 0.25);
+  color: rgb(var(--color-on-surface));
+  border-color: rgb(var(--color-primary) / 0.5);
 }
 
 /* Nav Item List */
@@ -133,7 +123,7 @@
   border-radius: 0.75rem;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgb(var(--color-on-surface) / 0.75);
   background: transparent;
   border: 1px solid transparent;
   cursor: pointer;
@@ -142,56 +132,14 @@
 }
 
 .navItem:hover {
-  background: rgba(255, 255, 255, 0.07);
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.navItemActive {
-  background: linear-gradient(135deg, rgba(var(--color-primary-container), 0.9) 0%, rgba(var(--color-secondary-container), 0.8) 100%);
-  color: #ffffff;
-  font-weight: 700;
-  border: 1px solid rgba(var(--color-primary), 0.45);
-  box-shadow: 0 4px 16px rgba(var(--color-primary-container), 0.3);
+  background: rgb(var(--color-on-surface) / 0.07);
+  color: rgb(var(--color-on-surface));
+  border-color: rgb(var(--color-on-surface) / 0.1);
 }
 
 .navItemCollapsed {
   justify-content: center;
   padding: 0.75rem;
-}
-
-.navItemInventory {
-  color: rgba(var(--color-tertiary), 0.95);
-  font-weight: 700;
-}
-
-.navItemInventory:hover {
-  background: rgba(var(--color-tertiary), 0.15);
-  color: rgb(var(--color-tertiary));
-}
-
-.navItemInventoryActive {
-  background: linear-gradient(135deg, rgb(var(--color-tertiary)) 0%, #d49a1d 100%);
-  color: #0b0514;
-  font-weight: 800;
-  box-shadow: 0 4px 16px rgba(var(--color-tertiary), 0.35);
-}
-
-.navItemWallet {
-  color: #38bdf8;
-  font-weight: 700;
-}
-
-.navItemWallet:hover {
-  background: rgba(56, 189, 248, 0.15);
-  color: #7dd3fc;
-}
-
-.navItemWalletActive {
-  background: linear-gradient(135deg, rgba(14, 165, 233, 0.9) 0%, rgba(56, 189, 248, 0.8) 100%);
-  color: #0b0514;
-  font-weight: 800;
-  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.35);
 }
 
 .navIcon {
@@ -215,13 +163,13 @@
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 800;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgb(var(--color-obsidian) / 0.4);
   color: rgb(var(--color-tertiary));
 }
 
 .divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgb(var(--color-on-surface) / 0.08);
   margin: 0.65rem 0;
   width: 100%;
 }
@@ -229,7 +177,7 @@
 /* Bottom Top-up CTA */
 .bottomArea {
   padding-top: 0.85rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgb(var(--color-on-surface) / 0.08);
   width: 100%;
 }
 
@@ -240,8 +188,8 @@
   width: 100%;
   padding: 0.75rem 0.875rem;
   border-radius: 0.75rem;
-  background: linear-gradient(135deg, rgba(var(--color-tertiary), 0.22) 0%, rgba(var(--color-tertiary), 0.08) 100%);
-  border: 1px solid rgba(var(--color-tertiary), 0.4);
+  background: linear-gradient(135deg, rgb(var(--color-tertiary) / 0.22) 0%, rgb(var(--color-tertiary) / 0.08) 100%);
+  border: 1px solid rgb(var(--color-tertiary) / 0.4);
   color: rgb(var(--color-tertiary));
   cursor: pointer;
   font-size: 0.9375rem;
@@ -250,13 +198,61 @@
 }
 
 .topupBtn:hover {
-  background: linear-gradient(135deg, rgba(var(--color-tertiary), 0.35) 0%, rgba(var(--color-tertiary), 0.18) 100%);
-  border-color: rgba(var(--color-tertiary), 0.65);
-  box-shadow: 0 4px 16px rgba(var(--color-tertiary), 0.25);
-  color: #ffffff;
+  background: linear-gradient(135deg, rgb(var(--color-tertiary) / 0.35) 0%, rgb(var(--color-tertiary) / 0.18) 100%);
+  border-color: rgb(var(--color-tertiary) / 0.65);
+  box-shadow: 0 4px 16px rgb(var(--color-tertiary) / 0.25);
+  color: rgb(var(--color-on-surface));
 }
 
 .topupBtnCollapsed {
   justify-content: center;
   padding: 0.75rem;
+}
+
+/* One active treatment for every entry: categories, inventory and wallet are peers in this list. */
+.navItemActive,
+.navItemInventoryActive,
+.navItemWalletActive {
+  background: rgb(var(--color-primary-container) / 0.85);
+  color: rgb(var(--color-on-primary-container));
+  font-weight: 700;
+  border: 1px solid rgb(var(--color-primary) / 0.45);
+}
+
+/* Phones and tablets: the sidebar becomes a scrollable strip of category chips above the products.
+   The collapse toggle and the top-up button are dropped here because the page header already has "Top up VIP Coin". */
+@media (max-width: 1023px) {
+  .sidebar,
+  .sidebarExpanded,
+  .sidebarCollapsed {
+    position: static;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    min-height: 0;
+    max-height: none;
+    padding: 0.375rem;
+    border-radius: 1rem;
+  }
+
+  .header,
+  .divider,
+  .bottomArea {
+    display: none;
+  }
+
+  .navList {
+    flex-direction: row;
+    gap: 0.375rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .navItem,
+  .navItemCollapsed {
+    width: auto;
+    flex: none;
+    padding: 0.5rem 0.875rem;
+    white-space: nowrap;
+  }
 }

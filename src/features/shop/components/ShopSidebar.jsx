@@ -19,7 +19,7 @@ const ShopSidebar = memo(function ShopSidebar({
   return (
     <aside
       className={`${styles.sidebar} ${isCollapsed ? styles.sidebarCollapsed : styles.sidebarExpanded}`}
-      aria-label="Shop Category Sidebar"
+      aria-label="Shop categories"
     >
       <div className={styles.navList}>
         {/* Header: Brand and Collapse Toggle */}
@@ -30,8 +30,7 @@ const ShopSidebar = memo(function ShopSidebar({
                 <Icon name="storefront" />
               </span>
               <div className={styles.brandText}>
-                <span className={styles.brandTitle}>Cửa Hàng</span>
-                <span className={styles.brandSub}>Cosmetics & Skins</span>
+                <span className={styles.brandTitle}>Categories</span>
               </div>
             </div>
           )}
@@ -40,7 +39,7 @@ const ShopSidebar = memo(function ShopSidebar({
           <button
             type="button"
             onClick={() => setIsCollapsed(prev => !prev)}
-            title={isCollapsed ? 'Mở rộng thanh điều hướng' : 'Thu gọn thanh điều hướng'}
+            title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             className={styles.toggleBtn}
           >
             <Icon name={isCollapsed ? 'chevron_right' : 'chevron_left'} />
@@ -51,7 +50,7 @@ const ShopSidebar = memo(function ShopSidebar({
         <button
           type="button"
           onClick={() => onSelectCategory('ALL')}
-          title="Tất cả vật phẩm"
+          title="All items"
           className={`${styles.navItem} ${isCollapsed ? styles.navItemCollapsed : ''} ${
             activeCategory === 'ALL' ? styles.navItemActive : ''
           }`}
@@ -59,7 +58,7 @@ const ShopSidebar = memo(function ShopSidebar({
           <span className={styles.navIcon}>
             <Icon name="grid_view" filled={activeCategory === 'ALL'} />
           </span>
-          {!isCollapsed && <span className={styles.navLabel}>Tất cả vật phẩm</span>}
+          {!isCollapsed && <span className={styles.navLabel}>All items</span>}
         </button>
 
         {/* Categories from Backend */}
@@ -91,8 +90,8 @@ const ShopSidebar = memo(function ShopSidebar({
         <button
           type="button"
           onClick={() => onSelectCategory('MY_INVENTORY')}
-          title="Túi đồ của tôi"
-          className={`${styles.navItem} ${styles.navItemInventory} ${
+          title="My inventory"
+          className={`${styles.navItem} ${
             isCollapsed ? styles.navItemCollapsed : ''
           } ${activeCategory === 'MY_INVENTORY' ? styles.navItemInventoryActive : ''}`}
         >
@@ -101,7 +100,7 @@ const ShopSidebar = memo(function ShopSidebar({
           </span>
           {!isCollapsed && (
             <>
-              <span className={styles.navLabel}>Túi Đồ Của Tôi</span>
+              <span className={styles.navLabel}>My inventory</span>
               {inventoryCount > 0 && <span className={styles.navBadge}>{inventoryCount}</span>}
             </>
           )}
@@ -111,8 +110,8 @@ const ShopSidebar = memo(function ShopSidebar({
         <button
           type="button"
           onClick={() => onSelectCategory('MY_WALLET')}
-          title="Ví & Lịch Sử Giao Dịch"
-          className={`${styles.navItem} ${styles.navItemWallet} ${
+          title="Wallet & history"
+          className={`${styles.navItem} ${
             isCollapsed ? styles.navItemCollapsed : ''
           } ${activeCategory === 'MY_WALLET' ? styles.navItemWalletActive : ''}`}
         >
@@ -120,7 +119,7 @@ const ShopSidebar = memo(function ShopSidebar({
             <Icon name="account_balance_wallet" filled={activeCategory === 'MY_WALLET'} />
           </span>
           {!isCollapsed && (
-            <span className={styles.navLabel}>Ví & Lịch Sử GD</span>
+            <span className={styles.navLabel}>Wallet & history</span>
           )}
         </button>
       </div>
@@ -130,13 +129,13 @@ const ShopSidebar = memo(function ShopSidebar({
         <button
           type="button"
           onClick={() => navigate(isLoggedIn ? '/shop/bundles' : paths.auth)}
-          title={isLoggedIn ? 'Nạp VIP Coin (PayOS)' : 'Đăng nhập để nạp VIP Coin'}
+          title={isLoggedIn ? 'Top up VIP Coin (PayOS)' : 'Sign in to top up VIP Coin'}
           className={`${styles.topupBtn} ${isCollapsed ? styles.topupBtnCollapsed : ''}`}
         >
           <span className={styles.navIcon}>
             <Icon name="paid" />
           </span>
-          {!isCollapsed && <span>{isLoggedIn ? 'Nạp VIP Coin' : 'Đăng nhập để nạp'}</span>}
+          {!isCollapsed && <span>{isLoggedIn ? 'Top up VIP Coin' : 'Sign in to top up'}</span>}
         </button>
       </div>
     </aside>

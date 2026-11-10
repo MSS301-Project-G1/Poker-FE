@@ -125,8 +125,8 @@
   --space-margin: 2rem;
   --space-margin-mobile: 1rem;
 
-  /* Layout: a signed-in page fits between the fixed header (h-20) and the ticker footer (h-10) */
-  --page-height: calc(100dvh - 7.5rem);
+  /* Layout: a signed-in page fits below the fixed header (h-20) */
+  --page-height: calc(100dvh - 5rem);
 
   /* Radius (names match Tailwind: rounded, rounded-lg, rounded-xl, rounded-full) */
   --radius-default: 0.25rem;

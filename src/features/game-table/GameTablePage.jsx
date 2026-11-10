@@ -7,7 +7,7 @@ import { paths } from '@/shared/config/paths'
 import { MatchChat } from '@/features/community'
 import { useAuth } from '@/features/auth'
 import { devIdentity } from '@/shared/lib/devIdentity'
-import { Button, Eyebrow, Icon, PlaceholderScreen, useConfirm, useToast } from '@/shared/ui'
+import { Button, Caption, Icon, PlaceholderScreen, useConfirm, useToast } from '@/shared/ui'
 import { GameRuntimeContext } from './runtime'
 import { useGameSession } from './hooks/useGameSession'
 import { useSeatProfiles } from './hooks/useSeatProfiles'
@@ -107,15 +107,15 @@ function GameSession({ tableId, retry }) {
         {snapshot && !me?.leftEarly && <TauntPanel sounds={cosmetics.sounds} disabled={session.connection !== 'connected'} onTaunt={session.sendTaunt}
           muted={taunts.muted} onToggleMute={taunts.toggle} />}
         {!inMatch && <Button className={styles.compactButton} onClick={() => navigate(paths.lobby)}>Lobby</Button>}
-        {inMatch && snapshot.mode === 'NORMAL' && <Button className={styles.compactButton} disabled={leaving} onClick={leave}>Rời ván</Button>}</nav></header>
+        {inMatch && snapshot.mode === 'NORMAL' && <Button className={styles.compactButton} disabled={leaving} onClick={leave}>Leave table</Button>}</nav></header>
     {session.phase === 'loading' && <div className={styles.state} role="status"><div className={styles.spinner} /><h1>Finding your table…</h1></div>}
     {session.phase === 'empty' && <main className={styles.state}><span className={styles.stateIcon}>♠</span><h1>No active table</h1><p>{session.error || 'Join a match from the lobby. Your active table will appear here.'}</p><Button variant="primary" onClick={() => navigate(paths.lobby)}>Go to lobby</Button>{env.gameDevMode && <DevLauncher />}</main>}
     {session.phase === 'error' && <main className={styles.state}><span className={styles.stateIcon}>♠</span><h1>Unable to open this table</h1><p className={styles.error} role="alert">{session.error}</p><Button variant="primary" onClick={retry}>Try again</Button>{env.gameDevMode && <DevLauncher />}</main>}
     {snapshot && <SkinContext.Provider value={cosmetics.skin}><main className={styles.arena} style={chipSkin}>
       <div className={styles.infoBar}>
         <div className={styles.tableName}><span className={`${styles.connection} ${styles[session.connection] || ''}`}><i />{session.connection === 'connected' ? 'LIVE' : session.connection.toUpperCase()}</span>
-          <strong>BÀN #{snapshot.tableId.slice(-6).toUpperCase()}</strong><span className={styles.tag}>{label(modeLabels, snapshot.mode)}</span><span className={styles.muted}>NO LIMIT HOLD’EM</span></div>
-        <div className={styles.tableMeta}>{!finished && <TurnTimer {...timer} label={yourTurn ? 'LƯỢT CỦA BẠN' : undefined} />}<span className={styles.pill}><Icon name="history" /> VÁN SỐ #{snapshot.handNumber}</span>
+          <strong>TABLE #{snapshot.tableId.slice(-6).toUpperCase()}</strong><span className={styles.tag}>{label(modeLabels, snapshot.mode)}</span><span className={styles.muted}>NO LIMIT HOLD’EM</span></div>
+        <div className={styles.tableMeta}>{!finished && <TurnTimer {...timer} label={yourTurn ? 'YOUR TURN' : undefined} />}<span className={styles.pill}><Icon name="history" /> HAND #{snapshot.handNumber}</span>
           {session.connection !== 'connected' && <Button className={styles.compactButton} onClick={retry}>Reconnect</Button>}</div>
       </div>
       {session.error && <div className={styles.alert} role="alert">{session.error}</div>}
@@ -137,14 +137,14 @@ function GameSession({ tableId, retry }) {
       </TableTheme>
       <div ref={flightsRef} className={styles.flights} aria-hidden="true" />
       <div className={styles.bottom}>
-        <section className={styles.chatSlot} aria-label="Table chat">{ChatPanel ? <ChatPanel conversationId={snapshot.matchId} /> : auth.status === 'authenticated' && snapshot.matchId ? <MatchChat key={snapshot.matchId} matchId={snapshot.matchId} finished={finished} /> : <div className={styles.chatNote}><Eyebrow>CHAT BÀN ĐẤU</Eyebrow><p>Đăng nhập để mở phòng chat của trận.</p></div>}</section>
-        <div className={styles.dockSlot}><p className={styles.turnCaption} role="status">{session.pending ? 'Đang gửi thao tác…' : snapshot.street === 'HAND_FINISHED' ? 'Ván đã xong. Ván mới sắp bắt đầu.' : snapshot.legalActions.length ? 'Đến lượt bạn. Chọn thao tác.' : 'Đang chờ người chơi khác…'}</p>
+        <section className={styles.chatSlot} aria-label="Table chat">{ChatPanel ? <ChatPanel conversationId={snapshot.matchId} /> : auth.status === 'authenticated' && snapshot.matchId ? <MatchChat key={snapshot.matchId} matchId={snapshot.matchId} finished={finished} /> : <div className={styles.chatNote}><Caption as="h2">Table chat</Caption><p>Sign in to open the match chat.</p></div>}</section>
+        <div className={styles.dockSlot}><p className={styles.turnCaption} role="status">{session.pending ? 'Sending action…' : snapshot.street === 'HAND_FINISHED' ? 'Hand over. The next hand starts soon.' : snapshot.legalActions.length ? 'Your turn. Choose an action.' : 'Waiting for other players…'}</p>
           <ActionDock key={snapshot.actionSequence} legalActions={snapshot.legalActions} callAmount={snapshot.callAmount} minRaiseTo={snapshot.minRaiseTo} maxRaiseTo={snapshot.maxRaiseTo} pot={snapshot.pot}
             disabled={session.pending || session.connection !== 'connected'} onAction={session.send} /></div>
         <TableInfo snapshot={snapshot} me={me} />
       </div>
       {finished && show.dialogShown && <MatchResult mode={snapshot.mode} placements={snapshot.placements} accountId={snapshot.accountId} profiles={profiles} rewards={runtime.rewards || matchRewards} onExit={() => navigate(paths.lobby)} />}
     </main></SkinContext.Provider>}
-    <footer className={styles.footer}><span>NO-LIMIT TEXAS HOLD’EM</span><span>Chip trên bàn chỉ dùng trong trận này.</span></footer>
+    <footer className={styles.footer}><span>NO-LIMIT TEXAS HOLD’EM</span><span>Table chips are only used in this match.</span></footer>
   </div>
 }

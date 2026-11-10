@@ -4,12 +4,12 @@ import { formatVipCoin } from '../utils/adminFormatters'
 import { scheduleProductDeletion } from '../services/adminShopService'
 
 const PRESET_OPTIONS = [
-  { label: '1 Phút (Test)', value: 1, unit: 'MINUTES' },
-  { label: '5 Phút', value: 5, unit: 'MINUTES' },
-  { label: '15 Phút', value: 15, unit: 'MINUTES' },
-  { label: '1 Giờ', value: 1, unit: 'HOURS' },
-  { label: '24 Giờ (1 ngày)', value: 24, unit: 'HOURS' },
-  { label: '72 Giờ (3 ngày)', value: 72, unit: 'HOURS' },
+  { label: '1 minute (test)', value: 1, unit: 'MINUTES' },
+  { label: '5 minutes', value: 5, unit: 'MINUTES' },
+  { label: '15 minutes', value: 15, unit: 'MINUTES' },
+  { label: '1 hour', value: 1, unit: 'HOURS' },
+  { label: '24 hours', value: 24, unit: 'HOURS' },
+  { label: '72 hours', value: 72, unit: 'HOURS' },
 ]
 
 export default function ScheduleDeletionModal({
@@ -33,9 +33,9 @@ export default function ScheduleDeletionModal({
   const expectedTimeStr = useMemo(() => {
     const date = new Date(Date.now() + effectiveMinutes * 60 * 1000)
     return (
-      date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) +
+      date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) +
       ' • ' +
-      date.toLocaleDateString('vi-VN')
+      date.toLocaleDateString('en-US')
     )
   }, [effectiveMinutes])
 
@@ -43,7 +43,7 @@ export default function ScheduleDeletionModal({
 
   const handleConfirm = async () => {
     if (!notice.trim()) {
-      notify('Vui lòng nhập lý do và thông báo xóa cho người chơi', { type: 'error' })
+      notify('Enter the reason players will see', { type: 'error' })
       return
     }
 
@@ -54,42 +54,42 @@ export default function ScheduleDeletionModal({
         durationHours: Math.max(1, Math.round(effectiveMinutes / 60)),
         notice: notice.trim(),
       })
-      const displayDuration = unit === 'HOURS' ? `${durationValue} giờ` : `${durationValue} phút`
+      const displayDuration = unit === 'HOURS' ? `${durationValue} hours` : `${durationValue} minutes`
       notify(
-        `Đã kích hoạt lên lịch xóa sản phẩm "${product.name}" với thời gian đếm ngược ${displayDuration} thành công!`,
+        `“${product.name}” will be deleted in ${displayDuration}.`,
         { type: 'success' }
       )
       onSuccess?.()
       onClose()
     } catch (err) {
-      notify(err.message || 'Lên lịch xóa sản phẩm thất bại', { type: 'error' })
+      notify(err.message || 'Couldn’t schedule the deletion', { type: 'error' })
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md animate-fade-in overflow-y-auto">
-      <div className="w-full max-w-2xl rounded-3xl bg-gradient-to-b from-[#1c0d32] to-[#130722] border border-rose-500/40 p-6 sm:p-8 shadow-2xl space-y-5 text-white my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-obsidian/85 backdrop-blur-md animate-fade-in overflow-y-auto">
+      <div className="w-full max-w-2xl rounded-2xl bg-background border border-error/40 p-6 sm:p-8 shadow-raised space-y-5 text-on-surface my-auto">
         {/* Header */}
-        <div className="flex items-center gap-4 pb-4 border-b border-white/10">
-          <span className="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500/30 to-rose-700/20 text-rose-400 border border-rose-500/40 flex items-center justify-center shrink-0 shadow-lg shadow-rose-950/60">
+        <div className="flex items-center gap-4 pb-4 border-b border-on-surface/10">
+          <span className="w-14 h-14 rounded-2xl bg-error/30 text-error border border-error/40 flex items-center justify-center shrink-0 shadow-lg">
             <Icon name="timer" className="text-3xl" />
           </span>
           <div>
-            <h3 className="font-headline font-black text-xl sm:text-2xl text-white tracking-wide">
-              Lên Lịch Xóa & Thông Báo Toàn Server
+            <h3 className="font-headline font-bold text-xl sm:text-2xl text-on-surface">
+              Schedule deletion
             </h3>
-            <p className="text-sm text-rose-200/90 mt-0.5 leading-relaxed">
-              Sản phẩm sẽ đếm ngược công khai trước khi xóa vĩnh viễn và{' '}
-              <strong className="text-amber-300">TỰ ĐỘNG hoàn 100% tiền</strong> cho toàn bộ người chơi
+            <p className="text-sm text-error/90 mt-0.5 leading-relaxed">
+              Players see a public countdown before the product is deleted, and{' '}
+              <strong className="text-tertiary-fixed">100% is refunded automatically</strong> to every owner
             </p>
           </div>
         </div>
 
         {/* Product summary card */}
-        <div className="p-4 rounded-2xl bg-black/50 border border-white/10 flex items-center gap-4 shadow-inner">
-          <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 p-1.5 flex items-center justify-center shrink-0 overflow-hidden">
+        <div className="p-4 rounded-2xl bg-obsidian/50 border border-on-surface/10 flex items-center gap-4 shadow-inner">
+          <div className="w-16 h-16 rounded-2xl bg-on-surface/5 border border-on-surface/10 p-1.5 flex items-center justify-center shrink-0 overflow-hidden">
             <img
               alt={product.name}
               src={product.previewUrl || product.assetUrl}
@@ -100,15 +100,15 @@ export default function ScheduleDeletionModal({
             />
           </div>
           <div className="min-w-0 flex-1">
-            <span className="font-headline font-bold text-base sm:text-lg text-white block truncate">
+            <span className="font-headline font-bold text-base sm:text-lg text-on-surface block truncate">
               {product.name}
             </span>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-sm text-amber-400 font-mono font-bold">
+              <span className="text-sm text-tertiary font-mono font-bold">
                 {formatVipCoin(product.priceVipCoin)} VIP Coin
               </span>
-              <span className="text-xs text-white/30">•</span>
-              <span className="text-xs text-white/70 font-semibold px-2 py-0.5 rounded-md bg-white/10 border border-white/10">
+              <span className="text-xs text-on-surface/30">•</span>
+              <span className="text-xs text-on-surface/70 font-semibold px-2 py-0.5 rounded-md bg-on-surface/10 border border-on-surface/10">
                 {product.categoryCode}
               </span>
             </div>
@@ -118,13 +118,13 @@ export default function ScheduleDeletionModal({
         {/* Duration Selection (Admin Freedom: Phút hoặc Giờ) */}
         <div className="space-y-2.5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-            <label className="text-sm font-bold text-white flex items-center gap-2">
-              <Icon name="schedule" className="text-rose-400 text-base" />
-              <span>Thời gian đếm ngược trước khi tiêu hủy:</span>
+            <label className="text-sm font-bold text-on-surface flex items-center gap-2">
+              <Icon name="schedule" className="text-error text-base" />
+              <span>Countdown:</span>
             </label>
-            <div className="text-xs sm:text-sm text-amber-300 font-semibold bg-amber-400/10 px-3 py-1 rounded-xl border border-amber-400/25 inline-flex items-center gap-1.5 self-start sm:self-auto">
-              <Icon name="alarm_on" className="text-amber-400 text-sm" />
-              <span>Dự kiến xóa lúc: <strong>{expectedTimeStr}</strong></span>
+            <div className="text-xs sm:text-sm text-tertiary-fixed font-semibold bg-tertiary/10 px-3 py-1 rounded-xl border border-tertiary/25 inline-flex items-center gap-1.5 self-start sm:self-auto">
+              <Icon name="alarm_on" className="text-tertiary text-sm" />
+              <span>Deletes at: <strong>{expectedTimeStr}</strong></span>
             </div>
           </div>
 
@@ -142,8 +142,8 @@ export default function ScheduleDeletionModal({
                   }}
                   className={`py-2.5 px-3 rounded-2xl border text-sm font-bold transition-all text-center ${
                     isSelected
-                      ? 'bg-rose-500/30 border-rose-400 text-rose-100 shadow-lg shadow-rose-950/50 ring-2 ring-rose-400/50'
-                      : 'bg-black/40 border-white/10 text-white/70 hover:text-white hover:bg-white/10'
+                      ? 'bg-error/30 border-error text-error shadow-lg ring-2 ring-error/50'
+                      : 'bg-obsidian/40 border-on-surface/10 text-on-surface/70 hover:text-on-surface hover:bg-on-surface/10'
                   }`}
                 >
                   {opt.label}
@@ -153,26 +153,26 @@ export default function ScheduleDeletionModal({
           </div>
 
           {/* Custom value and unit selector */}
-          <div className="mt-2 flex flex-wrap items-center gap-3 p-3.5 rounded-2xl bg-black/40 border border-white/10">
-            <span className="text-sm text-white/80 font-medium">Hoặc tùy chỉnh:</span>
+          <div className="mt-2 flex flex-wrap items-center gap-3 p-3.5 rounded-2xl bg-obsidian/40 border border-on-surface/10">
+            <span className="text-sm text-on-surface/80 font-medium">Or custom:</span>
             <input
               type="number"
               min="1"
               max={unit === 'HOURS' ? 720 : 43200}
               value={durationValue}
               onChange={e => setDurationValue(Math.max(1, Number(e.target.value)))}
-              className="w-28 px-3.5 py-2 rounded-xl bg-black/70 border border-white/20 text-sm text-white font-mono font-bold focus:outline-none focus:border-rose-400 text-center"
+              className="w-28 px-3.5 py-2 rounded-xl bg-obsidian/70 border border-on-surface/20 text-sm text-on-surface font-mono font-bold focus:outline-none focus:border-error text-center"
             />
             <select
               value={unit}
               onChange={e => setUnit(e.target.value)}
-              className="px-4 py-2 rounded-xl bg-black/70 border border-white/20 text-sm text-white font-bold focus:outline-none focus:border-rose-400 cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-obsidian/70 border border-on-surface/20 text-sm text-on-surface font-bold focus:outline-none focus:border-error cursor-pointer"
             >
-              <option value="MINUTES">Phút (Minutes)</option>
-              <option value="HOURS">Giờ (Hours)</option>
+              <option value="MINUTES">Minutes</option>
+              <option value="HOURS">Hours</option>
             </select>
-            <span className="text-sm text-white/60 font-mono ml-auto">
-              (Tổng thời gian: <strong className="text-white font-bold">{effectiveMinutes} phút</strong>)
+            <span className="text-sm text-on-surface/60 font-mono ml-auto">
+              (Total: <strong className="text-on-surface font-bold">{effectiveMinutes} minutes</strong>)
             </span>
           </div>
         </div>
@@ -180,46 +180,46 @@ export default function ScheduleDeletionModal({
         {/* Notice Message */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="block text-sm font-bold text-white">
-              Lý do xóa & thông báo toàn server <span className="text-rose-400">*</span>:
+            <label className="block text-sm font-bold text-on-surface">
+              Reason and server-wide notice <span className="text-error">*</span>:
             </label>
-            <span className="text-xs text-white/40">Người chơi sẽ thấy trên Shop & Túi đồ</span>
+            <span className="text-xs text-on-surface/40">Shown in the shop and inventories</span>
           </div>
           <textarea
             rows={3}
             value={notice}
             onChange={e => setNotice(e.target.value)}
-            placeholder="Ví dụ: Vật phẩm ngừng phát hành theo kế hoạch mùa giải mới. Toàn bộ người chơi sở hữu sẽ được hệ thống tự động hoàn trả 100% VIP Coin khi hết thời gian đếm ngược."
-            className="w-full px-4 py-3 rounded-2xl bg-black/60 border border-white/15 text-white placeholder-white/35 text-sm leading-relaxed focus:outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-500/30 transition-all"
+            placeholder="e.g. Retired for the new season. Every owner gets 100% of their VIP Coin back when the countdown ends."
+            className="w-full px-4 py-3 rounded-2xl bg-obsidian/60 border border-on-surface/15 text-on-surface placeholder-on-surface/35 text-sm leading-relaxed focus:outline-none focus:border-error focus:ring-2 focus:ring-error/30 transition-all"
           />
         </div>
 
         {/* Auto-Refund Guarantee Banner */}
-        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-sm text-amber-200/95 flex items-start gap-3">
-          <Icon name="verified_user" className="text-amber-400 text-xl shrink-0 mt-0.5" />
+        <div className="p-4 rounded-2xl bg-tertiary/10 border border-tertiary/25 text-sm text-tertiary-fixed/95 flex items-start gap-3">
+          <Icon name="verified_user" className="text-tertiary text-xl shrink-0 mt-0.5" />
           <div className="leading-relaxed">
-            <strong className="text-amber-300 font-bold block mb-0.5">
-              Cam kết tự động hoàn trả 100% VIP Coin:
+            <strong className="text-tertiary-fixed font-bold block mb-0.5">
+              Automatic 100% VIP Coin refund:
             </strong>
-            Khi hết thời gian đếm ngược hoặc khi Admin bấm tiêu hủy ngay, hệ thống sẽ tự động cộng thẳng 100% số VIP Coin gốc vào Ví của toàn bộ người chơi đang sở hữu vật phẩm này mà người chơi không cần phải gửi đơn ticket.
+            When the countdown ends, or an admin deletes it immediately, every owner automatically gets 100% of the original VIP Coin back. No ticket needed.
           </div>
         </div>
 
         {/* Modal Actions Footer */}
-        <div className="pt-3 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          {/* Design Button Tiêu Hủy Ngay as requested */}
+        <div className="pt-3 border-t border-on-surface/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          {/* Destroy-now button */}
           {onImmediateDelete ? (
             <button
               type="button"
               disabled={loading}
               onClick={() => onImmediateDelete(product)}
-              className="px-4 py-3 rounded-2xl bg-gradient-to-r from-rose-900/60 to-rose-700/60 hover:from-rose-800 hover:to-rose-600 text-rose-200 hover:text-white border border-rose-500/50 hover:border-rose-400 font-headline font-bold text-sm flex items-center justify-center gap-2.5 shadow-lg shadow-rose-950/50 transition-all active:scale-[0.98] group"
-              title="Bỏ qua thời gian đếm ngược, xóa sản phẩm và tự động hoàn tiền vào ví người chơi ngay lập tức"
+              className="px-4 py-3 rounded-2xl bg-error-container/60 hover:bg-error-container text-error hover:text-on-error-container border border-error/50 hover:border-error font-headline font-bold text-sm flex items-center justify-center gap-2.5 shadow-lg transition-all active:scale-[0.98] group"
+              title="Skip the countdown: delete now and refund players immediately"
             >
-              <span className="w-6 h-6 rounded-lg bg-rose-500/30 flex items-center justify-center text-rose-300 group-hover:scale-110 transition-transform">
-                <Icon name="delete_forever" className="text-base text-rose-300" />
+              <span className="w-6 h-6 rounded-lg bg-error/30 flex items-center justify-center text-error group-hover:scale-110 transition-transform">
+                <Icon name="delete_forever" className="text-base text-error" />
               </span>
-              <span>⚡ Tiêu Hủy Ngay Lập Tức</span>
+              <span>Delete now</span>
             </button>
           ) : (
             <div />
@@ -230,23 +230,23 @@ export default function ScheduleDeletionModal({
               type="button"
               disabled={loading}
               onClick={onClose}
-              className="px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/15 text-white/80 hover:text-white border border-white/15 font-bold text-sm transition-all active:scale-[0.98]"
+              className="px-5 py-3 rounded-2xl bg-on-surface/10 hover:bg-on-surface/15 text-on-surface/80 hover:text-on-surface border border-on-surface/15 font-bold text-sm transition-all active:scale-[0.98]"
             >
-              Hủy Bỏ
+              Cancel
             </button>
 
             <button
               type="button"
               disabled={loading}
               onClick={handleConfirm}
-              className="px-6 py-3 rounded-2xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-headline font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-rose-950/60 transition-all active:scale-[0.98] disabled:opacity-50"
+              className="px-6 py-3 rounded-2xl bg-error-container hover:bg-error-container/80 text-on-error-container font-headline font-bold text-sm flex items-center justify-center gap-2 shadow-raised transition-all active:scale-[0.98] disabled:opacity-50"
             >
               {loading ? (
-                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
               ) : (
                 <Icon name="timer" className="text-lg" />
               )}
-              <span>Kích Hoạt Lên Lịch Xóa</span>
+              <span>Schedule deletion</span>
             </button>
           </div>
         </div>

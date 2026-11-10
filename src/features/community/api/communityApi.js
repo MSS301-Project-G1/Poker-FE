@@ -5,7 +5,7 @@ export const communityApi = {
   myPlayer: signal => call('/api/profiles/players/me', { signal }).then(payload => payload.result),
   searchPlayers: (query, signal) => call(`/api/profiles/search?q=${encodeURIComponent(query)}`, { signal }).then(payload => payload.result),
   socketToken: () => call('/api/auth/ws-token').then(payload => {
-    if (!payload?.result?.accessToken) throw new Error('Không lấy được token WebSocket.')
+    if (!payload?.result?.accessToken) throw new Error('Couldn’t get a WebSocket token.')
     return payload.result
   }),
   party: signal => call('/api/party/me', { signal }),

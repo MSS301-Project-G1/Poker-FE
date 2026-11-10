@@ -14,7 +14,7 @@ export default function CommunityDock() {
   const { pathname } = useLocation()
   const { user, panel, setPanel, unreadCount, clearChat } = useCommunity()
   if (!user || pathname.startsWith('/admin')) return null
-  return user ? <>{createPortal(<nav className={styles.dock} aria-label="Kết nối nhanh"><button className={styles.dockButton} type="button" aria-label="Tìm đội và bạn bè" onClick={() => { if (unreadCount) { clearChat(); setPanel('chat') } else setPanel('friends') }}><Icon name="forum" /><span>Tìm đội và bạn bè</span>{unreadCount > 0 && <span className={styles.unreadBadge} aria-label={`${unreadCount} tin nhắn chưa đọc`}>{unreadCount > 99 ? '99+' : unreadCount}</span>}</button></nav>, document.body)}<MessageAlert />{panel && <CommunityDialog key={panel === 'notifications' ? 'notifications' : 'community'} />}</> : null
+  return user ? <>{createPortal(<nav className={styles.dock} aria-label="Quick connect"><button className={styles.dockButton} type="button" aria-label="Friends & party" onClick={() => { if (unreadCount) { clearChat(); setPanel('chat') } else setPanel('friends') }}><Icon name="forum" /><span>Friends & party</span>{unreadCount > 0 && <span className={styles.unreadBadge} aria-label={`${unreadCount} unread message${unreadCount === 1 ? '' : 's'}`}>{unreadCount > 99 ? '99+' : unreadCount}</span>}</button></nav>, document.body)}<MessageAlert />{panel && <CommunityDialog key={panel === 'notifications' ? 'notifications' : 'community'} />}</> : null
 }
 
 function MessageAlert() {
@@ -26,22 +26,22 @@ function MessageAlert() {
     if (busy) return
     setBusy(true); setError('')
     try { openChat(await communityApi.conversation(messageAlert.conversationId)) }
-    catch { setError('Chưa mở được. Thử lại trong danh sách trò chuyện.') }
+    catch { setError('Couldn’t open it. Try again from your conversations.') }
     finally { setBusy(false) }
   }
-  return createPortal(<aside className={styles.messageAlert} aria-label="Tin nhắn mới" aria-live="polite">
-    <button className={styles.messageAlertOpen} type="button" disabled={busy} onClick={open} aria-label="Mở tin nhắn mới">
+  return createPortal(<aside className={styles.messageAlert} aria-label="New message" aria-live="polite">
+    <button className={styles.messageAlertOpen} type="button" disabled={busy} onClick={open} aria-label="Open new message">
       <Avatar id={messageAlert.senderId} />
-      <span className={styles.person}><strong><Name id={messageAlert.senderId} /></strong><span className={styles.messagePreview}>{messageAlert.content}</span><small className={styles.muted}>{error || 'Tin nhắn mới · Nhấn để xem'}</small></span>
+      <span className={styles.person}><strong><Name id={messageAlert.senderId} /></strong><span className={styles.messagePreview}>{messageAlert.content}</span><small className={styles.muted}>{error || 'New message · Tap to view'}</small></span>
     </button>
-    <button className={styles.messageAlertClose} type="button" aria-label="Ẩn thông báo tin nhắn" onClick={dismissMessageAlert}><Icon name="close" /></button>
+    <button className={styles.messageAlertClose} type="button" aria-label="Dismiss message alert" onClick={dismissMessageAlert}><Icon name="close" /></button>
   </aside>, document.body)
 }
 
 function CommunityDialog() {
   const { panel, setPanel, unreadCount } = useCommunity()
   const dialog = useRef(null)
-  const title = panel === 'notifications' ? 'Thông báo' : 'Bạn bè & tin nhắn'
+  const title = panel === 'notifications' ? 'Notifications' : 'Friends & messages'
   useEffect(() => {
     const previous = document.activeElement
     const overflow = document.body.style.overflow
@@ -62,11 +62,11 @@ function CommunityDialog() {
   return createPortal(<div className={styles.scrim} onClick={event => { if (event.target === event.currentTarget) setPanel(null) }}>
     <section className={styles.dialog} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1} ref={dialog}>
       <header className={panel === 'notifications' ? styles.dialogHead : ui.compactHeader}>
-        {panel === 'notifications' ? <h2>Thông báo</h2> : <div className={ui.tabs} role="tablist" aria-label="Trò chuyện và bạn bè">
-          <button type="button" role="tab" aria-label="Trò chuyện" aria-selected={panel === 'chat'} onClick={() => setPanel('chat')}>Trò chuyện{unreadCount > 0 && <span className={styles.unreadBadge} aria-label={`${unreadCount} tin nhắn chưa đọc`}>{unreadCount > 99 ? '99+' : unreadCount}</span>}</button>
-          <button type="button" role="tab" aria-selected={panel === 'friends'} onClick={() => setPanel('friends')}>Bạn bè</button>
+        {panel === 'notifications' ? <h2>Notifications</h2> : <div className={ui.tabs} role="tablist" aria-label="Chat and friends">
+          <button type="button" role="tab" aria-label="Chat" aria-selected={panel === 'chat'} onClick={() => setPanel('chat')}>Chat{unreadCount > 0 && <span className={styles.unreadBadge} aria-label={`${unreadCount} unread message${unreadCount === 1 ? '' : 's'}`}>{unreadCount > 99 ? '99+' : unreadCount}</span>}</button>
+          <button type="button" role="tab" aria-selected={panel === 'friends'} onClick={() => setPanel('friends')}>Friends</button>
         </div>}
-        <button className={styles.iconButton} type="button" aria-label="Đóng bảng kết nối" onClick={() => setPanel(null)}><Icon name="close" /></button>
+        <button className={styles.iconButton} type="button" aria-label="Close panel" onClick={() => setPanel(null)}><Icon name="close" /></button>
       </header>
       <div className={styles.dialogBody}>{panel === 'notifications' ? <NotificationsPanel /> : <FriendsPanel />}</div>
     </section>

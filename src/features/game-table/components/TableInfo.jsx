@@ -6,16 +6,16 @@ import styles from './TableInfo.module.css'
 export default function TableInfo({ snapshot, me }) {
   const inHand = snapshot.seats.filter(seat => !seat.folded && !seat.eliminated && !seat.leftEarly).length
   const facts = [
-    ['Tổng pot', snapshot.pot.toLocaleString()],
-    ['Cược vòng này', snapshot.currentBet.toLocaleString()],
-    ['Bạn đã cược', (me?.streetBet ?? 0).toLocaleString()],
-    ['Còn trong ván', `${inHand}/${snapshot.seats.length}`],
+    ['Total pot', snapshot.pot.toLocaleString()],
+    ['Bets this round', snapshot.currentBet.toLocaleString()],
+    ['Your bet', (me?.streetBet ?? 0).toLocaleString()],
+    ['Still in hand', `${inHand}/${snapshot.seats.length}`],
   ]
-  return <section className={styles.panel} aria-label="Thông tin ván">
-    <header><span><Icon name="query_stats" /> THÔNG TIN VÁN</span><small>{label(streetLabels, snapshot.street)}</small></header>
-    <p className={styles.hand}>{me?.handRank ? <>Tay bài của bạn: <strong>{label(handLabels, me.handRank.category)}</strong></>
-      : snapshot.legalActions.includes('CALL') ? <>Cần theo <strong>{snapshot.callAmount.toLocaleString()}</strong> chip để ở lại ván.</>
-        : 'Theo dõi pot và lượt cược của bàn.'}</p>
+  return <section className={styles.panel} aria-label="Hand info">
+    <header><span><Icon name="query_stats" /> HAND INFO</span><small>{label(streetLabels, snapshot.street)}</small></header>
+    <p className={styles.hand}>{me?.handRank ? <>Your hand: <strong>{label(handLabels, me.handRank.category)}</strong></>
+      : snapshot.legalActions.includes('CALL') ? <>Call <strong>{snapshot.callAmount.toLocaleString()}</strong> chips to stay in the hand.</>
+        : 'Pot and betting for this table.'}</p>
     <dl>{facts.map(([name, value]) => <div key={name}><dt>{name}</dt><dd>{value}</dd></div>)}</dl>
   </section>
 }

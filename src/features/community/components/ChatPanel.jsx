@@ -68,27 +68,27 @@ function ConversationChat({ conversation, readOnly }) {
   }
 
   const target = ids?.find(id => id !== user?.accountId)
-  return <section className={styles.chat} aria-label="Cuộc trò chuyện">
-    <header className={styles.chatHead}><Icon name={conversation.type === 'MATCH' ? 'casino' : 'forum'} /><div className={styles.person}><h3>{conversation.type === 'MATCH' ? 'Trò chuyện trong trận' : <Name id={target} />}</h3><small className={styles.muted}>{closed ? 'Trận đã kết thúc · Chỉ đọc' : connection.chat === 'connected' ? 'Đã kết nối · Trò chuyện trực tiếp' : 'Đang kết nối lại · Cập nhật định kỳ'}</small></div></header>
+  return <section className={styles.chat} aria-label="Conversation">
+    <header className={styles.chatHead}><Icon name={conversation.type === 'MATCH' ? 'casino' : 'forum'} /><div className={styles.person}><h3>{conversation.type === 'MATCH' ? 'Match chat' : <Name id={target} />}</h3><small className={styles.muted}>{closed ? 'Match ended · Read only' : connection.chat === 'connected' ? 'Connected · Live chat' : 'Reconnecting · Refreshing periodically'}</small></div></header>
     <ErrorNotice message={failure || error} retry={reload} />
     <div ref={log} className={styles.chatLog} onScroll={() => { if (log.current) atBottom.current = log.current.scrollHeight - log.current.scrollTop - log.current.clientHeight < 60 }}>
-      {cursor && <button className={styles.loadMore} type="button" disabled={historyBusy} onClick={more}>{historyBusy ? 'Đang tải…' : 'Xem tin nhắn cũ hơn'}</button>}
-      {loading ? <Empty icon="chat_bubble">Đang tải cuộc trò chuyện…</Empty> : !messages.length && !pending.length ? <Empty icon="waving_hand">Gửi lời chào để bắt đầu cuộc trò chuyện.</Empty> : null}
+      {cursor && <button className={styles.loadMore} type="button" disabled={historyBusy} onClick={more}>{historyBusy ? 'Loading…' : 'Load older messages'}</button>}
+      {loading ? <Empty icon="chat_bubble">Loading conversations…</Empty> : !messages.length && !pending.length ? <Empty icon="waving_hand">Say hello to start the conversation.</Empty> : null}
       {[...messages, ...pending].map(row => <div key={row.id || row.clientMessageId} className={`${styles.message} ${row.senderId === user?.accountId ? styles.own : ''}`}>
         {row.senderId !== user?.accountId && <Avatar id={row.senderId} size="small" />}
-        <div><div className={styles.bubble}>{row.content}</div><small className={styles.messageMeta}>{new Date(row.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}{row.status === 'pending' ? ' · Đang gửi…' : ''}{row.status === 'failed' && <button type="button" disabled={busy || closed} className={styles.dangerLink} onClick={() => send(row)}> · Gửi lại</button>}</small></div>
+        <div><div className={styles.bubble}>{row.content}</div><small className={styles.messageMeta}>{new Date(row.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}{row.status === 'pending' ? ' · Sending…' : ''}{row.status === 'failed' && <button type="button" disabled={busy || closed} className={styles.dangerLink} onClick={() => send(row)}> · Retry</button>}</small></div>
       </div>)}
     </div>
     <form className={styles.composer} onSubmit={event => { event.preventDefault(); void send() }}>
-      <textarea className={styles.input} aria-label="Nội dung tin nhắn" value={draft} maxLength={2000} placeholder={closed ? 'Cuộc trò chuyện chỉ đọc' : 'Nhập tin nhắn…'} disabled={closed || !data} rows={2} onChange={event => setDraft(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); void send() } }} />
-      <div className={styles.composerActions}><small className={styles.muted}>{draft.length}/2000 · Shift+Enter xuống dòng</small><Button variant="primary" type="submit" disabled={busy || closed || !data || !draft.trim()}>Gửi</Button></div>
+      <textarea className={styles.input} aria-label="Message" value={draft} maxLength={2000} placeholder={closed ? 'Read-only conversation' : 'Type a message…'} disabled={closed || !data} rows={2} onChange={event => setDraft(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); void send() } }} />
+      <div className={styles.composerActions}><small className={styles.muted}>{draft.length}/2000 · Shift+Enter for a new line</small><Button variant="primary" type="submit" disabled={busy || closed || !data || !draft.trim()}>Send</Button></div>
     </form>
   </section>
 }
 
 export function MessagesPanel() {
   const { conversation, clearChat } = useCommunity()
-  return conversation ? <><button className={styles.link} type="button" onClick={clearChat}>← Danh sách trò chuyện</button><ChatPanel conversation={conversation} /></> : <ConversationList />
+  return conversation ? <><button className={styles.link} type="button" onClick={clearChat}>← All conversations</button><ChatPanel conversation={conversation} /></> : <ConversationList />
 }
 
 function ConversationList() {
@@ -102,17 +102,17 @@ function ConversationList() {
   const rooms = (data?.items || []).filter(row => row.type === 'DIRECT')
   return <div className={styles.stack}>
     <ErrorNotice message={error} retry={reload} />
-    {loading ? <Empty>Đang tải tin nhắn…</Empty> : !rooms.length ? <Empty icon="forum">Chưa có cuộc trò chuyện. Mở Bạn bè để bắt đầu nhắn tin.</Empty> : <ul className={styles.list}>{rooms.map(row => {
+    {loading ? <Empty>Loading messages…</Empty> : !rooms.length ? <Empty icon="forum">No conversations yet. Open Friends to start messaging.</Empty> : <ul className={styles.list}>{rooms.map(row => {
       const other = row.memberIds.find(id => id !== user?.accountId)
       const unread = unreadMessages[row.id] || 0
       const latest = chatMessages.findLast(message => message.conversationId === row.id)
       return <li key={row.id}><button type="button" className={`${styles.conversationRow} ${unread ? styles.unreadConversation : ''}`} onClick={() => openChat(row)}>
         <Avatar id={other} />
-        <span className={styles.person}><strong><Name id={other} /></strong><small className={styles.messagePreview}>{latest ? `${latest.senderId === user?.accountId ? 'Bạn: ' : ''}${latest.content}` : 'Cuộc trò chuyện riêng'}</small></span>
-        {unread > 0 ? <span className={styles.unreadBadge} aria-label={`${unread} tin nhắn chưa đọc`}>{unread > 99 ? '99+' : unread}</span> : <Icon name="chevron_right" />}
+        <span className={styles.person}><strong><Name id={other} /></strong><small className={styles.messagePreview}>{latest ? `${latest.senderId === user?.accountId ? 'You: ' : ''}${latest.content}` : 'Direct message'}</small></span>
+        {unread > 0 ? <span className={styles.unreadBadge} aria-label={`${unread} unread message${unread === 1 ? '' : 's'}`}>{unread > 99 ? '99+' : unread}</span> : <Icon name="chevron_right" />}
       </button></li>
     })}</ul>}
-    {data?.totalPages > 1 && <nav className={styles.pagination} aria-label="Trang trò chuyện"><Button disabled={page === 0} onClick={() => setPage(value => value - 1)}>Trước</Button><span>Trang {page + 1}</span><Button disabled={page + 1 >= data.totalPages} onClick={() => setPage(value => value + 1)}>Sau</Button></nav>}
+    {data?.totalPages > 1 && <nav className={styles.pagination} aria-label="Chat pages"><Button disabled={page === 0} onClick={() => setPage(value => value - 1)}>Previous</Button><span>Page {page + 1}</span><Button disabled={page + 1 >= data.totalPages} onClick={() => setPage(value => value + 1)}>Next</Button></nav>}
   </div>
 }
 
@@ -126,5 +126,5 @@ export function MatchChat({ matchId, finished }) {
     }
   }, [matchId])
   const { data, error, reload, loading } = useResource(loader, 10000)
-  return <div className={styles.matchChat}><ErrorNotice message={error} retry={reload} />{data ? <ChatPanel conversation={data} readOnly={finished} /> : <Empty icon="forum">{loading ? 'Đang tìm phòng chat trận…' : 'Phòng chat trận chưa sẵn sàng. Đang kiểm tra lại.'}</Empty>}</div>
+  return <div className={styles.matchChat}><ErrorNotice message={error} retry={reload} />{data ? <ChatPanel conversation={data} readOnly={finished} /> : <Empty icon="forum">{loading ? 'Finding the match chat…' : 'Match chat isn’t ready yet. Checking again.'}</Empty>}</div>
 }

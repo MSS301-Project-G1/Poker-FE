@@ -21,7 +21,7 @@ export function useAdminBundles() {
       } catch (err) {
         if (!disposed) {
           console.error('Failed to load admin bundles:', err)
-          setError(err.message || 'Không thể tải danh sách gói nạp')
+          setError(err.message || 'Couldn’t load coin packs')
         }
       } finally {
         if (!disposed) {

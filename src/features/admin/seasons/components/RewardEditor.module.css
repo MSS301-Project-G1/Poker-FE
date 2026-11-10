@@ -1,7 +1,7 @@
 .editor { display: grid; gap: 14px; }
 
 .head, .row { display: grid; grid-template-columns: 160px 120px minmax(0, 1fr); align-items: start; gap: 12px; }
-.head { padding: 0 12px; color: rgb(var(--color-outline)); font: 600 9px var(--font-display); letter-spacing: 1px; text-transform: uppercase; }
+.head { padding: 0 12px; color: rgb(var(--color-outline)); font: 600 12px var(--font-display); }
 .rows { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
 
 .row {

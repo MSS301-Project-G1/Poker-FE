@@ -51,7 +51,7 @@ export default function PendingPaymentModal({
           const res = await onSyncOrder()
           if (res?.status === 'PAID') {
             setPaidSuccess(true)
-            notify('Thanh toán thành công! VIP Coin đã được cộng vào ví.', { type: 'success' })
+            notify('Payment complete. VIP Coin has been added to your wallet.', { type: 'success' })
             if (onSuccess) onSuccess(res)
           }
         }
@@ -71,13 +71,13 @@ export default function PendingPaymentModal({
       const res = await onSyncOrder()
       if (res?.status === 'PAID') {
         setPaidSuccess(true)
-        notify('Thanh toán thành công! VIP Coin đã được cộng vào ví.', { type: 'success' })
+        notify('Payment complete. VIP Coin has been added to your wallet.', { type: 'success' })
         if (onSuccess) onSuccess(res)
       } else {
-        notify('Đơn hàng vẫn đang chờ thanh toán. Vui lòng quét mã và thử lại.', { type: 'info' })
+        notify('This order is still awaiting payment. Scan the code and try again.', { type: 'info' })
       }
     } catch (err) {
-      notify(err.message || 'Chưa nhận được giao dịch. Vui lòng thử lại sau giây lát.', { type: 'error' })
+      notify(err.message || 'Payment not received yet. Try again in a moment.', { type: 'error' })
     } finally {
       setIsSyncing(false)
     }
@@ -89,10 +89,10 @@ export default function PendingPaymentModal({
     setIsCancelling(true)
     try {
       await onCancelOrder()
-      notify('Đã hủy phiên thanh toán.', { type: 'info' })
+      notify('Payment session cancelled.', { type: 'info' })
       onClose()
     } catch (err) {
-      notify(err.message || 'Không thể hủy đơn hàng', { type: 'error' })
+      notify(err.message || 'Couldn’t cancel the order', { type: 'error' })
     } finally {
       setIsCancelling(false)
     }
@@ -127,10 +127,10 @@ export default function PendingPaymentModal({
             <div
               className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
                 paidSuccess
-                  ? 'bg-emerald-500/20 text-emerald-400'
+                  ? 'bg-success/20 text-success'
                   : isExpired
-                  ? 'bg-rose-500/20 text-rose-400'
-                  : 'bg-amber-500/20 text-amber-400'
+                  ? 'bg-error/20 text-error'
+                  : 'bg-tertiary/20 text-tertiary'
               }`}
             >
               <Icon
@@ -139,19 +139,19 @@ export default function PendingPaymentModal({
               />
             </div>
             <div className="text-left">
-              <h3 className="font-headline font-black text-lg text-white">
+              <h3 className="font-headline font-bold text-lg text-on-surface">
                 {paidSuccess
-                  ? 'Thanh Toán Thành Công!'
+                  ? 'Payment complete'
                   : isExpired
-                  ? 'Phiên Thanh Toán Đã Hết Hạn'
-                  : 'Tiếp Tục Thanh Toán'}
+                  ? 'Payment session expired'
+                  : 'Continue payment'}
               </h3>
-              <p className="text-xs text-white/60">
+              <p className="text-xs text-on-surface/60">
                 {paidSuccess
-                  ? 'Hệ thống đã ghi nhận thanh toán và cộng VIP Coin vào ví của bạn.'
+                  ? 'Your payment was recorded and VIP Coin was added to your wallet.'
                   : isExpired
-                  ? 'Giao dịch đã quá 5 phút. Vui lòng hủy để tạo phiên mới.'
-                  : 'Đơn hàng đang chờ quét mã VietQR hoặc thanh toán trên PayOS.'}
+                  ? 'This payment is older than 5 minutes. Cancel it to start a new one.'
+                  : 'Waiting for you to scan the VietQR code or pay on PayOS.'}
               </p>
             </div>
           </div>
@@ -159,7 +159,7 @@ export default function PendingPaymentModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-on-surface/40 hover:text-on-surface hover:bg-on-surface/10 transition-colors"
           >
             <Icon name="close" className="text-lg" />
           </button>
@@ -168,32 +168,32 @@ export default function PendingPaymentModal({
         {/* Body */}
         {paidSuccess ? (
           <div className="py-8 text-center space-y-4">
-            <div className="w-16 h-16 mx-auto rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+            <div className="w-16 h-16 mx-auto rounded-full bg-success/20 text-success flex items-center justify-center border border-success/30">
               <Icon name="verified" className="text-4xl" />
             </div>
-            <p className="text-sm font-semibold text-emerald-300">
-              Bạn đã nạp thành công {formatVipCoin(order.vipCoinAmount)} VIP Coin!
+            <p className="text-sm font-semibold text-success">
+              You topped up {formatVipCoin(order.vipCoinAmount)} VIP Coin!
             </p>
             <Button variant="gold" size="md" icon="check" onClick={onClose} className="w-full">
-              Hoàn Tất
+              Done
             </Button>
           </div>
         ) : (
           <div className="space-y-4 pt-2">
             {/* Live Countdown & Order summary */}
-            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/5 border border-white/10 text-xs">
+            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-on-surface/5 border border-on-surface/10 text-xs">
               <div className="flex items-center gap-2">
-                <span className="text-white/50">Mã đơn:</span>
-                <span className="font-mono font-bold text-amber-400">#{order.payosOrderCode}</span>
+                <span className="text-on-surface/50">Order:</span>
+                <span className="font-mono font-bold text-tertiary">#{order.payosOrderCode}</span>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-white/50">Thời gian còn lại:</span>
+                <span className="text-on-surface/50">Time left:</span>
                 <span
                   className={`font-mono font-bold text-sm px-2 py-0.5 rounded-md ${
                     isExpired
-                      ? 'bg-rose-500/20 text-rose-400'
-                      : 'bg-amber-500/20 text-amber-300 animate-pulse'
+                      ? 'bg-error/20 text-error'
+                      : 'bg-tertiary/20 text-tertiary-fixed '
                   }`}
                 >
                   <Icon name="schedule" className="text-xs mr-1 align-baseline inline" />
@@ -204,8 +204,8 @@ export default function PendingPaymentModal({
 
             {/* QR Code and Info block */}
             {!isExpired && order.qrImageUrl && (
-              <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-black/40 border border-white/10">
-                <div className="bg-white p-2.5 rounded-2xl shadow-xl max-w-[200px] mb-2">
+              <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-obsidian/40 border border-on-surface/10">
+                <div className="bg-card-face p-2.5 rounded-2xl shadow-raised max-w-[200px] mb-2">
                   <img
                     src={order.qrImageUrl}
                     alt="VietQR PayOS"
@@ -213,11 +213,11 @@ export default function PendingPaymentModal({
                   />
                 </div>
                 <div className="text-center space-y-1">
-                  <p className="text-xs font-bold text-amber-400">
-                    {order.bundleName || order.productName || 'Nạp VIP Coin'} • {formatVnd(order.amountVnd)}
+                  <p className="text-xs font-bold text-tertiary">
+                    {order.bundleName || order.productName || 'Top up VIP Coin'} • {formatVnd(order.amountVnd)}
                   </p>
-                  <p className="text-[11px] text-white/50">
-                    Mở App Ngân hàng hoặc ví điện tử để quét mã thanh toán tức thì
+                  <p className="text-[11px] text-on-surface/50">
+                    Open your banking or e-wallet app to scan and pay
                   </p>
                 </div>
               </div>
@@ -234,7 +234,7 @@ export default function PendingPaymentModal({
                     onClick={handleOpenPayOs}
                     className="w-full"
                   >
-                    Mở Lại Trang Thanh Toán PayOS
+                    Reopen PayOS checkout
                   </Button>
 
                   <Button
@@ -245,7 +245,7 @@ export default function PendingPaymentModal({
                     onClick={handleManualCheck}
                     className="w-full"
                   >
-                    Tôi Đã Thanh Toán (Kiểm Tra Ngay)
+                    I’ve paid, check now
                   </Button>
                 </>
               )}
@@ -255,18 +255,18 @@ export default function PendingPaymentModal({
                   type="button"
                   disabled={isCancelling}
                   onClick={handleCancel}
-                  className="text-xs text-rose-400 hover:text-rose-300 flex items-center gap-1 transition-colors underline-offset-2 hover:underline"
+                  className="text-xs text-error hover:text-error flex items-center gap-1 transition-colors underline-offset-2 hover:underline"
                 >
                   <Icon name="cancel" className="text-sm" />
-                  <span>{isCancelling ? 'Đang hủy đơn...' : 'Hủy đơn hàng này để tạo đơn mới'}</span>
+                  <span>{isCancelling ? 'Cancelling…' : 'Cancel this order and start a new one'}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={onClose}
-                  className="text-xs text-white/40 hover:text-white/80 transition-colors"
+                  className="text-xs text-on-surface/40 hover:text-on-surface/80 transition-colors"
                 >
-                  Đóng cửa sổ
+                  Close
                 </button>
               </div>
             </div>

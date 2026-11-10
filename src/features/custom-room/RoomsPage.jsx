@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { paths } from '@/shared/config/paths'
-import { Eyebrow } from '@/shared/ui'
+
 import { createRoom, fetchMyRoom, fetchPublicRooms, joinRoom } from './api/roomApi'
 import CreateRoomForm from './components/CreateRoomForm'
 import JoinRoomForm from './components/JoinRoomForm'
@@ -55,7 +55,6 @@ export default function RoomsPage() {
 
   return <div className={styles.page}>
     <section>
-      <Eyebrow>CUSTOM ROOMS</Eyebrow>
       <h1 className={styles.title}>Play with your crew</h1>
       <p className={styles.muted}>Open a private table, share the code and start when everyone is ready. Custom games are free and do not change Elo.</p>
     </section>

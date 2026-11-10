@@ -28,7 +28,7 @@ export function useBundleTopup() {
       } catch (err) {
         if (!disposed) {
           console.error('Failed to load coin bundles:', err)
-          setError(err.message || 'Không thể tải danh sách gói nạp')
+          setError(err.message || 'Couldn’t load coin packs')
           setLoading(false)
         }
       }
@@ -71,11 +71,11 @@ export function useBundleTopup() {
       if (checkoutUrl) {
         window.location.href = checkoutUrl
       } else {
-        throw new Error('Không nhận được liên kết thanh toán từ PayOS')
+        throw new Error('PayOS didn’t return a payment link')
       }
     } catch (err) {
       console.error('Failed to create bundle order:', err)
-      setOrderError(err.message || 'Tạo đơn hàng thanh toán thất bại')
+      setOrderError(err.message || 'Couldn’t create the order')
       setOrderingBundleId(null)
       throw err
     }

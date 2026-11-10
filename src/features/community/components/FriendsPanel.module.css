@@ -13,7 +13,7 @@
 .menu summary::-webkit-details-marker { display: none; }
 .menu summary span { font-size: 20px; }
 .menu[open] { z-index: 3; }
-.menuBody { position: absolute; right: 0; top: calc(100% + 6px); min-width: 196px; display: grid; gap: 4px; padding: 6px; border: 1px solid rgb(var(--color-outline-variant)); border-radius: 12px; background: rgb(var(--color-surface-container-high)); box-shadow: 0 8px 24px #0005; }
+.menuBody { position: absolute; right: 0; top: calc(100% + 6px); min-width: 196px; display: grid; gap: 4px; padding: 6px; border: 1px solid rgb(var(--color-outline-variant)); border-radius: 12px; background: rgb(var(--color-surface-container-high)); box-shadow: 0 8px 24px rgb(var(--color-obsidian) / 0.33); }
 .menuBody button { width: 100%; display: flex; align-items: center; gap: 8px; text-align: left; background: transparent; border: 0; color: rgb(var(--color-on-surface)); white-space: nowrap; }
 .menuBody button:hover { background: rgb(var(--color-surface-container-highest)); }
 .menuBody .danger { color: rgb(var(--color-error)); }

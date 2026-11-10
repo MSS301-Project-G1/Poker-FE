@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Icon } from '@/shared/ui'
 import { otpError } from '../utils/authValidation'
 import { fieldErrorClass, inputClass, labelClass, submitClass } from './authFormStyles'
 
@@ -29,17 +28,17 @@ export default function VerifyOtpForm({ email, otpExpiresAt, resendAvailableAt, 
       {otpExpiresAt && <span className="block mt-1 text-xs text-outline">The latest code expires at {new Date(otpExpiresAt).toLocaleTimeString()}.</span>}
     </div>
     <div>
-      <label className={labelClass} htmlFor="registration-otp">Verification code <span className="text-primary">*</span></label>
+      <label className={labelClass} htmlFor="registration-otp">Verification code</label>
       <input id="registration-otp" className={`${inputClass} px-4 text-center tracking-[0.5em] font-label-numeric-md`} value={otp}
         onChange={event => setOtp(event.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="one-time-code"
         maxLength={6} disabled={pending} aria-invalid={Boolean(error)} />
       {error && <p className={fieldErrorClass}>{error}</p>}
     </div>
     <button className={submitClass} type="submit" disabled={pending}>
-      <span>{pending ? 'VERIFYING…' : 'VERIFY EMAIL'}</span><Icon name="verified" className="text-base" />
+      <span>{pending ? 'Verifying…' : 'Verify email'}</span>
     </button>
     <div className="flex items-center justify-between gap-3 text-xs">
-      <button type="button" className="text-on-surface-variant hover:text-white transition-colors" onClick={onBack} disabled={pending}>Back to sign in</button>
+      <button type="button" className="text-on-surface-variant hover:text-on-surface transition-colors" onClick={onBack} disabled={pending}>Back to sign in</button>
       <button type="button" className="text-primary hover:text-primary-fixed transition-colors disabled:text-outline" onClick={onResend}
         disabled={pending || remaining > 0}>{remaining > 0 ? `Resend in ${remaining}s` : 'Resend code'}</button>
     </div>

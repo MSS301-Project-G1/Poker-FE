@@ -6,30 +6,30 @@ import styles from './AdminSidebar.module.css'
 
 const adminNavSections = [
   {
-    label: 'Tổng Quan & Điều Hành',
+    label: 'Overview',
     items: [
-      { path: paths.admin, label: 'Trang quản trị', icon: 'dashboard', end: true },
-      { path: paths.adminMatchSettings, label: 'Bàn chơi', icon: 'tune' },
+      { path: paths.admin, label: 'Admin home', icon: 'dashboard', end: true },
+      { path: paths.adminMatchSettings, label: 'Match settings', icon: 'tune' },
     ],
   },
   {
-    label: 'Tài Khoản & Người Dùng',
+    label: 'Accounts',
     items: [
-      { path: paths.adminUsers, label: 'Người dùng', icon: 'manage_accounts' },
+      { path: paths.adminUsers, label: 'Users', icon: 'manage_accounts' },
     ],
   },
   {
-    label: 'Kinh Tế & Vật Phẩm',
+    label: 'Economy',
     items: [
-      { path: paths.adminShop, label: 'Cửa hàng', icon: 'storefront' },
-      { path: paths.adminAvatars, label: 'Avatar', icon: 'account_circle' },
+      { path: paths.adminShop, label: 'Shop', icon: 'storefront' },
+      { path: paths.adminAvatars, label: 'Avatars', icon: 'account_circle' },
     ],
   },
   {
-    label: 'Mùa Giải & Sự Kiện',
+    label: 'Seasons & events',
     items: [
-      { path: paths.adminSeasons, label: 'Mùa giải', icon: 'leaderboard' },
-      { path: paths.adminTournaments, label: 'Giải đấu', icon: 'emoji_events' },
+      { path: paths.adminSeasons, label: 'Seasons', icon: 'leaderboard' },
+      { path: paths.adminTournaments, label: 'Tournaments', icon: 'emoji_events' },
     ],
   },
 ]
@@ -58,11 +58,9 @@ export default function AdminSidebar({ user, onSignOut, signOutPending }) {
       <div>
         {/* Brand Header */}
         <Link to={paths.admin} className={styles.brandHeader}>
-          <div className={styles.brandBadge}>
-            <Icon name="admin_panel_settings" />
-          </div>
+          <img src="/stitch-assets/logo.svg" alt="" className={styles.brandBadge} />
           <div className={styles.brandText}>
-            <span className={styles.brandTitle}>Quản Trị Hệ Thống</span>
+            <span className={styles.brandTitle}>Admin</span>
             <span className={styles.brandSubtitle}>{user?.email || 'MSS Poker Admin'}</span>
           </div>
         </Link>
@@ -72,7 +70,7 @@ export default function AdminSidebar({ user, onSignOut, signOutPending }) {
           <Icon name="search" className={styles.searchIcon} />
           <input
             type="text"
-            placeholder="Tìm nhanh mục quản trị..."
+            placeholder="Search admin…"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className={styles.searchInput}
@@ -80,7 +78,7 @@ export default function AdminSidebar({ user, onSignOut, signOutPending }) {
         </div>
 
         {/* Navigation Sections */}
-        <nav aria-label="Điều hướng quản trị">
+        <nav aria-label="Admin navigation">
           {filteredSections.map(section => (
             <div key={section.label} className={styles.navSection}>
               <span className={styles.sectionLabel}>{section.label}</span>
@@ -100,15 +98,15 @@ export default function AdminSidebar({ user, onSignOut, signOutPending }) {
                       </span>
                       <span className={styles.navLabel}>{item.label}</span>
                     </div>
-                    <Icon name="chevron_right" className="text-white/40 text-base" />
+                    <Icon name="chevron_right" className="text-on-surface/40 text-base" />
                   </NavLink>
                 ))}
               </div>
             </div>
           ))}
           {filteredSections.length === 0 && (
-            <p className="px-3 py-4 text-xs text-white/40 text-center">
-              Không tìm thấy mục quản trị phù hợp
+            <p className="px-3 py-4 text-xs text-on-surface/40 text-center">
+              No matching admin pages
             </p>
           )}
         </nav>
@@ -121,8 +119,8 @@ export default function AdminSidebar({ user, onSignOut, signOutPending }) {
           onClick={() => navigate(paths.shop)}
           className={styles.externalLink}
         >
-          <Icon name="storefront" className="text-amber-400 text-lg" />
-          <span>Xem Giao Diện Cửa Hàng</span>
+          <Icon name="storefront" className="text-tertiary text-lg" />
+          <span>View shop</span>
         </button>
         <button
           type="button"
@@ -130,17 +128,17 @@ export default function AdminSidebar({ user, onSignOut, signOutPending }) {
           className={styles.externalLink}
         >
           <Icon name="sports_esports" className="text-primary text-lg" />
-          <span>Quay Về Sảnh Game</span>
+          <span>Back to lobby</span>
         </button>
         {onSignOut && (
           <button
             type="button"
             onClick={onSignOut}
             disabled={signOutPending}
-            className={`${styles.externalLink} text-red-400 hover:text-red-300 hover:bg-red-500/10`}
+            className={`${styles.externalLink} text-error hover:text-error hover:bg-error/10`}
           >
-            <Icon name="logout" className="text-red-400 text-lg" />
-            <span>{signOutPending ? 'Đang đăng xuất…' : 'Đăng xuất'}</span>
+            <Icon name="logout" className="text-error text-lg" />
+            <span>{signOutPending ? 'Signing out…' : 'Sign out'}</span>
           </button>
         )}
       </div>

@@ -1,4 +1,4 @@
-/** Card primitives shared by the engine, bots, 3D card factory and HUD. */
+/** Card primitives shared by the 3D card factory and the live table. */
 export type Card = {
   /** 2..14 where 11=J, 12=Q, 13=K, 14=A. */
   rank: number;
@@ -24,21 +24,4 @@ export function cardKey(card: Card): number {
 
 export function isRedSuit(suit: number): boolean {
   return suit === 1 || suit === 2;
-}
-
-export function createDeck(): Card[] {
-  const deck: Card[] = [];
-  for (let suit = 0; suit < 4; suit += 1) {
-    for (let rank = 2; rank <= 14; rank += 1) deck.push({ rank, suit });
-  }
-  return deck;
-}
-
-/** Fisher–Yates in place, driven by the caller's seeded RNG. */
-export function shuffle<T>(items: T[], rng: () => number): T[] {
-  for (let i = items.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(rng() * (i + 1));
-    [items[i], items[j]] = [items[j], items[i]];
-  }
-  return items;
 }

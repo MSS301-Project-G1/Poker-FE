@@ -22,11 +22,11 @@ export default function PlayerSeat({ player, profile, slot, isYou, active, deale
     <div className={styles.plate} data-plate>
       <div className={styles.avatar}>
         <AvatarFrame avatarUrl={profile?.avatarUrl} name={name} size={isYou ? 'lg' : 'md'} />
-        {taunting && <span className={styles.taunt} role="img" aria-label={`${name} đang phát âm thanh`}><Icon name="volume_up" /></span>}
+        {taunting && <span className={styles.taunt} role="img" aria-label={`${name} is playing a sound`}><Icon name="volume_up" /></span>}
         <div className={styles.badges}>{dealer && <Dealer />}{smallBlind && <span className={styles.badge}>SB</span>}{bigBlind && <span className={styles.badge}>BB</span>}</div>
       </div>
       <div className={styles.identity}>
-        <strong>{name}{isYou && <small>BẠN</small>}</strong>
+        <strong>{name}{isYou && <small>YOU</small>}</strong>
         <span className={`${styles.stack} ${paid ? styles.paid : ''}`}><Icon name="toll" />{chips.toLocaleString()}</span>
         <span className={styles.status} data-tone={actionTones[player.lastAction]}>{status}</span>
       </div>

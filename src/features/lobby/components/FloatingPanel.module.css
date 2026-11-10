@@ -1,11 +1,11 @@
-/* Glass panels orbit the 3D table: each leans toward the table and turns to face the player when pointed at.
+/* Glass panels flank the 3D table and lean toward it; pointing at one turns it to face the player.
    The outer box never moves, so the hover target stays put while the inner surface slides toward the table. */
 .panel { position: relative; }
-.surface { transition: transform .5s cubic-bezier(.2, .9, .3, 1.12), filter .4s ease; }
+.surface { transition: transform .5s cubic-bezier(.16, 1, .3, 1), filter .4s ease; }
 
 @media (min-width: 1024px) {
   .surface {
-    transform: perspective(1100px) translateX(var(--arc-x, 0px)) rotateY(var(--tilt-y, 0deg)) rotateX(var(--tilt-x, 0deg));
+    transform: perspective(1100px) rotateY(var(--tilt-y, 0deg)) rotateX(var(--tilt-x, 0deg));
     filter: brightness(.88);
   }
 
@@ -14,7 +14,7 @@
   .panel:focus-within { z-index: 40; }
   .panel:hover > .surface,
   .panel:focus-within > .surface {
-    transform: perspective(1100px) translate3d(calc(var(--arc-x, 0px) + var(--pull-x, 0px)), var(--pull-y, 0px), 60px);
+    transform: perspective(1100px) translate3d(var(--pull-x, 0px), var(--pull-y, 0px), 60px);
     filter: none;
   }
 
@@ -25,9 +25,17 @@
   .right > .surface { transform-origin: right center; }
   .bottom > .surface { transform-origin: center bottom; }
 
-  /* The lower panel of a column sits closer to the table, so each column curves around it. */
-  .left.arc { --arc-x: 28px; }
-  .right.arc { --arc-x: -28px; }
+  /* A side column leans as one flat sheet, so its panels share an edge, an angle and a vanishing point.
+     Nothing inside uses preserve-3d, so clicks map straight through the transforms. */
+  .column { transform: perspective(1100px) rotateY(var(--tilt-y, 0deg)); }
+  .column.left { transform-origin: left center; }
+  .column.right { transform-origin: right center; }
+  .column .surface { transform: none; }
+  /* Inside the sheet, a pointed-at panel turns back by the sheet's angle, so it ends up facing the player. */
+  .column .panel:hover > .surface,
+  .column .panel:focus-within > .surface {
+    transform: perspective(1100px) translateX(var(--pull-x)) rotateY(calc(var(--tilt-y) * -1)) translateZ(60px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

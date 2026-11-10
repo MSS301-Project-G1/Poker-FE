@@ -109,14 +109,14 @@ export default function ProductManagementTab({
       notify(
         response?.data?.message ||
           response?.message ||
-          'Đã chuyển sản phẩm sang trạng thái Tạm Ngưng Bán. Kho đồ người chơi được bảo lưu an toàn 100%!',
+          'Product suspended. Players keep everything they own.',
         { type: 'success' }
       )
       setProductToRevoke(null)
       setRevokeReason('')
       onRefresh?.()
     } catch (err) {
-      notify(err.message || 'Chuyển trạng thái tạm ngưng bán thất bại', { type: 'error' })
+      notify(err.message || 'Couldn’t suspend the product', { type: 'error' })
     } finally {
       setIsRevoking(false)
     }
@@ -126,10 +126,10 @@ export default function ProductManagementTab({
     setIsActivatingId(product.id)
     try {
       await activateProduct(product.id)
-      notify(`Đã mở bán lại sản phẩm "${product.name}" trên Cửa Hàng thành công!`, { type: 'success' })
+      notify(`“${product.name}” is back on sale.`, { type: 'success' })
       onRefresh?.()
     } catch (err) {
-      notify(err.message || 'Mở bán lại sản phẩm thất bại', { type: 'error' })
+      notify(err.message || 'Couldn’t put the product back on sale', { type: 'error' })
     } finally {
       setIsActivatingId(null)
     }
@@ -139,10 +139,10 @@ export default function ProductManagementTab({
     setIsCancellingId(product.id)
     try {
       await cancelScheduledProductDeletion(product.id)
-      notify(`Đã hủy lệnh xóa sản phẩm "${product.name}", đưa về Tạm Ngưng an toàn!`, { type: 'success' })
+      notify(`Deletion of “${product.name}” cancelled; it’s now suspended.`, { type: 'success' })
       onRefresh?.()
     } catch (err) {
-      notify(err.message || 'Hủy lệnh xóa sản phẩm thất bại', { type: 'error' })
+      notify(err.message || 'Couldn’t cancel the deletion', { type: 'error' })
     } finally {
       setIsCancellingId(null)
     }
@@ -156,13 +156,13 @@ export default function ProductManagementTab({
       notify(
         res?.data?.message ||
           res?.message ||
-          `Đã xóa vĩnh viễn sản phẩm "${productToImmediateDelete.name}" và tự động hoàn tiền thành công!`,
+          `Deleted “${productToImmediateDelete.name}” and refunded its owners.`,
         { type: 'success' }
       )
       setProductToImmediateDelete(null)
       onRefresh?.()
     } catch (err) {
-      notify(err.message || 'Xóa sản phẩm thất bại', { type: 'error' })
+      notify(err.message || 'Couldn’t delete the product', { type: 'error' })
     } finally {
       setIsDeletingExecuting(false)
     }
@@ -170,77 +170,59 @@ export default function ProductManagementTab({
 
   return (
     <div className="space-y-6">
-      {/* Top Action Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-6 rounded-3xl bg-gradient-to-r from-[#170a2c] via-[#140926] to-[#0d041a] border border-white/10 shadow-2xl relative overflow-hidden">
-        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-amber-500/10 to-transparent pointer-events-none" />
-
-        <div className="relative z-10">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-400 text-slate-950 shadow-sm">
-              Dashboard
-            </span>
-            <span className="text-xs text-white/50">• Trung Tâm Quản Trị Kho & Skin Bài Tây</span>
-          </div>
-          <h2 className="font-headline font-black text-2xl text-white flex items-center gap-3">
-            <Icon name="inventory_2" className="text-amber-400 text-3xl" />
-            <span>Bảng Điều Khiển Kho Vật Phẩm</span>
-          </h2>
-        </div>
-      </div>
-
       {/* KPI Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="p-4 rounded-2xl bg-[#140a24]/90 border border-white/10 shadow-lg flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-amber-400/10 text-amber-400 border border-amber-400/20 flex items-center justify-center font-black">
+        <div className="p-4 rounded-2xl bg-surface-container-lowest/90 border border-on-surface/10 shadow-lg flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-tertiary/10 text-tertiary border border-tertiary/20 flex items-center justify-center font-bold">
             <Icon name="inventory_2" className="text-2xl" />
           </div>
           <div>
-            <span className="text-[11px] font-bold text-white/50 uppercase tracking-wider block">
-              Tổng Vật Phẩm
+            <span className="text-[11px] font-bold text-on-surface/50 block">
+              Total items
             </span>
-            <span className="font-headline font-black text-xl text-white">
+            <span className="font-headline font-bold text-xl text-on-surface">
               {stats.total}
             </span>
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-[#140a24]/90 border border-white/10 shadow-lg flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center justify-center font-black">
+        <div className="p-4 rounded-2xl bg-surface-container-lowest/90 border border-on-surface/10 shadow-lg flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-secondary-container/10 text-secondary border border-secondary-container/20 flex items-center justify-center font-bold">
             <Icon name="style" className="text-2xl" />
           </div>
           <div>
-            <span className="text-[11px] font-bold text-white/50 uppercase tracking-wider block">
-              Bộ Skin Bài Tây
+            <span className="text-[11px] font-bold text-on-surface/50 block">
+              Card skins
             </span>
-            <span className="font-headline font-black text-xl text-purple-300">
+            <span className="font-headline font-bold text-xl text-secondary">
               {stats.cardDecks}
             </span>
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-[#140a24]/90 border border-white/10 shadow-lg flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-300 border border-amber-500/20 flex items-center justify-center font-black">
+        <div className="p-4 rounded-2xl bg-surface-container-lowest/90 border border-on-surface/10 shadow-lg flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-tertiary/10 text-tertiary-fixed border border-tertiary/20 flex items-center justify-center font-bold">
             <Icon name="workspace_premium" className="text-2xl" />
           </div>
           <div>
-            <span className="text-[11px] font-bold text-white/50 uppercase tracking-wider block">
-              Hạng VIP & Super VIP
+            <span className="text-[11px] font-bold text-on-surface/50 block">
+              VIP & Super VIP
             </span>
-            <span className="font-headline font-black text-xl text-amber-400">
+            <span className="font-headline font-bold text-xl text-tertiary">
               {stats.vipItems}
             </span>
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-[#140a24]/90 border border-white/10 shadow-lg flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-black">
+        <div className="p-4 rounded-2xl bg-surface-container-lowest/90 border border-on-surface/10 shadow-lg flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-tertiary/10 text-tertiary border border-tertiary/20 flex items-center justify-center font-bold">
             <Icon name="pause_circle" className="text-2xl" />
           </div>
           <div>
-            <span className="text-[11px] font-bold text-white/50 uppercase tracking-wider block">
-              Đang Tạm Ngưng
+            <span className="text-[11px] font-bold text-on-surface/50 block">
+              Suspended
             </span>
-            <span className="font-headline font-black text-xl text-amber-300">
+            <span className="font-headline font-bold text-xl text-tertiary-fixed">
               {stats.maintenanceItems}
             </span>
           </div>
@@ -248,17 +230,17 @@ export default function ProductManagementTab({
       </div>
 
       {/* Category Filter Horizontal Pills */}
-      <div className="flex items-center gap-2 p-1.5 bg-black/40 rounded-2xl border border-white/10 overflow-x-auto">
+      <div className="flex items-center gap-2 p-1.5 bg-obsidian/40 rounded-2xl border border-on-surface/10 overflow-x-auto">
         <button
           type="button"
           onClick={() => handleCategorySelect('ALL')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
             activeCategory === 'ALL'
-              ? 'bg-amber-400 text-slate-950 font-black shadow-md'
-              : 'text-white/70 hover:text-white hover:bg-white/10'
+              ? 'bg-tertiary text-on-tertiary font-bold shadow-md'
+              : 'text-on-surface/70 hover:text-on-surface hover:bg-on-surface/10'
           }`}
         >
-          Tất cả ({totalElements || products.length})
+          All ({totalElements || products.length})
         </button>
         {categories.map(cat => (
           <button
@@ -267,8 +249,8 @@ export default function ProductManagementTab({
             onClick={() => handleCategorySelect(cat.code)}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
               activeCategory === cat.code
-                ? 'bg-amber-400 text-slate-950 font-black shadow-md'
-                : 'text-white/70 hover:text-white hover:bg-white/10'
+                ? 'bg-tertiary text-on-tertiary font-bold shadow-md'
+                : 'text-on-surface/70 hover:text-on-surface hover:bg-on-surface/10'
             }`}
           >
             {cat.name}
@@ -277,73 +259,73 @@ export default function ProductManagementTab({
       </div>
 
       {/* Search & Tier + Status Filter Toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-on-surface/5 border border-on-surface/10">
         <div className="flex items-center gap-3 flex-wrap">
           {/* Tier Filter */}
           <select
             value={activeTier}
             onChange={e => handleTierSelect(e.target.value)}
-            className="px-3.5 py-2 rounded-xl bg-black/50 border border-white/15 text-xs font-bold text-white focus:outline-none focus:border-amber-400"
+            className="px-3.5 py-2 rounded-xl bg-obsidian/50 border border-on-surface/15 text-xs font-bold text-on-surface focus:outline-none focus:border-tertiary"
           >
-            <option value="ALL">Tất cả Hạng Tier</option>
+            <option value="ALL">All tiers</option>
             <option value="NORMAL">Standard</option>
             <option value="VIP">VIP</option>
-            <option value="SUPER_VIP">SUPER VIP</option>
+            <option value="SUPER_VIP">Super VIP</option>
           </select>
 
           {/* Status Filter */}
           <select
             value={activeStatus}
             onChange={e => handleStatusSelect(e.target.value)}
-            className="px-3.5 py-2 rounded-xl bg-black/50 border border-white/15 text-xs font-bold text-white focus:outline-none focus:border-amber-400"
+            className="px-3.5 py-2 rounded-xl bg-obsidian/50 border border-on-surface/15 text-xs font-bold text-on-surface focus:outline-none focus:border-tertiary"
           >
-            <option value="ALL">Tất cả Trạng Thái</option>
-            <option value="ACTIVE">Đang Mở Bán (ACTIVE)</option>
-            <option value="MAINTAIN">Đang Tạm Ngưng (MAINTAIN)</option>
-            <option value="DELETING">Đang Chờ Xóa (Đếm Ngược)</option>
+            <option value="ALL">All statuses</option>
+            <option value="ACTIVE">On sale (ACTIVE)</option>
+            <option value="MAINTAIN">Suspended (MAINTAIN)</option>
+            <option value="DELETING">Pending deletion</option>
           </select>
         </div>
 
         <div className="relative w-full sm:w-80">
-          <Icon name="search" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-base" />
+          <Icon name="search" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface/40 text-base" />
           <input
             type="text"
-            placeholder="Tìm theo tên hoặc mã danh mục..."
+            placeholder="Search by name or category code…"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-xl bg-black/50 border border-white/15 text-xs text-white placeholder-white/40 focus:outline-none focus:border-amber-400"
+            className="w-full pl-10 pr-4 py-2 rounded-xl bg-obsidian/50 border border-on-surface/15 text-xs text-on-surface placeholder-on-surface/40 focus:outline-none focus:border-tertiary"
           />
         </div>
       </div>
 
       {/* Table Container */}
-      <div className="rounded-3xl bg-[#140a24]/95 border border-white/10 overflow-hidden shadow-2xl">
+      <div className="rounded-2xl bg-surface-container-lowest/95 border border-on-surface/10 overflow-hidden shadow-raised">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-white/10 bg-white/5 text-white/60 font-bold uppercase tracking-wider text-[11px]">
-                <th className="p-4">Ảnh Asset</th>
-                <th className="p-4">Tên Sản Phẩm</th>
-                <th className="p-4">Danh Mục</th>
-                <th className="p-4">Hạng Tier</th>
-                <th className="p-4">Đơn Giá VIP / VNĐ</th>
-                <th className="p-4">Trạng Thái</th>
-                <th className="p-4 text-right">Thao Tác Quản Trị</th>
+              <tr className="border-b border-on-surface/10 bg-on-surface/5 text-on-surface/60 font-bold text-[11px]">
+                <th className="p-4">Image</th>
+                <th className="p-4">Name</th>
+                <th className="p-4">Category</th>
+                <th className="p-4">Tier</th>
+                <th className="p-4 whitespace-nowrap">Price (VIP / VND)</th>
+                <th className="p-4">Status</th>
+                <th className="p-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5 text-xs">
+            <tbody className="divide-y divide-on-surface/5 text-xs">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="p-16 text-center text-white/50">
-                    <span className="w-8 h-8 border-3 border-amber-400 border-t-transparent rounded-full animate-spin inline-block mr-3" />
-                    Đang tải dữ liệu sản phẩm...
+                  <td colSpan={7} className="p-16 text-center text-on-surface/50">
+                    <span className="w-8 h-8 border-3 border-tertiary border-t-transparent rounded-full animate-spin inline-block mr-3" />
+                    Loading products…
                   </td>
                 </tr>
               ) : filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-16 text-center text-white/40">
-                    <Icon name="search_off" className="text-4xl text-white/20 mb-2 block mx-auto" />
-                    Không tìm thấy sản phẩm nào phù hợp với bộ lọc.
+                  <td colSpan={7} className="p-16 text-center text-on-surface/40">
+                    <Icon name="search_off" className="text-4xl text-on-surface/20 mb-2 block mx-auto" />
+                    No products match these filters.
                   </td>
                 </tr>
               ) : (
@@ -353,9 +335,9 @@ export default function ProductManagementTab({
                   const isDeleting = p.isDeleting
 
                   return (
-                    <tr key={p.id} className="hover:bg-white/5 transition-colors">
+                    <tr key={p.id} className="hover:bg-on-surface/5 transition-colors">
                       <td className="p-4">
-                        <div className="w-14 h-14 rounded-2xl bg-black/60 border border-white/10 flex items-center justify-center p-1.5 shadow-md overflow-hidden relative">
+                        <div className="w-14 h-14 rounded-2xl bg-obsidian/60 border border-on-surface/10 flex items-center justify-center p-1.5 shadow-md overflow-hidden relative">
                           <img
                             alt={p.name}
                             src={p.previewUrl || p.assetUrl}
@@ -365,62 +347,63 @@ export default function ProductManagementTab({
                             }}
                           />
                           {isDeleting ? (
-                            <div className="absolute inset-0 bg-rose-950/80 flex items-center justify-center text-rose-400">
-                              <Icon name="timer" className="text-xl animate-pulse" />
+                            <div className="absolute inset-0 bg-error-container/80 flex items-center justify-center text-error">
+                              <Icon name="timer" className="text-xl" />
                             </div>
                           ) : isMaintain ? (
-                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-amber-400" title="Đang tạm ngưng bán">
+                            <div className="absolute inset-0 bg-obsidian/60 flex items-center justify-center text-tertiary" title="Suspended">
                               <Icon name="pause_circle" className="text-lg" />
                             </div>
                           ) : null}
                         </div>
                       </td>
                       <td className="p-4">
-                        <span className="font-headline font-bold text-white text-sm block">
+                        <span className="font-headline font-bold text-on-surface text-sm block">
                           {p.name}
                         </span>
-                        <span className="text-[11px] text-white/50 block mt-0.5 max-w-xs truncate">
-                          {p.description || 'Chưa có mô tả'}
+                        <span className="text-[11px] text-on-surface/50 block mt-0.5 max-w-xs truncate">
+                          {p.description || 'No description'}
                         </span>
                       </td>
-                      <td className="p-4 text-white/80 font-medium">
-                        <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-white/80 font-semibold inline-block">
+                      <td className="p-4 text-on-surface/80 font-medium">
+                        <span className="px-2.5 py-1 rounded-lg bg-on-surface/5 border border-on-surface/10 text-on-surface/80 font-semibold inline-block">
                           {p.categoryName || p.categoryCode}
                         </span>
                       </td>
                       <td className="p-4">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${tier.className}`}>
+                        <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap ${tier.className}`}>
                           {tier.label}
                         </span>
                       </td>
                       <td className="p-4">
-                        <span className="text-amber-400 font-black text-sm block font-headline">
+                        <span className="text-tertiary font-bold text-sm block font-headline whitespace-nowrap">
                           {formatVipCoin(p.priceVipCoin)} VIP
                         </span>
-                        <span className="text-white/40 text-[11px] block mt-0.5">
+                        <span className="text-on-surface/40 text-[11px] block mt-0.5">
                           {formatVnd(p.priceVnd)}
                         </span>
                       </td>
                       <td className="p-4">
                         {isDeleting ? (
-                          <span className="text-rose-400 font-bold px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-[11px] inline-flex items-center gap-1 shadow-sm animate-pulse">
-                            <Icon name="timer" className="text-xs" /> Đang Chờ Xóa
+                          <span className="text-error font-bold px-2.5 py-0.5 rounded-full bg-error/15 border border-error/30 text-[11px] inline-flex items-center gap-1 shadow-sm">
+                            <Icon name="timer" className="text-xs" /> Pending deletion
                           </span>
                         ) : isMaintain ? (
-                          <span className="text-amber-300 font-bold px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-[11px] inline-flex items-center gap-1 shadow-sm">
-                            <Icon name="pause_circle" className="text-xs text-amber-400" /> Tạm Ngưng Bán
+                          <span className="text-tertiary-fixed font-bold px-2.5 py-0.5 rounded-full bg-tertiary/15 border border-tertiary/30 text-[11px] inline-flex items-center gap-1 shadow-sm">
+                            <Icon name="pause_circle" className="text-xs text-tertiary" /> Suspended
                           </span>
                         ) : p.isExclusive ? (
-                          <span className="text-rose-300 font-bold px-2 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-[11px] inline-flex items-center gap-1">
-                            <Icon name="lock" className="text-xs" /> Độc Quyền
+                          <span className="text-error font-bold px-2 py-0.5 rounded-full bg-error/10 border border-error/20 text-[11px] inline-flex items-center gap-1">
+                            <Icon name="lock" className="text-xs" /> Exclusive
                           </span>
                         ) : (
-                          <span className="text-emerald-400 font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[11px] inline-flex items-center gap-1">
-                            <Icon name="check_circle" className="text-xs" /> Mở Bán
+                          <span className="text-success font-bold px-2 py-0.5 rounded-full bg-success/10 border border-success/20 text-[11px] inline-flex items-center gap-1">
+                            <Icon name="check_circle" className="text-xs" /> On sale
                           </span>
                         )}
                       </td>
-                      <td className="p-4 text-right space-x-2 whitespace-nowrap">
+                      <td className="p-4">
+                        <div className="flex flex-wrap justify-end gap-2">
                         {/* CASE 1: Đang lên lịch xóa (isDeleting) */}
                         {isDeleting ? (
                           <>
@@ -428,20 +411,20 @@ export default function ProductManagementTab({
                               type="button"
                               disabled={isCancellingId === p.id}
                               onClick={() => handleCancelScheduledDeletion(p)}
-                              className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 border border-white/20 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
-                              title="Hủy lệnh đếm ngược xóa, đưa sản phẩm về Tạm Ngưng an toàn"
+                              className="px-3 py-1.5 rounded-xl bg-on-surface/10 hover:bg-on-surface/20 text-on-surface/80 border border-on-surface/20 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
+                              title="Cancel the deletion countdown and suspend the product"
                             >
                               <Icon name="undo" className="text-sm" />
-                              <span>Hủy Xóa</span>
+                              <span>Cancel deletion</span>
                             </button>
                             <button
                               type="button"
                               onClick={() => setProductToImmediateDelete(p)}
-                              className="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
-                              title="Hoàn tất tiêu hủy ngay và tự động hoàn trả 100% VIP Coin vào ví của toàn bộ người chơi sở hữu"
+                              className="px-3 py-1.5 rounded-xl bg-error/20 hover:bg-error/30 text-error border border-error/40 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
+                              title="Delete now and refund 100% of the VIP Coin to every owner"
                             >
                               <Icon name="delete_forever" className="text-sm" />
-                              <span>Tiêu Hủy Ngay</span>
+                              <span>Delete now</span>
                             </button>
                           </>
                         ) : isMaintain ? (
@@ -451,32 +434,32 @@ export default function ProductManagementTab({
                               type="button"
                               disabled={isActivatingId === p.id}
                               onClick={() => handleActivateProduct(p)}
-                              className="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
-                              title="Hoàn tất sửa đổi và mở bán lại sản phẩm trên Cửa Hàng (người chơi cũ vẫn giữ nguyên đồ)"
+                              className="px-3 py-1.5 rounded-xl bg-success/20 hover:bg-success/30 text-success border border-success/40 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
+                              title="Put the product back on sale (owners keep their items)"
                             >
                               <Icon
                                 name={isActivatingId === p.id ? 'progress_activity' : 'storefront'}
                                 className={`text-sm ${isActivatingId === p.id ? 'animate-spin' : ''}`}
                               />
-                              <span>Mở Bán Lại</span>
+                              <span>Put on sale</span>
                             </button>
                             <button
                               type="button"
                               onClick={() => onEditProduct?.(p)}
-                              className="px-3 py-1.5 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 border border-amber-400/40 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
-                              title="Chỉnh sửa thông tin, giá bán, hoặc texture của sản phẩm"
+                              className="px-3 py-1.5 rounded-xl bg-tertiary/20 hover:bg-tertiary/30 text-tertiary-fixed border border-tertiary/40 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
+                              title="Edit details, price or textures"
                             >
                               <Icon name="edit" className="text-sm" />
-                              <span>Sửa</span>
+                              <span>Edit</span>
                             </button>
                             <button
                               type="button"
                               onClick={() => setProductToScheduleDelete(p)}
-                              className="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
-                              title="Lên lịch xóa vĩnh viễn kèm thông báo toàn server và tự động hoàn tiền cho người chơi"
+                              className="px-3 py-1.5 rounded-xl bg-error/20 hover:bg-error/30 text-error border border-error/40 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
+                              title="Schedule deletion with a server-wide notice and automatic refunds"
                             >
                               <Icon name="timer" className="text-sm" />
-                              <span>Lên Lịch Xóa</span>
+                              <span>Schedule deletion</span>
                             </button>
                           </>
                         ) : (
@@ -488,15 +471,15 @@ export default function ProductManagementTab({
                                 setProductToRevoke(p)
                                 setRevokeReason('')
                               }}
-                              className="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
-                              title="Tạm ngưng bán trên Shop để bảo trì / sửa chữa (Kho đồ người chơi được bảo lưu an toàn 100%)"
+                              className="px-3 py-1.5 rounded-xl bg-tertiary/20 hover:bg-tertiary/30 text-tertiary-fixed border border-tertiary/30 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
+                              title="Take it off the shop for maintenance (owners keep their items)"
                             >
                               <Icon name="pause_circle" className="text-sm" />
-                              <span>Tạm Ngưng</span>
+                              <span>Suspend</span>
                             </button>
-                            
                           </>
                         )}
+                        </div>
                       </td>
                     </tr>
                   )
@@ -507,38 +490,38 @@ export default function ProductManagementTab({
         </div>
 
         {/* Pagination Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-white/10 bg-black/40 text-xs">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-on-surface/10 bg-obsidian/40 text-xs">
           {/* Left: Range info & size selector */}
-          <div className="flex items-center gap-3 text-white/60 flex-wrap">
+          <div className="flex items-center gap-3 text-on-surface/60 flex-wrap">
             <span>
-              Hiển thị{' '}
-              <strong className="text-white font-bold">
+              Showing{' '}
+              <strong className="text-on-surface font-bold">
                 {totalElements === 0 ? 0 : page * size + 1}
               </strong>{' '}
               -{' '}
-              <strong className="text-white font-bold">
+              <strong className="text-on-surface font-bold">
                 {Math.min((page + 1) * size, totalElements || products.length)}
               </strong>{' '}
-              trên tổng số{' '}
-              <strong className="text-amber-400 font-black">
+              of{' '}
+              <strong className="text-tertiary font-bold">
                 {totalElements || products.length}
               </strong>{' '}
-              sản phẩm
+              products
             </span>
-            <span className="text-white/20">|</span>
+            <span className="text-on-surface/20">|</span>
             <div className="flex items-center gap-1.5">
-              <span>Mỗi trang:</span>
+              <span>Per page:</span>
               <select
                 value={size}
                 onChange={e => {
                   setSize?.(Number(e.target.value))
                 }}
-                className="px-2.5 py-1 rounded-lg bg-black/60 border border-white/15 text-white font-bold focus:outline-none focus:border-amber-400 cursor-pointer"
+                className="px-2.5 py-1 rounded-lg bg-obsidian/60 border border-on-surface/15 text-on-surface font-bold focus:outline-none focus:border-tertiary cursor-pointer"
               >
-                <option value={5} className="bg-[#170a2c] text-white">5</option>
-                <option value={10} className="bg-[#170a2c] text-white">10</option>
-                <option value={20} className="bg-[#170a2c] text-white">20</option>
-                <option value={50} className="bg-[#170a2c] text-white">50</option>
+                <option value={5} className="bg-background text-on-surface">5</option>
+                <option value={10} className="bg-background text-on-surface">10</option>
+                <option value={20} className="bg-background text-on-surface">20</option>
+                <option value={50} className="bg-background text-on-surface">50</option>
               </select>
             </div>
           </div>
@@ -549,10 +532,10 @@ export default function ProductManagementTab({
               type="button"
               disabled={page === 0}
               onClick={() => setPage?.(page - 1)}
-              className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center gap-1"
+              className="px-3 py-1.5 rounded-xl bg-on-surface/5 hover:bg-on-surface/10 text-on-surface disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center gap-1"
             >
               <Icon name="chevron_left" className="text-base" />
-              <span>Trước</span>
+              <span>Previous</span>
             </button>
 
             {/* Numeric page pills */}
@@ -570,8 +553,8 @@ export default function ProductManagementTab({
                     onClick={() => setPage?.(pageNumber)}
                     className={`w-8 h-8 rounded-xl font-bold transition-all text-xs flex items-center justify-center ${
                       page === pageNumber
-                        ? 'bg-amber-400 text-slate-950 font-black shadow-md'
-                        : 'bg-white/5 hover:bg-white/10 text-white/70'
+                        ? 'bg-tertiary text-on-tertiary font-bold shadow-md'
+                        : 'bg-on-surface/5 hover:bg-on-surface/10 text-on-surface/70'
                     }`}
                   >
                     {pageNumber + 1}
@@ -584,9 +567,9 @@ export default function ProductManagementTab({
               type="button"
               disabled={page >= totalPages - 1}
               onClick={() => setPage?.(page + 1)}
-              className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center gap-1"
+              className="px-3 py-1.5 rounded-xl bg-on-surface/5 hover:bg-on-surface/10 text-on-surface disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center gap-1"
             >
-              <span>Tiếp</span>
+              <span>Next</span>
               <Icon name="chevron_right" className="text-base" />
             </button>
           </div>
@@ -625,24 +608,24 @@ export default function ProductManagementTab({
 
       {/* Custom Confirmation Modal for Putting into Maintain (TẠM NGƯNG BÁN) */}
       {productToRevoke && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-fade-in">
-          <div className="w-full max-w-xl rounded-3xl bg-gradient-to-b from-[#1e0f36] to-[#140826] border border-amber-500/40 p-6 sm:p-8 shadow-2xl space-y-5 text-white">
-            <div className="flex items-center gap-4 pb-3 border-b border-white/10">
-              <span className="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-lg shadow-amber-950/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-obsidian/80 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-xl rounded-2xl bg-surface-container-low border border-tertiary/40 p-6 sm:p-8 shadow-raised space-y-5 text-on-surface">
+            <div className="flex items-center gap-4 pb-3 border-b border-on-surface/10">
+              <span className="w-14 h-14 rounded-2xl bg-tertiary/20 text-tertiary border border-tertiary/30 flex items-center justify-center shrink-0 shadow-lg">
                 <Icon name="pause_circle" className="text-3xl" />
               </span>
               <div>
-                <h3 className="font-headline font-black text-xl text-white">
-                  Chuyển Sang Trạng Thái Tạm Ngưng Bán
+                <h3 className="font-headline font-bold text-xl text-on-surface">
+                  Suspend product
                 </h3>
-                <p className="text-sm text-amber-300/80 mt-0.5">
-                  Tạm dừng bán trên Cửa Hàng • Kho đồ người chơi được bảo lưu an toàn 100%
+                <p className="text-sm text-tertiary-fixed/80 mt-0.5">
+                  Removed from the shop · Owners keep their items
                 </p>
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-black/50 border border-white/10 flex items-center gap-4">
-              <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 p-1 flex items-center justify-center shrink-0">
+            <div className="p-4 rounded-2xl bg-obsidian/50 border border-on-surface/10 flex items-center gap-4">
+              <div className="w-14 h-14 rounded-xl bg-on-surface/5 border border-on-surface/10 p-1 flex items-center justify-center shrink-0">
                 <img
                   alt={productToRevoke.name}
                   src={productToRevoke.previewUrl || productToRevoke.assetUrl}
@@ -653,29 +636,29 @@ export default function ProductManagementTab({
                 />
               </div>
               <div className="min-w-0">
-                <span className="font-headline font-bold text-base text-white block truncate">
+                <span className="font-headline font-bold text-base text-on-surface block truncate">
                   {productToRevoke.name}
                 </span>
-                <span className="text-sm text-amber-400 font-mono font-bold block mt-0.5">
+                <span className="text-sm text-tertiary font-mono font-bold block mt-0.5">
                   {formatVipCoin(productToRevoke.priceVipCoin)} VIP Coin
                 </span>
               </div>
             </div>
 
-            <p className="text-sm text-white/90 leading-relaxed bg-amber-500/10 p-4 rounded-2xl border border-amber-500/20">
-              Sản phẩm sẽ được chuyển sang <strong>Tạm Ngưng Bán (Maintain)</strong> và tạm dừng xuất hiện trên Cửa Hàng. <strong>Người chơi đã mua trước đó vẫn giữ nguyên vật phẩm trong kho đồ</strong>. Bạn có thể bấm <strong>Sửa</strong> để cập nhật thông tin/texture hoặc bấm <strong>Mở Bán Lại</strong> bất kỳ lúc nào mà không làm ảnh hưởng đến người chơi.
+            <p className="text-sm text-on-surface/90 leading-relaxed bg-tertiary/10 p-4 rounded-2xl border border-tertiary/20">
+              The product will be <strong>suspended (MAINTAIN)</strong> and hidden from the shop. <strong>Players who bought it keep it in their inventory</strong>. You can press <strong>Edit</strong> to update details or textures, or press <strong>Put on sale</strong> at any time without affecting players.
             </p>
 
             <div className="space-y-2">
-              <label className="block text-sm font-bold text-white">
-                Ghi chú lý do tạm ngưng bán <span className="text-rose-400">*</span>:
+              <label className="block text-sm font-bold text-on-surface">
+                Reason for suspending <span className="text-error">*</span>:
               </label>
               <textarea
                 rows={3}
                 value={revokeReason}
                 onChange={e => setRevokeReason(e.target.value)}
-                placeholder="Ví dụ: Tạm dừng để cập nhật texture / Chuẩn bị kết thúc mùa giải..."
-                className="w-full px-4 py-3 rounded-2xl bg-black/60 border border-white/15 text-white placeholder-white/30 text-sm focus:outline-none focus:border-amber-400"
+                placeholder="e.g. Updating textures / Season ending soon"
+                className="w-full px-4 py-3 rounded-2xl bg-obsidian/60 border border-on-surface/15 text-on-surface placeholder-on-surface/30 text-sm focus:outline-none focus:border-tertiary"
               />
             </div>
 
@@ -686,16 +669,16 @@ export default function ProductManagementTab({
                 disabled={isRevoking}
                 onClick={() => setProductToRevoke(null)}
               >
-                Hủy Bỏ
+                Cancel
               </Button>
               <Button
                 variant="primary"
                 size="md"
                 loading={isRevoking}
                 onClick={handleConfirmRevoke}
-                className="bg-amber-600 hover:bg-amber-500 text-white border-none shadow-lg shadow-amber-950 font-bold"
+                className="bg-tertiary-container hover:bg-tertiary text-on-tertiary border-none shadow-lg font-bold"
               >
-                Xác Nhận Tạm Ngưng
+                Suspend
               </Button>
             </div>
           </div>
@@ -704,24 +687,24 @@ export default function ProductManagementTab({
 
       {/* Confirmation Modal for Immediate Final Delete & Auto-Refund */}
       {productToImmediateDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md animate-fade-in">
-          <div className="w-full max-w-xl rounded-3xl bg-gradient-to-b from-[#1e0a2e] to-[#12041d] border border-rose-500/40 p-6 sm:p-8 shadow-2xl space-y-5 text-white">
-            <div className="flex items-center gap-4 pb-3 border-b border-white/10">
-              <span className="w-14 h-14 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center shrink-0 shadow-lg shadow-rose-950/60">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-obsidian/85 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-xl rounded-2xl bg-background border border-error/40 p-6 sm:p-8 shadow-raised space-y-5 text-on-surface">
+            <div className="flex items-center gap-4 pb-3 border-b border-on-surface/10">
+              <span className="w-14 h-14 rounded-2xl bg-error/20 text-error border border-error/30 flex items-center justify-center shrink-0 shadow-lg">
                 <Icon name="delete_forever" className="text-3xl" />
               </span>
               <div>
-                <h3 className="font-headline font-black text-xl text-white">
-                  Xác Nhận Tiêu Hủy & Auto-Refund
+                <h3 className="font-headline font-bold text-xl text-on-surface">
+                  Delete and refund
                 </h3>
-                <p className="text-sm text-rose-300/80 mt-0.5">
-                  Xóa vĩnh viễn và TỰ ĐỘNG hoàn 100% coin cho toàn bộ người chơi
+                <p className="text-sm text-error/80 mt-0.5">
+                  Deletes permanently and refunds 100% of the coins to every owner
                 </p>
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-black/50 border border-white/10 flex items-center gap-4">
-              <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 p-1 flex items-center justify-center shrink-0">
+            <div className="p-4 rounded-2xl bg-obsidian/50 border border-on-surface/10 flex items-center gap-4">
+              <div className="w-14 h-14 rounded-xl bg-on-surface/5 border border-on-surface/10 p-1 flex items-center justify-center shrink-0">
                 <img
                   alt={productToImmediateDelete.name}
                   src={productToImmediateDelete.previewUrl || productToImmediateDelete.assetUrl}
@@ -732,17 +715,17 @@ export default function ProductManagementTab({
                 />
               </div>
               <div className="min-w-0">
-                <span className="font-headline font-bold text-base text-white block truncate">
+                <span className="font-headline font-bold text-base text-on-surface block truncate">
                   {productToImmediateDelete.name}
                 </span>
-                <span className="text-sm text-amber-400 font-mono font-bold block mt-0.5">
+                <span className="text-sm text-tertiary font-mono font-bold block mt-0.5">
                   {formatVipCoin(productToImmediateDelete.priceVipCoin)} VIP Coin
                 </span>
               </div>
             </div>
 
-            <p className="text-sm text-rose-100/90 leading-relaxed bg-rose-500/15 p-4 rounded-2xl border border-rose-500/30">
-              Hệ thống sẽ xóa vĩnh viễn sản phẩm này khỏi toàn bộ database, đồng thời <strong>TỰ ĐỘNG CỘNG THẲNG 100% VIP COIN</strong> vào ví của tất cả người chơi đang sở hữu vật phẩm này. Người chơi không cần phải gửi ticket hay chờ duyệt.
+            <p className="text-sm text-error/90 leading-relaxed bg-error/15 p-4 rounded-2xl border border-error/30">
+              This product is removed from the database and <strong>100% of the VIP Coin is credited back</strong> to every player who owns it. No ticket or approval needed.
             </p>
 
             <div className="pt-2 flex items-center justify-end gap-3">
@@ -752,16 +735,16 @@ export default function ProductManagementTab({
                 disabled={isDeletingExecuting}
                 onClick={() => setProductToImmediateDelete(null)}
               >
-                Hủy Bỏ
+                Cancel
               </Button>
               <Button
                 variant="danger"
                 size="md"
                 loading={isDeletingExecuting}
                 onClick={handleConfirmExecuteDeletion}
-                className="bg-rose-600 hover:bg-rose-500 text-white font-bold shadow-lg shadow-rose-950 px-5 py-2.5"
+                className="bg-error-container hover:bg-error-container/80 text-on-error-container font-bold shadow-lg px-5 py-2.5"
               >
-                Xác Nhận Xóa & Hoàn Tiền Ngay
+                Delete and refund now
               </Button>
             </div>
           </div>

@@ -180,7 +180,7 @@ export function createFeltTexture(): THREE.CanvasTexture {
   ctx.textBaseline = 'middle';
   ctx.fillStyle = 'rgba(255, 208, 238, 0.14)';
   ctx.font = `800 96px ${FONT}`;
-  ctx.fillText('POKER TÍM', w / 2, markY - 18);
+  ctx.fillText('POKER RANK', w / 2, markY - 18);
   ctx.font = `600 34px ${FONT}`;
   ctx.fillStyle = 'rgba(229, 196, 87, 0.32)';
   ctx.fillText("TEXAS HOLD'EM · NO LIMIT", w / 2, markY + 58);

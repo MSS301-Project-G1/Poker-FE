@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { useAuth } from '@/features/auth'
 import { paths } from '@/shared/config/paths'
-import { Button, Eyebrow, Icon } from '@/shared/ui'
+import { Button, Icon } from '@/shared/ui'
 import * as rooms from './api/roomApi'
 import Panel from './components/Panel'
 import RoomControls from './components/RoomControls'
@@ -72,12 +72,11 @@ function RoomLobby({ roomCode, retry }) {
       <Button onClick={() => navigate(paths.rooms)}>All rooms</Button>
     </div>
     {room.status === 'PLAYING' && <Panel className={styles.playing} aria-label="Match in progress">
-      <div><Eyebrow>MATCH IN PROGRESS</Eyebrow><p className={styles.muted}>The room returns here when the match ends.</p></div>
+      <div><h2 className={styles.sectionTitle}>Match in progress</h2><p className={styles.muted}>The room returns here when the match ends.</p></div>
       {room.tableId && <Button variant="primary" onClick={() => navigate(tableLink(room.tableId, devUser))}>Open table</Button>}
     </Panel>}
     <div className={styles.grid}>
       <Panel aria-label="Players">
-        <Eyebrow>SEATING ORDER</Eyebrow>
         <h2 className={styles.sectionTitle}>Players</h2>
         <SeatList room={room} accountId={accountId} profiles={profiles} busy={busy}
           onKick={target => quietly(act(rooms.kickMember, target))}

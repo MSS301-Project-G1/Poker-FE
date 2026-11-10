@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { useAuth } from '@/features/auth'
 import { paths } from '@/shared/config/paths'
-import { Button, Eyebrow, useConfirm, useToast } from '@/shared/ui'
+import { Button, useConfirm, useToast } from '@/shared/ui'
 import { confirmTournament, registerTournament } from './api/tournamentApi'
 import Bracket from './components/Bracket'
 import EntryPanel from './components/EntryPanel'
@@ -90,12 +90,12 @@ function TournamentView({ id, retry }) {
     <div className={styles.grid}>
       <div className={styles.main}>
         <Panel aria-labelledby="bracket-title">
-          <header><Eyebrow>BRACKET</Eyebrow><h2 id="bracket-title" className={styles.sectionTitle}>Tables</h2></header>
+          <header><h2 id="bracket-title" className={styles.sectionTitle}>Tables</h2></header>
           <Bracket tournament={tournament} profiles={profiles} accountId={accountId}
             onOpenTable={tableId => navigate(tableLink(tableId, devUser))} />
         </Panel>
         <Panel aria-labelledby="players-title">
-          <header><Eyebrow>FIELD</Eyebrow><h2 id="players-title" className={styles.sectionTitle}>Players · {taken} / {tournament.slots}</h2></header>
+          <header><h2 id="players-title" className={styles.sectionTitle}>Players · {taken} / {tournament.slots}</h2></header>
           {entries.length > 0 ? <PlayerList entries={entries} profiles={profiles} accountId={accountId} />
             : <p className={styles.muted}>{tournament.type === 'ELITE' ? 'Invitations have not been sent yet.' : 'No one has registered yet.'}</p>}
         </Panel>

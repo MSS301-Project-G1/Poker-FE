@@ -53,7 +53,7 @@ export default function CosmeticRenderer({
     return (
       <div className={`${styles.rendererWrapper} ${className}`}>
         <div className="relative flex flex-col items-center justify-center p-3">
-          <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-amber-500 via-purple-500 to-rose-500 shadow-xl relative overflow-hidden flex items-center justify-center">
+          <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-tertiary via-secondary-container to-error shadow-xl relative overflow-hidden flex items-center justify-center">
             {dealerImg && !imageError ? (
               <img
                 src={dealerImg}
@@ -62,10 +62,10 @@ export default function CosmeticRenderer({
                 onError={() => setImageError(true)}
               />
             ) : (
-              <Icon name="person" className="text-4xl text-amber-300" />
+              <Icon name="person" className="text-4xl text-tertiary-fixed" />
             )}
           </div>
-          <span className="mt-2 text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30">
+          <span className="mt-2 text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-full bg-tertiary/20 text-tertiary-fixed border border-tertiary/30">
             DEALER
           </span>
         </div>
@@ -75,8 +75,8 @@ export default function CosmeticRenderer({
 
   // 1. Table Felt Renderer
   if (normalizedCategory.includes('TABLE')) {
-    const isRedTable = productName.toLowerCase().includes('đỏ')
-    const isBlueTable = productName.toLowerCase().includes('lam') || productName.toLowerCase().includes('dạ quang')
+    const isRedTable = productName.toLowerCase().includes('đỏ') || productName.toLowerCase().includes('red')
+    const isBlueTable = productName.toLowerCase().includes('lam') || productName.toLowerCase().includes('dạ quang') || productName.toLowerCase().includes('blue') || productName.toLowerCase().includes('neon')
     const tableImg = previewUrl || assetUrl
     return (
       <div className={`${styles.rendererWrapper} ${className}`}>
@@ -104,7 +104,7 @@ export default function CosmeticRenderer({
 
   // 2. VFX / All-In / Victory Effect Renderer
   if (normalizedCategory.includes('EFFECT')) {
-    const isFlame = productName.toLowerCase().includes('lửa') || productName.toLowerCase().includes('rồng')
+    const isFlame = ['lửa', 'rồng', 'fire', 'flame', 'dragon'].some(word => productName.toLowerCase().includes(word))
     const effectImg = previewUrl || assetUrl
     return (
       <div className={`${styles.rendererWrapper} ${className}`}>
@@ -112,7 +112,7 @@ export default function CosmeticRenderer({
           <div className={`${styles.effectAura} ${isFlame ? styles.effectFlameAura : ''}`} />
           {effectImg && !imageError ? (
             <div className="relative z-10 flex flex-col items-center gap-1.5">
-              <div className="w-20 h-20 rounded-2xl overflow-hidden border border-amber-400/40 bg-black/60 p-1 flex items-center justify-center shadow-xl">
+              <div className="w-20 h-20 rounded-2xl overflow-hidden border border-tertiary/40 bg-obsidian/60 p-1 flex items-center justify-center shadow-xl">
                 <img
                   src={effectImg}
                   alt={productName || 'VFX'}
@@ -147,7 +147,7 @@ export default function CosmeticRenderer({
         <div className={styles.frameStage}>
           {frameImg && !imageError ? (
             <div className="relative w-24 h-24 flex items-center justify-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-purple-900 to-indigo-950 flex items-center justify-center text-white/50">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-on-secondary-fixed to-on-secondary-fixed flex items-center justify-center text-on-surface/50">
                 <Icon name="person" className="text-3xl" />
               </div>
               <img
@@ -177,7 +177,7 @@ export default function CosmeticRenderer({
       <div className={`${styles.rendererWrapper} ${className}`}>
         <div className="relative flex flex-col items-center justify-center p-2">
           {chipImg && !imageError ? (
-            <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-amber-400/60 shadow-2xl bg-black/60 flex items-center justify-center p-0.5 relative group">
+            <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-tertiary/60 shadow-2xl bg-obsidian/60 flex items-center justify-center p-0.5 relative group">
               <img
                 src={chipImg}
                 alt={productName || 'Poker Chip'}
@@ -190,7 +190,7 @@ export default function CosmeticRenderer({
               <div className={styles.chipCenter}>VIP</div>
             </div>
           )}
-          <span className="mt-2 text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 uppercase">
+          <span className="mt-2 text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full bg-tertiary/20 text-tertiary-fixed border border-tertiary/30 uppercase">
             CHIP VIP
           </span>
         </div>
@@ -204,7 +204,7 @@ export default function CosmeticRenderer({
     return (
       <div className={`${styles.rendererWrapper} ${className}`}>
         <div className="relative flex flex-col items-center justify-center p-4">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-amber-400 p-1 shadow-2xl flex items-center justify-center relative overflow-hidden group">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-secondary-container via-secondary-container to-tertiary p-1 shadow-2xl flex items-center justify-center relative overflow-hidden group">
             {soundImg && !imageError ? (
               <img
                 src={soundImg}
@@ -213,17 +213,17 @@ export default function CosmeticRenderer({
                 onError={() => setImageError(true)}
               />
             ) : (
-              <div className="w-full h-full rounded-full bg-black/85 flex items-center justify-center border-2 border-dashed border-amber-400/40">
-                <Icon name="graphic_eq" className="text-4xl text-amber-400 animate-pulse" />
+              <div className="w-full h-full rounded-full bg-obsidian/85 flex items-center justify-center border-2 border-dashed border-tertiary/40">
+                <Icon name="graphic_eq" className="text-4xl text-tertiary animate-pulse" />
               </div>
             )}
-            <div className="absolute inset-0 bg-amber-400/10 rounded-full animate-ping pointer-events-none" />
+            <div className="absolute inset-0 bg-tertiary/10 rounded-full animate-ping pointer-events-none" />
           </div>
-          <span className="mt-2.5 text-[10px] font-black tracking-widest px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 uppercase">
-            ÂM THANH FX
+          <span className="mt-2.5 text-[10px] font-black tracking-widest px-2.5 py-0.5 rounded-full bg-secondary-container/20 text-secondary border border-secondary-container/30 uppercase">
+            SOUND FX
           </span>
-          <span className="text-[11px] text-white/70 font-bold mt-1 text-center max-w-[140px] truncate">
-            {productName || 'Hiệu Ứng Âm Thanh'}
+          <span className="text-[11px] text-on-surface/70 font-bold mt-1 text-center max-w-[140px] truncate">
+            {productName || 'Sound effect'}
           </span>
         </div>
       </div>
@@ -236,7 +236,7 @@ export default function CosmeticRenderer({
     return (
       <div className={`${styles.rendererWrapper} ${className}`}>
         <div className="relative flex flex-col items-center justify-center p-4">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-600 p-2 shadow-xl flex items-center justify-center">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-tertiary to-tertiary-container p-2 shadow-xl flex items-center justify-center">
             {emojiImg && !imageError ? (
               <img
                 src={emojiImg}
@@ -245,10 +245,10 @@ export default function CosmeticRenderer({
                 onError={() => setImageError(true)}
               />
             ) : (
-              <Icon name="sentiment_very_satisfied" className="text-4xl text-slate-950" />
+              <Icon name="sentiment_very_satisfied" className="text-4xl text-on-tertiary" />
             )}
           </div>
-          <span className="mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 uppercase">
+          <span className="mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-tertiary/20 text-tertiary-fixed border border-tertiary/30 uppercase">
             EMOJI
           </span>
         </div>
@@ -262,7 +262,7 @@ export default function CosmeticRenderer({
     return (
       <div className={`${styles.rendererWrapper} ${className}`}>
         <div className="relative flex flex-col items-center justify-center p-4">
-          <div className="w-24 h-24 rounded-2xl bg-black/60 border border-amber-400/30 p-2 shadow-xl flex items-center justify-center overflow-hidden">
+          <div className="w-24 h-24 rounded-2xl bg-obsidian/60 border border-tertiary/30 p-2 shadow-xl flex items-center justify-center overflow-hidden">
             {genImg && !imageError ? (
               <img
                 src={genImg}
@@ -271,11 +271,11 @@ export default function CosmeticRenderer({
                 onError={() => setImageError(true)}
               />
             ) : (
-              <Icon name="category" className="text-4xl text-amber-400/60" />
+              <Icon name="category" className="text-4xl text-tertiary/60" />
             )}
           </div>
-          <span className="mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-white/80 border border-white/10 uppercase">
-            {normalizedCategory || 'VẬT PHẨM'}
+          <span className="mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-on-surface/10 text-on-surface/80 border border-on-surface/10 uppercase">
+            {normalizedCategory || 'ITEM'}
           </span>
         </div>
       </div>

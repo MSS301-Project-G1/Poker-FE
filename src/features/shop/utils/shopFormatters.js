@@ -4,12 +4,12 @@
 
 export function formatVipCoin(amount) {
   if (amount === undefined || amount === null) return '0'
-  return new Intl.NumberFormat('vi-VN').format(amount)
+  return new Intl.NumberFormat('en-US').format(amount)
 }
 
 export function formatVnd(amount) {
-  if (amount === undefined || amount === null) return '0 đ'
-  return new Intl.NumberFormat('vi-VN', {
+  if (amount === undefined || amount === null) return '₫0'
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'VND',
     maximumFractionDigits: 0,
@@ -20,8 +20,8 @@ export function getTierBadge(tier) {
   switch (tier) {
     case 'SUPER_VIP':
       return {
-        label: 'SUPER VIP',
-        className: 'bg-gradient-to-r from-amber-500 to-yellow-300 text-slate-950 font-black shadow-md shadow-amber-500/20',
+        label: 'Super VIP',
+        className: 'bg-tertiary text-on-tertiary font-bold',
       }
     case 'VIP':
       return {
@@ -31,7 +31,7 @@ export function getTierBadge(tier) {
     case 'NORMAL':
     default:
       return {
-        label: 'STANDARD',
+        label: 'Standard',
         className: 'bg-surface-container-high text-on-surface-variant font-medium',
       }
   }

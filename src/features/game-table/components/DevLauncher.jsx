@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { paths } from '@/shared/config/paths'
 import { rememberDevIdentity } from '@/shared/lib/devIdentity'
-import { Button, Eyebrow } from '@/shared/ui'
+import { Button } from '@/shared/ui'
 import { createDevTable } from '../api/gameApi'
 import styles from './DevLauncher.module.css'
 
@@ -27,7 +27,7 @@ export default function DevLauncher() {
     finally { setBusy(false) }
   }
 
-  return <section className={styles.panel} aria-label="Local game tools"><Eyebrow>LOCAL DEVELOPMENT</Eyebrow><h2>Play against bots</h2>
+  return <section className={styles.panel} aria-label="Local game tools"><h2>Play against bots</h2>
     <p>Create a local table to test actions, reconnect and side pots.</p>
     {error && <p className={styles.error} role="alert">{error}</p>}
     {!table ? <form className={styles.form} onSubmit={create}><label>Humans<input aria-label="Human players" type="number" min="1" max="6" value={humans} onChange={event => setHumans(Number(event.target.value))} /></label>

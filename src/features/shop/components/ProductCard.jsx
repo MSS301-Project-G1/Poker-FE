@@ -25,9 +25,9 @@ export default function ProductCard({
     const days = Math.floor(diffMs / (1000 * 60 * 60 * 24))
     const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24)
     const minutes = Math.floor((diffMs / (1000 * 60)) % 60)
-    if (days > 0) return `Còn ${days}n ${hours}h`
-    if (hours > 0) return `Còn ${hours}h ${minutes}p`
-    return `Còn ${minutes}p`
+    if (days > 0) return `${days}d ${hours}h left`
+    if (hours > 0) return `${hours}h ${minutes}m left`
+    return `${minutes}m left`
   }, [product.isExclusive, product.saleExpiresAt])
 
   const getTierClass = tier => {
@@ -48,13 +48,13 @@ export default function ProductCard({
   const getTierLabel = tier => {
     switch (tier) {
       case 'SUPER_VIP':
-        return 'SUPER VIP'
+        return 'Super VIP'
       case 'VIP':
         return 'VIP'
       case 'NORMAL':
-        return 'STANDARD'
+        return 'Standard'
       default:
-        return tier || 'STANDARD'
+        return tier || 'Standard'
     }
   }
 
@@ -73,22 +73,22 @@ export default function ProductCard({
 
         {isEquipped ? (
           <span className={`${styles.statusBadge} ${styles.statusEquipped}`}>
-            <Icon name="check_circle" className="text-xs" /> Đang Dùng
+            <Icon name="check_circle" className="text-xs" /> In use
           </span>
         ) : product.isOwned ? (
           <span className={`${styles.statusBadge} ${styles.statusOwned}`}>
-            <Icon name="verified" className="text-xs" /> Đã Sở Hữu
+            <Icon name="verified" className="text-xs" /> Owned
           </span>
         ) : saleRemaining ? (
           <span
             className={`${styles.statusBadge} ${styles.statusFlashSale}`}
-            title={`Mở bán có hạn đến ${new Date(product.saleExpiresAt).toLocaleString()}`}
+            title={`On sale until ${new Date(product.saleExpiresAt).toLocaleString()}`}
           >
-            <Icon name="bolt" className="text-xs text-amber-300" /> {saleRemaining}
+            <Icon name="bolt" className="text-xs text-tertiary-fixed" /> {saleRemaining}
           </span>
         ) : product.isExclusive ? (
           <span className={`${styles.statusBadge} ${styles.statusExclusive}`}>
-            <Icon name="lock" className="text-xs" /> Độc Quyền
+            <Icon name="lock" className="text-xs" /> Exclusive
           </span>
         ) : null}
       </div>
@@ -103,13 +103,13 @@ export default function ProductCard({
           rank="A"
           suit="S"
         />
-        <span className={styles.categoryTag}>{product.categoryName || 'Vật phẩm'}</span>
+        <span className={styles.categoryTag}>{product.categoryName || 'Item'}</span>
 
         {/* Floating Eye / 52-Card Badge for Deck Skins */}
         {isDeckSkin && (
           <button
             type="button"
-            title="Xem trọn bộ 52 lá bài"
+            title="View all 52 cards"
             onClick={e => {
               e.stopPropagation()
               navigate(`/shop/products/${product.id}`)
@@ -117,7 +117,7 @@ export default function ProductCard({
             className={styles.previewInspectBadge}
           >
             <Icon name="visibility" className="text-xs" />
-            <span>Xem 52 Lá</span>
+            <span>View 52 cards</span>
           </button>
         )}
       </div>
@@ -128,7 +128,7 @@ export default function ProductCard({
           {product.name}
         </h4>
         <p className={styles.description}>
-          {product.description || 'Skin và vật phẩm trang trí bàn chơi poker.'}
+          {product.description || 'Skins and cosmetics for the poker table.'}
         </p>
       </div>
 
@@ -137,7 +137,7 @@ export default function ProductCard({
         {product.isOwned ? (
           <div className={styles.ownedTag}>
             <Icon name="inventory_2" />
-            <span>Trong túi đồ</span>
+            <span>In inventory</span>
           </div>
         ) : (
           <div className={styles.priceArea}>
@@ -158,7 +158,7 @@ export default function ProductCard({
               icon="check_circle"
               className={styles.btnEquipped}
             >
-              Đã trang bị
+              Equipped
             </Button>
           ) : product.isOwned ? (
             <Button
@@ -171,11 +171,11 @@ export default function ProductCard({
                 onEquip?.(product)
               }}
             >
-              Trang bị
+              Equip
             </Button>
           ) : product.isExclusive ? (
             <Button variant="secondary" size="sm" disabled>
-              Khóa
+              Locked
             </Button>
           ) : (
             <Button
@@ -187,7 +187,7 @@ export default function ProductCard({
                 onBuy?.(product)
               }}
             >
-              Mua ngay
+              Buy now
             </Button>
           )}
         </div>

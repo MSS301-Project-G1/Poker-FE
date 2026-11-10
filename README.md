@@ -57,7 +57,6 @@ and the three WebSocket endpoints from the Internet.
 | `/lobby` | Lobby and daily check-in | `src/features/lobby/LobbyPage.jsx` |
 | `/ranked` | Ranked matchmaking | `src/features/ranked/RankedPage.jsx` |
 | `/shop` | Cosmetics shop | `src/features/shop/ShopPage.jsx` |
-| `/events`, `/mailbox` | Placeholders (no Stitch design yet) | `src/features/events`, `src/features/mailbox` |
 | `/table` or `/table/:tableId` | Connected poker table | `src/features/game-table/GameTablePage.jsx` |
 | `/admin/match-settings` | Match settings editor | `src/features/admin/match-settings/MatchSettingsPage.jsx` |
 
@@ -80,14 +79,14 @@ Dependencies only point downwards (`app → features → shared → styles`); ES
 ## Design and implementation notes
 
 - `docs/design-system.md` records the Stitch palette and visual direction. Pages compose section components from their feature's `components/` folder.
-- `public/stitch-assets` contains English versions of the Stitch artwork. Original images with Vietnamese text remain in the local reference archive and are excluded from Git. Two unavailable source image links use local SVG logo/avatar placeholders.
+- `public/stitch-assets` contains English versions of the Stitch artwork. Original images with Vietnamese text remain in the local reference archive and are excluded from Git. `logo.svg` is the Poker Rank mark (a gold spade with an upward chevron) and doubles as the favicon; `avatar.svg` is the fallback avatar.
 - `src/styles/tokens.css` defines the Stitch color, spacing, typography, shadow and z-index tokens as CSS variables; `tailwind.config.js` only maps class names to them, and CSS Modules read them directly. Sora, Outfit, and Material Symbols are stored locally under `public/fonts`.
 - Routing uses React Router (`src/app/router.jsx`). Registration, email verification, cookie sessions and sign-in connect to auth through the API gateway. Game table actions and Admin Match Settings connect to the game service. Matchmaking, reward and some shop interactions remain frontend demos; full profiles, chat, skins and reward sources require their later integration phases.
 - Product direction: players top up to buy cosmetic skins. There is no VIP tier, diamond balance, or Ruby currency. The shop shows no prices until payment and product data are defined.
 
 ## Suggested next work
 
-Connect the API and authentication flow, replace the demo data arrays in each feature's components with server data, and add the missing Events/Mailbox designs.
+Replace the remaining frontend demos (some reward and shop interactions) with server data.
 
 ## Connected game development
 

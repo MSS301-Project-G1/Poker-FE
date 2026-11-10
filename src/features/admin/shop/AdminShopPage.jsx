@@ -51,51 +51,38 @@ export default function AdminShopPage() {
   } = useAdminBundles()
 
   return (
-    <div className="relative w-full pb-32 text-white font-body-md">
-      {/* Background ambient lighting */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
-        <div className="absolute -top-32 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[140px]" />
-        <div className="absolute top-1/2 right-10 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[140px]" />
-      </div>
-
+    <div className="relative w-full pb-32 text-on-surface font-body-md">
       <div className="w-full px-4 md:px-8 xl:px-12 pt-6">
         {/* Top Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-space-md mb-space-lg border-b border-white/10">
-          <div className="flex items-center gap-3">
-            <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center font-black shadow-lg">
-              <Icon name="admin_panel_settings" className="text-xl" />
-            </span>
-            <div>
-              <h1 className="font-headline font-black text-xl md:text-2xl text-white">
-                Cổng Quản Trị Hệ Thống Shop & Nạp Tiền
-              </h1>
-              <p className="text-xs text-white/50">Quản lý sản phẩm, danh mục, gói nạp và tài nguyên mỹ phẩm</p>
-            </div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-space-md mb-space-lg border-b border-on-surface/10">
+          <div>
+            <h1 className="font-headline-lg text-headline-lg text-on-surface">Shop & top-ups</h1>
+            <p className="mt-1 text-sm text-on-surface-variant">Manage products, categories, coin packs and cosmetic assets</p>
           </div>
 
           <div className="flex items-center gap-3">
             <Button variant="secondary" size="sm" icon="storefront" onClick={() => navigate('/shop')}>
-              Xem Cửa Hàng
+              View shop
             </Button>
             <Button variant="secondary" size="sm" icon="home" onClick={() => navigate('/lobby')}>
-              Sảnh Game
+              Lobby
             </Button>
           </div>
         </div>
 
         {/* Tab Navigation for Shop Management */}
-        <div className="flex flex-wrap gap-2 mb-6 border-b border-white/10 pb-4">
+        <div className="flex flex-wrap gap-2 mb-6 border-b border-on-surface/10 pb-4">
           <button
             type="button"
             onClick={() => { setEditingProduct(null); setActiveTab('PRODUCTS') }}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-label-action text-sm font-semibold transition-all ${
               activeTab === 'PRODUCTS'
                 ? 'bg-primary-container text-on-primary-container shadow-md'
-                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-white'
+                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'
             }`}
           >
             <Icon name="inventory_2" />
-            <span>Quản Lý Kho Hàng ({totalElements || products.length})</span>
+            <span>Products ({totalElements || products.length})</span>
           </button>
 
           <button
@@ -104,11 +91,11 @@ export default function AdminShopPage() {
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-label-action text-sm font-semibold transition-all ${
               activeTab === 'ADD_PRODUCT'
                 ? 'bg-primary-container text-on-primary-container shadow-md'
-                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-white'
+                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'
             }`}
           >
             <Icon name="add_circle" />
-            <span>Thêm Vật Phẩm & Skin</span>
+            <span>Add item</span>
           </button>
 
           <button
@@ -117,11 +104,11 @@ export default function AdminShopPage() {
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-label-action text-sm font-semibold transition-all ${
               activeTab === 'BUNDLES'
                 ? 'bg-primary-container text-on-primary-container shadow-md'
-                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-white'
+                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'
             }`}
           >
             <Icon name="payments" />
-            <span>Gói Nạp VIP Coin ({bundles.length})</span>
+            <span>Coin packs ({bundles.length})</span>
           </button>
 
           <button
@@ -130,11 +117,11 @@ export default function AdminShopPage() {
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-label-action text-sm font-semibold transition-all ${
               activeTab === 'CATEGORIES'
                 ? 'bg-primary-container text-on-primary-container shadow-md'
-                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-white'
+                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'
             }`}
           >
             <Icon name="category" />
-            <span>Quản Lý Danh Mục</span>
+            <span>Categories</span>
           </button>
         </div>
 

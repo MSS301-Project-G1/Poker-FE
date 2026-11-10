@@ -3,7 +3,6 @@ import { createRenderer, resizeRenderer } from './engine/core/Renderer'
 import { TableScene } from './engine/scene/table-scene'
 import { Tweens } from './engine/scene/tweens'
 import { slotsForPlayers } from './engine/scene/table-layout'
-import { BOT_ROSTER } from './engine/meta/bot-roster'
 import { disposeObject3D } from './engine/utils/dispose'
 
 /** Decorative lounge only: geometry/lighting from poker-3d, no simulated account or queue. */
@@ -13,7 +12,8 @@ export function createLobbyScene(canvas: HTMLCanvasElement): () => void {
   const camera = new THREE.PerspectiveCamera(42, 1, .1, 80)
   const tweens = new Tweens()
   const table = new TableScene(scene, camera, tweens)
-  table.setupPlayers([null, ...BOT_ROSTER.slice(0, 5).map(bot => bot.avatar)], slotsForPlayers(6))
+  // Real players only sit at real tables; the lounge shows an open table with empty chairs.
+  table.setupPlayers(Array(6).fill(null), slotsForPlayers(6), true)
   table.setView('lobby')
   table.useFixedLobbyCamera()
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')

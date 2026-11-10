@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { TierBadge } from '@/features/ranking'
-import { Button, Eyebrow } from '@/shared/ui'
+import { Button, Caption } from '@/shared/ui'
 import { formatCoins, formatDate, summarize } from '../format'
 import RewardItems from './RewardItems'
 import styles from './ClaimCard.module.css'
@@ -23,8 +23,8 @@ export default function ClaimCard({ item, onClaim }) {
   return <article className={`${styles.card} ${item.claimed ? styles.claimed : ''}`} aria-label={`${item.seasonName} rewards`}>
     <header className={styles.header}>
       <div>
-        <Eyebrow>ENDED {formatDate(item.endAt).toUpperCase()}</Eyebrow>
         <h3 className={styles.title}>{item.seasonName}</h3>
+        <Caption>Ended {formatDate(item.endAt)}</Caption>
       </div>
       <div className={styles.final}><span className={styles.label}>Final tier</span><TierBadge tier={item.finalTier} /></div>
     </header>

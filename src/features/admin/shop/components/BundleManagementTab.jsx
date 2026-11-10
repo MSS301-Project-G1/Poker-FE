@@ -21,7 +21,7 @@ export default function BundleManagementTab({
   const [priceVnd, setPriceVnd] = useState(10000)
   const [baseVipCoin, setBaseVipCoin] = useState(10)
   const [bonusVipCoin, setBonusVipCoin] = useState(0)
-  const [badgeLabel, setBadgeLabel] = useState('Phổ thông')
+  const [badgeLabel, setBadgeLabel] = useState('Standard')
 
   // Edit Form state
   const [isEditOpen, setIsEditOpen] = useState(false)
@@ -31,7 +31,7 @@ export default function BundleManagementTab({
   const [editPriceVnd, setEditPriceVnd] = useState(10000)
   const [editBaseVipCoin, setEditBaseVipCoin] = useState(10)
   const [editBonusVipCoin, setEditBonusVipCoin] = useState(0)
-  const [editBadgeLabel, setEditBadgeLabel] = useState('Phổ thông')
+  const [editBadgeLabel, setEditBadgeLabel] = useState('Standard')
   const [editSortOrder, setEditSortOrder] = useState(0)
 
   // Delete State
@@ -67,16 +67,16 @@ export default function BundleManagementTab({
   const handleToggle = async (id, currentStatus) => {
     try {
       await toggleBundleActive(id, !currentStatus)
-      notify(`Đã ${!currentStatus ? 'bật mở bán' : 'tắt'} gói nạp!`, { type: 'success' })
+      notify(`Coin pack ${!currentStatus ? 'is on sale' : 'taken off sale'}.`, { type: 'success' })
       onRefresh()
     } catch (err) {
-      notify(err.message || 'Thay đổi trạng thái thất bại', { type: 'error' })
+      notify(err.message || 'Couldn’t change the status', { type: 'error' })
     }
   }
 
   const handleOpenEdit = (b) => {
     if (b.isActive) {
-      notify('Vui lòng Tắt Bán gói nạp trước khi chỉnh sửa thông tin!', { type: 'warning' })
+      notify('Take the pack off sale before editing it.', { type: 'warning' })
       return
     }
     setEditingBundle(b)
@@ -85,14 +85,14 @@ export default function BundleManagementTab({
     setEditPriceVnd(b.priceVnd || 0)
     setEditBaseVipCoin(b.baseVipCoin || 0)
     setEditBonusVipCoin(b.bonusVipCoin || 0)
-    setEditBadgeLabel(b.badgeLabel || 'Phổ thông')
+    setEditBadgeLabel(b.badgeLabel || 'Standard')
     setEditSortOrder(b.sortOrder ?? 0)
     setIsEditOpen(true)
   }
 
   const handleOpenDelete = (b) => {
     if (b.isActive) {
-      notify('Vui lòng Tắt Bán gói nạp trước khi xóa khỏi hệ thống!', { type: 'warning' })
+      notify('Take the pack off sale before deleting it.', { type: 'warning' })
       return
     }
     setBundleToDelete(b)
@@ -113,21 +113,21 @@ export default function BundleManagementTab({
         baseVipCoin: baseCoin,
         bonusVipCoin: bonusCoin,
         bonusPercentage: bonusPct,
-        badgeLabel: badgeLabel?.trim() || 'Phổ thông',
+        badgeLabel: badgeLabel?.trim() || 'Standard',
         isActive: true,
         sortOrder: 0,
       })
-      notify('Tạo gói nạp mới thành công!', { type: 'success' })
+      notify('Coin pack created.', { type: 'success' })
       setName('')
       setCode('')
       setPriceVnd(10000)
       setBaseVipCoin(10)
       setBonusVipCoin(0)
-      setBadgeLabel('Phổ thông')
+      setBadgeLabel('Standard')
       setIsCreateOpen(false)
       onRefresh()
     } catch (err) {
-      notify(err.message || 'Tạo gói nạp thất bại', { type: 'error' })
+      notify(err.message || 'Couldn’t create the coin pack', { type: 'error' })
     } finally {
       setIsSubmitting(false)
     }
@@ -149,16 +149,16 @@ export default function BundleManagementTab({
         baseVipCoin: baseCoin,
         bonusVipCoin: bonusCoin,
         bonusPercentage: bonusPct,
-        badgeLabel: editBadgeLabel?.trim() || 'Phổ thông',
+        badgeLabel: editBadgeLabel?.trim() || 'Standard',
         sortOrder: Number(editSortOrder) || 0,
         isActive: false,
       })
-      notify(`Cập nhật gói nạp "${editName.trim()}" thành công!`, { type: 'success' })
+      notify(`Updated “${editName.trim()}”.`, { type: 'success' })
       setIsEditOpen(false)
       setEditingBundle(null)
       onRefresh()
     } catch (err) {
-      notify(err.message || 'Cập nhật gói nạp thất bại', { type: 'error' })
+      notify(err.message || 'Couldn’t update the coin pack', { type: 'error' })
     } finally {
       setIsSubmitting(false)
     }
@@ -169,11 +169,11 @@ export default function BundleManagementTab({
     setIsDeleting(true)
     try {
       await deleteBundle(bundleToDelete.id)
-      notify(`Đã xóa vĩnh viễn gói nạp ${bundleToDelete.name}!`, { type: 'success' })
+      notify(`Deleted ${bundleToDelete.name}.`, { type: 'success' })
       setBundleToDelete(null)
       onRefresh()
     } catch (err) {
-      notify(err.message || 'Xóa gói nạp thất bại', { type: 'error' })
+      notify(err.message || 'Couldn’t delete the coin pack', { type: 'error' })
     } finally {
       setIsDeleting(false)
     }
@@ -182,47 +182,47 @@ export default function BundleManagementTab({
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-[#140a24]/95 border border-white/10 shadow-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-surface-container-lowest/95 border border-on-surface/10 shadow-raised">
         <div>
-          <h2 className="font-headline font-black text-2xl text-white flex items-center gap-3">
-            <Icon name="paid" className="text-amber-400 text-3xl" />
-            <span>Quản Lý Gói Nạp VIP Coin (PayOS)</span>
+          <h2 className="font-headline font-bold text-2xl text-on-surface flex items-center gap-3">
+            <Icon name="paid" className="text-tertiary text-3xl" />
+            <span>VIP Coin packs (PayOS)</span>
           </h2>
-          <p className="text-sm text-white/60 mt-1">
-            Cấu hình bảng tỷ lệ quy đổi VND sang VIP Coin và khuyến mãi nạp tiền trực tuyến
+          <p className="text-sm text-on-surface/60 mt-1">
+            Set VND to VIP Coin rates and top-up bonuses
           </p>
         </div>
 
         <Button variant="gold" size="md" icon="add" onClick={() => setIsCreateOpen(true)}>
-          Thêm Gói Nạp
+          Add coin pack
         </Button>
       </div>
 
       {/* Action / Search Toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-on-surface/5 border border-on-surface/10">
         <div className="flex items-center gap-3 flex-wrap">
           <select
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
-            className="px-4 py-2.5 rounded-xl bg-black/60 border border-white/20 text-white text-sm font-bold focus:outline-none focus:border-amber-400 cursor-pointer"
+            className="px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm font-bold focus:outline-none focus:border-tertiary cursor-pointer"
           >
-            <option value="ALL">Tất cả trạng thái</option>
-            <option value="ACTIVE">Đang Mở Bán</option>
-            <option value="INACTIVE">Tạm Dừng Bán</option>
+            <option value="ALL">All statuses</option>
+            <option value="ACTIVE">On sale</option>
+            <option value="INACTIVE">Off sale</option>
           </select>
 
           <select
             value={sortOption}
             onChange={e => setSortOption(e.target.value)}
-            className="px-4 py-2.5 rounded-xl bg-black/60 border border-white/20 text-amber-400 text-sm font-bold focus:outline-none focus:border-amber-400 cursor-pointer"
+            className="px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-tertiary text-sm font-bold focus:outline-none focus:border-tertiary cursor-pointer"
           >
-            <option value="PRICE_ASC">Giá: Thấp → Cao (Tăng dần)</option>
-            <option value="PRICE_DESC">Giá: Cao → Thấp (Giảm dần)</option>
-            <option value="DEFAULT">Thứ tự mặc định hệ thống</option>
+            <option value="PRICE_ASC">Price: low to high</option>
+            <option value="PRICE_DESC">Price: high to low</option>
+            <option value="DEFAULT">Default order</option>
           </select>
 
-          <span className="text-xs font-bold text-white/50 px-2">
-            Hiển thị <span className="text-amber-400 font-extrabold">{filteredBundles.length}</span> / {bundles.length} gói nạp
+          <span className="text-xs font-bold text-on-surface/50 px-2">
+            Showing <span className="text-tertiary font-bold">{filteredBundles.length}</span> / {bundles.length} coin packs
           </span>
         </div>
 
@@ -230,36 +230,36 @@ export default function BundleManagementTab({
         <div className="relative min-w-[280px]">
           <Icon
             name="search"
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-lg pointer-events-none"
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface/40 text-lg pointer-events-none"
           />
           <input
             type="text"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            placeholder="Tìm theo tên gói, mã code..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/60 border border-white/20 text-white text-sm placeholder:text-white/40 focus:outline-none focus:border-amber-400"
+            placeholder="Search by name or code…"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm placeholder:text-on-surface/40 focus:outline-none focus:border-tertiary"
           />
         </div>
       </div>
 
       {/* Bundles Table */}
-      <div className="rounded-2xl bg-[#140a24]/95 border border-white/10 overflow-hidden shadow-2xl">
+      <div className="rounded-2xl bg-surface-container-lowest/95 border border-on-surface/10 overflow-hidden shadow-raised">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-sm">
             <thead>
-              <tr className="border-b border-white/10 bg-white/[0.04] text-white/70 font-extrabold uppercase tracking-wider text-xs">
-                <th className="py-4 px-5">Mã Gói</th>
-                <th className="py-4 px-5">Tên Gói</th>
+              <tr className="border-b border-on-surface/10 bg-on-surface/[0.04] text-on-surface/70 font-bold text-xs">
+                <th className="py-3 px-3">Code</th>
+                <th className="py-3 px-3">Name</th>
                 <th
-                  className="py-4 px-5 cursor-pointer select-none group/th hover:text-amber-300 transition-colors"
+                  className="py-3 px-3 cursor-pointer select-none group/th hover:text-tertiary-fixed transition-colors"
                   onClick={() => {
                     setSortOption(prev => (prev === 'PRICE_ASC' ? 'PRICE_DESC' : 'PRICE_ASC'))
                   }}
-                  title="Bấm để đổi sắp xếp theo giá tiền"
+                  title="Click to sort by price"
                 >
                   <div className="flex items-center gap-1.5">
-                    <span>Giá Bán VND</span>
-                    <span className="text-amber-400">
+                    <span>Price (VND)</span>
+                    <span className="text-tertiary">
                       {sortOption === 'PRICE_ASC' ? (
                         <Icon name="arrow_upward" className="text-xs" />
                       ) : sortOption === 'PRICE_DESC' ? (
@@ -270,116 +270,116 @@ export default function BundleManagementTab({
                     </span>
                   </div>
                 </th>
-                <th className="py-4 px-5">VIP Gốc / Thưởng</th>
-                <th className="py-4 px-5">Tổng VIP Coin</th>
-                <th className="py-4 px-5">Nhãn Badge</th>
-                <th className="py-4 px-5">Trạng Thái</th>
-                <th className="py-4 px-5 text-right">Hành Động</th>
+                <th className="py-3 px-3">Base / bonus VIP</th>
+                <th className="py-3 px-3">Total VIP Coin</th>
+                <th className="py-3 px-3">Badge</th>
+                <th className="py-3 px-3">Status</th>
+                <th className="py-3 px-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-on-surface/5">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="py-16 text-center text-white/50 text-base">
-                    <span className="w-7 h-7 border-3 border-amber-400 border-t-transparent rounded-full animate-spin inline-block mr-3" />
-                    Đang tải danh sách gói nạp...
+                  <td colSpan={8} className="py-16 text-center text-on-surface/50 text-base">
+                    <span className="w-7 h-7 border-3 border-tertiary border-t-transparent rounded-full animate-spin inline-block mr-3" />
+                    Loading coin packs…
                   </td>
                 </tr>
               ) : filteredBundles.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-16 text-center text-white/50 text-base">
-                    Không tìm thấy gói nạp phù hợp.
+                  <td colSpan={8} className="py-16 text-center text-on-surface/50 text-base">
+                    No matching coin packs.
                   </td>
                 </tr>
               ) : (
                 filteredBundles.map(b => (
-                  <tr key={b.id} className="hover:bg-white/5 transition-colors">
-                    <td className="py-4 px-5 font-bold text-white/80 tracking-wide font-mono text-xs">
+                  <tr key={b.id} className="hover:bg-on-surface/5 transition-colors">
+                    <td className="py-3 px-3 font-bold text-on-surface/80 font-mono text-xs">
                       {b.code}
                     </td>
-                    <td className="py-4 px-5 font-extrabold text-white text-base">
+                    <td className="py-3 px-3 font-bold text-on-surface text-base">
                       {b.name}
                     </td>
-                    <td className="py-4 px-5 font-headline font-black text-amber-400 text-base">
+                    <td className="py-3 px-3 whitespace-nowrap font-headline font-bold text-tertiary text-base">
                       {formatVnd(b.priceVnd)}
                     </td>
-                    <td className="py-4 px-5 font-medium text-white/80">
-                      <span className="font-headline font-bold text-white text-sm">
+                    <td className="py-3 px-3 whitespace-nowrap font-medium text-on-surface/80">
+                      <span className="font-headline font-bold text-on-surface text-sm">
                         {formatVipCoin(b.baseVipCoin)} VIP
                       </span>
                       {b.bonusPercentage > 0 ? (
-                        <span className="text-emerald-400 font-bold ml-2 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20 text-xs">
+                        <span className="text-success font-bold ml-2 bg-success/10 px-2 py-0.5 rounded-md border border-success/20 text-xs">
                           +{b.bonusPercentage}%
                         </span>
                       ) : (
-                        <span className="text-white/40 ml-2 text-xs font-normal">(Gốc)</span>
+                        <span className="text-on-surface/40 ml-2 text-xs font-normal">(base)</span>
                       )}
                     </td>
-                    <td className="py-4 px-5 font-headline font-black text-amber-400 text-base">
+                    <td className="py-3 px-3 whitespace-nowrap font-headline font-bold text-tertiary text-base">
                       {formatVipCoin(b.totalVipCoin)} VIP
                     </td>
-                    <td className="py-4 px-5">
-                      <span className="px-3 py-1 rounded-full text-xs font-black uppercase bg-amber-400/20 text-amber-300 border border-amber-400/30 tracking-wider">
-                        {b.badgeLabel && b.badgeLabel.toLowerCase() !== 'string' ? b.badgeLabel : 'Tiêu Chuẩn'}
+                    <td className="py-3 px-3">
+                      <span className="whitespace-nowrap px-3 py-1 rounded-full text-xs font-bold bg-tertiary/20 text-tertiary-fixed border border-tertiary/30">
+                        {b.badgeLabel && b.badgeLabel.toLowerCase() !== 'string' ? b.badgeLabel : 'Standard'}
                       </span>
                     </td>
-                    <td className="py-4 px-5">
+                    <td className="py-3 px-3">
                       {b.isActive ? (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                          Đang Bán
+                        <span className="whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-success/20 text-success border border-success/30">
+                          <span className="w-2 h-2 rounded-full bg-success" />
+                          On sale
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-white/50 border border-white/10">
-                          <span className="w-2 h-2 rounded-full bg-white/30" />
-                          Tạm Dừng
+                        <span className="whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-on-surface/10 text-on-surface/50 border border-on-surface/10">
+                          <span className="w-2 h-2 rounded-full bg-on-surface/30" />
+                          Off sale
                         </span>
                       )}
                     </td>
-                    <td className="py-4 px-5 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="py-3 px-3">
+                      <div className="flex flex-wrap items-center justify-end gap-2">
                         {/* Nút Bật/Tắt Bán */}
                         <button
                           type="button"
                           onClick={() => handleToggle(b.id, b.isActive)}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                          className={`whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                             b.isActive
-                              ? 'bg-amber-500/15 text-amber-300 border-amber-500/30 hover:bg-amber-500/25 hover:text-white'
-                              : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/25 hover:text-white'
+                              ? 'bg-tertiary/15 text-tertiary-fixed border-tertiary/30 hover:bg-tertiary/25 hover:text-on-surface'
+                              : 'bg-success/15 text-success border-success/30 hover:bg-success/25 hover:text-on-surface'
                           }`}
-                          title={b.isActive ? 'Tắt bán gói này để có thể sửa hoặc xóa' : 'Bật mở bán gói nạp cho người dùng'}
+                          title={b.isActive ? 'Take this pack off sale to edit or delete it' : 'Put this pack on sale'}
                         >
-                          {b.isActive ? 'Tắt Bán' : 'Bật Bán'}
+                          {b.isActive ? 'Take off sale' : 'Put on sale'}
                         </button>
 
                         {/* Nút Sửa: Chỉ sửa được khi đã Tắt Bán */}
                         <button
                           type="button"
                           onClick={() => handleOpenEdit(b)}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 ${
+                          className={`whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 ${
                             b.isActive
-                              ? 'bg-white/5 text-white/30 border-white/10 cursor-not-allowed'
-                              : 'bg-sky-500/15 text-sky-300 border-sky-500/30 hover:bg-sky-500/25 hover:text-white cursor-pointer'
+                              ? 'bg-on-surface/5 text-on-surface/30 border-on-surface/10 cursor-not-allowed'
+                              : 'bg-primary-container/15 text-primary border-primary-container/30 hover:bg-primary-container/25 hover:text-on-surface cursor-pointer'
                           }`}
-                          title={b.isActive ? 'Vui lòng Tắt Bán gói nạp trước khi chỉnh sửa thông tin!' : 'Chỉnh sửa thông tin gói nạp'}
+                          title={b.isActive ? 'Take the pack off sale before editing it.' : 'Edit coin pack'}
                         >
                           <Icon name={b.isActive ? 'lock' : 'edit'} className="text-sm" />
-                          <span>Sửa</span>
+                          <span>Edit</span>
                         </button>
 
                         {/* Nút Xóa: Chỉ xóa được khi đã Tắt Bán */}
                         <button
                           type="button"
                           onClick={() => handleOpenDelete(b)}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 ${
+                          className={`whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 ${
                             b.isActive
-                              ? 'bg-white/5 text-white/30 border-white/10 cursor-not-allowed'
-                              : 'bg-rose-500/15 text-rose-300 border-rose-500/30 hover:bg-rose-500/25 hover:text-white cursor-pointer'
+                              ? 'bg-on-surface/5 text-on-surface/30 border-on-surface/10 cursor-not-allowed'
+                              : 'bg-error/15 text-error border-error/30 hover:bg-error/25 hover:text-on-surface cursor-pointer'
                           }`}
-                          title={b.isActive ? 'Vui lòng Tắt Bán gói nạp trước khi xóa khỏi hệ thống!' : 'Xóa vĩnh viễn gói nạp'}
+                          title={b.isActive ? 'Take the pack off sale before deleting it.' : 'Delete coin pack'}
                         >
                           <Icon name={b.isActive ? 'lock' : 'delete'} className="text-sm" />
-                          <span>Xóa</span>
+                          <span>Delete</span>
                         </button>
                       </div>
                     </td>
@@ -393,85 +393,85 @@ export default function BundleManagementTab({
 
       {/* Modal Thêm Gói Nạp */}
       {isCreateOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-lg rounded-3xl bg-[#170c2a] border border-white/20 p-7 shadow-2xl">
-            <h3 className="font-headline font-black text-xl text-white mb-5 flex items-center gap-2">
-              <Icon name="add_circle" className="text-amber-400" />
-              <span>Tạo Gói Nạp VIP Coin Mới</span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/80 backdrop-blur-md">
+          <div className="w-full max-w-lg rounded-2xl bg-background border border-on-surface/20 p-7 shadow-raised">
+            <h3 className="font-headline font-bold text-xl text-on-surface mb-5 flex items-center gap-2">
+              <Icon name="add_circle" className="text-tertiary" />
+              <span>New VIP Coin pack</span>
             </h3>
             <form onSubmit={handleCreate} className="space-y-4 text-sm">
               <div>
-                <label className="text-white/80 block mb-1.5 font-bold">Tên Gói (Hiển thị):</label>
+                <label className="text-on-surface/80 block mb-1.5 font-bold">Display name:</label>
                 <input
                   type="text"
                   required
-                  placeholder="Gói Siêu Cấp 500K (+20%)"
+                  placeholder="Super pack 500K (+20%)"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/20 text-white text-sm focus:outline-none focus:border-amber-400"
+                  className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-tertiary"
                 />
               </div>
               <div>
-                <label className="text-white/80 block mb-1.5 font-bold">Mã Gói (Code duy nhất):</label>
+                <label className="text-on-surface/80 block mb-1.5 font-bold">Code (unique):</label>
                 <input
                   type="text"
                   required
                   placeholder="BUNDLE_500K_PROMO"
                   value={code}
                   onChange={e => setCode(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/20 text-white text-sm font-mono focus:outline-none focus:border-amber-400"
+                  className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm font-mono focus:outline-none focus:border-tertiary"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-white/80 block mb-1.5 font-bold">Giá Tiền (VND):</label>
+                  <label className="text-on-surface/80 block mb-1.5 font-bold">Price (VND):</label>
                   <input
                     type="number"
                     min="0"
                     value={priceVnd}
                     onChange={e => setPriceVnd(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/20 text-white text-sm focus:outline-none focus:border-amber-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-tertiary"
                   />
                 </div>
                 <div>
-                  <label className="text-white/80 block mb-1.5 font-bold">VIP Coin Gốc:</label>
+                  <label className="text-on-surface/80 block mb-1.5 font-bold">Base VIP Coin:</label>
                   <input
                     type="number"
                     min="1"
                     value={baseVipCoin}
                     onChange={e => setBaseVipCoin(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/20 text-white text-sm focus:outline-none focus:border-amber-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-tertiary"
                   />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-white/80 block mb-1.5 font-bold">VIP Coin Thưởng (Bonus):</label>
+                  <label className="text-on-surface/80 block mb-1.5 font-bold">Bonus VIP Coin:</label>
                   <input
                     type="number"
                     min="0"
                     value={bonusVipCoin}
                     onChange={e => setBonusVipCoin(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/20 text-white text-sm focus:outline-none focus:border-amber-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-tertiary"
                   />
                 </div>
                 <div>
-                  <label className="text-white/80 block mb-1.5 font-bold">Nhãn Badge:</label>
+                  <label className="text-on-surface/80 block mb-1.5 font-bold">Badge:</label>
                   <input
                     type="text"
                     value={badgeLabel}
                     onChange={e => setBadgeLabel(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/20 text-white text-sm focus:outline-none focus:border-amber-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-tertiary"
                   />
                 </div>
               </div>
 
               <div className="pt-4 flex justify-end gap-3">
                 <Button variant="secondary" size="md" type="button" onClick={() => setIsCreateOpen(false)}>
-                  Hủy
+                  Cancel
                 </Button>
                 <Button variant="gold" size="md" type="submit" loading={isSubmitting}>
-                  Tạo Gói Nạp
+                  Create coin pack
                 </Button>
               </div>
             </form>
@@ -481,111 +481,111 @@ export default function BundleManagementTab({
 
       {/* Modal Chỉnh Sửa Gói Nạp */}
       {isEditOpen && editingBundle && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-lg rounded-3xl bg-[#170c2a] border border-white/20 p-7 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/80 backdrop-blur-md">
+          <div className="w-full max-w-lg rounded-2xl bg-background border border-on-surface/20 p-7 shadow-raised">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-headline font-black text-xl text-white flex items-center gap-2">
-                <Icon name="edit" className="text-sky-400" />
-                <span>Chỉnh Sửa Gói Nạp</span>
+              <h3 className="font-headline font-bold text-xl text-on-surface flex items-center gap-2">
+                <Icon name="edit" className="text-primary" />
+                <span>Edit coin pack</span>
               </h3>
-              <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-white/10 text-white/70">
+              <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-on-surface/10 text-on-surface/70">
                 {editingBundle.code}
               </span>
             </div>
 
-            <div className="p-3 mb-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200/90 flex items-start gap-2">
-              <Icon name="info" className="text-amber-400 shrink-0 text-base mt-0.5" />
+            <div className="p-3 mb-4 rounded-xl bg-tertiary/10 border border-tertiary/20 text-xs text-tertiary-fixed/90 flex items-start gap-2">
+              <Icon name="info" className="text-tertiary shrink-0 text-base mt-0.5" />
               <span>
-                Gói nạp đang ở trạng thái <strong>Tắt Bán</strong> an toàn. Bạn có thể sửa các thông số và chủ động Bật Bán lại sau khi hoàn tất.
+                This pack is <strong>off sale</strong>, so it’s safe to edit. Put it back on sale when you’re done.
               </span>
             </div>
 
             <form onSubmit={handleUpdate} className="space-y-4 text-sm">
               <div>
-                <label className="text-white/80 block mb-1.5 font-bold">Tên Gói (Hiển thị):</label>
+                <label className="text-on-surface/80 block mb-1.5 font-bold">Display name:</label>
                 <input
                   type="text"
                   required
                   value={editName}
                   onChange={e => setEditName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/20 text-white text-sm focus:outline-none focus:border-sky-400"
+                  className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-primary"
                 />
               </div>
 
               <div>
-                <label className="text-white/80 block mb-1.5 font-bold">Mã Gói (Code duy nhất):</label>
+                <label className="text-on-surface/80 block mb-1.5 font-bold">Code (unique):</label>
                 <input
                   type="text"
                   required
                   placeholder="BUNDLE_10K"
                   value={editCode}
                   onChange={e => setEditCode(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/20 text-white text-sm font-mono focus:outline-none focus:border-sky-400"
+                  className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm font-mono focus:outline-none focus:border-primary"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-white/80 block mb-1.5 font-bold">Giá Tiền (VND):</label>
+                  <label className="text-on-surface/80 block mb-1.5 font-bold">Price (VND):</label>
                   <input
                     type="number"
                     min="0"
                     value={editPriceVnd}
                     onChange={e => setEditPriceVnd(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/20 text-white text-sm focus:outline-none focus:border-sky-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-primary"
                   />
                 </div>
                 <div>
-                  <label className="text-white/80 block mb-1.5 font-bold">VIP Coin Gốc:</label>
+                  <label className="text-on-surface/80 block mb-1.5 font-bold">Base VIP Coin:</label>
                   <input
                     type="number"
                     min="1"
                     value={editBaseVipCoin}
                     onChange={e => setEditBaseVipCoin(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/20 text-white text-sm focus:outline-none focus:border-sky-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-primary"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-white/80 block mb-1.5 font-bold">VIP Coin Thưởng (Bonus):</label>
+                  <label className="text-on-surface/80 block mb-1.5 font-bold">Bonus VIP Coin:</label>
                   <input
                     type="number"
                     min="0"
                     value={editBonusVipCoin}
                     onChange={e => setEditBonusVipCoin(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/20 text-white text-sm focus:outline-none focus:border-sky-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-primary"
                   />
                 </div>
                 <div>
-                  <label className="text-white/80 block mb-1.5 font-bold">Nhãn Badge:</label>
+                  <label className="text-on-surface/80 block mb-1.5 font-bold">Badge:</label>
                   <input
                     type="text"
                     value={editBadgeLabel}
                     onChange={e => setEditBadgeLabel(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/20 text-white text-sm focus:outline-none focus:border-sky-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-primary"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-white/80 block mb-1.5 font-bold">Thứ Tự Sắp Xếp (Sort Order):</label>
+                <label className="text-on-surface/80 block mb-1.5 font-bold">Sort order:</label>
                 <input
                   type="number"
                   value={editSortOrder}
                   onChange={e => setEditSortOrder(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/20 text-white text-sm focus:outline-none focus:border-sky-400"
+                  className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-primary"
                 />
               </div>
 
               {/* Tổng kết quy đổi */}
-              <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex justify-between items-center text-xs">
-                <span className="text-white/60">Tổng VIP Coin người dùng nhận:</span>
-                <span className="font-headline font-bold text-amber-400 text-sm">
+              <div className="p-3 rounded-xl bg-on-surface/5 border border-on-surface/10 flex justify-between items-center text-xs">
+                <span className="text-on-surface/60">Total VIP Coin the player gets:</span>
+                <span className="font-headline font-bold text-tertiary text-sm">
                   {formatVipCoin((Number(editBaseVipCoin) || 0) + (Number(editBonusVipCoin) || 0))} VIP
                   {Number(editBaseVipCoin) > 0 && Number(editBonusVipCoin) > 0 && (
-                    <span className="ml-1 text-emerald-400 text-xs">
+                    <span className="ml-1 text-success text-xs">
                       (+{Math.round(((Number(editBonusVipCoin) || 0) / (Number(editBaseVipCoin) || 1)) * 100)}%)
                     </span>
                   )}
@@ -594,10 +594,10 @@ export default function BundleManagementTab({
 
               <div className="pt-4 flex justify-end gap-3">
                 <Button variant="secondary" size="md" type="button" onClick={() => setIsEditOpen(false)}>
-                  Hủy
+                  Cancel
                 </Button>
                 <Button variant="gold" size="md" type="submit" loading={isSubmitting}>
-                  Lưu Thay Đổi
+                  Save changes
                 </Button>
               </div>
             </form>
@@ -607,26 +607,26 @@ export default function BundleManagementTab({
 
       {/* Modal Xác Nhận Xóa Gói Nạp */}
       {bundleToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-md rounded-3xl bg-[#170c2a] border border-rose-500/30 p-7 shadow-2xl">
-            <div className="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-400 flex items-center justify-center mx-auto mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/80 backdrop-blur-md">
+          <div className="w-full max-w-md rounded-2xl bg-background border border-error/30 p-7 shadow-raised">
+            <div className="w-12 h-12 rounded-2xl bg-error/20 border border-error/40 text-error flex items-center justify-center mx-auto mb-4">
               <Icon name="delete_forever" className="text-3xl" />
             </div>
 
-            <h3 className="font-headline font-black text-xl text-white text-center mb-2">
-              Xóa Vĩnh Viễn Gói Nạp?
+            <h3 className="font-headline font-bold text-xl text-on-surface text-center mb-2">
+              Delete coin pack?
             </h3>
 
-            <p className="text-sm text-white/70 text-center mb-4">
-              Bạn có chắc chắn muốn xóa gói{' '}
-              <strong className="text-white font-extrabold">{bundleToDelete.name}</strong> (
-              <span className="font-mono text-xs text-amber-300">{bundleToDelete.code}</span>)?
+            <p className="text-sm text-on-surface/70 text-center mb-4">
+              Are you sure you want to delete{' '}
+              <strong className="text-on-surface font-bold">{bundleToDelete.name}</strong> (
+              <span className="font-mono text-xs text-tertiary-fixed">{bundleToDelete.code}</span>)?
             </p>
 
-            <div className="p-3 mb-6 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200/90 flex items-start gap-2 text-left">
-              <Icon name="warning" className="text-amber-400 shrink-0 text-base mt-0.5" />
+            <div className="p-3 mb-6 rounded-xl bg-tertiary/10 border border-tertiary/20 text-xs text-tertiary-fixed/90 flex items-start gap-2 text-left">
+              <Icon name="warning" className="text-tertiary shrink-0 text-base mt-0.5" />
               <span>
-                <strong>Lưu ý:</strong> Nếu gói nạp đã từng có người chơi giao dịch (đơn nạp tiền), hệ thống sẽ từ chối xóa vật lý để đảm bảo đối soát kế toán. Trong trường hợp đó, bạn chỉ cần giữ gói ở trạng thái <strong>Tắt Bán</strong>.
+                <strong>Note:</strong> If anyone has bought this pack, the server won’t delete it so the accounting stays intact. In that case, keep it <strong>Take off sale</strong>.
               </span>
             </div>
 
@@ -638,18 +638,18 @@ export default function BundleManagementTab({
                 onClick={() => setBundleToDelete(null)}
                 disabled={isDeleting}
               >
-                Hủy Bỏ
+                Cancel
               </Button>
               <button
                 type="button"
                 onClick={handleConfirmDelete}
                 disabled={isDeleting}
-                className="px-5 py-2.5 rounded-xl font-bold text-sm bg-rose-600 hover:bg-rose-500 text-white transition-all shadow-lg hover:shadow-rose-600/30 disabled:opacity-50 cursor-pointer flex items-center gap-2"
+                className="px-5 py-2.5 rounded-xl font-bold text-sm bg-error-container hover:bg-error-container/80 text-on-error-container transition-all shadow-lg disabled:opacity-50 cursor-pointer flex items-center gap-2"
               >
                 {isDeleting && (
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" />
+                  <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin inline-block" />
                 )}
-                <span>Xác Nhận Xóa</span>
+                <span>Delete</span>
               </button>
             </div>
           </div>

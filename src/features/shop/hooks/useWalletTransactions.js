@@ -32,7 +32,7 @@ export function useWalletTransactions() {
       }
     } catch (err) {
       if (err?.name !== 'AbortError') {
-        setError(err.message || 'Không thể tải lịch sử giao dịch')
+        setError(err.message || 'Couldn’t load transactions')
       }
     } finally {
       setLoading(false)

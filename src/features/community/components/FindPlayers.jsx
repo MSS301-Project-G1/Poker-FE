@@ -19,19 +19,19 @@ export default function FindPlayers({ busy, run }) {
   async function copyCode() {
     try {
       await navigator.clipboard.writeText(own.data.playerCode)
-      setCopyNotice('Đã sao chép mã người chơi.')
+      setCopyNotice('Player code copied.')
     } catch {
-      setCopyNotice('Chưa sao chép được. Bạn có thể chọn và sao chép mã bên trên.')
+      setCopyNotice('Couldn’t copy. You can select and copy the code above.')
     }
   }
 
-  return <section className={ui.finder} aria-label="Tìm và kết bạn">
+  return <section className={ui.finder} aria-label="Find players">
     <div className={ui.identity}>
       <div className={ui.identityText}>
-        <span>Mã người chơi của bạn</span>
-        <strong>{own.data?.playerCode || (own.loading ? 'Đang tải…' : 'Chưa tải được')}</strong>
+        <span>Your player code</span>
+        <strong>{own.data?.playerCode || (own.loading ? 'Loading…' : 'Couldn’t load')}</strong>
       </div>
-      <Button disabled={!own.data?.playerCode} onClick={copyCode}>Sao chép mã</Button>
+      <Button disabled={!own.data?.playerCode} onClick={copyCode}>Copy code</Button>
     </div>
     {copyNotice && <p className={ui.feedback} role="status">{copyNotice}</p>}
     <ErrorNotice message={own.error} retry={own.reload} />
@@ -42,24 +42,24 @@ export default function FindPlayers({ busy, run }) {
         else setSubmitted(query.trim())
       }
     }}>
-      <label htmlFor="find-player">Kết nối với người chơi</label>
+      <label htmlFor="find-player">Find a player</label>
       <div className={ui.searchControls}>
-        <input id="find-player" placeholder="Nhập tên hoặc mã người chơi" minLength={2} maxLength={100} required value={query} onChange={event => setQuery(event.target.value)} />
-        <Button type="submit" disabled={query.trim().length < 2}>Tìm kiếm</Button>
+        <input id="find-player" placeholder="Enter a name or player code" minLength={2} maxLength={100} required value={query} onChange={event => setQuery(event.target.value)} />
+        <Button type="submit" disabled={query.trim().length < 2}>Search</Button>
       </div>
-      <p className={ui.feedback}>Dùng mã người chơi để tìm chính xác bạn bè.</p>
+      <p className={ui.feedback}>Use a player code to find someone exactly.</p>
     </form>
     <ErrorNotice message={search.error} retry={search.reload} />
-    {submitted && search.loading && <p role="status">Đang tìm người chơi…</p>}
+    {submitted && search.loading && <p role="status">Searching players…</p>}
     {search.data && <>
-      <p className={ui.feedback} role="status">{search.data.length ? `Kết quả cho “${submitted}” (tối đa 20 người):` : `Không tìm thấy người chơi với “${submitted}”.`}</p>
+      <p className={ui.feedback} role="status">{search.data.length ? `Results for “${submitted}” (up to 20):` : `No players found for “${submitted}”.`}</p>
       <ul className={ui.list}>{search.data.map(player => <li className={ui.personRow} key={player.accountId}>
           <img className={styles.avatar} src={player.avatarUrl || '/stitch-assets/avatar.svg'} alt="" onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = '/stitch-assets/avatar.svg' }} />
-          <span className={ui.person}><strong>{player.displayName || 'Người chơi'}</strong><small>{player.playerCode}</small></span>
+          <span className={ui.person}><strong>{player.displayName || 'Player'}</strong><small>{player.playerCode}</small></span>
         <div className={ui.actions}><Button disabled={busy || sent.includes(player.accountId)} onClick={() => run(async () => {
           await api.addFriend(player.accountId)
           setSent(current => [...current, player.accountId])
-        }, `Đã xử lý lời mời với ${player.displayName || player.playerCode}. Kiểm tra danh sách bạn bè hoặc lời mời đã gửi.`)}>{sent.includes(player.accountId) ? 'Đã gửi lời mời' : 'Thêm bạn'}</Button></div>
+        }, `Request to ${player.displayName || player.playerCode} handled. Check your friends or sent requests.`)}>{sent.includes(player.accountId) ? 'Request sent' : 'Add friend'}</Button></div>
       </li>)}</ul>
     </>}
   </section>

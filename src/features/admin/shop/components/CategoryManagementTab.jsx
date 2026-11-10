@@ -17,7 +17,7 @@ export default function CategoryManagementTab({ onCategoryUpdated }) {
       const res = await getCategories()
       setCategories(res?.data || [])
     } catch (err) {
-      notify(err.message || 'Không thể tải danh sách danh mục', { type: 'error' })
+      notify(err.message || 'Couldn’t load categories', { type: 'error' })
     } finally {
       setLoading(false)
     }
@@ -38,17 +38,17 @@ export default function CategoryManagementTab({ onCategoryUpdated }) {
   }
 
   const handleDelete = async cat => {
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa danh mục "${cat.name}" (${cat.code})?`)) {
+    if (!window.confirm(`Delete the category “${cat.name}” (${cat.code})?`)) {
       return
     }
     setDeletingId(cat.id)
     try {
       await deleteCategory(cat.id)
-      notify(`Đã xóa danh mục ${cat.name} thành công!`, { type: 'success' })
+      notify(`Deleted ${cat.name}.`, { type: 'success' })
       loadCategories()
       onCategoryUpdated?.()
     } catch (err) {
-      notify(err.message || 'Xóa danh mục thất bại', { type: 'error' })
+      notify(err.message || 'Couldn’t delete the category', { type: 'error' })
     } finally {
       setDeletingId(null)
     }
@@ -63,14 +63,14 @@ export default function CategoryManagementTab({ onCategoryUpdated }) {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Top Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-white/10 flex-wrap gap-4">
+      <div className="flex items-center justify-between pb-4 border-b border-on-surface/10 flex-wrap gap-4">
         <div>
-          <h2 className="font-headline font-black text-xl text-white flex items-center gap-2">
-            <Icon name="category" className="text-amber-400" />
-            <span>Quản Lý Danh Mục Vật Phẩm (Shop Categories)</span>
+          <h2 className="font-headline font-bold text-xl text-on-surface flex items-center gap-2">
+            <Icon name="category" className="text-tertiary" />
+            <span>Shop categories</span>
           </h2>
-          <p className="text-xs text-white/50">
-            Quản lý các loại tài nguyên mỹ phẩm & skin cho Cửa Hàng và Túi Đồ của người chơi
+          <p className="text-xs text-on-surface/50">
+            Cosmetic and skin types for the shop and player inventories
           </p>
         </div>
 
@@ -82,7 +82,7 @@ export default function CategoryManagementTab({ onCategoryUpdated }) {
             loading={loading}
             onClick={loadCategories}
           >
-            Làm Mới
+            Refresh
           </Button>
           <Button
             variant="gold"
@@ -90,48 +90,48 @@ export default function CategoryManagementTab({ onCategoryUpdated }) {
             icon="add"
             onClick={handleOpenCreate}
           >
-            + Thêm Danh Mục Mới
+            + New category
           </Button>
         </div>
       </div>
 
       {/* Categories Table / List */}
-      <div className="rounded-3xl bg-[#140a28] border border-white/10 shadow-2xl overflow-hidden">
+      <div className="rounded-2xl bg-surface-container-lowest border border-on-surface/10 shadow-raised overflow-hidden">
         {loading ? (
-          <div className="p-12 text-center text-white/40 flex flex-col items-center justify-center space-y-3">
-            <div className="w-8 h-8 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
-            <span className="text-xs">Đang tải danh mục...</span>
+          <div className="p-12 text-center text-on-surface/40 flex flex-col items-center justify-center space-y-3">
+            <div className="w-8 h-8 rounded-full border-2 border-tertiary border-t-transparent animate-spin" />
+            <span className="text-xs">Loading categories…</span>
           </div>
         ) : categories.length === 0 ? (
-          <div className="p-12 text-center text-white/40 space-y-3">
-            <Icon name="folder_off" className="text-4xl text-white/20 mx-auto" />
-            <p className="text-sm">Chưa có danh mục nào trong hệ thống.</p>
+          <div className="p-12 text-center text-on-surface/40 space-y-3">
+            <Icon name="folder_off" className="text-4xl text-on-surface/20 mx-auto" />
+            <p className="text-sm">No categories yet.</p>
             <Button variant="gold" size="sm" onClick={handleOpenCreate}>
-              Tạo Danh Mục Đầu Tiên
+              Create the first category
             </Button>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-white/10 bg-white/5 text-[11px] font-bold text-white/60 uppercase tracking-wider">
-                  <th className="py-3.5 px-6">Mã Danh Mục (Code)</th>
-                  <th className="py-3.5 px-6">Tên Hiển Thị</th>
-                <th className="py-3.5 px-6 text-right">Thao Tác</th>
+                <tr className="border-b border-on-surface/10 bg-on-surface/5 text-[11px] font-bold text-on-surface/60">
+                  <th className="py-3.5 px-6">Code</th>
+                  <th className="py-3.5 px-6">Display name</th>
+                <th className="py-3.5 px-6 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5 text-xs text-white/90">
+              <tbody className="divide-y divide-on-surface/5 text-xs text-on-surface/90">
                 {categories.map(cat => {
                   const isCore = ['DEALER', 'CARD_SKIN', 'TABLE'].includes(cat.code)
                   return (
                     <tr
                       key={cat.id || cat.code}
-                      className="hover:bg-white/[0.03] transition-colors"
+                      className="hover:bg-on-surface/[0.03] transition-colors"
                     >
-                      <td className="py-4 px-6 font-mono font-bold text-amber-300">
+                      <td className="py-4 px-6 font-mono font-bold text-tertiary-fixed">
                         {cat.code}
                       </td>
-                      <td className="py-4 px-6 font-bold text-white text-sm">
+                      <td className="py-4 px-6 font-bold text-on-surface text-sm">
                         {cat.name}
                       </td>
                       <td className="py-4 px-6 text-right">
@@ -139,8 +139,8 @@ export default function CategoryManagementTab({ onCategoryUpdated }) {
                           <button
                             type="button"
                             onClick={() => handleOpenEdit(cat)}
-                            title="Chỉnh sửa tên danh mục"
-                            className="p-1.5 rounded-xl bg-white/5 hover:bg-white/15 text-white/70 hover:text-white transition-all"
+                            title="Rename category"
+                            className="p-1.5 rounded-xl bg-on-surface/5 hover:bg-on-surface/15 text-on-surface/70 hover:text-on-surface transition-all"
                           >
                             <Icon name="edit" className="text-base" />
                           </button>
@@ -148,8 +148,8 @@ export default function CategoryManagementTab({ onCategoryUpdated }) {
                             type="button"
                             disabled={deletingId === cat.id}
                             onClick={() => handleDelete(cat)}
-                            title="Xóa danh mục"
-                            className="p-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 transition-all disabled:opacity-40"
+                            title="Delete category"
+                            className="p-1.5 rounded-xl bg-error/10 hover:bg-error/20 text-error hover:text-error transition-all disabled:opacity-40"
                           >
                             <Icon name="delete" className="text-base" />
                           </button>

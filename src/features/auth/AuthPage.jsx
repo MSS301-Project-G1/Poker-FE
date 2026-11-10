@@ -1,19 +1,12 @@
 import { useState } from 'react'
-import { Link, Navigate, useLocation } from 'react-router'
+import { Navigate, useLocation } from 'react-router'
 import { paths } from '@/shared/config/paths'
-import { Icon, useToast } from '@/shared/ui'
+import { useToast } from '@/shared/ui'
 import { useAuth } from './useAuth'
 import { forgotPassword, registerAccount, resendRegistrationOtp, resetPassword, verifyRegistrationOtp } from './api/authApi'
-import AuthHeader from './components/AuthHeader'
 import AuthPanel from './components/AuthPanel'
 import AuthStatusScreen from './components/AuthStatusScreen'
 import WelcomePanel from './components/WelcomePanel'
-
-const trustBadges = [
-  { icon: 'shield', color: 'text-success', label: 'Secure Account Access' },
-  { icon: 'verified_user', color: 'text-tertiary', label: 'Verified Email Protection' },
-  { icon: 'support_agent', color: 'text-primary', label: 'Request ID Support' },
-]
 
 function messageOf(error) {
   const message = error?.message || 'Something went wrong. Please try again.'
@@ -131,27 +124,13 @@ export default function AuthPage() {
     notify('Password reset. Sign in with your new password.')
   }).catch(() => {})
 
-  return <div className="bg-background text-on-surface min-h-screen relative overflow-x-hidden font-body-md selection:bg-primary-container selection:text-white">
-    <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
-      <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[48rem] h-[28rem] bg-primary-container/20 rounded-full blur-[130px]"></div>
-      <div className="absolute top-1/3 -left-32 w-96 h-96 bg-secondary-container/25 rounded-full blur-[110px]"></div>
-      <div className="absolute -bottom-20 -right-20 w-[32rem] h-[32rem] bg-tertiary-container/15 rounded-full blur-[120px]"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary-container/10 via-background to-surface-container-lowest"></div>
-    </div>
-    <div className="min-h-screen flex flex-col justify-center items-center gap-space-md px-4 py-space-md relative z-10 max-w-7xl mx-auto">
-      <AuthHeader />
-      <Link to={paths.demo} className="inline-flex items-center gap-space-sm rounded-xl border border-primary/40 bg-primary-container/20 px-space-lg py-space-sm text-primary font-label-action text-label-action hover:bg-primary-container/35 transition-colors"><Icon name="smart_toy" />Chơi thử 1 người với bot · Không cần tài khoản</Link>
-      <main className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        <WelcomePanel />
-        <AuthPanel mode={mode} pending={pending} error={error} verification={verification} recovery={recovery}
-          onModeChange={changeMode} onLogin={login} onRegister={register} onVerify={verify} onResend={resend}
-          onForgotPassword={requestRecovery} onResetPassword={completeRecovery} onResendRecovery={resendRecovery} />
-      </main>
-      <footer className="w-full max-w-4xl flex flex-wrap items-center justify-center gap-6 md:gap-10 text-xs text-on-surface-variant">
-        {trustBadges.map(badge => <div key={badge.label} className="inline-flex items-center gap-1.5">
-          <Icon name={badge.icon} className={`${badge.color} text-sm`} /><span>{badge.label}</span>
-        </div>)}
-      </footer>
-    </div>
+  // One soft pool of felt light behind the hand; the rest of the page stays the app's deep violet.
+  return <div className="bg-background text-on-surface min-h-screen font-body-md bg-[radial-gradient(60rem_40rem_at_20%_35%,rgb(var(--color-felt)/0.45),transparent_70%)]">
+    <main className="min-h-screen w-full max-w-6xl mx-auto px-margin-mobile sm:px-margin py-space-xl grid content-center grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,27rem)] gap-space-xl lg:gap-20 items-center">
+      <WelcomePanel />
+      <AuthPanel mode={mode} pending={pending} error={error} verification={verification} recovery={recovery}
+        onModeChange={changeMode} onLogin={login} onRegister={register} onVerify={verify} onResend={resend}
+        onForgotPassword={requestRecovery} onResetPassword={completeRecovery} onResendRecovery={resendRecovery} />
+    </main>
   </div>
 }

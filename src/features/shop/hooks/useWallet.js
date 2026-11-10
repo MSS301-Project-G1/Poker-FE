@@ -37,7 +37,7 @@ export function useWallet() {
       } catch (err) {
         if (!disposed) {
           setWallet(null)
-          setError(err.status === 401 ? 'UNAUTHORIZED' : (err.message || 'Chưa đăng nhập'))
+          setError(err.status === 401 ? 'UNAUTHORIZED' : (err.message || 'Not signed in'))
           setLoading(false)
         }
       }
