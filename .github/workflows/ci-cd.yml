@@ -71,7 +71,7 @@ jobs:
 
       - name: Upload the release
         run: |
-          $SSH_CMD "$VPS_USER@$VPS_HOST" "mkdir -p $APP_DIR && sudo install -d -o \$(id -un) -g \$(id -gn) $SITE_DIR/releases"
+          $SSH_CMD "$VPS_USER@$VPS_HOST" "mkdir -p $APP_DIR && sudo install -d -o \$(id -un) -g \$(id -gn) $SITE_DIR $SITE_DIR/releases"
           rsync -az --delete -e "$SSH_CMD" deploy "$VPS_USER@$VPS_HOST:$APP_DIR/"
           # Caddy runs as its own user and must be able to read the files.
           rsync -az --chmod=D755,F644 -e "$SSH_CMD" dist/ "$VPS_USER@$VPS_HOST:$SITE_DIR/releases/$TAG/"
