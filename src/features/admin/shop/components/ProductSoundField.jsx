@@ -72,13 +72,13 @@ export default function ProductSoundField({
   }
 
   return (
-    <div className="p-4 rounded-2xl bg-obsidian/30 border border-white/10 space-y-3">
+    <div className="p-4 rounded-2xl bg-obsidian/30 border border-on-surface/10 space-y-3">
       <div className="flex items-center justify-between">
         <label className="text-xs font-bold text-tertiary-fixed flex items-center gap-2">
           <Icon name="volume_up" className="text-base" />
           <span>Sound effect (optional)</span>
         </label>
-        <span className="text-[11px] text-white/50">MP3, OGG, WAV ≤ 2MB</span>
+        <span className="text-[11px] text-on-surface/50">MP3, OGG, WAV ≤ 2MB</span>
       </div>
 
       {activeAudioUrl ? (
@@ -93,10 +93,10 @@ export default function ProductSoundField({
               <Icon name={isPlaying ? 'pause' : 'play_arrow'} className="text-xl" />
             </button>
             <div className="text-xs">
-              <div className="font-bold text-white/90 truncate max-w-[200px] sm:max-w-[280px]">
+              <div className="font-bold text-on-surface/90 truncate max-w-[200px] sm:max-w-[280px]">
                 {soundFile ? soundFile.name : 'Current sound'}
               </div>
-              <div className="text-[11px] text-white/50 mt-0.5">
+              <div className="text-[11px] text-on-surface/50 mt-0.5">
                 {audioDuration > 0
                   ? `${Math.floor(audioCurrentTime)}s / ${Math.floor(audioDuration)}s`
                   : 'Ready to preview'}
@@ -136,7 +136,7 @@ export default function ProductSoundField({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={disabled}
-            className="w-full py-3 px-4 rounded-xl border border-dashed border-white/20 hover:border-tertiary/50 bg-white/5 hover:bg-white/10 transition-all text-xs text-white/70 flex items-center justify-center gap-2"
+            className="w-full py-3 px-4 rounded-xl border border-dashed border-on-surface/20 hover:border-tertiary/50 bg-on-surface/5 hover:bg-on-surface/10 transition-all text-xs text-on-surface/70 flex items-center justify-center gap-2"
           >
             <Icon name="music_note" className="text-base text-tertiary-fixed" />
             <span>Choose a taunt or card-flip sound</span>

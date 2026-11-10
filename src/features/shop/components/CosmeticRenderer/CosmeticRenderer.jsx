@@ -147,7 +147,7 @@ export default function CosmeticRenderer({
         <div className={styles.frameStage}>
           {frameImg && !imageError ? (
             <div className="relative w-24 h-24 flex items-center justify-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-on-secondary-fixed to-on-secondary-fixed flex items-center justify-center text-white/50">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-on-secondary-fixed to-on-secondary-fixed flex items-center justify-center text-on-surface/50">
                 <Icon name="person" className="text-3xl" />
               </div>
               <img
@@ -222,7 +222,7 @@ export default function CosmeticRenderer({
           <span className="mt-2.5 text-[10px] font-black tracking-widest px-2.5 py-0.5 rounded-full bg-secondary-container/20 text-secondary border border-secondary-container/30 uppercase">
             SOUND FX
           </span>
-          <span className="text-[11px] text-white/70 font-bold mt-1 text-center max-w-[140px] truncate">
+          <span className="text-[11px] text-on-surface/70 font-bold mt-1 text-center max-w-[140px] truncate">
             {productName || 'Sound effect'}
           </span>
         </div>
@@ -274,7 +274,7 @@ export default function CosmeticRenderer({
               <Icon name="category" className="text-4xl text-tertiary/60" />
             )}
           </div>
-          <span className="mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-white/80 border border-white/10 uppercase">
+          <span className="mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-on-surface/10 text-on-surface/80 border border-on-surface/10 uppercase">
             {normalizedCategory || 'ITEM'}
           </span>
         </div>

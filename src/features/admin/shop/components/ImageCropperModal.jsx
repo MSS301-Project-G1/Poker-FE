@@ -183,14 +183,14 @@ export default function ImageCropperModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/85 backdrop-blur-md animate-fade-in">
       <div className="relative w-full max-w-lg rounded-2xl bg-surface-container-lowest border border-tertiary/50 shadow-raised p-6 space-y-5">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-white/10">
+        <div className="flex items-center justify-between pb-3 border-b border-on-surface/10">
           <div className="flex items-center gap-2.5">
             <span className="w-9 h-9 rounded-xl bg-tertiary text-on-tertiary flex items-center justify-center font-bold">
               <Icon name="crop" className="text-xl" />
             </span>
             <div>
-              <h3 className="font-headline font-bold text-base text-white">{title}</h3>
-              <p className="text-[11px] text-white/50">
+              <h3 className="font-headline font-bold text-base text-on-surface">{title}</h3>
+              <p className="text-[11px] text-on-surface/50">
                 Drag to position and use the slider to zoom
               </p>
             </div>
@@ -198,7 +198,7 @@ export default function ImageCropperModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center"
+            className="w-8 h-8 rounded-full bg-on-surface/10 hover:bg-on-surface/20 text-on-surface flex items-center justify-center"
           >
             <Icon name="close" className="text-base" />
           </button>
@@ -207,7 +207,7 @@ export default function ImageCropperModal({
         {/* Canvas Stage */}
         <div className="flex flex-col items-center">
           <div
-            className="relative rounded-2xl overflow-hidden border-2 border-white/15 bg-obsidian cursor-grab active:cursor-grabbing select-none shadow-inner"
+            className="relative rounded-2xl overflow-hidden border-2 border-on-surface/15 bg-obsidian cursor-grab active:cursor-grabbing select-none shadow-inner"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
@@ -227,10 +227,10 @@ export default function ImageCropperModal({
         </div>
 
         {/* Controls: Zoom & Shape */}
-        <div className="space-y-3 p-3.5 rounded-2xl bg-obsidian/40 border border-white/10">
+        <div className="space-y-3 p-3.5 rounded-2xl bg-obsidian/40 border border-on-surface/10">
           {/* Zoom Slider */}
           <div className="flex items-center gap-3">
-            <Icon name="zoom_out" className="text-white/50 text-sm" />
+            <Icon name="zoom_out" className="text-on-surface/50 text-sm" />
             <input
               type="range"
               min="1.0"
@@ -238,9 +238,9 @@ export default function ImageCropperModal({
               step="0.05"
               value={zoom}
               onChange={handleZoomChange}
-              className="flex-grow accent-tertiary cursor-pointer h-1.5 rounded-lg bg-white/20"
+              className="flex-grow accent-tertiary cursor-pointer h-1.5 rounded-lg bg-on-surface/20"
             />
-            <Icon name="zoom_in" className="text-white/50 text-sm" />
+            <Icon name="zoom_in" className="text-on-surface/50 text-sm" />
             <span className="font-mono text-xs text-tertiary-fixed w-12 text-right">
               {Math.round(zoom * 100)}%
             </span>
@@ -248,15 +248,15 @@ export default function ImageCropperModal({
               type="button"
               onClick={handleReset}
               title="Reset"
-              className="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-xs text-white/80"
+              className="px-2 py-1 rounded-lg bg-on-surface/10 hover:bg-on-surface/20 text-xs text-on-surface/80"
             >
               Reset
             </button>
           </div>
 
           {/* Shape Selector */}
-          <div className="flex items-center justify-between text-xs pt-2 border-t border-white/10">
-            <span className="text-white/60 font-medium">Guide:</span>
+          <div className="flex items-center justify-between text-xs pt-2 border-t border-on-surface/10">
+            <span className="text-on-surface/60 font-medium">Guide:</span>
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -264,7 +264,7 @@ export default function ImageCropperModal({
                 className={`px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
                   activeShape === 'circle'
                     ? 'bg-tertiary text-on-tertiary shadow-md'
-                    : 'bg-white/10 text-white/70 hover:bg-white/15'
+                    : 'bg-on-surface/10 text-on-surface/70 hover:bg-on-surface/15'
                 }`}
               >
                 <Icon name="radio_button_checked" className="text-xs" />
@@ -276,7 +276,7 @@ export default function ImageCropperModal({
                 className={`px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
                   activeShape === 'square'
                     ? 'bg-tertiary text-on-tertiary shadow-md'
-                    : 'bg-white/10 text-white/70 hover:bg-white/15'
+                    : 'bg-on-surface/10 text-on-surface/70 hover:bg-on-surface/15'
                 }`}
               >
                 <Icon name="crop_square" className="text-xs" />

@@ -53,7 +53,7 @@
   font-family: var(--font-headline, sans-serif);
   font-weight: 800;
   font-size: 1.0625rem;
-  color: white;
+  color: rgb(var(--color-on-surface));
   line-height: 1.2;
 }
 
@@ -94,7 +94,7 @@
   background: transparent;
   border: none;
   outline: none;
-  color: white;
+  color: rgb(var(--color-on-surface));
   font-family: var(--font-body, sans-serif);
   font-size: 0.875rem;
   width: 100%;
@@ -147,13 +147,13 @@
 
 .navItem:hover {
   background: rgb(var(--color-on-surface) / 0.06);
-  color: white;
+  color: rgb(var(--color-on-surface));
   border-color: rgb(var(--color-on-surface) / 0.08);
 }
 
 .navItemActive {
   background: rgb(var(--color-secondary-container) / 0.55);
-  color: white;
+  color: rgb(var(--color-on-surface));
   font-weight: 700;
   border: 1px solid rgb(var(--color-primary) / 0.35);
 }
@@ -208,7 +208,7 @@
 
 .externalLink:hover {
   background: rgb(var(--color-on-surface) / 0.06);
-  color: white;
+  color: rgb(var(--color-on-surface));
   border-color: rgb(var(--color-on-surface) / 0.1);
 }
 

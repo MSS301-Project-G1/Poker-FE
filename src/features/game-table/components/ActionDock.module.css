@@ -38,7 +38,7 @@
 .raiseControls output :global(.material-symbols-outlined) { font-size: 15px; }
 
 .actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.actions button { display: grid; justify-items: center; gap: 2px; padding: 10px 8px; border-radius: 12px; color: white; font: 800 16px var(--font-display); letter-spacing: 1px; }
+.actions button { display: grid; justify-items: center; gap: 2px; padding: 10px 8px; border-radius: 12px; color: rgb(var(--color-on-surface)); font: 800 16px var(--font-display); letter-spacing: 1px; }
 .actions button > span { display: flex; align-items: center; gap: 3px; }
 .actions button :global(.material-symbols-outlined) { font-size: 18px; }
 .actions small { font: 700 11px var(--font-display); letter-spacing: 0.5px; }

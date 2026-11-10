@@ -140,7 +140,7 @@
 }
 
 .blackSuit {
-  color: white;
+  color: rgb(var(--color-on-surface));
 }
 
 /* =========================================================
@@ -260,7 +260,7 @@
   font-size: 0.7rem;
   font-weight: 900;
   letter-spacing: 0.15em;
-  color: white;
+  color: rgb(var(--color-on-surface));
   text-transform: uppercase;
   text-shadow: 0 0 10px rgb(var(--color-primary) / 0.8);
 }

@@ -168,7 +168,7 @@ export default function ShopPage() {
               </>
             ) : (
               <div className="flex items-center gap-2">
-                <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-white/70">
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-on-surface/5 border border-on-surface/10 text-xs text-on-surface/70">
                   <Icon name="visibility" className="text-sm text-tertiary" />
                   <span>Guest view</span>
                 </span>
@@ -200,14 +200,14 @@ export default function ShopPage() {
             <DeletingProductsBanner />
             {activeCategory === 'MY_INVENTORY' ? (
               !isLoggedIn ? (
-                <div className="flex flex-col items-center justify-center py-20 px-4 text-center rounded-3xl bg-white/[0.02] border border-white/10 shadow-2xl my-4">
+                <div className="flex flex-col items-center justify-center py-20 px-4 text-center rounded-3xl bg-on-surface/[0.02] border border-on-surface/10 shadow-2xl my-4">
                   <div className="w-16 h-16 rounded-2xl bg-tertiary/10 border border-tertiary/30 flex items-center justify-center text-tertiary mb-4 shadow-lg shadow-tertiary/10">
                     <Icon name="lock" className="text-3xl" />
                   </div>
-                  <h3 className="font-headline font-bold text-2xl text-white mb-2">
+                  <h3 className="font-headline font-bold text-2xl text-on-surface mb-2">
                     Your inventory
                   </h3>
-                  <p className="text-sm text-white/60 max-w-md mb-6 leading-relaxed">
+                  <p className="text-sm text-on-surface/60 max-w-md mb-6 leading-relaxed">
                     You’re browsing as a guest. Sign in to manage and equip your card skins, tables and avatars.
                   </p>
                   <Button
@@ -223,10 +223,10 @@ export default function ShopPage() {
                 <div>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                     <div>
-                      <h3 className="font-headline font-bold text-xl text-white">
+                      <h3 className="font-headline font-bold text-xl text-on-surface">
                         Your inventory
                       </h3>
-                      <p className="text-xs text-white/60">
+                      <p className="text-xs text-on-surface/60">
                         Manage and equip your card skins, dealers, coins and tables.
                       </p>
                     </div>
@@ -234,7 +234,7 @@ export default function ShopPage() {
                     <button
                       type="button"
                       onClick={() => refreshInventory()}
-                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 text-xs font-semibold hover:bg-white/10 transition-colors border border-white/10 self-start sm:self-auto text-white/80 hover:text-white"
+                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-on-surface/5 text-xs font-semibold hover:bg-on-surface/10 transition-colors border border-on-surface/10 self-start sm:self-auto text-on-surface/80 hover:text-on-surface"
                     >
                       <Icon name="refresh" className="text-sm" /> Refresh inventory
                     </button>
@@ -248,7 +248,7 @@ export default function ShopPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-headline font-bold text-sm text-white">
+                          <h4 className="font-headline font-bold text-sm text-on-surface">
                             Suspended items
                           </h4>
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-tertiary text-on-tertiary uppercase tracking-wider">
@@ -258,7 +258,7 @@ export default function ShopPage() {
                         <p className="text-xs text-tertiary-fixed/90 leading-relaxed">
                           These items in your inventory are suspended for maintenance:
                           {' '}
-                          <strong className="text-white underline font-semibold">
+                          <strong className="text-on-surface underline font-semibold">
                             {inventoryItems
                               .filter(i => i.productStatus === 'MAINTAIN' || i.isDeleting)
                               .map(i => i.productName)
@@ -313,7 +313,7 @@ export default function ShopPage() {
                     <button
                       type="button"
                       onClick={() => refreshCatalog()}
-                      className="mt-3 px-4 py-1.5 rounded-lg bg-white/10 text-xs font-bold text-white hover:bg-white/20"
+                      className="mt-3 px-4 py-1.5 rounded-lg bg-on-surface/10 text-xs font-bold text-on-surface hover:bg-on-surface/20"
                     >
                       Try again
                     </button>
@@ -344,19 +344,19 @@ export default function ShopPage() {
                           type="button"
                           disabled={page <= 0}
                           onClick={() => setPage(p => Math.max(0, p - 1))}
-                          className="flex items-center gap-1 px-3.5 py-2 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xs font-bold"
+                          className="flex items-center gap-1 px-3.5 py-2 rounded-xl border border-on-surface/10 bg-on-surface/5 text-on-surface hover:bg-on-surface/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xs font-bold"
                         >
                           <Icon name="chevron_left" className="text-base" />
                           <span>Previous</span>
                         </button>
-                        <span className="text-xs text-white/60 px-3">
-                          Page <strong className="text-white font-bold">{page + 1}</strong> / {totalPages}
+                        <span className="text-xs text-on-surface/60 px-3">
+                          Page <strong className="text-on-surface font-bold">{page + 1}</strong> / {totalPages}
                         </span>
                         <button
                           type="button"
                           disabled={page >= totalPages - 1}
                           onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
-                          className="flex items-center gap-1 px-3.5 py-2 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xs font-bold"
+                          className="flex items-center gap-1 px-3.5 py-2 rounded-xl border border-on-surface/10 bg-on-surface/5 text-on-surface hover:bg-on-surface/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xs font-bold"
                         >
                           <span>Next</span>
                           <Icon name="chevron_right" className="text-base" />

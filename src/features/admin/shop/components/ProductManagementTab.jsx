@@ -172,26 +172,26 @@ export default function ProductManagementTab({
     <div className="space-y-6">
       {/* KPI Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="p-4 rounded-2xl bg-surface-container-lowest/90 border border-white/10 shadow-lg flex items-center gap-3">
+        <div className="p-4 rounded-2xl bg-surface-container-lowest/90 border border-on-surface/10 shadow-lg flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-tertiary/10 text-tertiary border border-tertiary/20 flex items-center justify-center font-bold">
             <Icon name="inventory_2" className="text-2xl" />
           </div>
           <div>
-            <span className="text-[11px] font-bold text-white/50 block">
+            <span className="text-[11px] font-bold text-on-surface/50 block">
               Total items
             </span>
-            <span className="font-headline font-bold text-xl text-white">
+            <span className="font-headline font-bold text-xl text-on-surface">
               {stats.total}
             </span>
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-surface-container-lowest/90 border border-white/10 shadow-lg flex items-center gap-3">
+        <div className="p-4 rounded-2xl bg-surface-container-lowest/90 border border-on-surface/10 shadow-lg flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-secondary-container/10 text-secondary border border-secondary-container/20 flex items-center justify-center font-bold">
             <Icon name="style" className="text-2xl" />
           </div>
           <div>
-            <span className="text-[11px] font-bold text-white/50 block">
+            <span className="text-[11px] font-bold text-on-surface/50 block">
               Card skins
             </span>
             <span className="font-headline font-bold text-xl text-secondary">
@@ -200,12 +200,12 @@ export default function ProductManagementTab({
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-surface-container-lowest/90 border border-white/10 shadow-lg flex items-center gap-3">
+        <div className="p-4 rounded-2xl bg-surface-container-lowest/90 border border-on-surface/10 shadow-lg flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-tertiary/10 text-tertiary-fixed border border-tertiary/20 flex items-center justify-center font-bold">
             <Icon name="workspace_premium" className="text-2xl" />
           </div>
           <div>
-            <span className="text-[11px] font-bold text-white/50 block">
+            <span className="text-[11px] font-bold text-on-surface/50 block">
               VIP & Super VIP
             </span>
             <span className="font-headline font-bold text-xl text-tertiary">
@@ -214,12 +214,12 @@ export default function ProductManagementTab({
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-surface-container-lowest/90 border border-white/10 shadow-lg flex items-center gap-3">
+        <div className="p-4 rounded-2xl bg-surface-container-lowest/90 border border-on-surface/10 shadow-lg flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-tertiary/10 text-tertiary border border-tertiary/20 flex items-center justify-center font-bold">
             <Icon name="pause_circle" className="text-2xl" />
           </div>
           <div>
-            <span className="text-[11px] font-bold text-white/50 block">
+            <span className="text-[11px] font-bold text-on-surface/50 block">
               Suspended
             </span>
             <span className="font-headline font-bold text-xl text-tertiary-fixed">
@@ -230,14 +230,14 @@ export default function ProductManagementTab({
       </div>
 
       {/* Category Filter Horizontal Pills */}
-      <div className="flex items-center gap-2 p-1.5 bg-obsidian/40 rounded-2xl border border-white/10 overflow-x-auto">
+      <div className="flex items-center gap-2 p-1.5 bg-obsidian/40 rounded-2xl border border-on-surface/10 overflow-x-auto">
         <button
           type="button"
           onClick={() => handleCategorySelect('ALL')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
             activeCategory === 'ALL'
               ? 'bg-tertiary text-on-tertiary font-bold shadow-md'
-              : 'text-white/70 hover:text-white hover:bg-white/10'
+              : 'text-on-surface/70 hover:text-on-surface hover:bg-on-surface/10'
           }`}
         >
           All ({totalElements || products.length})
@@ -250,7 +250,7 @@ export default function ProductManagementTab({
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
               activeCategory === cat.code
                 ? 'bg-tertiary text-on-tertiary font-bold shadow-md'
-                : 'text-white/70 hover:text-white hover:bg-white/10'
+                : 'text-on-surface/70 hover:text-on-surface hover:bg-on-surface/10'
             }`}
           >
             {cat.name}
@@ -259,13 +259,13 @@ export default function ProductManagementTab({
       </div>
 
       {/* Search & Tier + Status Filter Toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-on-surface/5 border border-on-surface/10">
         <div className="flex items-center gap-3 flex-wrap">
           {/* Tier Filter */}
           <select
             value={activeTier}
             onChange={e => handleTierSelect(e.target.value)}
-            className="px-3.5 py-2 rounded-xl bg-obsidian/50 border border-white/15 text-xs font-bold text-white focus:outline-none focus:border-tertiary"
+            className="px-3.5 py-2 rounded-xl bg-obsidian/50 border border-on-surface/15 text-xs font-bold text-on-surface focus:outline-none focus:border-tertiary"
           >
             <option value="ALL">All tiers</option>
             <option value="NORMAL">Standard</option>
@@ -277,7 +277,7 @@ export default function ProductManagementTab({
           <select
             value={activeStatus}
             onChange={e => handleStatusSelect(e.target.value)}
-            className="px-3.5 py-2 rounded-xl bg-obsidian/50 border border-white/15 text-xs font-bold text-white focus:outline-none focus:border-tertiary"
+            className="px-3.5 py-2 rounded-xl bg-obsidian/50 border border-on-surface/15 text-xs font-bold text-on-surface focus:outline-none focus:border-tertiary"
           >
             <option value="ALL">All statuses</option>
             <option value="ACTIVE">On sale (ACTIVE)</option>
@@ -287,23 +287,23 @@ export default function ProductManagementTab({
         </div>
 
         <div className="relative w-full sm:w-80">
-          <Icon name="search" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-base" />
+          <Icon name="search" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface/40 text-base" />
           <input
             type="text"
             placeholder="Search by name or category code…"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-xl bg-obsidian/50 border border-white/15 text-xs text-white placeholder-white/40 focus:outline-none focus:border-tertiary"
+            className="w-full pl-10 pr-4 py-2 rounded-xl bg-obsidian/50 border border-on-surface/15 text-xs text-on-surface placeholder-on-surface/40 focus:outline-none focus:border-tertiary"
           />
         </div>
       </div>
 
       {/* Table Container */}
-      <div className="rounded-2xl bg-surface-container-lowest/95 border border-white/10 overflow-hidden shadow-raised">
+      <div className="rounded-2xl bg-surface-container-lowest/95 border border-on-surface/10 overflow-hidden shadow-raised">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-white/10 bg-white/5 text-white/60 font-bold text-[11px]">
+              <tr className="border-b border-on-surface/10 bg-on-surface/5 text-on-surface/60 font-bold text-[11px]">
                 <th className="p-4">Image</th>
                 <th className="p-4">Name</th>
                 <th className="p-4">Category</th>
@@ -313,18 +313,18 @@ export default function ProductManagementTab({
                 <th className="p-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5 text-xs">
+            <tbody className="divide-y divide-on-surface/5 text-xs">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="p-16 text-center text-white/50">
+                  <td colSpan={7} className="p-16 text-center text-on-surface/50">
                     <span className="w-8 h-8 border-3 border-tertiary border-t-transparent rounded-full animate-spin inline-block mr-3" />
                     Loading products…
                   </td>
                 </tr>
               ) : filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-16 text-center text-white/40">
-                    <Icon name="search_off" className="text-4xl text-white/20 mb-2 block mx-auto" />
+                  <td colSpan={7} className="p-16 text-center text-on-surface/40">
+                    <Icon name="search_off" className="text-4xl text-on-surface/20 mb-2 block mx-auto" />
                     No products match these filters.
                   </td>
                 </tr>
@@ -335,9 +335,9 @@ export default function ProductManagementTab({
                   const isDeleting = p.isDeleting
 
                   return (
-                    <tr key={p.id} className="hover:bg-white/5 transition-colors">
+                    <tr key={p.id} className="hover:bg-on-surface/5 transition-colors">
                       <td className="p-4">
-                        <div className="w-14 h-14 rounded-2xl bg-obsidian/60 border border-white/10 flex items-center justify-center p-1.5 shadow-md overflow-hidden relative">
+                        <div className="w-14 h-14 rounded-2xl bg-obsidian/60 border border-on-surface/10 flex items-center justify-center p-1.5 shadow-md overflow-hidden relative">
                           <img
                             alt={p.name}
                             src={p.previewUrl || p.assetUrl}
@@ -358,15 +358,15 @@ export default function ProductManagementTab({
                         </div>
                       </td>
                       <td className="p-4">
-                        <span className="font-headline font-bold text-white text-sm block">
+                        <span className="font-headline font-bold text-on-surface text-sm block">
                           {p.name}
                         </span>
-                        <span className="text-[11px] text-white/50 block mt-0.5 max-w-xs truncate">
+                        <span className="text-[11px] text-on-surface/50 block mt-0.5 max-w-xs truncate">
                           {p.description || 'No description'}
                         </span>
                       </td>
-                      <td className="p-4 text-white/80 font-medium">
-                        <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-white/80 font-semibold inline-block">
+                      <td className="p-4 text-on-surface/80 font-medium">
+                        <span className="px-2.5 py-1 rounded-lg bg-on-surface/5 border border-on-surface/10 text-on-surface/80 font-semibold inline-block">
                           {p.categoryName || p.categoryCode}
                         </span>
                       </td>
@@ -379,7 +379,7 @@ export default function ProductManagementTab({
                         <span className="text-tertiary font-bold text-sm block font-headline whitespace-nowrap">
                           {formatVipCoin(p.priceVipCoin)} VIP
                         </span>
-                        <span className="text-white/40 text-[11px] block mt-0.5">
+                        <span className="text-on-surface/40 text-[11px] block mt-0.5">
                           {formatVnd(p.priceVnd)}
                         </span>
                       </td>
@@ -411,7 +411,7 @@ export default function ProductManagementTab({
                               type="button"
                               disabled={isCancellingId === p.id}
                               onClick={() => handleCancelScheduledDeletion(p)}
-                              className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 border border-white/20 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
+                              className="px-3 py-1.5 rounded-xl bg-on-surface/10 hover:bg-on-surface/20 text-on-surface/80 border border-on-surface/20 text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1"
                               title="Cancel the deletion countdown and suspend the product"
                             >
                               <Icon name="undo" className="text-sm" />
@@ -490,16 +490,16 @@ export default function ProductManagementTab({
         </div>
 
         {/* Pagination Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-white/10 bg-obsidian/40 text-xs">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-on-surface/10 bg-obsidian/40 text-xs">
           {/* Left: Range info & size selector */}
-          <div className="flex items-center gap-3 text-white/60 flex-wrap">
+          <div className="flex items-center gap-3 text-on-surface/60 flex-wrap">
             <span>
               Showing{' '}
-              <strong className="text-white font-bold">
+              <strong className="text-on-surface font-bold">
                 {totalElements === 0 ? 0 : page * size + 1}
               </strong>{' '}
               -{' '}
-              <strong className="text-white font-bold">
+              <strong className="text-on-surface font-bold">
                 {Math.min((page + 1) * size, totalElements || products.length)}
               </strong>{' '}
               of{' '}
@@ -508,7 +508,7 @@ export default function ProductManagementTab({
               </strong>{' '}
               products
             </span>
-            <span className="text-white/20">|</span>
+            <span className="text-on-surface/20">|</span>
             <div className="flex items-center gap-1.5">
               <span>Per page:</span>
               <select
@@ -516,12 +516,12 @@ export default function ProductManagementTab({
                 onChange={e => {
                   setSize?.(Number(e.target.value))
                 }}
-                className="px-2.5 py-1 rounded-lg bg-obsidian/60 border border-white/15 text-white font-bold focus:outline-none focus:border-tertiary cursor-pointer"
+                className="px-2.5 py-1 rounded-lg bg-obsidian/60 border border-on-surface/15 text-on-surface font-bold focus:outline-none focus:border-tertiary cursor-pointer"
               >
-                <option value={5} className="bg-background text-white">5</option>
-                <option value={10} className="bg-background text-white">10</option>
-                <option value={20} className="bg-background text-white">20</option>
-                <option value={50} className="bg-background text-white">50</option>
+                <option value={5} className="bg-background text-on-surface">5</option>
+                <option value={10} className="bg-background text-on-surface">10</option>
+                <option value={20} className="bg-background text-on-surface">20</option>
+                <option value={50} className="bg-background text-on-surface">50</option>
               </select>
             </div>
           </div>
@@ -532,7 +532,7 @@ export default function ProductManagementTab({
               type="button"
               disabled={page === 0}
               onClick={() => setPage?.(page - 1)}
-              className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center gap-1"
+              className="px-3 py-1.5 rounded-xl bg-on-surface/5 hover:bg-on-surface/10 text-on-surface disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center gap-1"
             >
               <Icon name="chevron_left" className="text-base" />
               <span>Previous</span>
@@ -554,7 +554,7 @@ export default function ProductManagementTab({
                     className={`w-8 h-8 rounded-xl font-bold transition-all text-xs flex items-center justify-center ${
                       page === pageNumber
                         ? 'bg-tertiary text-on-tertiary font-bold shadow-md'
-                        : 'bg-white/5 hover:bg-white/10 text-white/70'
+                        : 'bg-on-surface/5 hover:bg-on-surface/10 text-on-surface/70'
                     }`}
                   >
                     {pageNumber + 1}
@@ -567,7 +567,7 @@ export default function ProductManagementTab({
               type="button"
               disabled={page >= totalPages - 1}
               onClick={() => setPage?.(page + 1)}
-              className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center gap-1"
+              className="px-3 py-1.5 rounded-xl bg-on-surface/5 hover:bg-on-surface/10 text-on-surface disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center gap-1"
             >
               <span>Next</span>
               <Icon name="chevron_right" className="text-base" />
@@ -609,13 +609,13 @@ export default function ProductManagementTab({
       {/* Custom Confirmation Modal for Putting into Maintain (TẠM NGƯNG BÁN) */}
       {productToRevoke && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-obsidian/80 backdrop-blur-md animate-fade-in">
-          <div className="w-full max-w-xl rounded-2xl bg-surface-container-low border border-tertiary/40 p-6 sm:p-8 shadow-raised space-y-5 text-white">
-            <div className="flex items-center gap-4 pb-3 border-b border-white/10">
+          <div className="w-full max-w-xl rounded-2xl bg-surface-container-low border border-tertiary/40 p-6 sm:p-8 shadow-raised space-y-5 text-on-surface">
+            <div className="flex items-center gap-4 pb-3 border-b border-on-surface/10">
               <span className="w-14 h-14 rounded-2xl bg-tertiary/20 text-tertiary border border-tertiary/30 flex items-center justify-center shrink-0 shadow-lg">
                 <Icon name="pause_circle" className="text-3xl" />
               </span>
               <div>
-                <h3 className="font-headline font-bold text-xl text-white">
+                <h3 className="font-headline font-bold text-xl text-on-surface">
                   Suspend product
                 </h3>
                 <p className="text-sm text-tertiary-fixed/80 mt-0.5">
@@ -624,8 +624,8 @@ export default function ProductManagementTab({
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-obsidian/50 border border-white/10 flex items-center gap-4">
-              <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 p-1 flex items-center justify-center shrink-0">
+            <div className="p-4 rounded-2xl bg-obsidian/50 border border-on-surface/10 flex items-center gap-4">
+              <div className="w-14 h-14 rounded-xl bg-on-surface/5 border border-on-surface/10 p-1 flex items-center justify-center shrink-0">
                 <img
                   alt={productToRevoke.name}
                   src={productToRevoke.previewUrl || productToRevoke.assetUrl}
@@ -636,7 +636,7 @@ export default function ProductManagementTab({
                 />
               </div>
               <div className="min-w-0">
-                <span className="font-headline font-bold text-base text-white block truncate">
+                <span className="font-headline font-bold text-base text-on-surface block truncate">
                   {productToRevoke.name}
                 </span>
                 <span className="text-sm text-tertiary font-mono font-bold block mt-0.5">
@@ -645,12 +645,12 @@ export default function ProductManagementTab({
               </div>
             </div>
 
-            <p className="text-sm text-white/90 leading-relaxed bg-tertiary/10 p-4 rounded-2xl border border-tertiary/20">
+            <p className="text-sm text-on-surface/90 leading-relaxed bg-tertiary/10 p-4 rounded-2xl border border-tertiary/20">
               The product will be <strong>suspended (MAINTAIN)</strong> and hidden from the shop. <strong>Players who bought it keep it in their inventory</strong>. You can press <strong>Edit</strong> to update details or textures, or press <strong>Put on sale</strong> at any time without affecting players.
             </p>
 
             <div className="space-y-2">
-              <label className="block text-sm font-bold text-white">
+              <label className="block text-sm font-bold text-on-surface">
                 Reason for suspending <span className="text-error">*</span>:
               </label>
               <textarea
@@ -658,7 +658,7 @@ export default function ProductManagementTab({
                 value={revokeReason}
                 onChange={e => setRevokeReason(e.target.value)}
                 placeholder="e.g. Updating textures / Season ending soon"
-                className="w-full px-4 py-3 rounded-2xl bg-obsidian/60 border border-white/15 text-white placeholder-white/30 text-sm focus:outline-none focus:border-tertiary"
+                className="w-full px-4 py-3 rounded-2xl bg-obsidian/60 border border-on-surface/15 text-on-surface placeholder-on-surface/30 text-sm focus:outline-none focus:border-tertiary"
               />
             </div>
 
@@ -676,7 +676,7 @@ export default function ProductManagementTab({
                 size="md"
                 loading={isRevoking}
                 onClick={handleConfirmRevoke}
-                className="bg-tertiary-container hover:bg-tertiary text-white border-none shadow-lg font-bold"
+                className="bg-tertiary-container hover:bg-tertiary text-on-tertiary border-none shadow-lg font-bold"
               >
                 Suspend
               </Button>
@@ -688,13 +688,13 @@ export default function ProductManagementTab({
       {/* Confirmation Modal for Immediate Final Delete & Auto-Refund */}
       {productToImmediateDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-obsidian/85 backdrop-blur-md animate-fade-in">
-          <div className="w-full max-w-xl rounded-2xl bg-background border border-error/40 p-6 sm:p-8 shadow-raised space-y-5 text-white">
-            <div className="flex items-center gap-4 pb-3 border-b border-white/10">
+          <div className="w-full max-w-xl rounded-2xl bg-background border border-error/40 p-6 sm:p-8 shadow-raised space-y-5 text-on-surface">
+            <div className="flex items-center gap-4 pb-3 border-b border-on-surface/10">
               <span className="w-14 h-14 rounded-2xl bg-error/20 text-error border border-error/30 flex items-center justify-center shrink-0 shadow-lg">
                 <Icon name="delete_forever" className="text-3xl" />
               </span>
               <div>
-                <h3 className="font-headline font-bold text-xl text-white">
+                <h3 className="font-headline font-bold text-xl text-on-surface">
                   Delete and refund
                 </h3>
                 <p className="text-sm text-error/80 mt-0.5">
@@ -703,8 +703,8 @@ export default function ProductManagementTab({
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-obsidian/50 border border-white/10 flex items-center gap-4">
-              <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 p-1 flex items-center justify-center shrink-0">
+            <div className="p-4 rounded-2xl bg-obsidian/50 border border-on-surface/10 flex items-center gap-4">
+              <div className="w-14 h-14 rounded-xl bg-on-surface/5 border border-on-surface/10 p-1 flex items-center justify-center shrink-0">
                 <img
                   alt={productToImmediateDelete.name}
                   src={productToImmediateDelete.previewUrl || productToImmediateDelete.assetUrl}
@@ -715,7 +715,7 @@ export default function ProductManagementTab({
                 />
               </div>
               <div className="min-w-0">
-                <span className="font-headline font-bold text-base text-white block truncate">
+                <span className="font-headline font-bold text-base text-on-surface block truncate">
                   {productToImmediateDelete.name}
                 </span>
                 <span className="text-sm text-tertiary font-mono font-bold block mt-0.5">
@@ -742,7 +742,7 @@ export default function ProductManagementTab({
                 size="md"
                 loading={isDeletingExecuting}
                 onClick={handleConfirmExecuteDeletion}
-                className="bg-error-container hover:bg-error-container/80 text-white font-bold shadow-lg px-5 py-2.5"
+                className="bg-error-container hover:bg-error-container/80 text-on-error-container font-bold shadow-lg px-5 py-2.5"
               >
                 Delete and refund now
               </Button>

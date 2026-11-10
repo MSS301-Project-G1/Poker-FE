@@ -70,14 +70,14 @@ export default function ScheduleDeletionModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-obsidian/85 backdrop-blur-md animate-fade-in overflow-y-auto">
-      <div className="w-full max-w-2xl rounded-2xl bg-background border border-error/40 p-6 sm:p-8 shadow-raised space-y-5 text-white my-auto">
+      <div className="w-full max-w-2xl rounded-2xl bg-background border border-error/40 p-6 sm:p-8 shadow-raised space-y-5 text-on-surface my-auto">
         {/* Header */}
-        <div className="flex items-center gap-4 pb-4 border-b border-white/10">
+        <div className="flex items-center gap-4 pb-4 border-b border-on-surface/10">
           <span className="w-14 h-14 rounded-2xl bg-error/30 text-error border border-error/40 flex items-center justify-center shrink-0 shadow-lg">
             <Icon name="timer" className="text-3xl" />
           </span>
           <div>
-            <h3 className="font-headline font-bold text-xl sm:text-2xl text-white">
+            <h3 className="font-headline font-bold text-xl sm:text-2xl text-on-surface">
               Schedule deletion
             </h3>
             <p className="text-sm text-error/90 mt-0.5 leading-relaxed">
@@ -88,8 +88,8 @@ export default function ScheduleDeletionModal({
         </div>
 
         {/* Product summary card */}
-        <div className="p-4 rounded-2xl bg-obsidian/50 border border-white/10 flex items-center gap-4 shadow-inner">
-          <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 p-1.5 flex items-center justify-center shrink-0 overflow-hidden">
+        <div className="p-4 rounded-2xl bg-obsidian/50 border border-on-surface/10 flex items-center gap-4 shadow-inner">
+          <div className="w-16 h-16 rounded-2xl bg-on-surface/5 border border-on-surface/10 p-1.5 flex items-center justify-center shrink-0 overflow-hidden">
             <img
               alt={product.name}
               src={product.previewUrl || product.assetUrl}
@@ -100,15 +100,15 @@ export default function ScheduleDeletionModal({
             />
           </div>
           <div className="min-w-0 flex-1">
-            <span className="font-headline font-bold text-base sm:text-lg text-white block truncate">
+            <span className="font-headline font-bold text-base sm:text-lg text-on-surface block truncate">
               {product.name}
             </span>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-sm text-tertiary font-mono font-bold">
                 {formatVipCoin(product.priceVipCoin)} VIP Coin
               </span>
-              <span className="text-xs text-white/30">•</span>
-              <span className="text-xs text-white/70 font-semibold px-2 py-0.5 rounded-md bg-white/10 border border-white/10">
+              <span className="text-xs text-on-surface/30">•</span>
+              <span className="text-xs text-on-surface/70 font-semibold px-2 py-0.5 rounded-md bg-on-surface/10 border border-on-surface/10">
                 {product.categoryCode}
               </span>
             </div>
@@ -118,7 +118,7 @@ export default function ScheduleDeletionModal({
         {/* Duration Selection (Admin Freedom: Phút hoặc Giờ) */}
         <div className="space-y-2.5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-            <label className="text-sm font-bold text-white flex items-center gap-2">
+            <label className="text-sm font-bold text-on-surface flex items-center gap-2">
               <Icon name="schedule" className="text-error text-base" />
               <span>Countdown:</span>
             </label>
@@ -143,7 +143,7 @@ export default function ScheduleDeletionModal({
                   className={`py-2.5 px-3 rounded-2xl border text-sm font-bold transition-all text-center ${
                     isSelected
                       ? 'bg-error/30 border-error text-error shadow-lg ring-2 ring-error/50'
-                      : 'bg-obsidian/40 border-white/10 text-white/70 hover:text-white hover:bg-white/10'
+                      : 'bg-obsidian/40 border-on-surface/10 text-on-surface/70 hover:text-on-surface hover:bg-on-surface/10'
                   }`}
                 >
                   {opt.label}
@@ -153,26 +153,26 @@ export default function ScheduleDeletionModal({
           </div>
 
           {/* Custom value and unit selector */}
-          <div className="mt-2 flex flex-wrap items-center gap-3 p-3.5 rounded-2xl bg-obsidian/40 border border-white/10">
-            <span className="text-sm text-white/80 font-medium">Or custom:</span>
+          <div className="mt-2 flex flex-wrap items-center gap-3 p-3.5 rounded-2xl bg-obsidian/40 border border-on-surface/10">
+            <span className="text-sm text-on-surface/80 font-medium">Or custom:</span>
             <input
               type="number"
               min="1"
               max={unit === 'HOURS' ? 720 : 43200}
               value={durationValue}
               onChange={e => setDurationValue(Math.max(1, Number(e.target.value)))}
-              className="w-28 px-3.5 py-2 rounded-xl bg-obsidian/70 border border-white/20 text-sm text-white font-mono font-bold focus:outline-none focus:border-error text-center"
+              className="w-28 px-3.5 py-2 rounded-xl bg-obsidian/70 border border-on-surface/20 text-sm text-on-surface font-mono font-bold focus:outline-none focus:border-error text-center"
             />
             <select
               value={unit}
               onChange={e => setUnit(e.target.value)}
-              className="px-4 py-2 rounded-xl bg-obsidian/70 border border-white/20 text-sm text-white font-bold focus:outline-none focus:border-error cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-obsidian/70 border border-on-surface/20 text-sm text-on-surface font-bold focus:outline-none focus:border-error cursor-pointer"
             >
               <option value="MINUTES">Minutes</option>
               <option value="HOURS">Hours</option>
             </select>
-            <span className="text-sm text-white/60 font-mono ml-auto">
-              (Total: <strong className="text-white font-bold">{effectiveMinutes} minutes</strong>)
+            <span className="text-sm text-on-surface/60 font-mono ml-auto">
+              (Total: <strong className="text-on-surface font-bold">{effectiveMinutes} minutes</strong>)
             </span>
           </div>
         </div>
@@ -180,17 +180,17 @@ export default function ScheduleDeletionModal({
         {/* Notice Message */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="block text-sm font-bold text-white">
+            <label className="block text-sm font-bold text-on-surface">
               Reason and server-wide notice <span className="text-error">*</span>:
             </label>
-            <span className="text-xs text-white/40">Shown in the shop and inventories</span>
+            <span className="text-xs text-on-surface/40">Shown in the shop and inventories</span>
           </div>
           <textarea
             rows={3}
             value={notice}
             onChange={e => setNotice(e.target.value)}
             placeholder="e.g. Retired for the new season. Every owner gets 100% of their VIP Coin back when the countdown ends."
-            className="w-full px-4 py-3 rounded-2xl bg-obsidian/60 border border-white/15 text-white placeholder-white/35 text-sm leading-relaxed focus:outline-none focus:border-error focus:ring-2 focus:ring-error/30 transition-all"
+            className="w-full px-4 py-3 rounded-2xl bg-obsidian/60 border border-on-surface/15 text-on-surface placeholder-on-surface/35 text-sm leading-relaxed focus:outline-none focus:border-error focus:ring-2 focus:ring-error/30 transition-all"
           />
         </div>
 
@@ -206,14 +206,14 @@ export default function ScheduleDeletionModal({
         </div>
 
         {/* Modal Actions Footer */}
-        <div className="pt-3 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="pt-3 border-t border-on-surface/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           {/* Destroy-now button */}
           {onImmediateDelete ? (
             <button
               type="button"
               disabled={loading}
               onClick={() => onImmediateDelete(product)}
-              className="px-4 py-3 rounded-2xl bg-error-container/60 hover:bg-error-container text-error hover:text-white border border-error/50 hover:border-error font-headline font-bold text-sm flex items-center justify-center gap-2.5 shadow-lg transition-all active:scale-[0.98] group"
+              className="px-4 py-3 rounded-2xl bg-error-container/60 hover:bg-error-container text-error hover:text-on-error-container border border-error/50 hover:border-error font-headline font-bold text-sm flex items-center justify-center gap-2.5 shadow-lg transition-all active:scale-[0.98] group"
               title="Skip the countdown: delete now and refund players immediately"
             >
               <span className="w-6 h-6 rounded-lg bg-error/30 flex items-center justify-center text-error group-hover:scale-110 transition-transform">
@@ -230,7 +230,7 @@ export default function ScheduleDeletionModal({
               type="button"
               disabled={loading}
               onClick={onClose}
-              className="px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/15 text-white/80 hover:text-white border border-white/15 font-bold text-sm transition-all active:scale-[0.98]"
+              className="px-5 py-3 rounded-2xl bg-on-surface/10 hover:bg-on-surface/15 text-on-surface/80 hover:text-on-surface border border-on-surface/15 font-bold text-sm transition-all active:scale-[0.98]"
             >
               Cancel
             </button>
@@ -239,10 +239,10 @@ export default function ScheduleDeletionModal({
               type="button"
               disabled={loading}
               onClick={handleConfirm}
-              className="px-6 py-3 rounded-2xl bg-error-container hover:bg-error-container/80 text-white font-headline font-bold text-sm flex items-center justify-center gap-2 shadow-raised transition-all active:scale-[0.98] disabled:opacity-50"
+              className="px-6 py-3 rounded-2xl bg-error-container hover:bg-error-container/80 text-on-error-container font-headline font-bold text-sm flex items-center justify-center gap-2 shadow-raised transition-all active:scale-[0.98] disabled:opacity-50"
             >
               {loading ? (
-                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
               ) : (
                 <Icon name="timer" className="text-lg" />
               )}

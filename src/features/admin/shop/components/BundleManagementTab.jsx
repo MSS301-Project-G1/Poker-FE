@@ -182,13 +182,13 @@ export default function BundleManagementTab({
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-surface-container-lowest/95 border border-white/10 shadow-raised">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-surface-container-lowest/95 border border-on-surface/10 shadow-raised">
         <div>
-          <h2 className="font-headline font-bold text-2xl text-white flex items-center gap-3">
+          <h2 className="font-headline font-bold text-2xl text-on-surface flex items-center gap-3">
             <Icon name="paid" className="text-tertiary text-3xl" />
             <span>VIP Coin packs (PayOS)</span>
           </h2>
-          <p className="text-sm text-white/60 mt-1">
+          <p className="text-sm text-on-surface/60 mt-1">
             Set VND to VIP Coin rates and top-up bonuses
           </p>
         </div>
@@ -199,12 +199,12 @@ export default function BundleManagementTab({
       </div>
 
       {/* Action / Search Toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-on-surface/5 border border-on-surface/10">
         <div className="flex items-center gap-3 flex-wrap">
           <select
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
-            className="px-4 py-2.5 rounded-xl bg-obsidian/60 border border-white/20 text-white text-sm font-bold focus:outline-none focus:border-tertiary cursor-pointer"
+            className="px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm font-bold focus:outline-none focus:border-tertiary cursor-pointer"
           >
             <option value="ALL">All statuses</option>
             <option value="ACTIVE">On sale</option>
@@ -214,14 +214,14 @@ export default function BundleManagementTab({
           <select
             value={sortOption}
             onChange={e => setSortOption(e.target.value)}
-            className="px-4 py-2.5 rounded-xl bg-obsidian/60 border border-white/20 text-tertiary text-sm font-bold focus:outline-none focus:border-tertiary cursor-pointer"
+            className="px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-tertiary text-sm font-bold focus:outline-none focus:border-tertiary cursor-pointer"
           >
             <option value="PRICE_ASC">Price: low to high</option>
             <option value="PRICE_DESC">Price: high to low</option>
             <option value="DEFAULT">Default order</option>
           </select>
 
-          <span className="text-xs font-bold text-white/50 px-2">
+          <span className="text-xs font-bold text-on-surface/50 px-2">
             Showing <span className="text-tertiary font-bold">{filteredBundles.length}</span> / {bundles.length} coin packs
           </span>
         </div>
@@ -230,24 +230,24 @@ export default function BundleManagementTab({
         <div className="relative min-w-[280px]">
           <Icon
             name="search"
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-lg pointer-events-none"
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface/40 text-lg pointer-events-none"
           />
           <input
             type="text"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             placeholder="Search by name or code…"
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-obsidian/60 border border-white/20 text-white text-sm placeholder:text-white/40 focus:outline-none focus:border-tertiary"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm placeholder:text-on-surface/40 focus:outline-none focus:border-tertiary"
           />
         </div>
       </div>
 
       {/* Bundles Table */}
-      <div className="rounded-2xl bg-surface-container-lowest/95 border border-white/10 overflow-hidden shadow-raised">
+      <div className="rounded-2xl bg-surface-container-lowest/95 border border-on-surface/10 overflow-hidden shadow-raised">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-sm">
             <thead>
-              <tr className="border-b border-white/10 bg-white/[0.04] text-white/70 font-bold text-xs">
+              <tr className="border-b border-on-surface/10 bg-on-surface/[0.04] text-on-surface/70 font-bold text-xs">
                 <th className="py-3 px-3">Code</th>
                 <th className="py-3 px-3">Name</th>
                 <th
@@ -277,34 +277,34 @@ export default function BundleManagementTab({
                 <th className="py-3 px-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-on-surface/5">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="py-16 text-center text-white/50 text-base">
+                  <td colSpan={8} className="py-16 text-center text-on-surface/50 text-base">
                     <span className="w-7 h-7 border-3 border-tertiary border-t-transparent rounded-full animate-spin inline-block mr-3" />
                     Loading coin packs…
                   </td>
                 </tr>
               ) : filteredBundles.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-16 text-center text-white/50 text-base">
+                  <td colSpan={8} className="py-16 text-center text-on-surface/50 text-base">
                     No matching coin packs.
                   </td>
                 </tr>
               ) : (
                 filteredBundles.map(b => (
-                  <tr key={b.id} className="hover:bg-white/5 transition-colors">
-                    <td className="py-3 px-3 font-bold text-white/80 font-mono text-xs">
+                  <tr key={b.id} className="hover:bg-on-surface/5 transition-colors">
+                    <td className="py-3 px-3 font-bold text-on-surface/80 font-mono text-xs">
                       {b.code}
                     </td>
-                    <td className="py-3 px-3 font-bold text-white text-base">
+                    <td className="py-3 px-3 font-bold text-on-surface text-base">
                       {b.name}
                     </td>
                     <td className="py-3 px-3 whitespace-nowrap font-headline font-bold text-tertiary text-base">
                       {formatVnd(b.priceVnd)}
                     </td>
-                    <td className="py-3 px-3 whitespace-nowrap font-medium text-white/80">
-                      <span className="font-headline font-bold text-white text-sm">
+                    <td className="py-3 px-3 whitespace-nowrap font-medium text-on-surface/80">
+                      <span className="font-headline font-bold text-on-surface text-sm">
                         {formatVipCoin(b.baseVipCoin)} VIP
                       </span>
                       {b.bonusPercentage > 0 ? (
@@ -312,7 +312,7 @@ export default function BundleManagementTab({
                           +{b.bonusPercentage}%
                         </span>
                       ) : (
-                        <span className="text-white/40 ml-2 text-xs font-normal">(base)</span>
+                        <span className="text-on-surface/40 ml-2 text-xs font-normal">(base)</span>
                       )}
                     </td>
                     <td className="py-3 px-3 whitespace-nowrap font-headline font-bold text-tertiary text-base">
@@ -330,8 +330,8 @@ export default function BundleManagementTab({
                           On sale
                         </span>
                       ) : (
-                        <span className="whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-white/50 border border-white/10">
-                          <span className="w-2 h-2 rounded-full bg-white/30" />
+                        <span className="whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-on-surface/10 text-on-surface/50 border border-on-surface/10">
+                          <span className="w-2 h-2 rounded-full bg-on-surface/30" />
                           Off sale
                         </span>
                       )}
@@ -344,8 +344,8 @@ export default function BundleManagementTab({
                           onClick={() => handleToggle(b.id, b.isActive)}
                           className={`whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                             b.isActive
-                              ? 'bg-tertiary/15 text-tertiary-fixed border-tertiary/30 hover:bg-tertiary/25 hover:text-white'
-                              : 'bg-success/15 text-success border-success/30 hover:bg-success/25 hover:text-white'
+                              ? 'bg-tertiary/15 text-tertiary-fixed border-tertiary/30 hover:bg-tertiary/25 hover:text-on-surface'
+                              : 'bg-success/15 text-success border-success/30 hover:bg-success/25 hover:text-on-surface'
                           }`}
                           title={b.isActive ? 'Take this pack off sale to edit or delete it' : 'Put this pack on sale'}
                         >
@@ -358,8 +358,8 @@ export default function BundleManagementTab({
                           onClick={() => handleOpenEdit(b)}
                           className={`whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 ${
                             b.isActive
-                              ? 'bg-white/5 text-white/30 border-white/10 cursor-not-allowed'
-                              : 'bg-primary-container/15 text-primary border-primary-container/30 hover:bg-primary-container/25 hover:text-white cursor-pointer'
+                              ? 'bg-on-surface/5 text-on-surface/30 border-on-surface/10 cursor-not-allowed'
+                              : 'bg-primary-container/15 text-primary border-primary-container/30 hover:bg-primary-container/25 hover:text-on-surface cursor-pointer'
                           }`}
                           title={b.isActive ? 'Take the pack off sale before editing it.' : 'Edit coin pack'}
                         >
@@ -373,8 +373,8 @@ export default function BundleManagementTab({
                           onClick={() => handleOpenDelete(b)}
                           className={`whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 ${
                             b.isActive
-                              ? 'bg-white/5 text-white/30 border-white/10 cursor-not-allowed'
-                              : 'bg-error/15 text-error border-error/30 hover:bg-error/25 hover:text-white cursor-pointer'
+                              ? 'bg-on-surface/5 text-on-surface/30 border-on-surface/10 cursor-not-allowed'
+                              : 'bg-error/15 text-error border-error/30 hover:bg-error/25 hover:text-on-surface cursor-pointer'
                           }`}
                           title={b.isActive ? 'Take the pack off sale before deleting it.' : 'Delete coin pack'}
                         >
@@ -394,74 +394,74 @@ export default function BundleManagementTab({
       {/* Modal Thêm Gói Nạp */}
       {isCreateOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/80 backdrop-blur-md">
-          <div className="w-full max-w-lg rounded-2xl bg-background border border-white/20 p-7 shadow-raised">
-            <h3 className="font-headline font-bold text-xl text-white mb-5 flex items-center gap-2">
+          <div className="w-full max-w-lg rounded-2xl bg-background border border-on-surface/20 p-7 shadow-raised">
+            <h3 className="font-headline font-bold text-xl text-on-surface mb-5 flex items-center gap-2">
               <Icon name="add_circle" className="text-tertiary" />
               <span>New VIP Coin pack</span>
             </h3>
             <form onSubmit={handleCreate} className="space-y-4 text-sm">
               <div>
-                <label className="text-white/80 block mb-1.5 font-bold">Display name:</label>
+                <label className="text-on-surface/80 block mb-1.5 font-bold">Display name:</label>
                 <input
                   type="text"
                   required
                   placeholder="Super pack 500K (+20%)"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-white/20 text-white text-sm focus:outline-none focus:border-tertiary"
+                  className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-tertiary"
                 />
               </div>
               <div>
-                <label className="text-white/80 block mb-1.5 font-bold">Code (unique):</label>
+                <label className="text-on-surface/80 block mb-1.5 font-bold">Code (unique):</label>
                 <input
                   type="text"
                   required
                   placeholder="BUNDLE_500K_PROMO"
                   value={code}
                   onChange={e => setCode(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-white/20 text-white text-sm font-mono focus:outline-none focus:border-tertiary"
+                  className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm font-mono focus:outline-none focus:border-tertiary"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-white/80 block mb-1.5 font-bold">Price (VND):</label>
+                  <label className="text-on-surface/80 block mb-1.5 font-bold">Price (VND):</label>
                   <input
                     type="number"
                     min="0"
                     value={priceVnd}
                     onChange={e => setPriceVnd(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-white/20 text-white text-sm focus:outline-none focus:border-tertiary"
+                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-tertiary"
                   />
                 </div>
                 <div>
-                  <label className="text-white/80 block mb-1.5 font-bold">Base VIP Coin:</label>
+                  <label className="text-on-surface/80 block mb-1.5 font-bold">Base VIP Coin:</label>
                   <input
                     type="number"
                     min="1"
                     value={baseVipCoin}
                     onChange={e => setBaseVipCoin(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-white/20 text-white text-sm focus:outline-none focus:border-tertiary"
+                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-tertiary"
                   />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-white/80 block mb-1.5 font-bold">Bonus VIP Coin:</label>
+                  <label className="text-on-surface/80 block mb-1.5 font-bold">Bonus VIP Coin:</label>
                   <input
                     type="number"
                     min="0"
                     value={bonusVipCoin}
                     onChange={e => setBonusVipCoin(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-white/20 text-white text-sm focus:outline-none focus:border-tertiary"
+                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-tertiary"
                   />
                 </div>
                 <div>
-                  <label className="text-white/80 block mb-1.5 font-bold">Badge:</label>
+                  <label className="text-on-surface/80 block mb-1.5 font-bold">Badge:</label>
                   <input
                     type="text"
                     value={badgeLabel}
                     onChange={e => setBadgeLabel(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-white/20 text-white text-sm focus:outline-none focus:border-tertiary"
+                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-tertiary"
                   />
                 </div>
               </div>
@@ -482,13 +482,13 @@ export default function BundleManagementTab({
       {/* Modal Chỉnh Sửa Gói Nạp */}
       {isEditOpen && editingBundle && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/80 backdrop-blur-md">
-          <div className="w-full max-w-lg rounded-2xl bg-background border border-white/20 p-7 shadow-raised">
+          <div className="w-full max-w-lg rounded-2xl bg-background border border-on-surface/20 p-7 shadow-raised">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-headline font-bold text-xl text-white flex items-center gap-2">
+              <h3 className="font-headline font-bold text-xl text-on-surface flex items-center gap-2">
                 <Icon name="edit" className="text-primary" />
                 <span>Edit coin pack</span>
               </h3>
-              <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-white/10 text-white/70">
+              <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-on-surface/10 text-on-surface/70">
                 {editingBundle.code}
               </span>
             </div>
@@ -502,86 +502,86 @@ export default function BundleManagementTab({
 
             <form onSubmit={handleUpdate} className="space-y-4 text-sm">
               <div>
-                <label className="text-white/80 block mb-1.5 font-bold">Display name:</label>
+                <label className="text-on-surface/80 block mb-1.5 font-bold">Display name:</label>
                 <input
                   type="text"
                   required
                   value={editName}
                   onChange={e => setEditName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-white/20 text-white text-sm focus:outline-none focus:border-primary"
+                  className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-primary"
                 />
               </div>
 
               <div>
-                <label className="text-white/80 block mb-1.5 font-bold">Code (unique):</label>
+                <label className="text-on-surface/80 block mb-1.5 font-bold">Code (unique):</label>
                 <input
                   type="text"
                   required
                   placeholder="BUNDLE_10K"
                   value={editCode}
                   onChange={e => setEditCode(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-white/20 text-white text-sm font-mono focus:outline-none focus:border-primary"
+                  className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm font-mono focus:outline-none focus:border-primary"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-white/80 block mb-1.5 font-bold">Price (VND):</label>
+                  <label className="text-on-surface/80 block mb-1.5 font-bold">Price (VND):</label>
                   <input
                     type="number"
                     min="0"
                     value={editPriceVnd}
                     onChange={e => setEditPriceVnd(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-white/20 text-white text-sm focus:outline-none focus:border-primary"
+                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-primary"
                   />
                 </div>
                 <div>
-                  <label className="text-white/80 block mb-1.5 font-bold">Base VIP Coin:</label>
+                  <label className="text-on-surface/80 block mb-1.5 font-bold">Base VIP Coin:</label>
                   <input
                     type="number"
                     min="1"
                     value={editBaseVipCoin}
                     onChange={e => setEditBaseVipCoin(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-white/20 text-white text-sm focus:outline-none focus:border-primary"
+                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-primary"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-white/80 block mb-1.5 font-bold">Bonus VIP Coin:</label>
+                  <label className="text-on-surface/80 block mb-1.5 font-bold">Bonus VIP Coin:</label>
                   <input
                     type="number"
                     min="0"
                     value={editBonusVipCoin}
                     onChange={e => setEditBonusVipCoin(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-white/20 text-white text-sm focus:outline-none focus:border-primary"
+                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-primary"
                   />
                 </div>
                 <div>
-                  <label className="text-white/80 block mb-1.5 font-bold">Badge:</label>
+                  <label className="text-on-surface/80 block mb-1.5 font-bold">Badge:</label>
                   <input
                     type="text"
                     value={editBadgeLabel}
                     onChange={e => setEditBadgeLabel(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-white/20 text-white text-sm focus:outline-none focus:border-primary"
+                    className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-primary"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-white/80 block mb-1.5 font-bold">Sort order:</label>
+                <label className="text-on-surface/80 block mb-1.5 font-bold">Sort order:</label>
                 <input
                   type="number"
                   value={editSortOrder}
                   onChange={e => setEditSortOrder(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-white/20 text-white text-sm focus:outline-none focus:border-primary"
+                  className="w-full px-4 py-2.5 rounded-xl bg-obsidian/60 border border-on-surface/20 text-on-surface text-sm focus:outline-none focus:border-primary"
                 />
               </div>
 
               {/* Tổng kết quy đổi */}
-              <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex justify-between items-center text-xs">
-                <span className="text-white/60">Total VIP Coin the player gets:</span>
+              <div className="p-3 rounded-xl bg-on-surface/5 border border-on-surface/10 flex justify-between items-center text-xs">
+                <span className="text-on-surface/60">Total VIP Coin the player gets:</span>
                 <span className="font-headline font-bold text-tertiary text-sm">
                   {formatVipCoin((Number(editBaseVipCoin) || 0) + (Number(editBonusVipCoin) || 0))} VIP
                   {Number(editBaseVipCoin) > 0 && Number(editBonusVipCoin) > 0 && (
@@ -613,13 +613,13 @@ export default function BundleManagementTab({
               <Icon name="delete_forever" className="text-3xl" />
             </div>
 
-            <h3 className="font-headline font-bold text-xl text-white text-center mb-2">
+            <h3 className="font-headline font-bold text-xl text-on-surface text-center mb-2">
               Delete coin pack?
             </h3>
 
-            <p className="text-sm text-white/70 text-center mb-4">
+            <p className="text-sm text-on-surface/70 text-center mb-4">
               Are you sure you want to delete{' '}
-              <strong className="text-white font-bold">{bundleToDelete.name}</strong> (
+              <strong className="text-on-surface font-bold">{bundleToDelete.name}</strong> (
               <span className="font-mono text-xs text-tertiary-fixed">{bundleToDelete.code}</span>)?
             </p>
 
@@ -644,10 +644,10 @@ export default function BundleManagementTab({
                 type="button"
                 onClick={handleConfirmDelete}
                 disabled={isDeleting}
-                className="px-5 py-2.5 rounded-xl font-bold text-sm bg-error-container hover:bg-error-container/80 text-white transition-all shadow-lg disabled:opacity-50 cursor-pointer flex items-center gap-2"
+                className="px-5 py-2.5 rounded-xl font-bold text-sm bg-error-container hover:bg-error-container/80 text-on-error-container transition-all shadow-lg disabled:opacity-50 cursor-pointer flex items-center gap-2"
               >
                 {isDeleting && (
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" />
+                  <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin inline-block" />
                 )}
                 <span>Delete</span>
               </button>

@@ -233,7 +233,7 @@ export default function ProductDetailPage() {
     return (
       <div className="w-full py-32 flex flex-col items-center justify-center gap-3">
         <span className="w-10 h-10 border-4 border-tertiary border-t-transparent rounded-full animate-spin" />
-        <span className="text-sm text-white/70 font-medium">Loading item…</span>
+        <span className="text-sm text-on-surface/70 font-medium">Loading item…</span>
       </div>
     )
   }
@@ -242,7 +242,7 @@ export default function ProductDetailPage() {
     return (
       <div className="w-full max-w-4xl mx-auto py-24 text-center px-4">
         <h3 className="text-xl font-bold text-error mb-2">Product not found</h3>
-        <p className="text-sm text-white/60 mb-6">{error || 'This product doesn’t exist or was removed.'}</p>
+        <p className="text-sm text-on-surface/60 mb-6">{error || 'This product doesn’t exist or was removed.'}</p>
         <Button variant="secondary" onClick={() => navigate('/shop')}>
           Back to shop
         </Button>
@@ -253,22 +253,22 @@ export default function ProductDetailPage() {
   const tierInfo = getTierBadge(product.tier)
 
   return (
-    <div className="relative w-full pb-space-lg overflow-hidden font-body-md text-white">
+    <div className="relative w-full pb-space-lg overflow-hidden font-body-md text-on-surface">
       <div className="w-full px-6 lg:px-12 pt-6">
         {/* Navigation Breadcrumb */}
-        <div className="flex items-center gap-3 pb-6 border-b border-white/10 mb-8">
+        <div className="flex items-center gap-3 pb-6 border-b border-on-surface/10 mb-8">
           <button
             type="button"
             onClick={() => navigate('/shop')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-on-surface/5 hover:bg-on-surface/10 border border-on-surface/10 text-xs font-bold transition-all"
           >
             <Icon name="arrow_back" className="text-sm" />
             <span>Shop</span>
           </button>
-          <span className="text-white/40">/</span>
+          <span className="text-on-surface/40">/</span>
           <span className="text-xs text-tertiary font-bold">{product.categoryName || 'Card deck skin'}</span>
-          <span className="text-white/40">/</span>
-          <span className="text-xs text-white/80 font-medium truncate">{product.name}</span>
+          <span className="text-on-surface/40">/</span>
+          <span className="text-xs text-on-surface/80 font-medium truncate">{product.name}</span>
         </div>
 
         {/* Top Feature Area: Interactive 3D Card / Dealer VIP Stage / Video Review & Details */}
@@ -276,7 +276,7 @@ export default function ProductDetailPage() {
           {/* Left Stage */}
           {isDeckSkin ? (
             /* 3D Interactive Rotating Card Stage for Playing Cards */
-            <div className="lg:col-span-5 flex flex-col items-center justify-center p-8 rounded-2xl bg-surface-container-lowest/90 border border-white/10 shadow-raised relative">
+            <div className="lg:col-span-5 flex flex-col items-center justify-center p-8 rounded-2xl bg-surface-container-lowest/90 border border-on-surface/10 shadow-raised relative">
               <div className="w-56 h-80 relative mb-6 drop-shadow-xl">
                 <CosmeticRenderer
                   categoryCode={product.categoryCode}
@@ -302,7 +302,7 @@ export default function ProductDetailPage() {
                   <span>{is3DFlipped ? 'Show card front' : 'Flip to card back'}</span>
                 </button>
               </div>
-              <p className="text-xs text-white/60 mt-3 font-medium flex items-center gap-1.5">
+              <p className="text-xs text-on-surface/60 mt-3 font-medium flex items-center gap-1.5">
                 <Icon name="touch_app" className="text-xs text-tertiary" />
                 <span>Click the card or the button above to flip it</span>
               </p>
@@ -311,11 +311,11 @@ export default function ProductDetailPage() {
             /* Luxury Interactive VIP Dealer Stage with Multi-Pose & Simulation */
             <div className="lg:col-span-5 flex flex-col items-center p-6 rounded-2xl bg-background border border-tertiary/30 shadow-raised relative overflow-hidden">
               {/* Top Bar on Stage */}
-              <div className="w-full flex items-center justify-between mb-4 pb-3 border-b border-white/10">
+              <div className="w-full flex items-center justify-between mb-4 pb-3 border-b border-on-surface/10">
                 <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-tertiary/20 text-tertiary-fixed border border-tertiary/30 text-[11px] font-bold">
                   <Icon name="face" className="text-sm" /> AI Live Dealer
                 </span>
-                <span className="text-[11px] text-white/60 font-medium">
+                <span className="text-[11px] text-on-surface/60 font-medium">
                   {activeDealerPose === 'avatar' ? 'Table corner portrait' : `Pose: ${activeDealerPose.toUpperCase()}`}
                 </span>
               </div>
@@ -342,7 +342,7 @@ export default function ProductDetailPage() {
                     className="w-full h-full object-contain filter drop-shadow-xl transition-all duration-300"
                   />
                 ) : (
-                  <div className="flex flex-col items-center justify-center text-white/40 gap-2">
+                  <div className="flex flex-col items-center justify-center text-on-surface/40 gap-2">
                     <Icon name="person" className="text-6xl text-tertiary/40" />
                     <span className="text-xs">No image for this pose yet</span>
                   </div>
@@ -350,7 +350,7 @@ export default function ProductDetailPage() {
 
                 {/* Floating pose badge */}
                 <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between pointer-events-none">
-                  <span className="px-3 py-1 rounded-full bg-obsidian/75 backdrop-blur-md border border-white/10 text-[11px] font-bold text-white flex items-center gap-1.5 shadow-lg">
+                  <span className="px-3 py-1 rounded-full bg-obsidian/75 backdrop-blur-md border border-on-surface/10 text-[11px] font-bold text-on-surface flex items-center gap-1.5 shadow-lg">
                     <span className={`w-2 h-2 rounded-full ${isAutoPlayingMatch ? 'bg-success ' : 'bg-tertiary'}`} />
                     {DEALER_POSE_CONFIG.find(p => p.key === activeDealerPose)?.label || activeDealerPose}
                   </span>
@@ -374,7 +374,7 @@ export default function ProductDetailPage() {
               </div>
 
               {/* Pose Switcher Tabs */}
-              <div className="w-full flex items-center justify-between gap-1 p-1 bg-obsidian/40 rounded-xl border border-white/10">
+              <div className="w-full flex items-center justify-between gap-1 p-1 bg-obsidian/40 rounded-xl border border-on-surface/10">
                 {DEALER_POSE_CONFIG.map(p => {
                   const isActive = activeDealerPose === p.key
                   const hasImage = Boolean(dealerPoses?.[p.key])
@@ -389,7 +389,7 @@ export default function ProductDetailPage() {
                       className={`flex-1 py-1.5 px-1 rounded-lg text-[11px] font-bold transition-all flex flex-col items-center gap-0.5 relative ${
                         isActive
                           ? 'bg-tertiary text-on-tertiary shadow font-bold'
-                          : 'text-white/70 hover:text-white hover:bg-white/10'
+                          : 'text-on-surface/70 hover:text-on-surface hover:bg-on-surface/10'
                       }`}
                       title={p.desc}
                     >
@@ -405,9 +405,9 @@ export default function ProductDetailPage() {
             </div>
           ) : isSound ? (
             /* Audio Soundboard Stage */
-            <div className="lg:col-span-5 flex flex-col items-center justify-center p-8 rounded-2xl bg-surface-container-lowest/90 border border-white/10 shadow-raised relative">
+            <div className="lg:col-span-5 flex flex-col items-center justify-center p-8 rounded-2xl bg-surface-container-lowest/90 border border-on-surface/10 shadow-raised relative">
               <div className="w-48 h-48 rounded-full bg-on-secondary-fixed border-4 border-tertiary/30 flex items-center justify-center relative mb-6">
-                <div className={`w-36 h-36 rounded-full border-2 border-dashed border-white/20 flex items-center justify-center ${isPlayingSound ? 'animate-spin' : ''}`}>
+                <div className={`w-36 h-36 rounded-full border-2 border-dashed border-on-surface/20 flex items-center justify-center ${isPlayingSound ? 'animate-spin' : ''}`}>
                   <button
                     type="button"
                     onClick={handleTogglePlaySound}
@@ -424,7 +424,7 @@ export default function ProductDetailPage() {
             </div>
           ) : product.previewVideoUrl ? (
             /* Video Review Stage for Non-Cards (Effects, Tables, Frames) */
-            <div className="lg:col-span-5 flex flex-col items-center justify-center p-6 rounded-2xl bg-surface-container-lowest/90 border border-white/10 shadow-raised relative">
+            <div className="lg:col-span-5 flex flex-col items-center justify-center p-6 rounded-2xl bg-surface-container-lowest/90 border border-on-surface/10 shadow-raised relative">
               <div className="w-full h-80 rounded-2xl overflow-hidden relative bg-obsidian shadow-raised">
                 <video
                   src={product.previewVideoUrl}
@@ -435,19 +435,19 @@ export default function ProductDetailPage() {
                   playsInline
                   className="w-full h-full object-contain"
                 />
-                <div className="absolute top-3 left-3 bg-obsidian/60 backdrop-blur-md px-3 py-1 rounded-lg border border-white/10 text-xs font-bold text-tertiary flex items-center gap-1.5 pointer-events-none">
+                <div className="absolute top-3 left-3 bg-obsidian/60 backdrop-blur-md px-3 py-1 rounded-lg border border-on-surface/10 text-xs font-bold text-tertiary flex items-center gap-1.5 pointer-events-none">
                   <Icon name="play_circle" className="text-sm" />
                   <span>Effect preview video</span>
                 </div>
               </div>
-              <p className="text-xs text-white/60 mt-3 font-medium flex items-center gap-1.5">
+              <p className="text-xs text-on-surface/60 mt-3 font-medium flex items-center gap-1.5">
                 <Icon name="videocam" className="text-xs text-tertiary" />
                 <span>Recorded at a real table</span>
               </p>
             </div>
           ) : (
             /* Animated Stage Showcase if Video Review is not yet provided */
-            <div className="lg:col-span-5 flex flex-col items-center justify-center p-8 rounded-2xl bg-surface-container-lowest/90 border border-white/10 shadow-raised relative">
+            <div className="lg:col-span-5 flex flex-col items-center justify-center p-8 rounded-2xl bg-surface-container-lowest/90 border border-on-surface/10 shadow-raised relative">
               <div className="w-64 h-64 relative mb-4 flex items-center justify-center">
                 <CosmeticRenderer
                   categoryCode={product.categoryCode}
@@ -457,7 +457,7 @@ export default function ProductDetailPage() {
                   className="w-full h-full"
                 />
               </div>
-              <div className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-white/80 flex items-center gap-1.5">
+              <div className="px-3 py-1.5 rounded-full bg-on-surface/5 border border-on-surface/10 text-xs font-bold text-on-surface/80 flex items-center gap-1.5">
                 <Icon name="view_in_ar" className="text-sm text-tertiary" />
                 <span>3D Live Stage Preview</span>
               </div>
@@ -465,7 +465,7 @@ export default function ProductDetailPage() {
           )}
 
           {/* Right: Product Info & Action CTAs */}
-          <div className="lg:col-span-7 flex flex-col gap-5 p-8 rounded-2xl bg-surface-container-lowest/90 border border-white/10 shadow-raised">
+          <div className="lg:col-span-7 flex flex-col gap-5 p-8 rounded-2xl bg-surface-container-lowest/90 border border-on-surface/10 shadow-raised">
             <div className="flex items-center justify-between gap-3">
               <span className={`px-3 py-1 rounded-full text-xs font-bold ${tierInfo.className}`}>
                 {tierInfo.label}
@@ -482,8 +482,8 @@ export default function ProductDetailPage() {
             </div>
 
             <div>
-              <h1 className="font-headline font-bold text-2xl md:text-3xl text-white mb-2">{product.name}</h1>
-              <p className="text-sm text-white/70 leading-relaxed">
+              <h1 className="font-headline font-bold text-2xl md:text-3xl text-on-surface mb-2">{product.name}</h1>
+              <p className="text-sm text-on-surface/70 leading-relaxed">
                 {product.description || 'A premium cosmetic for MSS Poker.'}
               </p>
             </div>
@@ -502,7 +502,7 @@ export default function ProductDetailPage() {
                   <span className="font-bold text-tertiary-fixed flex items-center gap-1.5">
                     <Icon name="music_note" className="text-sm" /> Includes a fun sound
                   </span>
-                  <p className="text-[11px] text-white/60 mt-0.5">
+                  <p className="text-[11px] text-on-surface/60 mt-0.5">
                     Press to preview this item’s taunt sound
                   </p>
                 </div>
@@ -511,71 +511,71 @@ export default function ProductDetailPage() {
 
             {/* Specs Grid: Dynamic per cosmetic type */}
             {isDeckSkin ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-white/5 border border-white/5 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-on-surface/5 border border-on-surface/5 text-xs">
                 <div>
-                  <span className="text-white/40 block text-[11px] font-bold">Count</span>
-                  <span className="font-headline font-bold text-sm text-white">52 playing cards</span>
+                  <span className="text-on-surface/40 block text-[11px] font-bold">Count</span>
+                  <span className="font-headline font-bold text-sm text-on-surface">52 playing cards</span>
                 </div>
                 <div>
-                  <span className="text-white/40 block text-[11px] font-bold">Standard</span>
+                  <span className="text-on-surface/40 block text-[11px] font-bold">Standard</span>
                   <span className="font-headline font-bold text-sm text-tertiary">4 suits (♠, ♥, ♦, ♣)</span>
                 </div>
                 <div>
-                  <span className="text-white/40 block text-[11px] font-bold">Resolution</span>
-                  <span className="font-headline font-bold text-sm text-white">2K Ultra HD</span>
+                  <span className="text-on-surface/40 block text-[11px] font-bold">Resolution</span>
+                  <span className="font-headline font-bold text-sm text-on-surface">2K Ultra HD</span>
                 </div>
               </div>
             ) : isDealer ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-white/5 border border-white/5 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-on-surface/5 border border-on-surface/5 text-xs">
                 <div>
-                  <span className="text-white/40 block text-[11px] font-bold">Expressions</span>
+                  <span className="text-on-surface/40 block text-[11px] font-bold">Expressions</span>
                   <span className="font-headline font-bold text-sm text-tertiary">4 animated poses</span>
                 </div>
                 <div>
-                  <span className="text-white/40 block text-[11px] font-bold">AI animation</span>
-                  <span className="font-headline font-bold text-sm text-white">Idle, Deal, Flip, Win</span>
+                  <span className="text-on-surface/40 block text-[11px] font-bold">AI animation</span>
+                  <span className="font-headline font-bold text-sm text-on-surface">Idle, Deal, Flip, Win</span>
                 </div>
                 <div>
-                  <span className="text-white/40 block text-[11px] font-bold">Works with</span>
-                  <span className="font-headline font-bold text-sm text-white">Every poker table</span>
+                  <span className="text-on-surface/40 block text-[11px] font-bold">Works with</span>
+                  <span className="font-headline font-bold text-sm text-on-surface">Every poker table</span>
                 </div>
               </div>
             ) : isSound ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-white/5 border border-white/5 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-on-surface/5 border border-on-surface/5 text-xs">
                 <div>
-                  <span className="text-white/40 block text-[11px] font-bold">Format</span>
+                  <span className="text-on-surface/40 block text-[11px] font-bold">Format</span>
                   <span className="font-headline font-bold text-sm text-tertiary">MP3 / WAV Audio</span>
                 </div>
                 <div>
-                  <span className="text-white/40 block text-[11px] font-bold">Quality</span>
-                  <span className="font-headline font-bold text-sm text-white">320kbps Stereo</span>
+                  <span className="text-on-surface/40 block text-[11px] font-bold">Quality</span>
+                  <span className="font-headline font-bold text-sm text-on-surface">320kbps Stereo</span>
                 </div>
                 <div>
-                  <span className="text-white/40 block text-[11px] font-bold">Trigger</span>
-                  <span className="font-headline font-bold text-sm text-white">Automatic on events</span>
+                  <span className="text-on-surface/40 block text-[11px] font-bold">Trigger</span>
+                  <span className="font-headline font-bold text-sm text-on-surface">Automatic on events</span>
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-white/5 border border-white/5 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-on-surface/5 border border-on-surface/5 text-xs">
                 <div>
-                  <span className="text-white/40 block text-[11px] font-bold">Item type</span>
-                  <span className="font-headline font-bold text-sm text-white">{product.categoryName || 'Item'}</span>
+                  <span className="text-on-surface/40 block text-[11px] font-bold">Item type</span>
+                  <span className="font-headline font-bold text-sm text-on-surface">{product.categoryName || 'Item'}</span>
                 </div>
                 <div>
-                  <span className="text-white/40 block text-[11px] font-bold">Effect</span>
+                  <span className="text-on-surface/40 block text-[11px] font-bold">Effect</span>
                   <span className="font-headline font-bold text-sm text-tertiary">Dynamic 60 FPS</span>
                 </div>
                 <div>
-                  <span className="text-white/40 block text-[11px] font-bold">Works with</span>
-                  <span className="font-headline font-bold text-sm text-white">Every table</span>
+                  <span className="text-on-surface/40 block text-[11px] font-bold">Works with</span>
+                  <span className="font-headline font-bold text-sm text-on-surface">Every table</span>
                 </div>
               </div>
             )}
 
             {/* Price & Action Button */}
-            <div className="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
+            <div className="pt-4 border-t border-on-surface/10 flex flex-wrap items-center justify-between gap-4">
               <div className="flex flex-col">
-                <span className="text-[11px] font-bold text-white/50">Price</span>
+                <span className="text-[11px] font-bold text-on-surface/50">Price</span>
                 <div className="flex items-center gap-2">
                   <span className="w-6 h-6 rounded-full bg-tertiary flex items-center justify-center text-on-tertiary font-bold shadow-md">
                     <Icon name="paid" className="text-sm" />
@@ -583,7 +583,7 @@ export default function ProductDetailPage() {
                   <span className="font-mono font-bold text-2xl text-tertiary">
                     {formatVipCoin(product.priceVipCoin)}
                   </span>
-                  <span className="text-xs text-white/60 font-mono">VIP Coin</span>
+                  <span className="text-xs text-on-surface/60 font-mono">VIP Coin</span>
                 </div>
               </div>
 
@@ -594,7 +594,7 @@ export default function ProductDetailPage() {
                     size="lg"
                     disabled
                     icon="check_circle"
-                    className="!bg-white/10 !text-white/45 !border-white/10 !cursor-not-allowed !opacity-60"
+                    className="!bg-on-surface/10 !text-on-surface/45 !border-on-surface/10 !cursor-not-allowed !opacity-60"
                   >
                     Equipped
                   </Button>
@@ -623,20 +623,20 @@ export default function ProductDetailPage() {
 
         {/* Bottom Section: 52 Cards Deck Inspection Grid OR 4-Pose Dealer Showcase */}
         {isDeckSkin ? (
-          <section className="rounded-2xl bg-surface-container-lowest/90 border border-white/10 p-6 md:p-8 shadow-raised">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-6 border-b border-white/10">
+          <section className="rounded-2xl bg-surface-container-lowest/90 border border-on-surface/10 p-6 md:p-8 shadow-raised">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-6 border-b border-on-surface/10">
               <div>
-                <h2 className="font-headline font-bold text-xl text-white flex items-center gap-2">
+                <h2 className="font-headline font-bold text-xl text-on-surface flex items-center gap-2">
                   <Icon name="style" className="text-tertiary text-2xl" />
                   <span>All 52 cards</span>
                 </h2>
-                <p className="text-xs text-white/60 mt-0.5">
+                <p className="text-xs text-on-surface/60 mt-0.5">
                   Click any card to enlarge it and flip it in the preview above.
                 </p>
               </div>
 
               {/* Suit Filter Pills */}
-              <div className="flex items-center gap-1.5 p-1 bg-obsidian/40 rounded-xl border border-white/10 overflow-x-auto">
+              <div className="flex items-center gap-1.5 p-1 bg-obsidian/40 rounded-xl border border-on-surface/10 overflow-x-auto">
                 {SUITS.map(suit => (
                   <button
                     key={suit.code}
@@ -645,7 +645,7 @@ export default function ProductDetailPage() {
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
                       selectedSuit === suit.code
                         ? 'bg-tertiary text-on-tertiary shadow-md font-bold'
-                        : 'text-white/70 hover:text-white hover:bg-white/10'
+                        : 'text-on-surface/70 hover:text-on-surface hover:bg-on-surface/10'
                     }`}
                   >
                     {suit.label}
@@ -687,14 +687,14 @@ export default function ProductDetailPage() {
             </div>
           </section>
         ) : isDealer ? (
-          <section className="rounded-2xl bg-surface-container-lowest/90 border border-white/10 p-6 md:p-8 shadow-raised">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b border-white/10">
+          <section className="rounded-2xl bg-surface-container-lowest/90 border border-on-surface/10 p-6 md:p-8 shadow-raised">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b border-on-surface/10">
               <div>
-                <h2 className="font-headline font-bold text-xl text-white flex items-center gap-2">
+                <h2 className="font-headline font-bold text-xl text-on-surface flex items-center gap-2">
                   <Icon name="theater_comedy" className="text-tertiary text-2xl" />
                   <span>All 4 dealer poses</span>
                 </h2>
-                <p className="text-xs text-white/60 mt-1">
+                <p className="text-xs text-on-surface/60 mt-1">
                   The dealer has 4 poses that react in real time to each stage of the hand.
                 </p>
               </div>
@@ -722,11 +722,11 @@ export default function ProductDetailPage() {
                     className={`rounded-2xl p-4 transition-all duration-300 cursor-pointer border flex flex-col items-center ${
                       isCurrentActive
                         ? ' bg-tertiary/15 border-tertiary/80 shadow-raised ring-2 ring-tertiary/40 -translate-y-1.5'
-                        : 'bg-white/5 border-white/10 hover:border-white/30 hover:bg-white/[0.08] hover:-translate-y-1'
+                        : 'bg-on-surface/5 border-on-surface/10 hover:border-on-surface/30 hover:bg-on-surface/[0.08] hover:-translate-y-1'
                     }`}
                   >
                     {/* Pose Image Frame */}
-                    <div className="w-full aspect-square rounded-xl overflow-hidden bg-obsidian/50 border border-white/10 relative mb-4 flex items-center justify-center">
+                    <div className="w-full aspect-square rounded-xl overflow-hidden bg-obsidian/50 border border-on-surface/10 relative mb-4 flex items-center justify-center">
                       {imgUrl ? (
                         <img
                           src={imgUrl}
@@ -734,12 +734,12 @@ export default function ProductDetailPage() {
                           className="w-full h-full object-contain filter drop-shadow-xl"
                         />
                       ) : (
-                        <div className="text-center p-4 text-white/40">
-                          <Icon name={pose.icon} className="text-4xl mb-1 text-white/30" />
+                        <div className="text-center p-4 text-on-surface/40">
+                          <Icon name={pose.icon} className="text-4xl mb-1 text-on-surface/30" />
                           <div className="text-[11px]">No image yet</div>
                         </div>
                       )}
-                      <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-obsidian/70 backdrop-blur-sm text-[11px] font-bold text-tertiary-fixed border border-white/10">
+                      <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-obsidian/70 backdrop-blur-sm text-[11px] font-bold text-tertiary-fixed border border-on-surface/10">
                         P-0{idx + 1}
                       </span>
                       {isCurrentActive && (
@@ -751,11 +751,11 @@ export default function ProductDetailPage() {
 
                     {/* Pose Info */}
                     <div className="w-full text-center">
-                      <h4 className="font-bold text-sm text-white mb-1 flex items-center justify-center gap-1.5">
+                      <h4 className="font-bold text-sm text-on-surface mb-1 flex items-center justify-center gap-1.5">
                         <Icon name={pose.icon} className="text-sm text-tertiary" />
                         <span>{pose.label}</span>
                       </h4>
-                      <p className="text-[11px] text-white/60 line-clamp-2">
+                      <p className="text-[11px] text-on-surface/60 line-clamp-2">
                         {pose.desc}
                       </p>
                     </div>

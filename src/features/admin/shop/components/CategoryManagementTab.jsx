@@ -63,13 +63,13 @@ export default function CategoryManagementTab({ onCategoryUpdated }) {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Top Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-white/10 flex-wrap gap-4">
+      <div className="flex items-center justify-between pb-4 border-b border-on-surface/10 flex-wrap gap-4">
         <div>
-          <h2 className="font-headline font-bold text-xl text-white flex items-center gap-2">
+          <h2 className="font-headline font-bold text-xl text-on-surface flex items-center gap-2">
             <Icon name="category" className="text-tertiary" />
             <span>Shop categories</span>
           </h2>
-          <p className="text-xs text-white/50">
+          <p className="text-xs text-on-surface/50">
             Cosmetic and skin types for the shop and player inventories
           </p>
         </div>
@@ -96,15 +96,15 @@ export default function CategoryManagementTab({ onCategoryUpdated }) {
       </div>
 
       {/* Categories Table / List */}
-      <div className="rounded-2xl bg-surface-container-lowest border border-white/10 shadow-raised overflow-hidden">
+      <div className="rounded-2xl bg-surface-container-lowest border border-on-surface/10 shadow-raised overflow-hidden">
         {loading ? (
-          <div className="p-12 text-center text-white/40 flex flex-col items-center justify-center space-y-3">
+          <div className="p-12 text-center text-on-surface/40 flex flex-col items-center justify-center space-y-3">
             <div className="w-8 h-8 rounded-full border-2 border-tertiary border-t-transparent animate-spin" />
             <span className="text-xs">Loading categories…</span>
           </div>
         ) : categories.length === 0 ? (
-          <div className="p-12 text-center text-white/40 space-y-3">
-            <Icon name="folder_off" className="text-4xl text-white/20 mx-auto" />
+          <div className="p-12 text-center text-on-surface/40 space-y-3">
+            <Icon name="folder_off" className="text-4xl text-on-surface/20 mx-auto" />
             <p className="text-sm">No categories yet.</p>
             <Button variant="gold" size="sm" onClick={handleOpenCreate}>
               Create the first category
@@ -114,24 +114,24 @@ export default function CategoryManagementTab({ onCategoryUpdated }) {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-white/10 bg-white/5 text-[11px] font-bold text-white/60">
+                <tr className="border-b border-on-surface/10 bg-on-surface/5 text-[11px] font-bold text-on-surface/60">
                   <th className="py-3.5 px-6">Code</th>
                   <th className="py-3.5 px-6">Display name</th>
                 <th className="py-3.5 px-6 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5 text-xs text-white/90">
+              <tbody className="divide-y divide-on-surface/5 text-xs text-on-surface/90">
                 {categories.map(cat => {
                   const isCore = ['DEALER', 'CARD_SKIN', 'TABLE'].includes(cat.code)
                   return (
                     <tr
                       key={cat.id || cat.code}
-                      className="hover:bg-white/[0.03] transition-colors"
+                      className="hover:bg-on-surface/[0.03] transition-colors"
                     >
                       <td className="py-4 px-6 font-mono font-bold text-tertiary-fixed">
                         {cat.code}
                       </td>
-                      <td className="py-4 px-6 font-bold text-white text-sm">
+                      <td className="py-4 px-6 font-bold text-on-surface text-sm">
                         {cat.name}
                       </td>
                       <td className="py-4 px-6 text-right">
@@ -140,7 +140,7 @@ export default function CategoryManagementTab({ onCategoryUpdated }) {
                             type="button"
                             onClick={() => handleOpenEdit(cat)}
                             title="Rename category"
-                            className="p-1.5 rounded-xl bg-white/5 hover:bg-white/15 text-white/70 hover:text-white transition-all"
+                            className="p-1.5 rounded-xl bg-on-surface/5 hover:bg-on-surface/15 text-on-surface/70 hover:text-on-surface transition-all"
                           >
                             <Icon name="edit" className="text-base" />
                           </button>

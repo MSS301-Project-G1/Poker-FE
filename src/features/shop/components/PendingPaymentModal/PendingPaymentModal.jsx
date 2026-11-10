@@ -139,14 +139,14 @@ export default function PendingPaymentModal({
               />
             </div>
             <div className="text-left">
-              <h3 className="font-headline font-bold text-lg text-white">
+              <h3 className="font-headline font-bold text-lg text-on-surface">
                 {paidSuccess
                   ? 'Payment complete'
                   : isExpired
                   ? 'Payment session expired'
                   : 'Continue payment'}
               </h3>
-              <p className="text-xs text-white/60">
+              <p className="text-xs text-on-surface/60">
                 {paidSuccess
                   ? 'Your payment was recorded and VIP Coin was added to your wallet.'
                   : isExpired
@@ -159,7 +159,7 @@ export default function PendingPaymentModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-on-surface/40 hover:text-on-surface hover:bg-on-surface/10 transition-colors"
           >
             <Icon name="close" className="text-lg" />
           </button>
@@ -181,14 +181,14 @@ export default function PendingPaymentModal({
         ) : (
           <div className="space-y-4 pt-2">
             {/* Live Countdown & Order summary */}
-            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/5 border border-white/10 text-xs">
+            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-on-surface/5 border border-on-surface/10 text-xs">
               <div className="flex items-center gap-2">
-                <span className="text-white/50">Order:</span>
+                <span className="text-on-surface/50">Order:</span>
                 <span className="font-mono font-bold text-tertiary">#{order.payosOrderCode}</span>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-white/50">Time left:</span>
+                <span className="text-on-surface/50">Time left:</span>
                 <span
                   className={`font-mono font-bold text-sm px-2 py-0.5 rounded-md ${
                     isExpired
@@ -204,8 +204,8 @@ export default function PendingPaymentModal({
 
             {/* QR Code and Info block */}
             {!isExpired && order.qrImageUrl && (
-              <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-obsidian/40 border border-white/10">
-                <div className="bg-white p-2.5 rounded-2xl shadow-raised max-w-[200px] mb-2">
+              <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-obsidian/40 border border-on-surface/10">
+                <div className="bg-card-face p-2.5 rounded-2xl shadow-raised max-w-[200px] mb-2">
                   <img
                     src={order.qrImageUrl}
                     alt="VietQR PayOS"
@@ -216,7 +216,7 @@ export default function PendingPaymentModal({
                   <p className="text-xs font-bold text-tertiary">
                     {order.bundleName || order.productName || 'Top up VIP Coin'} • {formatVnd(order.amountVnd)}
                   </p>
-                  <p className="text-[11px] text-white/50">
+                  <p className="text-[11px] text-on-surface/50">
                     Open your banking or e-wallet app to scan and pay
                   </p>
                 </div>
@@ -264,7 +264,7 @@ export default function PendingPaymentModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="text-xs text-white/40 hover:text-white/80 transition-colors"
+                  className="text-xs text-on-surface/40 hover:text-on-surface/80 transition-colors"
                 >
                   Close
                 </button>

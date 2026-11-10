@@ -98,14 +98,14 @@ export default function AdminSidebar({ user, onSignOut, signOutPending }) {
                       </span>
                       <span className={styles.navLabel}>{item.label}</span>
                     </div>
-                    <Icon name="chevron_right" className="text-white/40 text-base" />
+                    <Icon name="chevron_right" className="text-on-surface/40 text-base" />
                   </NavLink>
                 ))}
               </div>
             </div>
           ))}
           {filteredSections.length === 0 && (
-            <p className="px-3 py-4 text-xs text-white/40 text-center">
+            <p className="px-3 py-4 text-xs text-on-surface/40 text-center">
               No matching admin pages
             </p>
           )}

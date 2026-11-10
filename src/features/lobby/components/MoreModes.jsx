@@ -23,7 +23,7 @@ export default function MoreModes({ tutorial, collapsed = false }) {
 
   return <nav aria-label="More modes" className="flex flex-col gap-space-xs bg-surface-container-lowest/80 backdrop-blur-md p-space-md rounded-2xl border border-outline-variant/60 shadow-raised">
     <h3 className="font-label-action text-label-action text-on-surface-variant px-space-xs">More modes</h3>
-    {modes.map(mode => <Link key={mode.to} to={mode.to} className="flex items-center gap-space-sm p-space-sm rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] hover:border-primary/40 backdrop-blur-sm transition-all duration-200 group">
+    {modes.map(mode => <Link key={mode.to} to={mode.to} className="flex items-center gap-space-sm p-space-sm rounded-xl bg-on-surface/[0.03] hover:bg-on-surface/[0.08] border border-on-surface/[0.05] hover:border-primary/40 backdrop-blur-sm transition-all duration-200 group">
       <span className="w-9 h-9 shrink-0 rounded-lg bg-primary-container/30 text-primary flex items-center justify-center"><Icon name={mode.icon} /></span>
       <span className="flex flex-col min-w-0 flex-1">
         <span className="font-label-action text-label-action text-on-surface">{mode.title}</span>

@@ -84,30 +84,30 @@ export default function AdminEditProductPage() {
   }, [loadData])
 
   return (
-    <div className="relative w-full pb-32 text-white font-body-md">
+    <div className="relative w-full pb-32 text-on-surface font-body-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
         {/* Navigation Breadcrumb & Back Button */}
-        <div className="flex items-center justify-between flex-wrap gap-4 pb-4 border-b border-white/10">
+        <div className="flex items-center justify-between flex-wrap gap-4 pb-4 border-b border-on-surface/10">
           <div className="flex items-center gap-3">
             <Button
               variant="secondary"
               size="sm"
               icon="arrow_back"
               onClick={() => navigate(paths.adminShop)}
-              className="border-white/15 hover:bg-white/10"
+              className="border-on-surface/15 hover:bg-on-surface/10"
             >
               Back to shop admin
             </Button>
-            <div className="h-5 w-px bg-white/20" />
-            <div className="flex items-center gap-2 text-xs text-white/50">
+            <div className="h-5 w-px bg-on-surface/20" />
+            <div className="flex items-center gap-2 text-xs text-on-surface/50">
               <span
                 onClick={() => navigate(paths.adminShop)}
-                className="hover:text-white cursor-pointer transition-colors"
+                className="hover:text-on-surface cursor-pointer transition-colors"
               >
                 Shop admin
               </span>
-              <Icon name="chevron_right" className="text-xs text-white/30" />
-              <span className="text-white/80 font-bold">
+              <Icon name="chevron_right" className="text-xs text-on-surface/30" />
+              <span className="text-on-surface/80 font-bold">
                 {isEditing ? `Edit: ${product?.name || id}` : 'New product'}
               </span>
             </div>
@@ -116,16 +116,16 @@ export default function AdminEditProductPage() {
 
         {/* Loading state */}
         {loading ? (
-          <div className="p-20 text-center rounded-2xl bg-surface-container-lowest/90 border border-white/10 shadow-raised space-y-4">
+          <div className="p-20 text-center rounded-2xl bg-surface-container-lowest/90 border border-on-surface/10 shadow-raised space-y-4">
             <span className="w-12 h-12 border-3 border-tertiary border-t-transparent rounded-full animate-spin inline-block mx-auto" />
-            <p className="text-sm font-bold text-white/70">
+            <p className="text-sm font-bold text-on-surface/70">
               Loading products and categories…
             </p>
           </div>
         ) : error ? (
           <div className="p-12 text-center rounded-2xl bg-error/10 border border-error/30 text-error space-y-4">
             <Icon name="error" className="text-4xl text-error" />
-            <h3 className="text-base font-bold text-white">{error}</h3>
+            <h3 className="text-base font-bold text-on-surface">{error}</h3>
             <div className="flex justify-center gap-3">
               <Button variant="secondary" size="sm" onClick={() => navigate(paths.adminShop)}>
                 Back to admin
@@ -144,7 +144,7 @@ export default function AdminEditProductPage() {
                     <Icon name="lock" className="text-2xl" />
                   </span>
                   <div>
-                    <h4 className="font-bold text-white text-sm flex items-center gap-2">
+                    <h4 className="font-bold text-on-surface text-sm flex items-center gap-2">
                       <span>This product is {product.status === 'ACTIVE' ? 'On sale (ACTIVE)' : product.status}</span>
                       <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-error/20 text-error border border-error/30">
                         Can’t edit yet

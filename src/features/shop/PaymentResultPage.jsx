@@ -123,26 +123,26 @@ export default function PaymentResultPage() {
         </div>
 
         {/* Title & Headline */}
-        <h1 className="font-headline font-bold text-2xl md:text-3xl text-white mb-2">
+        <h1 className="font-headline font-bold text-2xl md:text-3xl text-on-surface mb-2">
           {isSuccess ? 'Payment complete' : 'Payment cancelled'}
         </h1>
-        <p className="text-xs sm:text-sm text-white/60 mb-6 max-w-md mx-auto leading-relaxed">
+        <p className="text-xs sm:text-sm text-on-surface/60 mb-6 max-w-md mx-auto leading-relaxed">
           {isSuccess
             ? 'Your VIP Coin top-up through PayOS is complete. Your balance has been updated.'
             : 'The order wasn’t completed, or you cancelled it on PayOS.'}
         </p>
 
         {/* Order Details Receipt Box */}
-        <div className="rounded-2xl bg-obsidian/40 border border-white/10 p-4 sm:p-5 mb-6 text-left space-y-3">
-          <div className="flex items-center justify-between text-xs pb-2.5 border-b border-white/10">
-            <span className="text-white/50">Order:</span>
+        <div className="rounded-2xl bg-obsidian/40 border border-on-surface/10 p-4 sm:p-5 mb-6 text-left space-y-3">
+          <div className="flex items-center justify-between text-xs pb-2.5 border-b border-on-surface/10">
+            <span className="text-on-surface/50">Order:</span>
             <span className="font-mono font-bold text-tertiary">
               #{orderCode || pendingOrder?.payosOrderCode || 'N/A'}
             </span>
           </div>
 
-          <div className="flex items-center justify-between text-xs pb-2.5 border-b border-white/10">
-            <span className="text-white/50">PayOS status:</span>
+          <div className="flex items-center justify-between text-xs pb-2.5 border-b border-on-surface/10">
+            <span className="text-on-surface/50">PayOS status:</span>
             <span
               className={`font-bold px-2.5 py-0.5 rounded-full text-[11px] ${
                 isSuccess
@@ -154,13 +154,13 @@ export default function PaymentResultPage() {
             </span>
           </div>
 
-          <div className="flex items-center justify-between text-xs pb-2.5 border-b border-white/10">
-            <span className="text-white/50">Method:</span>
-            <span className="text-white/80 font-medium">VietQR / PayOS</span>
+          <div className="flex items-center justify-between text-xs pb-2.5 border-b border-on-surface/10">
+            <span className="text-on-surface/50">Method:</span>
+            <span className="text-on-surface/80 font-medium">VietQR / PayOS</span>
           </div>
 
           <div className="flex items-center justify-between text-xs pt-0.5">
-            <span className="text-white/50">Current balance:</span>
+            <span className="text-on-surface/50">Current balance:</span>
             <div className="flex items-center gap-1.5 font-mono font-bold text-tertiary text-sm">
               <Icon name="paid" className="text-base" />
               <span>{formatVipCoin(vipCoin)} VIP Coin</span>

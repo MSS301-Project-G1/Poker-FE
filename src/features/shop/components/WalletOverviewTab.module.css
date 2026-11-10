@@ -37,7 +37,7 @@
   font-family: var(--font-headline, sans-serif);
   font-weight: 800;
   font-size: 1.375rem;
-  color: white;
+  color: rgb(var(--color-on-surface));
   display: flex;
   align-items: center;
   gap: 0.65rem;
@@ -180,7 +180,7 @@
   font-family: var(--font-display, sans-serif);
   font-weight: 800;
   font-size: 1.85rem;
-  color: white;
+  color: rgb(var(--color-on-surface));
   line-height: 1.2;
   letter-spacing: -0.01em;
   font-feature-settings: 'tnum';
@@ -232,7 +232,7 @@
   font-family: var(--font-headline, sans-serif);
   font-weight: 800;
   font-size: 1.15rem;
-  color: white;
+  color: rgb(var(--color-on-surface));
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -261,13 +261,13 @@
 }
 
 .filterBtn:hover {
-  color: white;
+  color: rgb(var(--color-on-surface));
   background: rgb(var(--color-on-surface) / 0.05);
 }
 
 .filterBtnActive {
   background: rgb(var(--color-primary-container) / 0.85);
-  color: white;
+  color: rgb(var(--color-on-surface));
   box-shadow: 0 2px 8px rgb(var(--color-obsidian) / 0.3);
 }
 
@@ -328,7 +328,7 @@
 
 .reasonTitle {
   font-weight: 700;
-  color: white;
+  color: rgb(var(--color-on-surface));
   display: block;
 }
 
@@ -406,7 +406,7 @@
   font-family: var(--font-headline, sans-serif);
   font-weight: 700;
   font-size: 1.1rem;
-  color: white;
+  color: rgb(var(--color-on-surface));
 }
 
 .emptyDesc {
@@ -451,7 +451,7 @@
 
 .pageBtn:hover:not(:disabled) {
   background: rgb(var(--color-primary) / 0.3);
-  color: white;
+  color: rgb(var(--color-on-surface));
   border-color: rgb(var(--color-primary) / 0.5);
 }
 
@@ -488,6 +488,6 @@
 
 .pageSizeSelect option {
   background: rgb(var(--color-surface-container-lowest));
-  color: white;
+  color: rgb(var(--color-on-surface));
 }
 

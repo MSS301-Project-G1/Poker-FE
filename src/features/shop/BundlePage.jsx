@@ -216,7 +216,7 @@ export default function BundlePage() {
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     priceSort === 'ASC'
                       ? 'bg-tertiary text-on-tertiary shadow-md'
-                      : 'text-on-surface-variant hover:text-on-surface hover:bg-white/5'
+                      : 'text-on-surface-variant hover:text-on-surface hover:bg-on-surface/5'
                   }`}
                   title="Sort by price, low to high"
                 >
@@ -229,7 +229,7 @@ export default function BundlePage() {
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     priceSort === 'DESC'
                       ? 'bg-tertiary text-on-tertiary shadow-md'
-                      : 'text-on-surface-variant hover:text-on-surface hover:bg-white/5'
+                      : 'text-on-surface-variant hover:text-on-surface hover:bg-on-surface/5'
                   }`}
                   title="Sort by price, high to low"
                 >
@@ -392,7 +392,7 @@ export default function BundlePage() {
             <div className="text-xs font-bold text-tertiary-fixed truncate">
               Order #{pendingOrder.payosOrderCode} pending
             </div>
-            <div className="text-[11px] text-white/70 truncate">
+            <div className="text-[11px] text-on-surface/70 truncate">
               {pendingOrder.bundleName || 'Coin pack'} • {formatVnd(pendingOrder.amountVnd)}
             </div>
           </div>

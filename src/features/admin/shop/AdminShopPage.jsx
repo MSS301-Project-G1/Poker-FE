@@ -51,12 +51,12 @@ export default function AdminShopPage() {
   } = useAdminBundles()
 
   return (
-    <div className="relative w-full pb-32 text-white font-body-md">
+    <div className="relative w-full pb-32 text-on-surface font-body-md">
       <div className="w-full px-4 md:px-8 xl:px-12 pt-6">
         {/* Top Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-space-md mb-space-lg border-b border-white/10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-space-md mb-space-lg border-b border-on-surface/10">
           <div>
-            <h1 className="font-headline-lg text-headline-lg text-white">Shop & top-ups</h1>
+            <h1 className="font-headline-lg text-headline-lg text-on-surface">Shop & top-ups</h1>
             <p className="mt-1 text-sm text-on-surface-variant">Manage products, categories, coin packs and cosmetic assets</p>
           </div>
 
@@ -71,14 +71,14 @@ export default function AdminShopPage() {
         </div>
 
         {/* Tab Navigation for Shop Management */}
-        <div className="flex flex-wrap gap-2 mb-6 border-b border-white/10 pb-4">
+        <div className="flex flex-wrap gap-2 mb-6 border-b border-on-surface/10 pb-4">
           <button
             type="button"
             onClick={() => { setEditingProduct(null); setActiveTab('PRODUCTS') }}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-label-action text-sm font-semibold transition-all ${
               activeTab === 'PRODUCTS'
                 ? 'bg-primary-container text-on-primary-container shadow-md'
-                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-white'
+                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'
             }`}
           >
             <Icon name="inventory_2" />
@@ -91,7 +91,7 @@ export default function AdminShopPage() {
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-label-action text-sm font-semibold transition-all ${
               activeTab === 'ADD_PRODUCT'
                 ? 'bg-primary-container text-on-primary-container shadow-md'
-                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-white'
+                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'
             }`}
           >
             <Icon name="add_circle" />
@@ -104,7 +104,7 @@ export default function AdminShopPage() {
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-label-action text-sm font-semibold transition-all ${
               activeTab === 'BUNDLES'
                 ? 'bg-primary-container text-on-primary-container shadow-md'
-                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-white'
+                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'
             }`}
           >
             <Icon name="payments" />
@@ -117,7 +117,7 @@ export default function AdminShopPage() {
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-label-action text-sm font-semibold transition-all ${
               activeTab === 'CATEGORIES'
                 ? 'bg-primary-container text-on-primary-container shadow-md'
-                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-white'
+                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'
             }`}
           >
             <Icon name="category" />

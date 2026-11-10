@@ -950,9 +950,9 @@ export default function AddProductControlPanel({
   }, [dealerPoses, activeDealerPreviewPose, localAssetPreviewUrl, manualAssetUrl])
 
   return (
-    <div className="space-y-6 animate-fade-in text-white">
+    <div className="space-y-6 animate-fade-in text-on-surface">
       {/* Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-white/10 flex-wrap gap-4">
+      <div className="flex items-center justify-between pb-4 border-b border-on-surface/10 flex-wrap gap-4">
         <div>
           <div className="flex items-center gap-2">
             <span
@@ -964,7 +964,7 @@ export default function AddProductControlPanel({
             >
               {isEditing ? 'Editing' : 'New'}
             </span>
-            <h2 className="font-headline font-bold text-xl text-white flex items-center gap-2">
+            <h2 className="font-headline font-bold text-xl text-on-surface flex items-center gap-2">
               <Icon
                 name={isEditing ? 'edit_note' : 'add_circle'}
                 className={isEditing ? 'text-primary text-2xl' : 'text-tertiary text-2xl'}
@@ -974,7 +974,7 @@ export default function AddProductControlPanel({
               </span>
             </h2>
           </div>
-          <p className="text-xs text-white/50 mt-1">
+          <p className="text-xs text-on-surface/50 mt-1">
             {isEditing
               ? 'Update the product’s tier, price and assets'
               : 'Assets adapt to the item’s category'}
@@ -1005,8 +1005,8 @@ export default function AddProductControlPanel({
         {/* Left Column (8 cols): Dynamic Form Fields */}
         <div className="lg:col-span-8 space-y-6">
           {/* Step 1: Danh Mục & Nhận Diện */}
-          <div className="p-6 rounded-2xl bg-surface-container-lowest/95 border border-white/10 shadow-raised space-y-4">
-            <h3 className="font-headline font-bold text-base text-white flex items-center gap-2 pb-3 border-b border-white/10">
+          <div className="p-6 rounded-2xl bg-surface-container-lowest/95 border border-on-surface/10 shadow-raised space-y-4">
+            <h3 className="font-headline font-bold text-base text-on-surface flex items-center gap-2 pb-3 border-b border-on-surface/10">
               <Icon name="category" className="text-tertiary text-xl" />
               <span>1. Category and details</span>
             </h3>
@@ -1015,7 +1015,7 @@ export default function AddProductControlPanel({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <div className="min-h-[26px] flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-bold text-white/80">
+                  <label className="text-xs font-bold text-on-surface/80">
                     Category: <span className="text-tertiary">*</span>
                   </label>
                   {!isEditing && (
@@ -1033,7 +1033,7 @@ export default function AddProductControlPanel({
                   <select
                     value={selectedCategoryId}
                     onChange={e => setSelectedCategoryId(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-background border border-tertiary/40 text-sm font-bold text-white focus:outline-none focus:border-tertiary transition-colors cursor-pointer"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-background border border-tertiary/40 text-sm font-bold text-on-surface focus:outline-none focus:border-tertiary transition-colors cursor-pointer"
                   >
                     {categories.map(c => (
                       <option key={c.id || c.code} value={c.id}>
@@ -1050,10 +1050,10 @@ export default function AddProductControlPanel({
 
               <div>
                 <div className="min-h-[26px] flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-bold text-white/80">
+                  <label className="text-xs font-bold text-on-surface/80">
                     Product name: <span className="text-error">*</span>
                   </label>
-                  <span className="text-[11px] text-white/40">Required</span>
+                  <span className="text-[11px] text-on-surface/40">Required</span>
                 </div>
                 <input
                   type="text"
@@ -1061,14 +1061,14 @@ export default function AddProductControlPanel({
                   placeholder="e.g. Pink Bow Dealer, Neon Table"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-2xl bg-obsidian/50 border border-white/15 text-sm text-white placeholder-white/30 focus:outline-none focus:border-tertiary transition-colors"
+                  className="w-full px-4 py-2.5 rounded-2xl bg-obsidian/50 border border-on-surface/15 text-sm text-on-surface placeholder-on-surface/30 focus:outline-none focus:border-tertiary transition-colors"
                 />
               </div>
             </div>
 
             {/* Row 2: Tier Pills */}
             <div>
-              <label className="text-xs font-bold text-white/80 block mb-1.5">
+              <label className="text-xs font-bold text-on-surface/80 block mb-1.5">
                 Tier:
               </label>
               <div className="grid grid-cols-3 gap-3">
@@ -1084,11 +1084,11 @@ export default function AddProductControlPanel({
                     className={`p-3 rounded-2xl border text-left transition-all ${
                       tier === t.id
                         ? 'bg-tertiary/15 border-tertiary text-tertiary-fixed shadow-md '
-                        : 'bg-obsidian/30 border-white/10 text-white/60 hover:border-white/20'
+                        : 'bg-obsidian/30 border-on-surface/10 text-on-surface/60 hover:border-on-surface/20'
                     }`}
                   >
                     <span className="font-headline font-bold text-xs block">{t.label}</span>
-                    <span className="text-[11px] text-white/40 block mt-0.5">{t.desc}</span>
+                    <span className="text-[11px] text-on-surface/40 block mt-0.5">{t.desc}</span>
                   </button>
                 ))}
               </div>
@@ -1096,7 +1096,7 @@ export default function AddProductControlPanel({
 
             {/* Row 3: Description */}
             <div>
-              <label className="text-xs font-bold text-white/80 block mb-1.5">
+              <label className="text-xs font-bold text-on-surface/80 block mb-1.5">
                 Shop description:
               </label>
               <textarea
@@ -1105,22 +1105,22 @@ export default function AddProductControlPanel({
                 placeholder="Describe the style, materials and anything exclusive…"
                 value={description}
                 onChange={e => setDescription(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-2xl bg-obsidian/50 border border-white/15 text-xs text-white placeholder-white/30 focus:outline-none focus:border-tertiary transition-colors"
+                className="w-full px-4 py-2.5 rounded-2xl bg-obsidian/50 border border-on-surface/15 text-xs text-on-surface placeholder-on-surface/30 focus:outline-none focus:border-tertiary transition-colors"
               />
             </div>
           </div>
 
           {/* Step 2: Dynamic Asset Upload Area */}
-          <div className="p-6 sm:p-7 rounded-2xl bg-surface-container-lowest/95 border border-white/10 shadow-raised space-y-5">
-            <div className="flex items-center justify-between pb-3.5 border-b border-white/10 flex-wrap gap-2">
-              <h3 className="font-headline font-bold text-lg text-white flex items-center gap-2.5">
+          <div className="p-6 sm:p-7 rounded-2xl bg-surface-container-lowest/95 border border-on-surface/10 shadow-raised space-y-5">
+            <div className="flex items-center justify-between pb-3.5 border-b border-on-surface/10 flex-wrap gap-2">
+              <h3 className="font-headline font-bold text-lg text-on-surface flex items-center gap-2.5">
                 <Icon name="upload_file" className="text-tertiary text-2xl" />
                 <span>2. Assets for:</span>
                 <span className="px-3 py-1 rounded-full bg-tertiary/20 text-tertiary-fixed border border-tertiary/40 text-xs sm:text-sm font-bold">
                   {currentCategory?.name || 'Item'} ({catCode})
                 </span>
               </h3>
-              <span className="text-xs text-white/60">
+              <span className="text-xs text-on-surface/60">
                 Choose files from your computer · Uploaded to S3 automatically
               </span>
             </div>
@@ -1137,18 +1137,18 @@ export default function AddProductControlPanel({
                       {catCode}
                     </span>
                   </div>
-                  <p className="text-white/80 text-xs sm:text-[13px] leading-relaxed">
+                  <p className="text-on-surface/80 text-xs sm:text-[13px] leading-relaxed">
                     {categoryRule.guide}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
-                <span className="text-sm font-bold text-white/90 flex items-center gap-2">
+                <span className="text-sm font-bold text-on-surface/90 flex items-center gap-2">
                   <Icon name="tune" className="text-tertiary text-base" />
                   <span>Asset types:</span>
                 </span>
-                <span className="text-xs text-white/50">
+                <span className="text-xs text-on-surface/50">
                   (All types are available; ones that don’t fit this category are flagged when you save)
                 </span>
               </div>
@@ -1185,7 +1185,7 @@ export default function AddProductControlPanel({
                               ? 'bg-primary-container/20 text-primary border-primary shadow-md '
                               : isMissingRequired
                                 ? 'bg-tertiary/10 text-tertiary-fixed/90 border-tertiary/40 hover:bg-tertiary/20 hover:border-tertiary'
-                                : 'bg-white/[0.08] text-white/85 border-white/15 hover:bg-white/[0.14] hover:border-white/30 hover:text-white'
+                                : 'bg-on-surface/[0.08] text-on-surface/85 border-on-surface/15 hover:bg-on-surface/[0.14] hover:border-on-surface/30 hover:text-on-surface'
                       }`}
                     >
                       <Icon
@@ -1199,21 +1199,21 @@ export default function AddProductControlPanel({
                                 ? 'text-primary'
                                 : isMissingRequired
                                   ? 'text-tertiary/80'
-                                  : 'text-white/70'
+                                  : 'text-on-surface/70'
                         }`}
                       />
                       <span>{item.label}</span>
                       <span
                         className={`text-[11px] px-2 py-0.5 rounded-md font-bold ${
                           isWronglyEnabled
-                            ? 'bg-error-container text-white'
+                            ? 'bg-error-container text-on-error-container'
                             : active && isRequired
                               ? 'bg-tertiary text-on-tertiary font-bold'
                               : active
                                 ? 'bg-primary text-on-tertiary font-bold'
                                 : isMissingRequired
                                   ? 'bg-tertiary/20 text-tertiary-fixed border border-tertiary/40'
-                                  : 'bg-white/15 text-white/75'
+                                  : 'bg-on-surface/15 text-on-surface/75'
                         }`}
                       >
                         {isWronglyEnabled
@@ -1242,7 +1242,7 @@ export default function AddProductControlPanel({
                       <Icon name="bolt" className="text-tertiary text-base" />
                       Upload 4–5 images at once
                     </span>
-                    <p className="text-xs text-white/70">
+                    <p className="text-xs text-on-surface/70">
                       Choose 4 or 5 images. They’re assigned in order: 1. Idle → 2. Deal → 3. Flip → 4. Win → 5. Avatar.
                     </p>
                   </div>
@@ -1279,21 +1279,21 @@ export default function AddProductControlPanel({
                           isSelectedPreview
                             ? 'bg-tertiary/10 border-tertiary shadow-md ring-1 ring-tertiary/40'
                             : hasImage
-                              ? 'bg-obsidian/40 border-white/20 hover:border-white/40'
-                              : 'bg-obsidian/20 border-dashed border-white/15 hover:border-white/30'
+                              ? 'bg-obsidian/40 border-on-surface/20 hover:border-on-surface/40'
+                              : 'bg-obsidian/20 border-dashed border-on-surface/15 hover:border-on-surface/30'
                         }`}
                       >
                         {/* Pose Header */}
                         <div className="flex items-center justify-between gap-2 mb-2">
                           <div className="flex items-center gap-1.5 min-w-0">
                             <Icon name={pose.icon} className="text-tertiary text-base flex-shrink-0" />
-                            <span className="text-xs font-bold text-white truncate">{pose.label}</span>
+                            <span className="text-xs font-bold text-on-surface truncate">{pose.label}</span>
                           </div>
                           <span
                             className={`text-[11px] font-bold px-1.5 py-0.5 rounded ${
                               hasImage
                                 ? 'bg-success/20 text-success border border-success/30'
-                                : 'bg-white/10 text-white/40'
+                                : 'bg-on-surface/10 text-on-surface/40'
                             }`}
                           >
                             {hasImage ? 'Added' : 'Missing'}
@@ -1306,7 +1306,7 @@ export default function AddProductControlPanel({
                             if (hasImage) setActiveDealerPreviewPose(pose.key)
                           }}
                           className={`w-full aspect-[4/3] rounded-xl overflow-hidden bg-obsidian/60 flex items-center justify-center relative cursor-pointer border ${
-                            isSelectedPreview ? 'border-tertiary' : 'border-white/10'
+                            isSelectedPreview ? 'border-tertiary' : 'border-on-surface/10'
                           }`}
                         >
                           {hasImage ? (
@@ -1318,7 +1318,7 @@ export default function AddProductControlPanel({
                               }`}
                             />
                           ) : (
-                            <div className="flex flex-col items-center justify-center text-white/30 p-2 text-center">
+                            <div className="flex flex-col items-center justify-center text-on-surface/30 p-2 text-center">
                               <Icon name="image" className="text-2xl mb-1" />
                               <span className="text-[11px]">No image</span>
                             </div>
@@ -1331,12 +1331,12 @@ export default function AddProductControlPanel({
                           )}
                         </div>
 
-                        <p className="text-[11px] text-white/50 mt-2 mb-3 min-h-[28px] line-clamp-2">
+                        <p className="text-[11px] text-on-surface/50 mt-2 mb-3 min-h-[28px] line-clamp-2">
                           {pose.desc}
                         </p>
 
                         {/* Action buttons */}
-                        <div className="flex items-center gap-1.5 pt-2 border-t border-white/10">
+                        <div className="flex items-center gap-1.5 pt-2 border-t border-on-surface/10">
                           <input
                             type="file"
                             accept="image/*"
@@ -1349,7 +1349,7 @@ export default function AddProductControlPanel({
                           />
                           <label
                             htmlFor={`pose-file-${pose.key}`}
-                            className="flex-1 py-1 px-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold text-center cursor-pointer transition-colors"
+                            className="flex-1 py-1 px-2 rounded-lg bg-on-surface/10 hover:bg-on-surface/20 text-on-surface text-[11px] font-bold text-center cursor-pointer transition-colors"
                           >
                             {hasImage ? 'Replace image' : 'Choose image'}
                           </label>
@@ -1398,10 +1398,10 @@ export default function AddProductControlPanel({
                     <div className="w-14 h-14 rounded-2xl bg-tertiary/10 border border-tertiary/30 flex items-center justify-center text-tertiary mb-3 shadow-inner">
                       <Icon name="folder_zip" className="text-3xl" />
                     </div>
-                    <span className="text-sm font-bold text-white">
+                    <span className="text-sm font-bold text-on-surface">
                       {selectedZipFile ? selectedZipFile.name : 'Click to choose a 52-card ZIP'}
                     </span>
-                    <span className="text-xs text-white/50 mt-1 max-w-md">
+                    <span className="text-xs text-on-surface/50 mt-1 max-w-md">
                       {selectedZipFile
                         ? `${(selectedZipFile.size / 1024).toFixed(1)} KB · Uploads to S3 when you save`
                         : 'The ZIP holds 52 card faces (2H.png, AS.png…) and one back (back.png).'}
@@ -1428,7 +1428,7 @@ export default function AddProductControlPanel({
                 >
                   {/* Asset File (Texture, Sprite, Frame) */}
                   {assetConfig.hasImage && (
-                    <div className="border-2 border-dashed border-white/20 hover:border-tertiary rounded-2xl p-5 text-center bg-obsidian/30 transition-all flex flex-col justify-center items-center">
+                    <div className="border-2 border-dashed border-on-surface/20 hover:border-tertiary rounded-2xl p-5 text-center bg-obsidian/30 transition-all flex flex-col justify-center items-center">
                       <input
                         type="file"
                         accept="image/*"
@@ -1438,14 +1438,14 @@ export default function AddProductControlPanel({
                       />
                       <label htmlFor="ctrl-panel-generic-asset" className="cursor-pointer flex flex-col items-center">
                         <Icon name="image" className="text-3xl text-tertiary mb-2" />
-                        <span className="text-xs font-bold text-white block">
+                        <span className="text-xs font-bold text-on-surface block">
                           {localAssetFile
                             ? localAssetFile.name
                             : localAssetPreviewUrl
                               ? 'Image added (click to replace)'
                               : 'Upload image (texture, frame or icon)'}
                         </span>
-                        <span className="text-[11px] text-white/50 mt-1">Choose from your computer (PNG, JPG, WebP)</span>
+                        <span className="text-[11px] text-on-surface/50 mt-1">Choose from your computer (PNG, JPG, WebP)</span>
                       </label>
                       {localAssetPreviewUrl && (
                         <div className="mt-3 flex items-center gap-2">
@@ -1469,7 +1469,7 @@ export default function AddProductControlPanel({
 
                   {/* Video Review File */}
                   {assetConfig.hasVideo && (
-                    <div className="border-2 border-dashed border-white/20 hover:border-tertiary rounded-2xl p-5 text-center bg-obsidian/30 transition-all flex flex-col justify-center items-center">
+                    <div className="border-2 border-dashed border-on-surface/20 hover:border-tertiary rounded-2xl p-5 text-center bg-obsidian/30 transition-all flex flex-col justify-center items-center">
                       <input
                         type="file"
                         accept="video/mp4,video/webm"
@@ -1479,14 +1479,14 @@ export default function AddProductControlPanel({
                       />
                       <label htmlFor="ctrl-panel-generic-video" className="cursor-pointer flex flex-col items-center">
                         <Icon name="videocam" className="text-3xl text-primary mb-2" />
-                        <span className="text-xs font-bold text-white block">
+                        <span className="text-xs font-bold text-on-surface block">
                           {localVideoFile
                             ? localVideoFile.name
                             : localVideoPreviewUrl
                               ? 'Preview video added (click to replace)'
                               : 'Upload preview video (MP4, WebM)'}
                         </span>
-                        <span className="text-[11px] text-white/50 mt-1">Optional · shows the animation</span>
+                        <span className="text-[11px] text-on-surface/50 mt-1">Optional · shows the animation</span>
                       </label>
                     </div>
                   )}
@@ -1527,10 +1527,10 @@ export default function AddProductControlPanel({
                     <div className="w-14 h-14 rounded-2xl bg-secondary-container/10 border border-secondary-container/30 flex items-center justify-center text-secondary mb-3 shadow-inner">
                       <Icon name="volume_up" className="text-3xl" />
                     </div>
-                    <span className="text-sm font-bold text-white">
+                    <span className="text-sm font-bold text-on-surface">
                       {localSoundFile ? localSoundFile.name : 'Choose a sound file (MP3, WAV, OGG)'}
                     </span>
-                    <span className="text-xs text-white/50 mt-1">
+                    <span className="text-xs text-on-surface/50 mt-1">
                       {localSoundFile
                         ? `${(localSoundFile.size / 1024).toFixed(1)} KB · Preview it below`
                         : 'Up to 2 MB. For card flips, all-ins, taunts or dealer sounds.'}
@@ -1553,7 +1553,7 @@ export default function AddProductControlPanel({
                         <span className="text-xs font-bold text-secondary block">
                           {localSoundFile?.name || 'Sound file'}
                         </span>
-                        <span className="text-[11px] text-white/50">
+                        <span className="text-[11px] text-on-surface/50">
                           {isPlayingAudio ? 'Playing…' : 'Click to preview'}
                         </span>
                       </div>
@@ -1582,16 +1582,16 @@ export default function AddProductControlPanel({
 
             {/* Empty state when all toggles are turned off */}
             {!assetConfig.hasImage && !assetConfig.hasVideo && !assetConfig.hasSound && !assetConfig.hasPoses && !assetConfig.hasDeckZip && (
-              <div className="p-8 text-center rounded-2xl bg-obsidian/30 border border-dashed border-white/20 text-white/40">
-                <Icon name="upload_file" className="text-3xl mx-auto mb-2 text-white/20" />
+              <div className="p-8 text-center rounded-2xl bg-obsidian/30 border border-dashed border-on-surface/20 text-on-surface/40">
+                <Icon name="upload_file" className="text-3xl mx-auto mb-2 text-on-surface/20" />
                 <p className="text-xs">Turn on at least one asset type above to upload files.</p>
               </div>
             )}
           </div>
 
           {/* Step 3: Giá Bán & Quyền Sở Hữu */}
-          <div className="p-6 rounded-2xl bg-surface-container-lowest/95 border border-white/10 shadow-raised space-y-4">
-            <h3 className="font-headline font-bold text-base text-white flex items-center gap-2 pb-3 border-b border-white/10">
+          <div className="p-6 rounded-2xl bg-surface-container-lowest/95 border border-on-surface/10 shadow-raised space-y-4">
+            <h3 className="font-headline font-bold text-base text-on-surface flex items-center gap-2 pb-3 border-b border-on-surface/10">
               <Icon name="monetization_on" className="text-tertiary text-xl" />
               <span>3. Price and availability</span>
             </h3>
@@ -1599,7 +1599,7 @@ export default function AddProductControlPanel({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <div className="min-h-[26px] flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-bold text-white/80">
+                  <label className="text-xs font-bold text-on-surface/80">
                     Price in VIP Coin: <span className="text-tertiary">*</span>
                   </label>
                   <span className="text-[11px] text-tertiary-fixed/70 font-mono">1 VIP ≈ 1,000 VND</span>
@@ -1611,7 +1611,7 @@ export default function AddProductControlPanel({
                     step="10"
                     value={priceVipCoin}
                     onChange={e => handlePriceVipCoinChange(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-obsidian/50 border border-white/15 text-sm text-white focus:outline-none focus:border-tertiary font-mono"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-obsidian/50 border border-on-surface/15 text-sm text-on-surface focus:outline-none focus:border-tertiary font-mono"
                   />
                   <Icon
                     name="paid"
@@ -1625,10 +1625,10 @@ export default function AddProductControlPanel({
 
               <div>
                 <div className="min-h-[26px] flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-bold text-white/80">
+                  <label className="text-xs font-bold text-on-surface/80">
                     Equivalent price (VND): <span className="text-tertiary">*</span>
                   </label>
-                  <span className="text-[11px] text-white/40">Synced automatically</span>
+                  <span className="text-[11px] text-on-surface/40">Synced automatically</span>
                 </div>
                 <input
                   type="number"
@@ -1636,9 +1636,9 @@ export default function AddProductControlPanel({
                   step="10000"
                   value={priceVnd}
                   onChange={e => handlePriceVndChange(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-2xl bg-obsidian/50 border border-white/15 text-sm text-white focus:outline-none focus:border-tertiary font-mono"
+                  className="w-full px-4 py-2.5 rounded-2xl bg-obsidian/50 border border-on-surface/15 text-sm text-on-surface focus:outline-none focus:border-tertiary font-mono"
                 />
-                <span className="text-[11px] text-white/50 mt-1.5 block">
+                <span className="text-[11px] text-on-surface/50 mt-1.5 block">
                   Converted: {formatVnd(priceVnd)}
                 </span>
               </div>
@@ -1646,7 +1646,7 @@ export default function AddProductControlPanel({
 
             {/* Quick Price Presets */}
             <div className="flex items-center gap-2 flex-wrap pt-1">
-              <span className="text-xs text-white/40">Suggested prices:</span>
+              <span className="text-xs text-on-surface/40">Suggested prices:</span>
               {[
                 { vip: 30, vnd: 30000, label: '30 VIP (30K)' },
                 { vip: 50, vnd: 50000, label: '50 VIP (50K)' },
@@ -1663,7 +1663,7 @@ export default function AddProductControlPanel({
                   className={`px-3 py-1 rounded-xl text-xs font-bold border transition-all ${
                     priceVipCoin === p.vip
                       ? 'bg-tertiary text-on-tertiary border-tertiary'
-                      : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                      : 'bg-on-surface/5 border-on-surface/10 text-on-surface/70 hover:bg-on-surface/10'
                   }`}
                 >
                   {p.label}
@@ -1672,7 +1672,7 @@ export default function AddProductControlPanel({
             </div>
 
             {/* Ownership & Flash Sale iOS-style Toggles (Unified UI) */}
-            <div className="space-y-3 pt-4 border-t border-white/10">
+            <div className="space-y-3 pt-4 border-t border-on-surface/10">
               {/* Row 1: Exclusive Mode Toggle */}
               <div
                 onClick={() => {
@@ -1683,7 +1683,7 @@ export default function AddProductControlPanel({
                 className={`flex items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer select-none ${
                   isExclusive
                     ? 'bg-tertiary/10 border-tertiary/35'
-                    : 'bg-obsidian/40 border-white/10 hover:border-white/20'
+                    : 'bg-obsidian/40 border-on-surface/10 hover:border-on-surface/20'
                 }`}
               >
                 <div className="space-y-1 pr-2">
@@ -1692,20 +1692,20 @@ export default function AddProductControlPanel({
                       name={isExclusive ? 'lock' : 'storefront'}
                       className="text-tertiary text-lg"
                     />
-                    <span className="text-sm font-bold text-white">
+                    <span className="text-sm font-bold text-on-surface">
                       Exclusive (no direct purchase)
                     </span>
                     <span
                       className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
                         isExclusive
                           ? 'bg-tertiary/20 text-tertiary-fixed border-tertiary/40'
-                          : 'bg-white/10 text-white/70 border-white/15'
+                          : 'bg-on-surface/10 text-on-surface/70 border-on-surface/15'
                       }`}
                     >
                       {isExclusive ? 'Exclusive on' : 'On sale'}
                     </span>
                   </div>
-                  <p className="text-xs text-white/55">
+                  <p className="text-xs text-on-surface/55">
                     {isExclusive
                       ? 'This product is exclusive, so players can’t buy it directly. Turn the switch off to sell it again.'
                       : 'This product is on sale in the shop. Turn the switch on to make it exclusive.'}
@@ -1724,11 +1724,11 @@ export default function AddProductControlPanel({
                     if (next) setIsFlashSale(false)
                   }}
                   className={`relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none ${
-                    isExclusive ? 'bg-tertiary shadow-md ' : 'bg-white/20'
+                    isExclusive ? 'bg-tertiary shadow-md ' : 'bg-on-surface/20'
                   }`}
                 >
                   <span
-                    className={`pointer-events-none inline-block h-7 w-7 transform rounded-full bg-white shadow-lg ring-0 transition duration-300 ease-in-out ${
+                    className={`pointer-events-none inline-block h-7 w-7 transform rounded-full bg-on-surface shadow-lg ring-0 transition duration-300 ease-in-out ${
                       isExclusive ? 'translate-x-6' : 'translate-x-0'
                     }`}
                   />
@@ -1740,7 +1740,7 @@ export default function AddProductControlPanel({
                 className={`p-4 sm:p-5 rounded-2xl border transition-all space-y-4 ${
                   isFlashSale
                     ? 'bg-tertiary/10 border-tertiary/35'
-                    : 'bg-obsidian/40 border-white/10 hover:border-white/20'
+                    : 'bg-obsidian/40 border-on-surface/10 hover:border-on-surface/20'
                 }`}
               >
                 <div
@@ -1754,20 +1754,20 @@ export default function AddProductControlPanel({
                   <div className="space-y-1 pr-2">
                     <div className="flex items-center gap-2 flex-wrap">
                       <Icon name="bolt" className="text-tertiary text-lg" />
-                      <span className="text-sm font-bold text-white">
+                      <span className="text-sm font-bold text-on-surface">
                         Limited-time sale
                       </span>
                       <span
                         className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
                           isFlashSale
                             ? 'bg-tertiary/20 text-tertiary-fixed border-tertiary/40'
-                            : 'bg-white/10 text-white/70 border-white/15'
+                            : 'bg-on-surface/10 text-on-surface/70 border-on-surface/15'
                         }`}
                       >
                         {isFlashSale ? 'Flash sale on' : 'Off'}
                       </span>
                     </div>
-                    <p className="text-xs text-white/55">
+                    <p className="text-xs text-on-surface/55">
                       When the countdown ends, the scheduler makes the item exclusive.
                     </p>
                   </div>
@@ -1784,11 +1784,11 @@ export default function AddProductControlPanel({
                       if (next) setIsExclusive(false)
                     }}
                     className={`relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none ${
-                      isFlashSale ? 'bg-tertiary shadow-md ' : 'bg-white/20'
+                      isFlashSale ? 'bg-tertiary shadow-md ' : 'bg-on-surface/20'
                     }`}
                   >
                     <span
-                      className={`pointer-events-none inline-block h-7 w-7 transform rounded-full bg-white shadow-lg ring-0 transition duration-300 ease-in-out ${
+                      className={`pointer-events-none inline-block h-7 w-7 transform rounded-full bg-on-surface shadow-lg ring-0 transition duration-300 ease-in-out ${
                         isFlashSale ? 'translate-x-6' : 'translate-x-0'
                       }`}
                     />
@@ -1802,7 +1802,7 @@ export default function AddProductControlPanel({
                         <Icon name="timer" className="text-base" />
                         Sale length:
                       </span>
-                      <span className="text-xs text-white/70 font-mono">
+                      <span className="text-xs text-on-surface/70 font-mono">
                         Ends: {computedSaleExpiresAt ? new Date(computedSaleExpiresAt).toLocaleString() : 'Not set'}
                       </span>
                     </div>
@@ -1823,7 +1823,7 @@ export default function AddProductControlPanel({
                           className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all text-center cursor-pointer ${
                             flashSalePreset === opt.id
                               ? 'bg-tertiary text-on-tertiary border-tertiary shadow-sm '
-                              : 'bg-obsidian/40 border-white/10 text-white/70 hover:border-white/20'
+                              : 'bg-obsidian/40 border-on-surface/10 text-on-surface/70 hover:border-on-surface/20'
                           }`}
                         >
                           {opt.label}
@@ -1850,9 +1850,9 @@ export default function AddProductControlPanel({
 
         {/* Right Column (4 cols): Category-Aware Live Preview */}
         <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-6">
-          <div className="p-6 rounded-2xl bg-surface-container-lowest/95 border border-white/10 shadow-raised space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-white/10">
-              <h4 className="font-headline font-bold text-sm text-white flex items-center gap-2">
+          <div className="p-6 rounded-2xl bg-surface-container-lowest/95 border border-on-surface/10 shadow-raised space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-on-surface/10">
+              <h4 className="font-headline font-bold text-sm text-on-surface flex items-center gap-2">
                 <Icon name="preview" className="text-tertiary text-lg" />
                 <span>Shop preview</span>
               </h4>
@@ -1862,7 +1862,7 @@ export default function AddProductControlPanel({
             </div>
 
             {/* Category-Aware Preview Display (Ảnh 1 & Ảnh 2 Fix) */}
-            <div className="w-full aspect-[4/3] rounded-2xl bg-obsidian/70 border border-white/15 p-3 flex flex-col items-center justify-center relative overflow-hidden group shadow-inner">
+            <div className="w-full aspect-[4/3] rounded-2xl bg-obsidian/70 border border-on-surface/15 p-3 flex flex-col items-center justify-center relative overflow-hidden group shadow-inner">
               {/* Case 1: SOUND */}
               {catCode === 'SOUND' ? (
                 <div className="w-full h-full flex flex-col items-center justify-center relative p-4 text-center">
@@ -1910,7 +1910,7 @@ export default function AddProductControlPanel({
                 /* Case 2: DEALER Multi-Pose Preview */
                 <div className="w-full h-full flex flex-col items-center justify-between relative">
                   {/* Stage Switcher Pills */}
-                  <div className="w-full flex items-center justify-center gap-1 p-1 bg-obsidian/60 rounded-xl border border-white/10 z-10">
+                  <div className="w-full flex items-center justify-center gap-1 p-1 bg-obsidian/60 rounded-xl border border-on-surface/10 z-10">
                     {DEALER_POSES_SCHEMA.slice(0, 4).map(pose => (
                       <button
                         key={pose.key}
@@ -1922,7 +1922,7 @@ export default function AddProductControlPanel({
                         className={`flex-1 py-1 px-1 rounded-lg text-[11px] font-bold transition-all text-center truncate ${
                           activeDealerPreviewPose === pose.key
                             ? 'bg-tertiary text-on-tertiary shadow-sm'
-                            : 'text-white/60 hover:text-white'
+                            : 'text-on-surface/60 hover:text-on-surface'
                         }`}
                       >
                         {pose.shortName}
@@ -1940,7 +1940,7 @@ export default function AddProductControlPanel({
                         className="max-h-full max-w-full object-contain rounded-xl drop-shadow-2xl animate-fade-in"
                       />
                     ) : (
-                      <div className="flex flex-col items-center justify-center text-white/30 text-center">
+                      <div className="flex flex-col items-center justify-center text-on-surface/30 text-center">
                         <Icon name="face" className="text-4xl text-tertiary/40 mb-1" />
                         <span className="text-xs">No image for this pose yet</span>
                       </div>
@@ -1955,7 +1955,7 @@ export default function AddProductControlPanel({
                       className={`text-[11px] font-bold px-2 py-1 rounded-lg flex items-center gap-1 border transition-colors ${
                         isAutoAnimatingDealer
                           ? 'bg-success/20 text-success border-success/40 '
-                          : 'bg-white/10 text-white/70 border-white/10 hover:bg-white/20'
+                          : 'bg-on-surface/10 text-on-surface/70 border-on-surface/10 hover:bg-on-surface/20'
                       }`}
                     >
                       <Icon name={isAutoAnimatingDealer ? 'pause' : 'play_arrow'} className="text-xs" />
@@ -2007,7 +2007,7 @@ export default function AddProductControlPanel({
                     <span className="text-xs font-bold text-primary">
                       {name || 'Win / all-in effect'}
                     </span>
-                    <span className="text-[11px] text-white/40 mt-0.5">
+                    <span className="text-[11px] text-on-surface/40 mt-0.5">
                       {localVideoPreviewUrl ? 'Video ready' : 'No preview video'}
                     </span>
                   </div>
@@ -2035,7 +2035,7 @@ export default function AddProductControlPanel({
                 />
               )}
 
-              {catCode !== 'DEALER' && <span className="absolute bottom-2 left-2 text-[11px] font-bold px-2 py-0.5 rounded-full bg-obsidian/70 text-white/80 border border-white/10 z-10 backdrop-blur-sm">
+              {catCode !== 'DEALER' && <span className="absolute bottom-2 left-2 text-[11px] font-bold px-2 py-0.5 rounded-full bg-obsidian/70 text-on-surface/80 border border-on-surface/10 z-10 backdrop-blur-sm">
                 {currentCategory?.name || 'Item'}
               </span>}
 
@@ -2053,31 +2053,31 @@ export default function AddProductControlPanel({
             </div>
 
             {/* Product Meta Summary */}
-            <div className="space-y-2 text-xs border-t border-white/10 pt-3">
+            <div className="space-y-2 text-xs border-t border-on-surface/10 pt-3">
               <div className="flex items-center justify-between">
-                <span className="text-white/50">Name:</span>
-                <span className="font-bold text-white truncate max-w-[180px]">
+                <span className="text-on-surface/50">Name:</span>
+                <span className="font-bold text-on-surface truncate max-w-[180px]">
                   {name || 'Untitled'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-white/50">Tier:</span>
+                <span className="text-on-surface/50">Tier:</span>
                 <span className="font-bold text-tertiary">{tier}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-white/50">VIP Coin price:</span>
+                <span className="text-on-surface/50">VIP Coin price:</span>
                 <span className="font-bold text-tertiary-fixed font-mono">
                   {formatVipCoin(priceVipCoin)} VIP
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-white/50">In VND:</span>
-                <span className="font-bold text-white/80 font-mono">
+                <span className="text-on-surface/50">In VND:</span>
+                <span className="font-bold text-on-surface/80 font-mono">
                   {formatVnd(priceVnd)}
                 </span>
               </div>
               <div className="flex items-center justify-between pt-1">
-                <span className="text-white/50">Status:</span>
+                <span className="text-on-surface/50">Status:</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -2099,7 +2099,7 @@ export default function AddProductControlPanel({
             </div>
 
             {/* Submit Action in sticky sidebar */}
-            <div className="pt-4 border-t border-white/10 space-y-2">
+            <div className="pt-4 border-t border-on-surface/10 space-y-2">
               <Button
                 variant={isEditing ? 'primary' : 'gold'}
                 size="lg"

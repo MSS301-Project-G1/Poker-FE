@@ -162,7 +162,7 @@
   font-family: var(--font-headline, sans-serif);
   font-weight: 800;
   font-size: 1.125rem;
-  color: white;
+  color: rgb(var(--color-on-surface));
   line-height: 1.35;
   letter-spacing: -0.01em;
   display: -webkit-box;

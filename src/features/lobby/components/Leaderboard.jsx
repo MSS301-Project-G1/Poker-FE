@@ -51,7 +51,7 @@ export default function Leaderboard({ standings, collapsed = false, onToggleColl
           <button
             type="button"
             onClick={onToggleCollapse}
-            className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/15 flex items-center justify-center text-on-surface-variant hover:text-white transition-all border border-white/10"
+            className="w-7 h-7 rounded-full bg-on-surface/5 hover:bg-on-surface/15 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-all border border-on-surface/10"
             title="Collapse the leaderboard to see the whole 3D table"
             aria-label="Collapse leaderboard"
           >
@@ -63,7 +63,7 @@ export default function Leaderboard({ standings, collapsed = false, onToggleColl
 
     <div className="flex-1 flex flex-col gap-space-xs short:[&>*:nth-child(n+4)]:hidden">
       {phase === 'loading' && Array.from({ length: 5 }, (_, index) => <div key={index} role={index ? undefined : 'status'} aria-label={index ? undefined : 'Loading leaderboard'}
-        className="flex-1 min-h-12 rounded-xl bg-white/[0.04] border border-white/[0.05] animate-pulse motion-reduce:animate-none" />)}
+        className="flex-1 min-h-12 rounded-xl bg-on-surface/[0.04] border border-on-surface/[0.05] animate-pulse motion-reduce:animate-none" />)}
       {phase === 'error' && <p role="alert" className="text-body-sm font-body-sm text-error">{standings.error}</p>}
       {phase === 'empty' && <p className="text-body-sm font-body-sm text-on-surface-variant">No ranked games this season yet. Be the first.</p>}
       {phase === 'ready' && top.map((player, index) => {
@@ -71,10 +71,10 @@ export default function Leaderboard({ standings, collapsed = false, onToggleColl
         const profile = profiles[player.accountId]
         const name = profile?.displayName || `Player ${player.accountId.slice(-6)}`
         const you = player.accountId === me?.accountId
-        return <div key={player.accountId} className={`flex-1 flex items-center justify-between p-space-sm rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border ${you ? 'border-primary/50' : 'border-white/[0.05]'} hover:border-primary/40 backdrop-blur-sm transition-all duration-200`}>
+        return <div key={player.accountId} className={`flex-1 flex items-center justify-between p-space-sm rounded-xl bg-on-surface/[0.03] hover:bg-on-surface/[0.08] border ${you ? 'border-primary/50' : 'border-on-surface/[0.05]'} hover:border-primary/40 backdrop-blur-sm transition-all duration-200`}>
           <div className="flex items-center gap-space-sm min-w-0">
             <div className={`w-7 h-7 shrink-0 rounded-full ${style.badge} flex items-center justify-center font-label-numeric-md text-label-numeric-md`}>{player.position}</div>
-            <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 ring-1 ring-white/10">
+            <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 ring-1 ring-on-surface/10">
               <img alt={`${name} avatar`} className="w-full h-full object-cover" src={profile?.avatarUrl || fallbackAvatar}
                 onError={event => { event.currentTarget.src = fallbackAvatar }} />
             </div>

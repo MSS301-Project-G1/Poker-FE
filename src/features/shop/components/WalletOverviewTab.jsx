@@ -140,14 +140,14 @@ export default function WalletOverviewTab({
 
   if (!isLoggedIn) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 px-4 text-center rounded-3xl bg-white/[0.02] border border-white/10 shadow-2xl my-4">
+      <div className="flex flex-col items-center justify-center py-20 px-4 text-center rounded-3xl bg-on-surface/[0.02] border border-on-surface/10 shadow-2xl my-4">
         <div className="w-16 h-16 rounded-2xl bg-tertiary/10 border border-tertiary/30 flex items-center justify-center text-tertiary mb-4 shadow-lg shadow-tertiary/10">
           <Icon name="account_balance_wallet" className="text-3xl" />
         </div>
-        <h3 className="font-headline font-bold text-2xl text-white mb-2">
+        <h3 className="font-headline font-bold text-2xl text-on-surface mb-2">
           Wallet & history
         </h3>
-        <p className="text-sm text-white/60 max-w-md mb-6 leading-relaxed">
+        <p className="text-sm text-on-surface/60 max-w-md mb-6 leading-relaxed">
           You’re browsing as a guest. Sign in to see your VIP Coin and chip balances and full history.
         </p>
         <Button
@@ -185,7 +185,7 @@ export default function WalletOverviewTab({
           <button
             type="button"
             onClick={handleRefreshAll}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-white/80 border border-white/10 transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-on-surface/5 hover:bg-on-surface/10 text-xs font-semibold text-on-surface/80 border border-on-surface/10 transition-colors"
             title="Refresh balance and history"
           >
             <Icon name="refresh" className={txLoading ? 'animate-spin' : ''} />
@@ -225,7 +225,7 @@ export default function WalletOverviewTab({
             </p>
           </div>
           <div className={styles.kpiFooter}>
-            <span className="text-xs text-white/50">PayOS checkout</span>
+            <span className="text-xs text-on-surface/50">PayOS checkout</span>
             <button
               type="button"
               onClick={() => navigate('/shop/bundles')}
@@ -256,7 +256,7 @@ export default function WalletOverviewTab({
             </p>
           </div>
           <div className={styles.kpiFooter}>
-            <span className="text-xs text-white/50">Ready to play</span>
+            <span className="text-xs text-on-surface/50">Ready to play</span>
             <button
               type="button"
               onClick={() => navigate(paths.lobby)}
@@ -292,7 +292,7 @@ export default function WalletOverviewTab({
             <span className="text-xs text-success font-semibold flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-success animate-pulse" /> Wallet connected
             </span>
-            <span className="text-xs text-white/50 font-medium">
+            <span className="text-xs text-on-surface/50 font-medium">
               256-bit SSL
             </span>
           </div>
@@ -343,7 +343,7 @@ export default function WalletOverviewTab({
         {txLoading ? (
           <div className="py-16 flex flex-col items-center justify-center gap-3">
             <span className="w-8 h-8 border-3 border-tertiary border-t-transparent rounded-full animate-spin" />
-            <span className="text-xs text-white/60">Loading wallet history…</span>
+            <span className="text-xs text-on-surface/60">Loading wallet history…</span>
           </div>
         ) : transactions.length === 0 ? (
           <div className={styles.emptyState}>
@@ -391,7 +391,7 @@ export default function WalletOverviewTab({
                           </div>
                         </td>
                         <td>
-                          <span className="text-xs text-white/70">{formatDate(tx.createdAt)}</span>
+                          <span className="text-xs text-on-surface/70">{formatDate(tx.createdAt)}</span>
                         </td>
                         <td>
                           <span
@@ -417,7 +417,7 @@ export default function WalletOverviewTab({
                           </span>
                         </td>
                         <td>
-                          <span className="font-mono text-[11px] text-white/60 tracking-wider">
+                          <span className="font-mono text-[11px] text-on-surface/60 tracking-wider">
                             {formatAuditRef(tx.idempotencyKey, tx.id)}
                           </span>
                         </td>
@@ -433,10 +433,10 @@ export default function WalletOverviewTab({
               <div className={styles.paginationRow}>
                 <div className="flex items-center gap-3 flex-wrap">
                   <span className={styles.pageInfo}>
-                    Showing <strong className="text-white/90">{Math.min(page * pageSize + 1, totalElements)}</strong> - <strong className="text-white/90">{Math.min((page + 1) * pageSize, totalElements)}</strong> trong <strong className="text-tertiary">{totalElements}</strong> transactions
+                    Showing <strong className="text-on-surface/90">{Math.min(page * pageSize + 1, totalElements)}</strong> - <strong className="text-on-surface/90">{Math.min((page + 1) * pageSize, totalElements)}</strong> trong <strong className="text-tertiary">{totalElements}</strong> transactions
                   </span>
 
-                  <div className="flex items-center gap-1.5 text-xs text-white/50">
+                  <div className="flex items-center gap-1.5 text-xs text-on-surface/50">
                     <span>Rows:</span>
                     <select
                       value={pageSize}
