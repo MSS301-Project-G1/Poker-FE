@@ -23,27 +23,10 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    # STOMP endpoints keep their service-specific authentication.
-    location = /ws/social {
-        proxy_pass ${SOCIAL_SERVICE_URL};
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $http_host;
-        proxy_read_timeout 1h;
-    }
-
-    location = /ws/chat {
-        proxy_pass ${CHAT_SERVICE_URL};
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $http_host;
-        proxy_read_timeout 1h;
-    }
-
+    # STOMP endpoints (/ws/game, /ws/social, /ws/chat) also go through the gateway, which routes them
+    # to their service; each service still authenticates the ws-token in the STOMP CONNECT frame.
     location /ws/ {
-        proxy_pass ${GAME_SERVICE_URL};
+        proxy_pass ${API_GATEWAY_URL};
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";

@@ -26,7 +26,7 @@ docker compose --profile dev up --build dev
 
 | Service | What it is | Backend it talks to |
 | --- | --- | --- |
-| `web` | `npm run build` + nginx, SPA fallback | `/api/*` → API gateway (`API_GATEWAY_URL`, default host `:8080`); `/ws/*` → game-service (`GAME_SERVICE_URL`, default host `:8082`) |
+| `web` | `npm run build` + nginx, SPA fallback | `/api/*` and `/ws/*` → API gateway (`API_GATEWAY_URL`, default host `:8080`); add `http://localhost:3000` to the gateway's `GATEWAY_CORS_ALLOWED_ORIGINS` |
 | `dev` | `npm run dev:game` with the repo bind-mounted | Vite proxy → game-service (`GAME_SERVICE_URL`, default host `:8082`) |
 
 - Local bot tables and `?devUser` only work in `dev`: the production build disables them, so `/table`
@@ -39,14 +39,15 @@ docker compose --profile dev up --build dev
 
 ## Deploy (CI/CD)
 
-`.github/workflows/ci-cd.yml` runs `npm run build` on every pull request. A push to `main` also builds
-the `web` image for ARM, pushes it to `ghcr.io/mss301-project-g1/poker-fe` and runs
-`deploy/remote-deploy.sh` on the VPS over SSH.
+`.github/workflows/ci-cd.yml` runs `npm run build` on every pull request. A push to `main` also copies
+`dist/` to `/srv/poker-fe/releases/<commit>` on the VPS, runs `deploy/remote-deploy.sh` (switches the
+`current` symlink, installs `deploy/Caddyfile` when it changed, keeps 5 releases) and then checks the site
+and the three WebSocket endpoints from the Internet.
 
-- On the VPS the container listens on `127.0.0.1:3000`; Caddy serves `https://game-fun.me` and proxies to it.
-  `deploy/compose.prod.yml` joins the Poker-BE network (`poker_default`), so deploy Poker-BE first.
+- Production has no nginx: Caddy (`deploy/Caddyfile`) terminates HTTPS for `https://game-fun.me`, serves
+  `dist/` and sends `/api/*` and `/ws/*` to the Poker-BE gateway on `127.0.0.1:8080`.
+- Rollback: `ln -sfn releases/<commit> /srv/poker-fe/current` on the VPS (no restart needed).
 - Repository secrets: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` (same deploy key as Poker-BE).
-- On the VPS: `cd ~/poker/fe && docker compose -p poker-fe -f compose.yml -f deploy/compose.prod.yml logs -f web`.
 
 ## Screens
 

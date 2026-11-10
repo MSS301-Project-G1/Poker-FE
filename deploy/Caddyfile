@@ -1,0 +1,30 @@
+# Edge config of the VPS; deploy/remote-deploy.sh installs it as /etc/caddy/Caddyfile when it changes.
+# Caddy terminates HTTPS and serves the built SPA. Everything under /api and /ws goes to the API gateway,
+# which finds the services through Eureka, so this file never lists service hosts or ports.
+game-fun.me {
+	encode zstd gzip
+
+	@backend path /api/* /ws/*
+	handle @backend {
+		reverse_proxy 127.0.0.1:8080
+	}
+
+	# Vite output in /assets is content-hashed: cache it forever, and a missing file stays a 404.
+	handle /assets/* {
+		root * /srv/poker-fe/current
+		header Cache-Control "public, max-age=31536000, immutable"
+		file_server
+	}
+
+	# SPA fallback: React Router handles every other path.
+	handle {
+		root * /srv/poker-fe/current
+		header Cache-Control "no-cache"
+		try_files {path} /index.html
+		file_server
+	}
+}
+
+www.game-fun.me {
+	redir https://game-fun.me{uri} permanent
+}
