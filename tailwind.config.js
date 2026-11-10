@@ -36,6 +36,8 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      // Desktop windows too short for the full one-screen lobby: panels hide their secondary lines (short:hidden).
+      screens: { short: { raw: '(min-width: 1024px) and (max-height: 900px)' } },
       colors: map(colorNames, name => `rgb(var(--color-${name}) / <alpha-value>)`),
       fontFamily: {
         ...map(displayText, () => 'var(--font-display)'),

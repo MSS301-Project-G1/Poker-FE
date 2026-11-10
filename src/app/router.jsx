@@ -1,10 +1,13 @@
 import { Route, Routes } from 'react-router'
-import { env } from '@/shared/config/env'
 import { paths } from '@/shared/config/paths'
 import { AccountPage } from '@/features/account'
+import { AdminHomePage } from '@/features/admin/dashboard'
+import { AdminUsersPage } from '@/features/admin/users'
 import { AdminAvatarsPage } from '@/features/admin/avatars'
 import { MatchSettingsPage } from '@/features/admin/match-settings'
-import { AdminShopPage } from '@/features/admin/shop'
+import { AdminShopPage, AdminEditProductPage } from '@/features/admin/shop'
+import { AdminSeasonsPage } from '@/features/admin/seasons'
+import { AdminTournamentsPage } from '@/features/admin/tournaments'
 import { AuthPage } from '@/features/auth'
 import { DemoPage } from '@/features/demo'
 import { RoomLobbyPage, RoomsPage } from '@/features/custom-room'
@@ -16,7 +19,10 @@ import { RankedPage } from '@/features/ranked'
 import { LeaderboardPage } from '@/features/ranking'
 import { SeasonPage } from '@/features/season'
 import { ShopPage, BundlePage, ProductDetailPage, PaymentResultPage } from '@/features/shop'
+import { TournamentPage, TournamentsPage } from '@/features/tournament'
+import { TutorialPage } from '@/features/tutorial'
 import AdminOnlyRoute from './AdminOnlyRoute'
+import AdminLayout from './AdminLayout'
 import NotFoundPage from './NotFoundPage'
 import AuthenticatedLayout from './AuthenticatedLayout'
 
@@ -39,18 +45,29 @@ export default function AppRoutes() {
       <Route path={paths.seasons} element={<SeasonPage />} />
       <Route path={paths.rooms} element={<RoomsPage />} />
       <Route path={paths.roomByCode(':roomCode')} element={<RoomLobbyPage />} />
-      <Route element={<AdminOnlyRoute />}>
+      <Route path={paths.tournaments} element={<TournamentsPage />} />
+      <Route path={paths.tournamentById(':tournamentId')} element={<TournamentPage />} />
+    </Route>
+    <Route path={paths.admin} element={<AdminOnlyRoute />}>
+      <Route element={<AdminLayout />}>
+        <Route index element={<AdminHomePage />} />
+        <Route path={paths.adminUsers} element={<AdminUsersPage />} />
         <Route path={paths.adminAvatars} element={<AdminAvatarsPage />} />
         <Route path={paths.adminShop} element={<AdminShopPage />} />
-        {!env.gameDevMode && <Route path={paths.adminMatchSettings} element={<MatchSettingsPage />} />}
+        <Route path={paths.adminShopEditProduct(':id')} element={<AdminEditProductPage />} />
+        <Route path={paths.adminShopAddProduct} element={<AdminEditProductPage />} />
+        <Route path={paths.adminSeasons} element={<AdminSeasonsPage />} />
+        <Route path={paths.adminTournaments} element={<AdminTournamentsPage />} />
+        <Route path={paths.adminMatchSettings} element={<MatchSettingsPage />} />
       </Route>
+      <Route path="*" element={<NotFoundPage />} />
     </Route>
     <Route path={paths.events} element={<EventsPage />} />
     <Route path={paths.mailbox} element={<MailboxPage />} />
     <Route path={paths.table} element={<GameTablePage />} />
     <Route path={paths.tableById(':tableId')} element={<GameTablePage />} />
-    {/* Local game tooling only: ?devUser identities exercise Admin settings without a gateway session. */}
-    {env.gameDevMode && <Route path={paths.adminMatchSettings} element={<MatchSettingsPage />} />}
+    {/* Full-screen like the table; the page checks the session itself. */}
+    <Route path={paths.tutorial} element={<TutorialPage />} />
     <Route path="*" element={<NotFoundPage />} />
   </Routes>
 }

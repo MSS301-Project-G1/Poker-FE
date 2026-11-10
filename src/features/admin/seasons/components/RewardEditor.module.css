@@ -1,0 +1,63 @@
+.editor { display: grid; gap: 14px; }
+
+.head, .row { display: grid; grid-template-columns: 160px 120px minmax(0, 1fr); align-items: start; gap: 12px; }
+.head { padding: 0 12px; color: rgb(var(--color-outline)); font: 600 9px var(--font-display); letter-spacing: 1px; text-transform: uppercase; }
+.rows { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+
+.row {
+  padding: 10px 12px;
+  border: 1px solid rgb(var(--color-outline-variant));
+  border-radius: 12px;
+  background: rgb(var(--color-surface));
+}
+
+/* The tier badge keeps its own width instead of filling the column. */
+.row > :first-child { justify-self: start; }
+
+.coins {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid rgb(var(--color-border));
+  border-radius: 8px;
+  background: rgb(var(--color-surface-container-lowest));
+  color: rgb(var(--color-on-surface));
+  font: 600 14px var(--font-display);
+}
+
+.coins:disabled { opacity: 0.6; }
+.skins { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 4px 4px 4px 8px;
+  border: 1px solid rgb(var(--color-border-gold) / 0.6);
+  border-radius: var(--radius-full);
+  color: rgb(var(--color-tertiary));
+  font-size: 12px;
+}
+
+.chipIcon { font-size: 14px; }
+
+.remove {
+  display: grid;
+  place-items: center;
+  padding: 2px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: none;
+  color: rgb(var(--color-on-surface-variant));
+}
+
+.remove:hover { color: rgb(var(--color-error)); }
+.remove span { font-size: 14px; }
+.add { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; flex: 1 1 220px; min-width: 0; }
+.footer { display: flex; justify-content: flex-end; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+@media (max-width: 640px) {
+  .head { display: none; }
+  .row { grid-template-columns: minmax(0, 1fr) 110px; }
+  .skins { grid-column: 1 / -1; }
+}

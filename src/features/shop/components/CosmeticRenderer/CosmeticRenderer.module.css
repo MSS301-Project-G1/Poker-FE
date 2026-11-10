@@ -29,14 +29,15 @@
 
 .cardInner {
   position: relative;
-  width: 100%;
   height: 100%;
-  max-width: 160px;
-  max-height: 220px;
+  width: auto;
   aspect-ratio: 5 / 7;
+  max-height: 100%;
+  margin: 0 auto;
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   transform-style: preserve-3d;
 }
+
 
 .cardInner.flipped {
   transform: rotateY(180deg);

@@ -1,45 +1,61 @@
-import { useAuth } from '@/features/auth'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { useQueue } from '@/features/ranked'
 import { LobbyBackdrop } from '@/features/demo'
-import { CommunityToolbar, PartyPanel } from '@/features/community'
+import { PartyPanel } from '@/features/community'
+import { useLeaderboardPreview } from '@/features/ranking'
+import { useNextTournament } from '@/features/tournament'
+import { useTutorialStatus } from '@/features/tutorial'
 import LoungeModes from './components/LoungeModes'
 import ChampionshipBanner from './components/ChampionshipBanner'
-import DailyCheckInModal from './components/DailyCheckInModal'
+import FloatingPanel from './components/FloatingPanel'
 import Leaderboard from './components/Leaderboard'
-import PlayerSummary from './components/PlayerSummary'
-import { useDailyCheckIn } from './hooks/useDailyCheckIn'
+import MoreModes from './components/MoreModes'
 
 export default function LobbyPage() {
-  const { user } = useAuth()
-  const [params, setParams] = useSearchParams()
+  const [params] = useSearchParams()
   const { open } = useQueue()
   const legacyMode = params.get('match')
   useEffect(() => {
     if (legacyMode === 'RANK' || legacyMode === 'NORMAL') {
       open(legacyMode)
-      setParams(previous => { const next = new URLSearchParams(previous); next.delete('match'); return next }, { replace: true })
     }
-  }, [legacyMode, open, setParams])
-  const [checkInOpen, setCheckInOpen] = useDailyCheckIn()
+  }, [legacyMode, open])
+  const [leaderboardCollapsed, setLeaderboardCollapsed] = useState(false)
+  const standings = useLeaderboardPreview(5)
+  const featured = useNextTournament()
+  const [tutorial] = useTutorialStatus()
 
-  // One flat grid so every block lines up with its row neighbours. From xl the leaderboard takes the
-  // right column across all rows and the party panel sits beside the two mode cards.
-  return <div className="flex flex-col w-full relative py-space-md px-margin-mobile lg:px-margin">
+  // Desktop: exactly one screen tall (min height only for very short windows), so the lobby never scrolls.
+  return <div className="flex flex-col w-full relative py-space-sm px-margin-mobile lg:px-margin lg:h-[var(--page-height)] lg:min-h-[600px]">
     <LobbyBackdrop />
-    <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col gap-space-md">
-      <CommunityToolbar />
-      <div className="grid grid-cols-12 gap-space-md">
-        <div className="col-span-12 xl:col-span-9 grid">
-          <PlayerSummary player={{ ...user?.profile, email: user?.email }} onOpenCheckIn={() => setCheckInOpen(true)} />
-        </div>
-        <div className="col-span-12 lg:col-span-8 xl:col-span-6 grid"><LoungeModes /></div>
-        <div className="col-span-12 lg:col-span-4 xl:col-span-3 grid min-w-0"><PartyPanel /></div>
-        <div className="col-span-12 xl:col-span-9 grid"><ChampionshipBanner /></div>
-        <aside className="col-span-12 xl:col-span-3 xl:col-start-10 xl:row-start-1 xl:row-span-3 grid min-w-0"><Leaderboard /></aside>
+
+    {/* Panels float around the 3D table: game modes on the left, standings on the right, the tournament on the pedestal below */}
+    <div className={`relative z-10 w-full max-w-[1720px] mx-auto grid flex-1 min-h-0 gap-space-md ${leaderboardCollapsed ? 'lg:grid-cols-[minmax(280px,330px)_minmax(0,1fr)_64px]' : 'lg:grid-cols-[minmax(280px,330px)_minmax(0,1fr)_minmax(280px,330px)]'}`}>
+      {/* Side columns stay out of the z-index game, so a hovered panel (z 40) rises above the pedestal too */}
+      <div className="flex min-h-0 flex-col [justify-content:safe_center] gap-[22px] pt-4">
+        <LoungeModes />
+        <FloatingPanel side="left" arc><PartyPanel /></FloatingPanel>
       </div>
+
+      {/* Center Stage: the table stays visible; only the pedestal panel sits at its foot */}
+      <div className="order-last lg:order-none flex min-h-0 flex-col items-center justify-end pointer-events-none">
+        <FloatingPanel side="bottom" className="w-full max-w-[760px] pointer-events-auto z-20">
+          <ChampionshipBanner featured={featured} />
+        </FloatingPanel>
+      </div>
+
+      {/* Right Flank: Leaderboard, then the other modes; bottom padding keeps clear of the fixed "Tìm đội và bạn bè" dock */}
+      <aside className="flex min-h-0 flex-col [justify-content:safe_center] gap-space-md lg:pb-16">
+        <FloatingPanel side="right">
+          <Leaderboard
+            standings={standings}
+            collapsed={leaderboardCollapsed}
+            onToggleCollapse={() => setLeaderboardCollapsed(current => !current)}
+          />
+        </FloatingPanel>
+        <FloatingPanel side="right" arc><MoreModes tutorial={tutorial} collapsed={leaderboardCollapsed} /></FloatingPanel>
+      </aside>
     </div>
-    {checkInOpen && <DailyCheckInModal onClose={() => setCheckInOpen(false)} />}
   </div>
 }

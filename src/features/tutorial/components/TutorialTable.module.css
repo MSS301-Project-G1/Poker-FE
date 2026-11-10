@@ -1,0 +1,14 @@
+/* Same placement as the game table: PlayerSeat puts the seats on the rail, the board stays in the middle. */
+.table { flex: 1; min-height: 330px; }
+.center { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); z-index: 3; }
+
+@media (max-height: 700px) { .center { top: 41%; } }
+@media (max-width: 1100px) { .center { top: 40%; } }
+@media (max-width: 900px) {
+  .table { flex: none; height: max(360px, calc(100dvh - 330px)); }
+  .center { top: 43%; }
+}
+@media (max-width: 600px) {
+  .table { height: max(380px, calc(100dvh - 360px)); }
+  .center { top: 56%; }
+}

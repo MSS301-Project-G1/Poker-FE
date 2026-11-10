@@ -1,0 +1,47 @@
+/* Same header popover as the hand guide. */
+.panel { position: relative; }
+.panel summary { display: flex; align-items: center; gap: 5px; cursor: pointer; color: rgb(var(--color-on-surface-variant)); font-size: 12px; }
+.icon { color: rgb(var(--color-tertiary)); }
+.panel .icon { font-size: 18px; }
+
+.popover {
+  position: absolute;
+  right: 0;
+  top: 40px;
+  width: 260px;
+  padding: 16px;
+  display: grid;
+  gap: 10px;
+  background: rgb(var(--color-surface-container-low));
+  border: 1px solid rgb(var(--color-border));
+  border-radius: 15px;
+  box-shadow: var(--shadow-popover);
+  z-index: var(--z-popover);
+}
+.popover strong { color: rgb(var(--color-tertiary)); font-size: 10px; letter-spacing: 1px; }
+.popover ul { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; max-height: 240px; overflow-y: auto; }
+.popover button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border: 1px solid rgb(var(--color-border));
+  border-radius: 10px;
+  background: rgb(var(--color-surface-container));
+  color: rgb(var(--color-on-surface));
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+.popover button:hover:not(:disabled) { border-color: rgb(var(--color-primary)); }
+.popover button:disabled { opacity: 0.5; cursor: default; }
+.popover button img { width: 32px; height: 32px; flex: none; border-radius: 8px; object-fit: cover; }
+.popover button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.popover p { margin: 0; color: rgb(var(--color-on-surface-variant)); font-size: 12px; }
+.mute { display: flex; align-items: center; gap: 8px; color: rgb(var(--color-on-surface-variant)); font-size: 12px; cursor: pointer; }
+
+@media (max-width: 500px) {
+  .panel summary { font-size: 10px; }
+  .popover { right: -60px; }
+}

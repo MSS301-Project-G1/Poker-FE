@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { TierBadge } from '@/features/ranking'
 import { paths } from '@/shared/config/paths'
@@ -11,17 +11,15 @@ import SectionState from './components/SectionState'
 import { formatDate } from './format'
 import { useMySeasonRewards } from './hooks/useMySeasonRewards'
 import { useSeason } from './hooks/useSeason'
-import { SeasonRuntimeContext } from './runtime'
 import styles from './SeasonPage.module.css'
 
 export default function SeasonPage() {
   const navigate = useNavigate()
   const notify = useToast()
-  const runtime = useContext(SeasonRuntimeContext)
   const devUser = devIdentity()
   const [attempt, setAttempt] = useState(0)
-  const current = useSeason({ devUser, getAccessToken: runtime.getAccessToken, attempt })
-  const mine = useMySeasonRewards({ devUser, getAccessToken: runtime.getAccessToken, attempt })
+  const current = useSeason({ devUser, attempt })
+  const mine = useMySeasonRewards({ devUser, attempt })
   const retry = () => setAttempt(value => value + 1)
   const { season } = current
   const claim = async seasonId => {

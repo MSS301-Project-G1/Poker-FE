@@ -5,17 +5,25 @@ import { gatewayRequest } from '@/shared/api/gatewayClient'
  * Handles Products, Categories, 53-Card Deck Skin ZIP Ingestion, and VIP Coin Bundles.
  */
 
-export async function getAdminProducts({ category, tier, page = 0, size = 50, signal } = {}) {
+export async function getAdminProducts({ category, tier, status, page = 0, size = 50, signal } = {}) {
   const params = new URLSearchParams()
   if (category && category !== 'ALL') params.append('category', category)
   if (tier && tier !== 'ALL') params.append('tier', tier)
+  if (status && status !== 'ALL') params.append('status', status)
   params.append('page', String(page))
   params.append('size', String(size))
 
-  return gatewayRequest(`/api/shop/products?${params.toString()}`, {
+  return gatewayRequest(`/api/admin/products?${params.toString()}`, {
+    signal,
+    errorMessage: 'Không thể tải danh sách sản phẩm',
+  })
+}
+
+export async function getProductById(id, { signal } = {}) {
+  return gatewayRequest(`/api/shop/products/${id}`, {
     signal,
     auth: false,
-    errorMessage: 'Không thể tải danh sách sản phẩm',
+    errorMessage: 'Không thể tải chi tiết sản phẩm',
   })
 }
 
@@ -35,6 +43,13 @@ export async function updateProduct(id, payload) {
   })
 }
 
+export async function activateProduct(id) {
+  return gatewayRequest(`/api/admin/products/${id}/activate`, {
+    method: 'PUT',
+    errorMessage: 'Không thể mở bán lại sản phẩm',
+  })
+}
+
 export async function deleteProduct(id) {
   return gatewayRequest(`/api/admin/products/${id}`, {
     method: 'DELETE',
@@ -42,33 +57,33 @@ export async function deleteProduct(id) {
   })
 }
 
-/**
- * Upload 53-card deck ZIP file to MinIO / S3 via Admin API
- */
-export async function uploadDeckSkinZip(productId, file) {
-  const formData = new FormData()
-  formData.append('file', file)
-
-  return gatewayRequest(`/api/admin/products/${productId}/deck-skin/upload-zip`, {
+export async function scheduleProductDeletion(id, { durationHours, durationMinutes, notice }) {
+  return gatewayRequest(`/api/admin/products/${id}/schedule-deletion`, {
     method: 'POST',
-    body: formData,
-    errorMessage: 'Tải lên file ZIP thất bại',
+    body: { durationHours, durationMinutes, notice },
+    errorMessage: 'Không thể lên lịch xóa sản phẩm',
   })
 }
 
-/**
- * Upload multiple individual card images to MinIO / S3 via Admin API
- */
-export async function uploadDeckSkinFiles(productId, files) {
-  const formData = new FormData()
-  Array.from(files).forEach(file => {
-    formData.append('files', file)
-  })
-
-  return gatewayRequest(`/api/admin/products/${productId}/deck-skin/upload-files`, {
+export async function cancelScheduledProductDeletion(id) {
+  return gatewayRequest(`/api/admin/products/${id}/cancel-deletion`, {
     method: 'POST',
-    body: formData,
-    errorMessage: 'Tải lên danh sách ảnh skin thất bại',
+    errorMessage: 'Không thể hủy lệnh xóa sản phẩm',
+  })
+}
+
+export async function executeProductDeletion(id) {
+  return gatewayRequest(`/api/admin/products/${id}/execute-deletion`, {
+    method: 'POST',
+    errorMessage: 'Không thể thực thi xóa và hoàn tiền sản phẩm',
+  })
+}
+
+export async function getDeletingAnnouncements({ signal } = {}) {
+  return gatewayRequest('/api/shop/products/deleting-announcements', {
+    signal,
+    auth: false,
+    errorMessage: 'Không thể tải thông báo sản phẩm sắp xóa',
   })
 }
 
@@ -77,6 +92,63 @@ export async function getCategories({ signal } = {}) {
     signal,
     auth: false,
     errorMessage: 'Không thể tải danh mục sản phẩm',
+  })
+}
+
+export async function createCategory(payload) {
+  return gatewayRequest('/api/shop/categories', {
+    method: 'POST',
+    body: payload,
+    errorMessage: 'Không thể tạo danh mục mới',
+  })
+}
+
+export async function updateCategory(id, payload) {
+  return gatewayRequest(`/api/shop/categories/${id}`, {
+    method: 'PUT',
+    body: payload,
+    errorMessage: 'Không thể cập nhật danh mục',
+  })
+}
+
+export async function deleteCategory(id) {
+  return gatewayRequest(`/api/shop/categories/${id}`, {
+    method: 'DELETE',
+    errorMessage: 'Không thể xóa danh mục',
+  })
+}
+
+export async function uploadDeckSkinZip(productId, file) {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  return gatewayRequest(`/api/admin/products/${productId}/deck-skin/upload-zip`, {
+    method: 'POST',
+    body: formData,
+    errorMessage: 'Tải lên bộ skin bài thất bại',
+  })
+}
+
+export async function uploadDeckSkinFiles(productId, files) {
+  const formData = new FormData()
+  files.forEach(file => formData.append('files', file))
+
+  return gatewayRequest(`/api/admin/products/${productId}/deck-skin/upload-files`, {
+    method: 'POST',
+    body: formData,
+    errorMessage: 'Tải lên danh sách ảnh skin thất bại',
+  })
+}
+
+export async function uploadAssetFile(file, folder = 'assets') {
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('folder', folder)
+
+  return gatewayRequest('/api/admin/products/upload-asset', {
+    method: 'POST',
+    body: formData,
+    errorMessage: 'Tải lên tệp tài nguyên thất bại',
   })
 }
 
@@ -103,9 +175,48 @@ export async function updateBundle(id, payload) {
   })
 }
 
+export async function deleteBundle(id) {
+  return gatewayRequest(`/api/admin/bundles/${id}`, {
+    method: 'DELETE',
+    errorMessage: 'Không thể xóa gói nạp',
+  })
+}
+
 export async function toggleBundleActive(id, isActive) {
-  return gatewayRequest(`/api/admin/bundles/${id}/active?isActive=${isActive}`, {
+  const query = typeof isActive === 'boolean' ? `?isActive=${isActive}` : ''
+  return gatewayRequest(`/api/admin/bundles/${id}/toggle${query}`, {
     method: 'PATCH',
     errorMessage: 'Không thể thay đổi trạng thái mở bán gói nạp',
+  })
+}
+
+/**
+ * Sound file management (mp3/ogg/wav, max 2MB)
+ */
+export async function uploadProductSound(productId, file) {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  return gatewayRequest(`/api/admin/products/${productId}/sound`, {
+    method: 'POST',
+    body: formData,
+    errorMessage: 'Tải lên tệp âm thanh thất bại',
+  })
+}
+
+export async function deleteProductSound(productId) {
+  return gatewayRequest(`/api/admin/products/${productId}/sound`, {
+    method: 'DELETE',
+    errorMessage: 'Gỡ tệp âm thanh thất bại',
+  })
+}
+
+/**
+ * Chuyển sản phẩm sang trạng thái Bảo Trì (tạm dừng trên Shop, kho đồ người chơi bảo lưu 100%)
+ */
+export async function maintainProduct(productId) {
+  return gatewayRequest(`/api/admin/products/${productId}/maintain`, {
+    method: 'POST',
+    errorMessage: 'Không thể chuyển sản phẩm sang trạng thái Bảo Trì',
   })
 }

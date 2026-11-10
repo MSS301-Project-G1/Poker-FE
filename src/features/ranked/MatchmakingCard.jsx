@@ -29,6 +29,8 @@ export default function MatchmakingCard() {
   const remaining = deadline ? Math.max(0, Math.ceil((Date.parse(deadline) - now) / 1000)) : null
   const elapsed = queue?.joinedAt ? Math.floor(Math.max(0, now - Date.parse(queue.joinedAt)) / 1000) : 0
   const max = Math.max(2, Math.min(10, queue?.maxPlayers || 6))
+  if (!inMatch) return null
+  if (location.pathname === paths.ranked) return null
   if (!visible) return active && location.pathname !== paths.lobby ? createPortal(<button className={styles.mini} onClick={inMatch ? returnToTable : () => open(mode)} type="button"><span className={styles.pulse} />{mode === 'NORMAL' ? 'Chơi thường' : 'Đấu hạng'} · {inMatch ? 'Quay lại bàn' : 'Quay lại tìm trận'}</button>, document.body) : null
   return createPortal(<section ref={card} tabIndex={-1} className={styles.card} role="dialog" aria-modal="false" aria-labelledby="queue-title" data-testid="matchmaking-card" onKeyDown={event => { if (event.key === 'Escape') { event.stopPropagation(); minimize() } }}>
     <header className={styles.header}><span className={styles.badge}>{mode === 'NORMAL' ? 'CHƠI THƯỜNG' : 'ĐẤU HẠNG'}</span><button type="button" className={styles.minimize} aria-label="Thu gọn tìm trận" onClick={minimize}><Icon name="close_fullscreen" /></button></header>

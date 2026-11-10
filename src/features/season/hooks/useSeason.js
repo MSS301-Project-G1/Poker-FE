@@ -5,7 +5,7 @@ const DAY = 24 * 60 * 60 * 1000
 const initial = { phase: 'loading', season: null, rewards: [], me: null, daysLeft: null, error: '' }
 
 // Active season, its tier rewards and the player's tier. Without a signed-in player `me` stays null.
-export function useSeason({ devUser, getAccessToken, attempt }) {
+export function useSeason({ devUser, attempt }) {
   const [state, setState] = useState(initial)
 
   useEffect(() => {
@@ -13,7 +13,7 @@ export function useSeason({ devUser, getAccessToken, attempt }) {
     async function load() {
       setState(current => ({ ...current, phase: 'loading', error: '' }))
       try {
-        const identity = { accessToken: await getAccessToken(), devUser, signal: abort.signal }
+        const identity = { devUser, signal: abort.signal }
         const season = await fetchCurrentSeason(identity)
         const [rewards, me] = await Promise.all([
           fetchTierRewards(season.id, identity),
@@ -32,7 +32,7 @@ export function useSeason({ devUser, getAccessToken, attempt }) {
     }
     void load()
     return () => abort.abort()
-  }, [devUser, getAccessToken, attempt])
+  }, [devUser, attempt])
 
   return state
 }

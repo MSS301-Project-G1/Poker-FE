@@ -397,6 +397,7 @@ export class Game {
     });
     this.runner = runner;
     this.setScreen('table');
+    this.table.enterTable(this.reducedMotion || window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 3.2);
     this.sound('match');
     void runner.run().then((outcome) => {
       if (this.runner === runner) this.finishMatch(config, outcome);

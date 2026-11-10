@@ -1,5 +1,6 @@
 import { env } from '@/shared/config/env'
 import { ApiError } from './httpClient'
+import { reportSessionLost, sessionErrors, tabId, withSessionLock } from './tabSession'
 
 const csrfExemptPaths = new Set([
   '/api/auth/register',
@@ -69,6 +70,7 @@ async function send(path, {
   const requestHeaders = {
     ...(body !== undefined && !isFormData ? { 'Content-Type': 'application/json' } : {}),
     ...(needsCsrf(upperMethod, path) ? { 'X-XSRF-TOKEN': await loadCsrf() } : {}),
+    'X-Tab-Id': tabId,
     ...headers,
   }
   const response = await fetch(endpoint(path), {
@@ -86,15 +88,16 @@ async function send(path, {
     await loadCsrf(true)
     return send(path, { method, body, signal, headers, errorMessage, retryCsrf: false })
   }
+  reportSessionLost(error)
   throw error
 }
 
 async function refreshSession() {
   if (!refreshPromise) {
-    refreshPromise = send('/api/auth/refresh', {
+    refreshPromise = withSessionLock(() => send('/api/auth/refresh', {
       method: 'POST',
       errorMessage: 'Unable to refresh the session',
-    }).finally(() => { refreshPromise = null })
+    })).finally(() => { refreshPromise = null })
   }
   return refreshPromise
 }
@@ -107,7 +110,9 @@ export async function gatewayRequest(path, { auth = true, ...options } = {}) {
   try {
     return await send(path, options)
   } catch (error) {
-    if (!auth || error.status !== 401 || path.split('?')[0] === '/api/auth/refresh') throw error
+    // A session replaced by another login must not refresh: that would fight the new owner.
+    if (!auth || error.status !== 401 || error.code === sessionErrors.replaced
+        || path.split('?')[0] === '/api/auth/refresh') throw error
     await refreshSession()
     return send(path, options)
   }

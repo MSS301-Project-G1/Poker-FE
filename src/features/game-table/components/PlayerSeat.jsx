@@ -10,10 +10,10 @@ const actionTones = { FOLD: 'muted', CHECK: 'calm', CALL: 'calm', RAISE: 'hot', 
  * slot places the seat on the rail; the viewer's own seat (isYou) shows its cards beside the name plate, never under it.
  * chips and bet are what the table shows right now (winnings wait for the pot to arrive; bets leave when a street ends).
  * revealDelays turn the hole cards over; turnMillis drains the active player's timer bar; showHand shows the showdown hand;
- * paid bumps the stack when a won pot lands.
+ * paid bumps the stack when a won pot lands; taunting marks the seat whose taunt sound is playing.
  */
 export default function PlayerSeat({ player, profile, slot, isYou, active, dealer, smallBlind, bigBlind, winner,
-  chips, bet, revealDelays, turnMillis, turnKey, showHand, paid }) {
+  chips, bet, revealDelays, turnMillis, turnKey, showHand, paid, taunting = false, spatial = false }) {
   const name = playerName(profile, player.accountId)
   const state = [styles[slot], isYou && styles.hero, active && styles.active, player.folded && styles.folded, winner && styles.winner].filter(Boolean).join(' ')
   const status = player.eliminated ? `Place #${player.place}` : player.leftEarly ? 'Left table'
@@ -22,6 +22,7 @@ export default function PlayerSeat({ player, profile, slot, isYou, active, deale
     <div className={styles.plate} data-plate>
       <div className={styles.avatar}>
         <AvatarFrame avatarUrl={profile?.avatarUrl} name={name} size={isYou ? 'lg' : 'md'} />
+        {taunting && <span className={styles.taunt} role="img" aria-label={`${name} đang phát âm thanh`}><Icon name="volume_up" /></span>}
         <div className={styles.badges}>{dealer && <Dealer />}{smallBlind && <span className={styles.badge}>SB</span>}{bigBlind && <span className={styles.badge}>BB</span>}</div>
       </div>
       <div className={styles.identity}>
@@ -32,7 +33,7 @@ export default function PlayerSeat({ player, profile, slot, isYou, active, deale
       {turnMillis > 0 && <i key={turnKey} className={styles.turnBar} style={{ '--turn-ms': `${turnMillis}ms` }} aria-hidden="true" />}
     </div>
     {/* The showdown hand label hangs on the cards' lower edge, so it never needs room of its own. */}
-    <div className={styles.hand}>
+    <div className={`${styles.hand} ${spatial ? styles.spatialHand : ''}`}>
       <div className={styles.holeCards} aria-label={isYou ? 'Your cards' : `${name}'s cards`}>
         {Array.from({ length: player.holeCardCount }, (_, index) => <span key={index} className={styles.cardSlot} data-card-slot>
           <PlayingCard card={player.cards[index]} size={isYou ? 'xl' : 'sm'} revealDelay={revealDelays?.[index]} />
@@ -41,6 +42,6 @@ export default function PlayerSeat({ player, profile, slot, isYou, active, deale
       {showHand && player.handRank && <span className={styles.handRank}>{label(handLabels, player.handRank.category)}</span>}
     </div>
     {/* Keyed by the amount so every new bet slides in. */}
-    {bet > 0 && <span key={bet} className={styles.bet} data-bet-seat={player.seatIndex}><ChipStack amount={bet} /></span>}
+    {bet > 0 && !spatial && <span key={bet} className={styles.bet} data-bet-seat={player.seatIndex}><ChipStack amount={bet} /></span>}
   </div>
 }

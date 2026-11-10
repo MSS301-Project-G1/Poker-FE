@@ -1,17 +1,20 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useSound } from '@/shared/audio'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
-import { TableTheme } from '@/shared/skin'
+import { SkinContext, TableDealer, TableTheme } from '@/shared/skin'
 import { env } from '@/shared/config/env'
 import { paths } from '@/shared/config/paths'
 import { MatchChat } from '@/features/community'
 import { useAuth } from '@/features/auth'
 import { devIdentity } from '@/shared/lib/devIdentity'
-import { Button, Eyebrow, Icon, PlaceholderScreen, useConfirm } from '@/shared/ui'
+import { Button, Eyebrow, Icon, PlaceholderScreen, useConfirm, useToast } from '@/shared/ui'
 import { GameRuntimeContext } from './runtime'
 import { useGameSession } from './hooks/useGameSession'
 import { useSeatProfiles } from './hooks/useSeatProfiles'
 import { useMatchRewards } from './hooks/useMatchRewards'
+import { useCosmetics } from './hooks/useCosmetics'
+import { useTauntPlayer } from './hooks/useTauntPlayer'
+import { useDealerRoom } from './hooks/useDealerRoom'
 import { leaveMatchPrompt, leaveTable } from './api/gameApi'
 import { placeSeats } from './seatLayout'
 import { label, modeLabels, playerName, resultLine } from './labels'
@@ -24,6 +27,7 @@ import YourTurnBadge from './components/YourTurnBadge'
 import TableInfo from './components/TableInfo'
 import MatchResult from './components/MatchResult'
 import HandGuide from './components/HandGuide'
+import TauntPanel from './components/TauntPanel'
 import DevLauncher from './components/DevLauncher'
 import styles from './GameTablePage.module.css'
 
@@ -45,19 +49,25 @@ export default function GameTablePage() {
 }
 
 function GameSession({ tableId, retry }) {
-  const { play } = useSound()
+  const { play, enabled: soundEnabled } = useSound()
   const tableRef = useRef(null)
   const flightsRef = useRef(null)
   const auth = useAuth()
   const navigate = useNavigate()
   const runtime = useContext(GameRuntimeContext)
   const devUser = devIdentity()
-  const session = useGameSession({ tableId, devUser, getAccessToken: runtime.getAccessToken })
+  const notify = useToast()
+  const taunts = useTauntPlayer(soundEnabled)
+  const session = useGameSession({ tableId, devUser, getAccessToken: runtime.getAccessToken, onTaunt: taunts.play, onTauntError: notify })
   const { snapshot } = session
   const signedIn = auth.status === 'authenticated' && !devUser
+  // Skins come from the viewer's own inventory, so every player sees only what they equipped.
+  const cosmetics = useCosmetics(signedIn)
+  const chipSkin = cosmetics.chip ? { '--chip-image': `url("${cosmetics.chip}")`, '--chip-edge': 'transparent' } : undefined
   const seatProfiles = useSeatProfiles(snapshot?.seats.map(seat => seat.accountId) || [], signedIn)
   const matchRewards = useMatchRewards(snapshot?.matchId, signedIn && snapshot?.mode === 'RANK' && snapshot?.street === 'FINISHED')
   const show = useTablePresentation(snapshot, { play, tableRef, layerRef: flightsRef })
+  const dealerRoom = useDealerRoom(tableRef, snapshot, Boolean(cosmetics.skin.dealer?.idle))
   const profiles = { ...seatProfiles, ...runtime.profiles }
   const ChatPanel = runtime.ChatPanel
   const finished = snapshot?.street === 'FINISHED'
@@ -93,12 +103,15 @@ function GameSession({ tableId, retry }) {
   }, [yourTurn])
   return <div className={styles.page}>
     <header className={styles.header}>{inMatch ? <span className={styles.brand}><span>♠</span> POKER<span>RANK</span></span> : <Link to={paths.lobby} className={styles.brand}><span>♠</span> POKER<span>RANK</span></Link>}
-      <nav className={styles.headerNav}><HandGuide />{!inMatch && <Button className={styles.compactButton} onClick={() => navigate(paths.lobby)}>Lobby</Button>}
+      <nav className={styles.headerNav}><HandGuide />
+        {snapshot && !me?.leftEarly && <TauntPanel sounds={cosmetics.sounds} disabled={session.connection !== 'connected'} onTaunt={session.sendTaunt}
+          muted={taunts.muted} onToggleMute={taunts.toggle} />}
+        {!inMatch && <Button className={styles.compactButton} onClick={() => navigate(paths.lobby)}>Lobby</Button>}
         {inMatch && snapshot.mode === 'NORMAL' && <Button className={styles.compactButton} disabled={leaving} onClick={leave}>Rời ván</Button>}</nav></header>
     {session.phase === 'loading' && <div className={styles.state} role="status"><div className={styles.spinner} /><h1>Finding your table…</h1></div>}
     {session.phase === 'empty' && <main className={styles.state}><span className={styles.stateIcon}>♠</span><h1>No active table</h1><p>{session.error || 'Join a match from the lobby. Your active table will appear here.'}</p><Button variant="primary" onClick={() => navigate(paths.lobby)}>Go to lobby</Button>{env.gameDevMode && <DevLauncher />}</main>}
     {session.phase === 'error' && <main className={styles.state}><span className={styles.stateIcon}>♠</span><h1>Unable to open this table</h1><p className={styles.error} role="alert">{session.error}</p><Button variant="primary" onClick={retry}>Try again</Button>{env.gameDevMode && <DevLauncher />}</main>}
-    {snapshot && <main className={styles.arena}>
+    {snapshot && <SkinContext.Provider value={cosmetics.skin}><main className={styles.arena} style={chipSkin}>
       <div className={styles.infoBar}>
         <div className={styles.tableName}><span className={`${styles.connection} ${styles[session.connection] || ''}`}><i />{session.connection === 'connected' ? 'LIVE' : session.connection.toUpperCase()}</span>
           <strong>BÀN #{snapshot.tableId.slice(-6).toUpperCase()}</strong><span className={styles.tag}>{label(modeLabels, snapshot.mode)}</span><span className={styles.muted}>NO LIMIT HOLD’EM</span></div>
@@ -108,7 +121,7 @@ function GameSession({ tableId, retry }) {
       {session.error && <div className={styles.alert} role="alert">{session.error}</div>}
       {leaveError && <div className={styles.alert} role="alert">{leaveError}</div>}
       <TableTheme ref={tableRef} className={styles.table} glow={yourTurn}>
-        <div className={styles.center}><Board cards={snapshot.board} pot={snapshot.pot} distribution={snapshot.distribution} street={snapshot.street}
+        <div className={styles.center}><TableDealer pose={show.dealerPose} room={dealerRoom} /><Board cards={snapshot.board} pot={snapshot.pot} distribution={snapshot.distribution} street={snapshot.street}
           revealDelays={show.boardDelays} result={show.resultShown && snapshot.distribution ? resultLine(snapshot, nameOf) : null}
           badge={yourTurn && <YourTurnBadge key={snapshot.actionSequence} {...timer} />} /></div>
         {placeSeats(snapshot.seats, snapshot.accountId).map(({ player, slot }) => {
@@ -119,7 +132,7 @@ function GameSession({ tableId, retry }) {
             smallBlind={player.seatIndex === snapshot.smallBlindSeat} bigBlind={player.seatIndex === snapshot.bigBlindSeat} winner={winner}
             chips={show.paying ? player.chips - (snapshot.distribution.winnings[player.seatIndex] ?? 0) : player.chips} bet={handOver ? 0 : player.streetBet}
             revealDelays={show.reveals[player.seatIndex]} turnMillis={active ? turnMillis : 0} turnKey={snapshot.actionSequence}
-            showHand={show.resultShown} paid={winner && !show.paying} />
+            showHand={show.resultShown} paid={winner && !show.paying} taunting={taunts.speaking.has(player.accountId)} />
         })}
       </TableTheme>
       <div ref={flightsRef} className={styles.flights} aria-hidden="true" />
@@ -131,7 +144,7 @@ function GameSession({ tableId, retry }) {
         <TableInfo snapshot={snapshot} me={me} />
       </div>
       {finished && show.dialogShown && <MatchResult mode={snapshot.mode} placements={snapshot.placements} accountId={snapshot.accountId} profiles={profiles} rewards={runtime.rewards || matchRewards} onExit={() => navigate(paths.lobby)} />}
-    </main>}
+    </main></SkinContext.Provider>}
     <footer className={styles.footer}><span>NO-LIMIT TEXAS HOLD’EM</span><span>Chip trên bàn chỉ dùng trong trận này.</span></footer>
   </div>
 }

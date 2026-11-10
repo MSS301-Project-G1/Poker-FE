@@ -1,5 +1,6 @@
-import { useContext, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
+import { useAuth } from '@/features/auth'
 import { paths } from '@/shared/config/paths'
 import { Button, Eyebrow, Icon } from '@/shared/ui'
 import * as rooms from './api/roomApi'
@@ -8,8 +9,8 @@ import RoomControls from './components/RoomControls'
 import RoomHeading from './components/RoomHeading'
 import SeatList from './components/SeatList'
 import { useDevUser } from './hooks/useDevUser'
+import { useProfiles } from './hooks/useProfiles'
 import { useRoom } from './hooks/useRoom'
-import { RoomRuntimeContext } from './runtime'
 import styles from './RoomLobbyPage.module.css'
 
 // Local identities carry over so the game table acts as the same player.
@@ -24,17 +25,18 @@ export default function RoomLobbyPage() {
 
 function RoomLobby({ roomCode, retry }) {
   const navigate = useNavigate()
-  const runtime = useContext(RoomRuntimeContext)
+  const { user } = useAuth()
   const devUser = useDevUser()
-  const session = useRoom({ code: roomCode, devUser, getAccessToken: runtime.getAccessToken })
+  const session = useRoom({ code: roomCode, devUser })
   const { room } = session
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState('')
   const previousStatus = useRef(null)
 
-  const accountId = devUser || runtime.accountId
+  const accountId = devUser || user?.accountId
   const me = room?.members.find(member => member.accountId === accountId)
   const isOwner = room?.ownerId === accountId
+  const profiles = useProfiles(room?.members.map(member => member.accountId) || [])
 
   // Follow the table when this room's match starts while the player waits here.
   useEffect(() => {
@@ -47,7 +49,7 @@ function RoomLobby({ roomCode, retry }) {
     setBusy(true)
     setActionError('')
     try {
-      const updated = await action(roomCode, ...args, { accessToken: await runtime.getAccessToken(), devUser })
+      const updated = await action(roomCode, ...args, { devUser })
       if (updated) session.apply(updated)
       return updated
     } catch (failure) {
@@ -77,7 +79,7 @@ function RoomLobby({ roomCode, retry }) {
       <Panel aria-label="Players">
         <Eyebrow>SEATING ORDER</Eyebrow>
         <h2 className={styles.sectionTitle}>Players</h2>
-        <SeatList room={room} accountId={accountId} profiles={runtime.profiles} busy={busy}
+        <SeatList room={room} accountId={accountId} profiles={profiles} busy={busy}
           onKick={target => quietly(act(rooms.kickMember, target))}
           onTransfer={target => quietly(act(rooms.transferOwner, target))} />
       </Panel>

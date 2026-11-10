@@ -1,0 +1,29 @@
+.row {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid rgb(var(--color-primary) / 0.45);
+  border-radius: 14px;
+  background: rgb(var(--color-surface));
+}
+
+.form { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.details { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; color: rgb(var(--color-on-surface-variant)); font-size: 13px; }
+.code { color: rgb(var(--color-on-surface)); font: 700 18px var(--font-display); letter-spacing: 3px; }
+.inviter { color: rgb(var(--color-on-surface)); font-weight: 600; }
+.lock { display: inline-flex; align-items: center; gap: 3px; color: rgb(var(--color-tertiary)); }
+.lockIcon { font-size: 16px; }
+.actions { display: flex; gap: 10px; align-items: center; }
+
+.password {
+  width: 150px;
+  padding: 9px 10px;
+  border: 1px solid rgb(var(--color-border));
+  border-radius: 9px;
+  background: rgb(var(--color-surface-container-lowest));
+  color: rgb(var(--color-on-surface));
+}
+
+@media (max-width: 560px) {
+  .actions, .password { width: 100%; }
+}

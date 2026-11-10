@@ -1,10 +1,11 @@
-# Ranking, season and Custom Room integration
+# Ranking, season, Custom Room and tournament integration
 
-Owned by Hoài Anh (`features/ranking`, `features/season`, `features/custom-room`).
+Owned by Hoài Anh (`features/ranking`, `features/season`, `features/custom-room`,
+`features/tournament`, `features/tutorial`, `features/admin/seasons`, `features/admin/tournaments`).
 Data comes from ranking-service and competition-service; the screens never
 calculate Elo, rewards, coins or table state themselves. The features follow
 [ARCHITECTURE.md](ARCHITECTURE.md): pages, `components/` with CSS Modules,
-`hooks/`, `api/` through `@/shared/api/httpClient`, and a `runtime.js` port.
+`hooks/`, and `api/` adapters that call the API gateway (`@/shared/api/gatewayClient`).
 
 ## Routes
 
@@ -14,33 +15,45 @@ calculate Elo, rewards, coins or table state themselves. The features follow
 | `/seasons` (`paths.seasons`) | Active season, tier reward ladder, rewards of ended seasons and claiming | `GET /api/seasons/current`, `/api/seasons/{id}/rewards`, `/api/ranking/me`, `/api/seasons/rewards/me`, `POST /api/seasons/{id}/rewards/claim` |
 | `/rooms` (`paths.rooms`) | Create a room, join with a code, public room list | `/api/rooms`, `/api/rooms/me`, `/api/rooms/{code}/join` |
 | `/rooms/:roomCode` (`paths.roomByCode`) | Waiting room: seats, ready, host controls, invite, leave, start | `/api/rooms/{code}/**` |
+| `/tournaments` (`paths.tournaments`) | Upcoming / Past tabs (`?view=past`) of tournament cards | `GET /api/tournaments?past=` |
+| `/tournaments/:tournamentId` (`paths.tournamentById`) | Own entry (register, accept invitation, open table), prize pool, bracket, players | `GET /api/tournaments/{id}`, `POST .../register`, `POST .../confirm` |
+| `/admin/seasons` (`paths.adminSeasons`), ADMIN only | Seasons, new season (rewards copied from another), coins and skins per tier, close the active season | `/api/admin/seasons/**`, skins from `GET /api/shop/products` |
+| `/admin/tournaments` (`paths.adminTournaments`), ADMIN only | Schedule Open/Elite tournaments, start early, cancel with refunds | `/api/admin/tournaments/**`, `GET /api/tournaments?past=` |
+| `/tutorial` (`paths.tutorial`), full screen like `/table` | Scripted lesson on the game table, then the one-time reward | `GET /api/tutorial/me`, `POST /api/tutorial/complete` |
 
-The routes sit inside `MainLayout` in `src/app/router.jsx`, so they use the
-shared header and footer. `/ranking` and `/seasons` link to each other. Nothing
-else links to them yet: the Lobby's "Create Private Room" button and menu items
-belong to the Lobby and layout owners. `features/ranking` exports `TierBadge`,
-`tiers` and `tierOrder` for Lobby, Profile and season screens.
+The routes sit inside `AuthenticatedLayout` in `src/app/router.jsx`, so only
+signed-in players reach them and they use the shared header and footer. `/ranking` and `/seasons` link to each other.
 
-## App integration
+Entry points (done at Khanh's request in the Lobby and the header):
 
-Wrap the routes in the runtime contexts once shared auth and profiles exist
-(in `src/app/App.jsx`):
+- Header: Rooms, Tournaments and Leaderboard from 1360 px wide (the player's name
+  moved to 2xl to make room); admins get Rank seasons and Manage tournaments icons.
+- Lobby: the leaderboard title and the player's row open `/ranking`; the "Chế độ khác"
+  panel under it opens `/rooms`, `/tournaments` and `/tutorial` (with the unclaimed
+  reward); the championship banner shows the next tournament and opens it.
 
-```jsx
-import { RankingRuntimeContext } from '@/features/ranking'
-import { SeasonRuntimeContext } from '@/features/season'
-import { RoomRuntimeContext } from '@/features/custom-room'
+Exports for other features: `features/ranking` has `TierBadge`, `tiers`, `tierOrder`
+and `useLeaderboardPreview(size)` (season, top `size`, own standing, profiles), which
+feeds the Lobby leaderboard and the tier/Elo/rank line of its player summary.
+`features/tournament` has `useNextTournament()` (the soonest scheduled tournament,
+else the soonest running one) for the Lobby banner. `features/tutorial` has
+`useTutorialStatus()` for the reward badge.
 
-<RankingRuntimeContext.Provider value={{ getAccessToken, profiles }}>
-<SeasonRuntimeContext.Provider value={{ getAccessToken }}>
-<RoomRuntimeContext.Provider value={{ getAccessToken, accountId, profiles }}>
-```
+## Gateway
 
-- `getAccessToken`: async, returns a fresh access token sent as `Authorization: Bearer`.
-- `accountId`: the signed-in account; marks "You" and shows host controls.
-- `profiles`: accountId → `{ displayName, avatarUrl }` from the shared profile cache.
+Every adapter calls `gatewayRequest(path, ...)` on `env.apiBaseUrl` (8080 in dev).
+The browser sends the session cookie; the gateway checks it, adds `X-User-*` and
+routes `/api/ranking`, `/api/seasons`, `/api/tutorial`, `/api/rooms` and
+`/api/tournaments` to the services registered in Eureka. The screens never add a
+token or `X-User-*` header themselves. Ranking and competition return their DTOs
+directly, so the adapters read the payload as is (no `result`/`data`).
 
-Without them the screens show "Sign in…" states and `Player xxxxxx` names.
+- Public GETs (leaderboard, current season, tier rewards, public rooms) pass
+  `auth: false`, so a 401 does not trigger a session refresh.
+- `accountId` for "You" and host controls comes from `useAuth()`.
+- Player names come from `fetchProfilesByIds` (`@/features/account`) through each
+  feature's `hooks/useProfiles.js`, 100 ids per call. If that fails the rows keep
+  `Player xxxxxx`.
 
 ## Behaviour
 
@@ -52,13 +65,38 @@ Without them the screens show "Sign in…" states and `Player xxxxxx` names.
   replaces the card with the server's answer and shows a toast; coins and skins
   are delivered by wallet and shop in the background. Skin names are not shown
   yet because shop-service has no product lookup for them.
-- The waiting room polls `GET /api/rooms/{code}` every 3 seconds until the
-  `/ws/social` notification socket (Duy) delivers `ROOM_UPDATED`/`ROOM_STARTED`.
-  When the room switches from `WAITING` to `PLAYING`, every member is sent to
+- The waiting room reloads `GET /api/rooms/{code}` as soon as `useCommunity().notifications`
+  (Duy's `/ws/social`) receives `ROOM_UPDATED`/`ROOM_STARTED` for its code. Polling stays
+  as the fallback: every 15 seconds while that socket is connected, every 3 seconds
+  while it is down and for `?devUser` identities. When the room switches from `WAITING` to `PLAYING`, every member is sent to
   `paths.tableById(tableId)`; players returning later see an "Open table" button.
 - A player belongs to one open room; `/rooms` resumes it after a reload.
 - Invitations take a friend's account id until the friends feature can supply a
-  picker. Backend error messages (Vietnamese) are shown as returned.
+  picker. Backend error messages (Vietnamese) are shown as returned. `ROOM_INVITE`
+  notifications of the session are listed on `/rooms` ("Friends invited you") with a
+  Join button and a password field when the room has one.
+- Tournaments: the detail polls `GET /api/tournaments/{id}` every 5 seconds until
+  the tournament finishes or is cancelled (the bracket changes without a notification),
+  and reloads at once on `TOURNAMENT_INVITE` or `TOURNAMENT_TABLE_READY` for its id.
+  When the player's table turns `PLAYING`
+  while they wait on the page they are sent to `paths.tableById(tableId)`; later
+  visits show "Open your table". Paid registration asks first (`useConfirm`).
+  The prize split comes from the server (`prizes[]`), the champion's skin is only
+  announced (no product lookup yet).
+- Admin screens: dates are entered in Vietnam time (`datetime-local`, fixed +07:00).
+  Skin pickers list `GET /api/shop/products`; without shop-service they accept a
+  product id. Closing a season, starting early and cancelling ask first. The header's
+  admin icons open them and the two pages link to each other; the shop admin sidebar
+  (Tùng) does not list them yet.
+- My new pages keep 8rem below the content so the floating community dock (fixed
+  56px from the bottom) never covers the last button.
+- Tutorial: two scripted hands against two bots in `tutorial/script.js` (no game-service).
+  The first teaches blinds and the dealer button, RAISE, CHECK, CALL, RAISE on the river
+  and the showdown; the second teaches FOLD. Only the step's action is enabled in the
+  game-table `ActionDock`; the felt, `Board`, `PlayerSeat` and `HandGuide` are game-table's
+  public components. The route sits outside `AuthenticatedLayout` like `/table` and
+  redirects to sign-in itself. Finishing calls `POST /api/tutorial/complete`; the status
+  read on arrival tells the dialog whether this run paid the coins.
 - Tier colors reuse existing tokens (`TierBadge.module.css`); dedicated tier
   tokens can be added to `tokens.css` later with the design owner.
 - Loading, empty and error states exist on every screen; layouts were checked at
@@ -66,28 +104,29 @@ Without them the screens show "Sign in…" states and `Player xxxxxx` names.
 
 ## Local development
 
-Start ranking-service (8086), competition-service (8087) and game-service (8082)
-with their `dev` profiles, then:
+Through the gateway: start the stack from `api-gateway/ONBOARDING.md` with
+`-f ranking-service/compose.yml -f competition-service/compose.yml`, check that
+RANKING-SERVICE and COMPETITION-SERVICE are UP on http://localhost:8761, run
+`npm run dev` and sign in.
 
-```bash
-npm run dev:game
-```
-
-Open `/ranking?devUser=<uuid>`, `/seasons?devUser=<uuid>` or
-`/rooms?devUser=<uuid>`, one tab per player. `devIdentity()` sends the id as
-`X-Dev-User`. In their `dev` profile only, ranking-service and
-competition-service let `X-Dev-User` win over the default `X-User-Id` that the
-shared http client adds in dev (like game-service), and requests without a role
-act as `ADMIN`. The room screens remember the id for the tab because in-app links
-drop the query.
+Several players on one machine: start ranking-service (8086), competition-service
+(8087) and game-service (8082) with their `dev` profiles, run `npm run dev:game`,
+sign in, then open `/ranking?devUser=<uuid>`, `/seasons?devUser=<uuid>`,
+`/rooms?devUser=<uuid>` or `/tournaments?devUser=<uuid>`, one tab per player. With `?devUser` the adapters skip
+the gateway and call the dev services through the Vite proxy with `X-Dev-User`,
+like game-table. In their `dev` profile only, ranking-service and
+competition-service let `X-Dev-User` win over `X-User-Id`, and requests without a
+role act as `ADMIN`. The room and tournament screens remember the id for the tab
+because in-app links drop the query.
 
 `vite.config.js` proxies `/api/ranking`, `/api/seasons`, `/api/tutorial` and
 `/api/admin/seasons` to 8086, and `/api/rooms`, `/api/tournaments` and
-`/api/admin/tournaments` to 8087. The two admin entries must stay above the
-`/api/admin` entry that sends the rest of `/api/admin` to shop-service.
+`/api/admin/tournaments` to 8087, for the `?devUser` mode only. The two admin
+entries must stay above the `/api/admin` entry that sends the rest of
+`/api/admin` to shop-service.
 
 ## Review
 
 `src/app/router.jsx`, `src/shared/config/paths.js` and `vite.config.js` are shared
-files and need the owner's review. Tournament screens and the admin screens are
-the next GĐ2 batches.
+files and need the owner's review, as do the Lobby files (`LobbyPage`, `Leaderboard`,
+`PlayerSummary`, `ChampionshipBanner`, `MoreModes`) and `AppHeader`.

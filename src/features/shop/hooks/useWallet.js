@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { useAuth } from '@/features/auth/useAuth'
+import { useState, useEffect, useCallback } from 'react'
+import { useAuth } from '@/features/auth'
 import * as walletService from '../services/walletService'
 
 export function useWallet() {
@@ -10,6 +10,10 @@ export function useWallet() {
   const [loading, setLoading] = useState(isAuth)
   const [error, setError] = useState(null)
   const [reloadTrigger, setReloadTrigger] = useState(0)
+
+  const refreshWallet = useCallback(() => {
+    setReloadTrigger(v => v + 1)
+  }, [])
 
   useEffect(() => {
     let disposed = false
@@ -53,6 +57,7 @@ export function useWallet() {
     coin: wallet?.coinBalance ?? wallet?.balance ?? wallet?.coin ?? (isAuth ? 0 : null),
     loading,
     error,
-    refreshWallet: () => setReloadTrigger(v => v + 1),
+    refreshWallet,
   }
 }
+

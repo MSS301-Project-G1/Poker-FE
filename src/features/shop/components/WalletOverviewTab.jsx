@@ -25,26 +25,54 @@ function formatDate(isoString) {
   }
 }
 
+function formatAuditRef(idempotencyKey, txId) {
+  if (!idempotencyKey) return txId ? `#${txId.slice(0, 8)}` : '--'
+  if (idempotencyKey.startsWith('PURCHASE:')) {
+    return `MUA #${idempotencyKey.slice(9, 17)}`
+  }
+  if (idempotencyKey.startsWith('ORDER:')) {
+    return `NẠP #${idempotencyKey.slice(6, 14)}`
+  }
+  if (idempotencyKey.startsWith('AUTO_REFUND_') || idempotencyKey.startsWith('AUTO_REFUND:')) {
+    return `HOÀN #${idempotencyKey.slice(-8).toUpperCase()}`
+  }
+  if (idempotencyKey.startsWith('checkin:')) {
+    return 'CHECK-IN'
+  }
+  return `#${idempotencyKey.replace(/[^a-zA-Z0-9]/g, '').slice(-8).toUpperCase()}`
+}
+
 function getReasonInfo(reason, amount) {
   switch (reason) {
+    case 'SHOP_BUY_ITEM':
     case 'SHOP_PURCHASE':
       return {
-        title: 'Mua vật phẩm Shop',
-        desc: 'Trừ VIP Coin mua skin/vật phẩm',
+        title: 'Mua Vật Phẩm Cửa Hàng',
+        desc: 'Trừ VIP Coin sở hữu trang trí',
         icon: 'shopping_bag',
         bg: 'rgba(244, 63, 94, 0.15)',
         color: '#f43f5e',
       }
+    case 'REFUND_COIN':
+      return {
+        title: 'Hoàn Tiền Vật Phẩm',
+        desc: 'Tự động hoàn 100% VIP Coin khi vật phẩm bị xóa khỏi hệ thống',
+        icon: 'currency_exchange',
+        bg: 'rgba(16, 185, 129, 0.15)',
+        color: '#10b981',
+      }
+    case 'TOPUP_BUNDLE_PAYOS':
     case 'DEPOSIT':
     case 'PAYMENT_PAYOS':
     case 'BUNDLE_TOPUP':
       return {
         title: 'Nạp VIP Coin (PayOS)',
-        desc: 'Cộng VIP Coin từ đơn thanh toán',
+        desc: 'Cộng VIP Coin từ đơn thanh toán PayOS',
         icon: 'add_card',
         bg: 'rgba(16, 185, 129, 0.15)',
         color: '#10b981',
       }
+
     case 'DAILY_CHECKIN':
     case 'DAILY_REWARD':
       return {
@@ -99,8 +127,11 @@ export default function WalletOverviewTab({
     transactions,
     page,
     setPage,
+    pageSize,
+    setPageSize,
     totalPages,
     totalElements,
+    totalWalletCount,
     loading: txLoading,
     currencyFilter,
     setCurrencyFilter,
@@ -248,7 +279,7 @@ export default function WalletOverviewTab({
               </div>
             </div>
             <div className={styles.kpiValue}>
-              {totalElements}
+              {totalWalletCount}
               <span className="text-sm font-semibold text-sky-400/90 ml-1.5">Giao dịch</span>
             </div>
             <p className={styles.kpiDesc}>
@@ -261,8 +292,8 @@ export default function WalletOverviewTab({
             <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Đã kết nối ví
             </span>
-            <span className="text-xs text-white/40 font-mono">
-              {wallet?.accountId ? `${String(wallet.accountId).slice(0, 8)}...` : ''}
+            <span className="text-xs text-white/50 font-medium">
+              Bảo mật SSL 256-bit
             </span>
           </div>
         </div>
@@ -386,10 +417,8 @@ export default function WalletOverviewTab({
                           </span>
                         </td>
                         <td>
-                          <span className="font-mono text-[11px] text-white/40 tracking-wider">
-                            {tx.idempotencyKey
-                              ? tx.idempotencyKey.slice(0, 14)
-                              : tx.id ? tx.id.slice(0, 8) : '--'}
+                          <span className="font-mono text-[11px] text-white/60 tracking-wider">
+                            {formatAuditRef(tx.idempotencyKey, tx.id)}
                           </span>
                         </td>
                       </tr>
@@ -400,11 +429,28 @@ export default function WalletOverviewTab({
             </div>
 
             {/* Pagination Controls */}
-            {totalPages > 1 && (
+            {totalElements > 0 && (
               <div className={styles.paginationRow}>
-                <span className={styles.pageInfo}>
-                  Trang {page + 1} / {totalPages} (Tổng {totalElements} giao dịch)
-                </span>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className={styles.pageInfo}>
+                    Hiển thị <strong className="text-white/90">{Math.min(page * pageSize + 1, totalElements)}</strong> - <strong className="text-white/90">{Math.min((page + 1) * pageSize, totalElements)}</strong> trong <strong className="text-amber-400">{totalElements}</strong> giao dịch
+                  </span>
+
+                  <div className="flex items-center gap-1.5 text-xs text-white/50">
+                    <span>Số dòng:</span>
+                    <select
+                      value={pageSize}
+                      onChange={e => setPageSize(Number(e.target.value))}
+                      className={styles.pageSizeSelect}
+                      aria-label="Chọn số giao dịch mỗi trang"
+                    >
+                      <option value={5}>5 / trang</option>
+                      <option value={10}>10 / trang</option>
+                      <option value={20}>20 / trang</option>
+                    </select>
+                  </div>
+                </div>
+
                 <div className={styles.pageControls}>
                   <button
                     type="button"
@@ -412,15 +458,29 @@ export default function WalletOverviewTab({
                     onClick={() => setPage(p => Math.max(0, p - 1))}
                     className={styles.pageBtn}
                     title="Trang trước"
+                    aria-label="Trang trước"
                   >
                     <Icon name="chevron_left" />
                   </button>
+
+                  {Array.from({ length: totalPages }, (_, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setPage(idx)}
+                      className={`${styles.pageBtn} ${page === idx ? styles.pageBtnActive : ''}`}
+                    >
+                      {idx + 1}
+                    </button>
+                  ))}
+
                   <button
                     type="button"
                     disabled={page >= totalPages - 1}
-                    onClick={() => setPage(p => p + 1)}
+                    onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
                     className={styles.pageBtn}
                     title="Trang sau"
+                    aria-label="Trang sau"
                   >
                     <Icon name="chevron_right" />
                   </button>

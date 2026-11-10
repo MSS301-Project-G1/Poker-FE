@@ -14,6 +14,9 @@ export function useShopCatalog({ ownedProductIds = new Set(), onPurchaseSuccess 
   const [error, setError] = useState(null)
   const [isPurchasing, setIsPurchasing] = useState(false)
   const [reloadTrigger, setReloadTrigger] = useState(0)
+  const [page, setPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalElements, setTotalElements] = useState(0)
 
   // 1. Fetch Categories once
   useEffect(() => {
@@ -51,7 +54,7 @@ export function useShopCatalog({ ownedProductIds = new Set(), onPurchaseSuccess 
         const res = await productService.getProducts({
           categoryCode: activeCategory,
           tier: activeTier,
-          page: 0,
+          page,
           size: 20,
           sort: 'createdAt,desc',
           signal: controller.signal,
@@ -59,6 +62,9 @@ export function useShopCatalog({ ownedProductIds = new Set(), onPurchaseSuccess 
 
         if (!disposed) {
           const rawItems = res?.data?.content || []
+          setTotalPages(res?.data?.totalPages ?? 1)
+          setTotalElements(res?.data?.totalElements ?? 0)
+
           const hydrated = rawItems.map(item => ({
             ...item,
             isOwned: Boolean(item.isOwned || ownedProductIds.has(item.id)),
@@ -88,7 +94,17 @@ export function useShopCatalog({ ownedProductIds = new Set(), onPurchaseSuccess 
       disposed = true
       controller.abort()
     }
-  }, [activeCategory, activeTier, reloadTrigger, ownedProductIds])
+  }, [activeCategory, activeTier, page, reloadTrigger, ownedProductIds])
+
+  const handleSelectCategory = (cat) => {
+    setActiveCategory(cat)
+    setPage(0)
+  }
+
+  const handleSelectTier = (tier) => {
+    setActiveTier(tier)
+    setPage(0)
+  }
 
   // 3. Purchase handler (Anti-bypass: only sends productId)
   const handlePurchase = async product => {
@@ -110,10 +126,14 @@ export function useShopCatalog({ ownedProductIds = new Set(), onPurchaseSuccess 
   return {
     categories,
     products,
+    page,
+    setPage,
+    totalPages,
+    totalElements,
     activeCategory,
-    setActiveCategory,
+    setActiveCategory: handleSelectCategory,
     activeTier,
-    setActiveTier,
+    setActiveTier: handleSelectTier,
     selectedProduct,
     setSelectedProduct,
     loading,

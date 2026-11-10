@@ -15,6 +15,7 @@ export function createLobbyScene(canvas: HTMLCanvasElement): () => void {
   const table = new TableScene(scene, camera, tweens)
   table.setupPlayers([null, ...BOT_ROSTER.slice(0, 5).map(bot => bot.avatar)], slotsForPlayers(6))
   table.setView('lobby')
+  table.useFixedLobbyCamera()
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
   let frame = 0, last = 0, elapsed = 0, stopped = false
   function draw(now: number) {

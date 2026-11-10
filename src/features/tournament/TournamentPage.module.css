@@ -1,0 +1,29 @@
+.page {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-margin);
+  /* Room to scroll the last controls above the floating community dock (fixed 56px from the bottom). */
+  padding-bottom: 8rem;
+  display: grid;
+  gap: var(--space-lg);
+  align-content: start;
+  color: rgb(var(--color-on-surface));
+}
+
+.top { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-md); }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: var(--space-lg); align-items: start; }
+.main, .side { display: grid; gap: var(--space-md); min-width: 0; }
+.sectionTitle { margin: 6px 0 0; font: 600 20px var(--font-display); }
+.muted { margin: 0; color: rgb(var(--color-on-surface-variant)); font-size: 14px; line-height: 1.5; }
+
+/* The player's own entry comes first on narrow screens. */
+@media (max-width: 960px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .side { order: -1; }
+}
+
+@media (max-width: 760px) {
+  .page { padding: var(--space-lg) var(--space-margin-mobile) 8rem; }
+  .top { flex-direction: column-reverse; }
+}

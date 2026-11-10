@@ -1,0 +1,33 @@
+.rows { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  border: 1px solid rgb(var(--color-outline-variant));
+  border-radius: 14px;
+  background: rgb(var(--color-surface));
+}
+
+.main { display: grid; gap: 4px; min-width: 0; }
+.top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.name { color: rgb(var(--color-on-surface)); font: 600 15px var(--font-display); text-decoration: none; overflow-wrap: anywhere; }
+.name:hover { color: rgb(var(--color-primary)); text-decoration: underline; }
+.meta { color: rgb(var(--color-on-surface-variant)); font-size: 12px; }
+
+.tag {
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: rgb(var(--color-surface-container-highest));
+  color: rgb(var(--color-on-surface-variant));
+  font: 600 9px var(--font-display);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.elite { background: rgb(var(--color-tertiary)); color: rgb(var(--color-on-tertiary)); }
+.cancelled { color: rgb(var(--color-error)); }
+.actions { display: flex; gap: 8px; }

@@ -4,7 +4,7 @@ import { claimSeasonRewards, fetchMySeasonRewards } from '../api/seasonApi'
 const initial = { phase: 'loading', items: [], error: '' }
 
 // Rewards of ended seasons; claim() replaces the claimed season with the server's answer.
-export function useMySeasonRewards({ devUser, getAccessToken, attempt }) {
+export function useMySeasonRewards({ devUser, attempt }) {
   const [state, setState] = useState(initial)
 
   useEffect(() => {
@@ -12,7 +12,7 @@ export function useMySeasonRewards({ devUser, getAccessToken, attempt }) {
     async function load() {
       setState(current => ({ ...current, phase: 'loading', error: '' }))
       try {
-        const items = await fetchMySeasonRewards({ accessToken: await getAccessToken(), devUser, signal: abort.signal })
+        const items = await fetchMySeasonRewards({ devUser, signal: abort.signal })
         setState({ phase: 'ready', items, error: '' })
       } catch (error) {
         if (error.name === 'AbortError') return
@@ -21,13 +21,13 @@ export function useMySeasonRewards({ devUser, getAccessToken, attempt }) {
     }
     void load()
     return () => abort.abort()
-  }, [devUser, getAccessToken, attempt])
+  }, [devUser, attempt])
 
   const claim = useCallback(async seasonId => {
-    const claimed = await claimSeasonRewards(seasonId, { accessToken: await getAccessToken(), devUser })
+    const claimed = await claimSeasonRewards(seasonId, { devUser })
     setState(current => ({ ...current, items: current.items.map(item => item.seasonId === seasonId ? claimed : item) }))
     return claimed
-  }, [devUser, getAccessToken])
+  }, [devUser])
 
   return { ...state, claim }
 }

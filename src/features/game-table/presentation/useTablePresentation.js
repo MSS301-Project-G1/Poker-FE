@@ -2,7 +2,8 @@ import { useLayoutEffect, useRef, useState } from 'react'
 import { dealCards, flyChips, measureBets } from './flights'
 import { planTransition } from './timeline'
 
-const sameStep = (a, b) => a.tableId === b.tableId && a.actionSequence === b.actionSequence
+// A player leaving out of turn can end the hand or the match without a new action sequence, so the street counts too.
+const sameStep = (a, b) => a.tableId === b.tableId && a.actionSequence === b.actionSequence && a.street === b.street
 
 /**
  * Turns each new snapshot into a short show: dealing, board reveals, showdown, paying the pot and sounds.
@@ -54,5 +55,9 @@ export function useTablePresentation(snapshot, { play, tableRef, layerRef }) {
     // Winnings join the stacks only when the chips land.
     paying: plan?.milestones.paid > 0 && !isReached('paid'),
     dialogShown: isReached('dialog'),
+    // An equipped dealer deals the hole cards, turns the board, then presents the pot.
+    dealerPose: isReached('result') && snapshot?.distribution ? 'win'
+      : plan?.deal && !isReached('dealt') ? 'deal'
+        : plan?.board.length && !isReached('flipped') ? 'flip' : 'idle',
   }
 }

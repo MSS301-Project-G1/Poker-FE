@@ -459,3 +459,35 @@
   opacity: 0.35;
   cursor: not-allowed;
 }
+
+.pageBtnActive {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  color: #0b0517 !important;
+  font-weight: 800 !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
+}
+
+.pageSizeSelect {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.85);
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pageSizeSelect:hover,
+.pageSizeSelect:focus {
+  border-color: rgba(245, 158, 11, 0.5);
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.pageSizeSelect option {
+  background: #140a28;
+  color: #ffffff;
+}
+

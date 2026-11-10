@@ -2,6 +2,8 @@ import { gatewayRequest } from '@/shared/api/gatewayClient'
 
 const call = (path, options) => gatewayRequest(path, options)
 export const communityApi = {
+  myPlayer: signal => call('/api/profiles/players/me', { signal }).then(payload => payload.result),
+  searchPlayers: (query, signal) => call(`/api/profiles/search?q=${encodeURIComponent(query)}`, { signal }).then(payload => payload.result),
   socketToken: () => call('/api/auth/ws-token').then(payload => {
     if (!payload?.result?.accessToken) throw new Error('Không lấy được token WebSocket.')
     return payload.result
@@ -21,6 +23,7 @@ export const communityApi = {
   block: id => call(`/api/blocks/${id}`, { method: 'POST' }),
   unblock: id => call(`/api/blocks/${id}`, { method: 'DELETE' }),
   conversations: (page, signal) => call(`/api/chat/conversations?page=${page}&size=20`, { signal }),
+  directConversations: (page, signal) => call(`/api/chat/conversations?type=DIRECT&page=${page}&size=20`, { signal }),
   conversation: (id, signal) => call(`/api/chat/conversations/${id}`, { signal }),
   direct: accountId => call('/api/chat/conversations/direct', { method: 'POST', body: { accountId } }),
   history: (id, cursor, signal) => call(`/api/chat/conversations/${id}/messages?limit=20${cursor ? `&before=${encodeURIComponent(cursor)}` : ''}`, { signal }),

@@ -1,0 +1,12 @@
+.field {
+  width: 100%;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid rgb(var(--color-border));
+  border-radius: 8px;
+  background: rgb(var(--color-surface-container-lowest));
+  color: rgb(var(--color-on-surface));
+  font-size: 13px;
+}
+
+.field:disabled { opacity: 0.5; }

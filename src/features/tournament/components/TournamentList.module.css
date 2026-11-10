@@ -1,0 +1,4 @@
+.list { display: grid; gap: var(--space-md); }
+.list[aria-busy='true'] { opacity: 0.6; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: var(--space-md); margin: 0; padding: 0; list-style: none; }
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; color: rgb(var(--color-on-surface-variant)); font-size: 13px; }

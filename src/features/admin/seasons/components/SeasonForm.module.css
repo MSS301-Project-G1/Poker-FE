@@ -1,0 +1,21 @@
+.form { display: grid; gap: 16px; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.field { display: grid; gap: 8px; color: rgb(var(--color-on-surface-variant)); font-size: 12px; }
+
+.field input, .field select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid rgb(var(--color-border));
+  border-radius: 8px;
+  background: rgb(var(--color-surface-container-lowest));
+  color: rgb(var(--color-on-surface));
+  font: 500 14px var(--font-display);
+  color-scheme: dark;
+}
+
+.hint { margin: 0; color: rgb(var(--color-on-surface-variant)); font-size: 13px; line-height: 1.5; }
+.footer { display: flex; justify-content: flex-end; gap: 12px; }
+
+@media (max-width: 560px) {
+  .pair { grid-template-columns: minmax(0, 1fr); }
+}

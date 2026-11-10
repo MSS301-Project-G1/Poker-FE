@@ -198,7 +198,7 @@
   font-weight: 600;
 }
 
-/* Fluid responsive grid that flexes smoothly without crushing items */
+/* Fluid responsive grid: capped at exactly 5 items per row on desktop/wide screens */
 .productsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -207,6 +207,13 @@
   min-height: 420px;
   align-content: start;
 }
+
+@media (min-width: 1400px) {
+  .productsGrid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
 
 /* Feedback States */
 .loadingState {

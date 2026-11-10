@@ -4,7 +4,7 @@ import { fetchFriendsLeaderboard } from '../api/rankingApi'
 const initial = { phase: 'loading', rows: null, error: '' }
 
 // Loads only while the friends tab is open; 401 means there is no signed-in player to compare with.
-export function useFriendsLeaderboard({ enabled, devUser, getAccessToken, attempt }) {
+export function useFriendsLeaderboard({ enabled, devUser, attempt }) {
   const [state, setState] = useState(initial)
 
   useEffect(() => {
@@ -13,7 +13,7 @@ export function useFriendsLeaderboard({ enabled, devUser, getAccessToken, attemp
     async function load() {
       setState(current => ({ ...current, phase: current.rows ? 'refreshing' : 'loading', error: '' }))
       try {
-        const rows = await fetchFriendsLeaderboard({ accessToken: await getAccessToken(), devUser, signal: abort.signal })
+        const rows = await fetchFriendsLeaderboard({ devUser, signal: abort.signal })
         setState({ phase: 'ready', rows, error: '' })
       } catch (error) {
         if (error.name === 'AbortError') return
@@ -22,7 +22,7 @@ export function useFriendsLeaderboard({ enabled, devUser, getAccessToken, attemp
     }
     void load()
     return () => abort.abort()
-  }, [enabled, devUser, getAccessToken, attempt])
+  }, [enabled, devUser, attempt])
 
   return state
 }

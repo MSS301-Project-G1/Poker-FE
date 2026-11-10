@@ -1,24 +1,39 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Icon, Button } from '@/shared/ui'
-import AdminSidebar from './components/AdminSidebar'
+import { paths } from '@/shared/config/paths'
 import ProductManagementTab from './components/ProductManagementTab'
 import AddProductControlPanel from './components/AddProductControlPanel'
 import BundleManagementTab from './components/BundleManagementTab'
+import CategoryManagementTab from './components/CategoryManagementTab'
 import { useAdminProducts } from './hooks/useAdminProducts'
 import { useAdminBundles } from './hooks/useAdminBundles'
 
 export default function AdminShopPage() {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('PRODUCTS') // 'PRODUCTS' | 'ADD_PRODUCT' | 'BUNDLES'
+  const [activeTab, setActiveTab] = useState('PRODUCTS') // 'PRODUCTS' | 'ADD_PRODUCT' | 'CATEGORIES' | 'BUNDLES'
+  const [editingProduct, setEditingProduct] = useState(null)
 
   // Products state & actions
   const {
     products,
     categories,
     loading: productsLoading,
+    page,
+    setPage,
+    size,
+    setSize,
+    totalPages,
+    totalElements,
+    selectedCategory,
+    setSelectedCategory,
+    selectedTier,
+    setSelectedTier,
+    selectedStatus,
+    setSelectedStatus,
     refreshProducts,
     createProduct,
+    updateProduct,
     deleteProduct,
     uploadDeckSkinZip,
     uploadDeckSkinFiles,
@@ -30,11 +45,13 @@ export default function AdminShopPage() {
     loading: bundlesLoading,
     refreshBundles,
     createBundle,
+    updateBundle,
+    deleteBundle,
     toggleBundleActive,
   } = useAdminBundles()
 
   return (
-    <div className="relative w-full pb-space-lg text-white font-body-md">
+    <div className="relative w-full pb-32 text-white font-body-md">
       {/* Background ambient lighting */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
         <div className="absolute -top-32 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[140px]" />
@@ -52,7 +69,7 @@ export default function AdminShopPage() {
               <h1 className="font-headline font-black text-xl md:text-2xl text-white">
                 Cổng Quản Trị Hệ Thống Shop & Nạp Tiền
               </h1>
-              <p className="text-xs text-white/50">Admin Management Portal • PayOS • S3 / MinIO Ingestion</p>
+              <p className="text-xs text-white/50">Quản lý sản phẩm, danh mục, gói nạp và tài nguyên mỹ phẩm</p>
             </div>
           </div>
 
@@ -66,55 +83,131 @@ export default function AdminShopPage() {
           </div>
         </div>
 
-        {/* Admin Layout with Sidebar */}
-        <div className="flex flex-col md:flex-row gap-6 items-start">
-          <AdminSidebar
-            activeTab={activeTab}
-            onSelectTab={setActiveTab}
-            productCount={products.length}
-            bundleCount={bundles.length}
-          />
+        {/* Tab Navigation for Shop Management */}
+        <div className="flex flex-wrap gap-2 mb-6 border-b border-white/10 pb-4">
+          <button
+            type="button"
+            onClick={() => { setEditingProduct(null); setActiveTab('PRODUCTS') }}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-label-action text-sm font-semibold transition-all ${
+              activeTab === 'PRODUCTS'
+                ? 'bg-primary-container text-on-primary-container shadow-md'
+                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-white'
+            }`}
+          >
+            <Icon name="inventory_2" />
+            <span>Quản Lý Kho Hàng ({totalElements || products.length})</span>
+          </button>
 
-          <main className="flex-grow min-w-0 w-full">
-            {activeTab === 'PRODUCTS' && (
-              <ProductManagementTab
-                products={products}
-                categories={categories}
-                loading={productsLoading}
-                deleteProduct={deleteProduct}
-                uploadDeckSkinZip={uploadDeckSkinZip}
-                onRefresh={refreshProducts}
-                onOpenAddProduct={type => {
-                  setActiveTab('ADD_PRODUCT')
-                }}
-              />
-            )}
+          <button
+            type="button"
+            onClick={() => { setEditingProduct(null); setActiveTab('ADD_PRODUCT') }}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-label-action text-sm font-semibold transition-all ${
+              activeTab === 'ADD_PRODUCT'
+                ? 'bg-primary-container text-on-primary-container shadow-md'
+                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-white'
+            }`}
+          >
+            <Icon name="add_circle" />
+            <span>Thêm Vật Phẩm & Skin</span>
+          </button>
 
-            {activeTab === 'ADD_PRODUCT' && (
-              <AddProductControlPanel
-                categories={categories}
-                createProduct={createProduct}
-                uploadDeckSkinZip={uploadDeckSkinZip}
-                uploadDeckSkinFiles={uploadDeckSkinFiles}
-                onSuccess={() => {
-                  refreshProducts()
-                  setActiveTab('PRODUCTS')
-                }}
-                onCancel={() => setActiveTab('PRODUCTS')}
-              />
-            )}
+          <button
+            type="button"
+            onClick={() => { setEditingProduct(null); setActiveTab('BUNDLES') }}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-label-action text-sm font-semibold transition-all ${
+              activeTab === 'BUNDLES'
+                ? 'bg-primary-container text-on-primary-container shadow-md'
+                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-white'
+            }`}
+          >
+            <Icon name="payments" />
+            <span>Gói Nạp VIP Coin ({bundles.length})</span>
+          </button>
 
-            {activeTab === 'BUNDLES' && (
-              <BundleManagementTab
-                bundles={bundles}
-                loading={bundlesLoading}
-                toggleBundleActive={toggleBundleActive}
-                createBundle={createBundle}
-                onRefresh={refreshBundles}
-              />
-            )}
-          </main>
+          <button
+            type="button"
+            onClick={() => { setEditingProduct(null); setActiveTab('CATEGORIES') }}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-label-action text-sm font-semibold transition-all ${
+              activeTab === 'CATEGORIES'
+                ? 'bg-primary-container text-on-primary-container shadow-md'
+                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-white'
+            }`}
+          >
+            <Icon name="category" />
+            <span>Quản Lý Danh Mục</span>
+          </button>
         </div>
+
+        <section className="w-full">
+          {activeTab === 'PRODUCTS' && (
+            <ProductManagementTab
+              products={products}
+              categories={categories}
+              loading={productsLoading}
+              deleteProduct={deleteProduct}
+              uploadDeckSkinZip={uploadDeckSkinZip}
+              onRefresh={refreshProducts}
+              page={page}
+              setPage={setPage}
+              size={size}
+              setSize={setSize}
+              totalPages={totalPages}
+              totalElements={totalElements}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+              selectedTier={selectedTier}
+              setSelectedTier={setSelectedTier}
+              selectedStatus={selectedStatus}
+              setSelectedStatus={setSelectedStatus}
+              onOpenAddProduct={() => {
+                setEditingProduct(null)
+                setActiveTab('ADD_PRODUCT')
+              }}
+              onEditProduct={product => {
+                navigate(paths.adminShopEditProduct(product.id))
+              }}
+            />
+          )}
+
+          {activeTab === 'ADD_PRODUCT' && (
+            <AddProductControlPanel
+              categories={categories}
+              onRefreshCategories={refreshProducts}
+              createProduct={createProduct}
+              updateProduct={updateProduct}
+              editingProduct={editingProduct}
+              uploadDeckSkinZip={uploadDeckSkinZip}
+              uploadDeckSkinFiles={uploadDeckSkinFiles}
+              onSuccess={() => {
+                setEditingProduct(null)
+                refreshProducts()
+                setActiveTab('PRODUCTS')
+              }}
+              onCancel={() => {
+                setEditingProduct(null)
+                setActiveTab('PRODUCTS')
+              }}
+            />
+          )}
+
+          {activeTab === 'CATEGORIES' && (
+            <CategoryManagementTab
+              onCategoryUpdated={refreshProducts}
+            />
+          )}
+
+          {activeTab === 'BUNDLES' && (
+            <BundleManagementTab
+              bundles={bundles}
+              loading={bundlesLoading}
+              toggleBundleActive={toggleBundleActive}
+              createBundle={createBundle}
+              updateBundle={updateBundle}
+              deleteBundle={deleteBundle}
+              onRefresh={refreshBundles}
+            />
+          )}
+        </section>
       </div>
     </div>
   )

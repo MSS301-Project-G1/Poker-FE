@@ -1,0 +1,24 @@
+.coach {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 14px 16px;
+  border: 1px solid rgb(var(--color-primary-rim) / 0.55);
+  border-radius: 14px;
+  background: rgb(var(--color-surface-container) / 0.92);
+  box-shadow: 0 8px 24px rgb(var(--color-obsidian) / 0.35);
+}
+
+.header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.progress { flex: 0 0 120px; height: 4px; border-radius: var(--radius-full); background: rgb(var(--color-surface-container-highest)); overflow: hidden; }
+.progress i { display: block; height: 100%; background: rgb(var(--color-tertiary)); transition: width 0.3s; }
+.title { margin: 0; font: 600 18px var(--font-display); }
+.text { margin: 0; color: rgb(var(--color-on-surface-variant)); font-size: 14px; line-height: 1.5; }
+.error { margin: 0; color: rgb(var(--color-error)); font-size: 13px; }
+.hint { display: flex; align-items: center; gap: 6px; margin: 0; color: rgb(var(--color-primary)); font-size: 13px; }
+.hintIcon { font-size: 18px; }
+.next { justify-self: end; }
+
+@media (prefers-reduced-motion: reduce) {
+  .progress i { transition: none; }
+}

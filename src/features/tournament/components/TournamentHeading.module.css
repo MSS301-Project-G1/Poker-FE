@@ -1,0 +1,8 @@
+.heading { display: grid; gap: 8px; min-width: 0; }
+.title { margin: 2px 0 0; font: 700 36px var(--font-display); letter-spacing: -1px; overflow-wrap: anywhere; }
+.muted { margin: 0; color: rgb(var(--color-on-surface-variant)); font-size: 14px; line-height: 1.5; }
+.countdown { color: rgb(var(--color-tertiary)); font-weight: 600; }
+
+@media (max-width: 760px) {
+  .title { font-size: 30px; }
+}
