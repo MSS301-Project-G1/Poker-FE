@@ -113,9 +113,8 @@ export default function DailyCheckInModal({ onClose }) {
 
   return <div className="fixed inset-0 z-modal flex items-center justify-center bg-surface-container-lowest/80 p-space-md backdrop-blur-xl" role="dialog" aria-modal="true" aria-label="Daily check-in calendar">
     <div className="relative flex max-h-[90vh] w-full max-w-3xl flex-col gap-space-md overflow-y-auto rounded-2xl bg-surface-container-low/95 p-space-lg shadow-dialog">
-      <div className="pointer-events-none absolute -top-32 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-primary/20 blur-3xl"></div>
       <header className="relative z-10 flex items-start justify-between gap-space-md">
-        <div className="flex items-center gap-space-sm"><span className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary-container to-secondary-container"><Icon name="calendar_month" filled className="text-2xl text-tertiary" /></span><div><h2 className="font-headline-lg text-headline-lg text-primary">DAILY CHECK-IN</h2><p className="text-body-sm text-on-surface-variant">One reward per day · Asia/Ho_Chi_Minh</p></div></div>
+        <div className="flex items-center gap-space-sm"><span className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary-container"><Icon name="calendar_month" filled className="text-2xl text-tertiary" /></span><div><h2 className="font-headline-lg text-headline-lg text-primary">Daily check-in</h2><p className="text-body-sm text-on-surface-variant">One reward per day · Asia/Ho_Chi_Minh</p></div></div>
         <button type="button" aria-label="Close" onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface"><Icon name="close" /></button>
       </header>
 

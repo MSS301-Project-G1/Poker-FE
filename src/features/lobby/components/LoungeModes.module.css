@@ -1,186 +1,40 @@
 .section { display: flex; flex-direction: column; width: 100%; }
 .grid { display: flex; flex-direction: column; gap: 22px; width: 100%; }
 
-/* 3D Isometric Glass Cube */
+/* A mode card floats over the 3D table, so it keeps a dark, slightly blurred surface for legibility.
+   The tilt toward the table comes from the lobby's FloatingPanel wrapper. */
 .card {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   gap: 10px;
   width: 100%;
-  padding: 14px 16px;
+  padding: 16px;
   box-sizing: border-box;
   border-radius: 16px;
-  border: 1.5px solid rgba(var(--cube-neon-rgb), 0.38);
-  background: linear-gradient(135deg, rgba(16, 12, 34, 0.72) 0%, rgba(8, 6, 20, 0.58) 100%);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 14px 35px 0 rgba(0, 0, 0, 0.6), inset 0 1px 1px 0 rgba(255, 255, 255, 0.2), 0 0 16px rgba(var(--cube-neon-rgb), 0.08);
-  /* The tilt toward the table comes from the lobby's FloatingPanel wrapper. */
-  transition: box-shadow 0.4s ease,
-              border-color 0.4s ease,
-              background 0.4s ease;
-  --cube-neon: #00f0ff;
-  --cube-neon-rgb: 0, 240, 255;
-  --cube-core-color: #00f0ff;
+  border: 1px solid rgb(var(--color-outline-variant) / 0.7);
+  background: rgb(var(--color-surface-container-lowest) / 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-raised);
+  transition: border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
+.card:hover { background: rgb(var(--color-surface-container-lowest) / 0.92); }
 
-/* 3D Isometric Top Facet (Mặt trên khối lập phương dịu mắt, hiệu ứng kính mờ sang trọng) */
-.card::before {
-  content: '';
-  position: absolute;
-  top: -16px;
-  left: 9px;
-  right: -9px;
-  height: 16px;
-  background: linear-gradient(180deg, rgba(var(--cube-neon-rgb), 0.25) 0%, rgba(var(--cube-neon-rgb), 0.08) 100%);
-  border: 1.5px solid rgba(var(--cube-neon-rgb), 0.35);
-  border-bottom: none;
-  transform: skewX(-45deg);
-  transform-origin: bottom left;
-  border-radius: 8px 8px 0 0;
-  box-shadow: 0 0 8px rgba(var(--cube-neon-rgb), 0.15), inset 0 1px 3px rgba(255, 255, 255, 0.25);
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-
-/* 3D Isometric Right Facet (Mặt bên phải khối lập phương dịu mắt) */
-.card::after {
-  content: '';
-  position: absolute;
-  top: -9px;
-  right: -16px;
-  width: 16px;
-  bottom: 9px;
-  background: linear-gradient(90deg, rgba(var(--cube-neon-rgb), 0.06) 0%, rgba(var(--cube-neon-rgb), 0.2) 100%);
-  border: 1.5px solid rgba(var(--cube-neon-rgb), 0.35);
-  border-left: none;
-  transform: skewY(-45deg);
-  transform-origin: top left;
-  border-radius: 0 8px 8px 0;
-  box-shadow: 0 0 8px rgba(var(--cube-neon-rgb), 0.15), inset -1px 0 4px rgba(0, 0, 0, 0.4);
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-
-.card:hover {
-  border-color: rgba(var(--cube-neon-rgb), 0.85);
-  box-shadow: 0 30px 80px -10px rgba(0, 0, 0, 0.95),
-              0 0 35px rgba(var(--cube-neon-rgb), 0.4),
-              inset 0 1px 2px 0 rgba(255, 255, 255, 0.5);
-  background: linear-gradient(135deg, rgba(26, 16, 54, 0.94) 0%, rgba(13, 8, 32, 0.9) 100%);
-}
-
-.card:hover::before,
-.card:hover::after {
-  opacity: 0;
-}
-
-/* Ranked Mode: Gold / Radiant Amber / Violet Neon */
-.rank {
-  border-color: rgba(245, 158, 11, 0.38);
-  background: linear-gradient(135deg, rgba(28, 18, 36, 0.72) 0%, rgba(14, 8, 20, 0.58) 100%);
-  --cube-neon: #f59e0b;
-  --cube-neon-rgb: 245, 158, 11;
-  --cube-core-color: #fbbf24;
-}
-
-.rank:hover {
-  border-color: rgba(251, 191, 36, 0.9);
-  box-shadow: 0 30px 80px -10px rgba(0, 0, 0, 0.95),
-              0 0 35px rgba(245, 158, 11, 0.4),
-              inset 0 1px 2px 0 rgba(255, 255, 255, 0.5);
-  background: linear-gradient(135deg, rgba(42, 24, 64, 0.95) 0%, rgba(20, 10, 40, 0.9) 100%);
-}
+/* Ranked is the gold mode across the app (tiers, trophies, Elo). */
+.rank { border-color: rgb(var(--color-tertiary) / 0.35); }
+.rank:hover { border-color: rgb(var(--color-tertiary) / 0.7); }
 
 .cardHead { display: flex; align-items: center; gap: 12px; }
+.modeIcon { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: var(--radius-xl); background: rgb(var(--color-tertiary) / 0.14); color: rgb(var(--color-tertiary)); }
 .cardTitle { display: grid; gap: 1px; min-width: 0; }
-.tagline { color: rgb(var(--color-on-surface-variant)); font-size: 12px; line-height: 16px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.metaRow { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: rgb(var(--color-on-surface-variant)); }
-.dot { color: var(--cube-neon); font-weight: bold; }
-.card button { min-height: 40px; height: 40px; font-size: 13px; font-weight: 600; width: 100%; }
-.card small { color: rgb(var(--color-tertiary)); font-size: 11px; }
+.tagline { color: rgb(var(--color-on-surface-variant)); font-size: 13px; line-height: 18px; margin: 0; }
+.metaRow { display: flex; align-items: center; gap: 8px; font-size: 12px; color: rgb(var(--color-on-surface-variant)); }
+.dot { color: rgb(var(--color-outline)); }
 
-/* 3D Glass Cube Badge in header */
-.cubeBadge {
-  position: relative;
-  width: 52px;
-  height: 52px;
-  perspective: 400px;
-  display: grid;
-  place-items: center;
-  flex: none;
-}
-
-.cube3dMesh {
-  width: 36px;
-  height: 36px;
-  position: relative;
-  transform-style: preserve-3d;
-  transform: rotateX(-18deg) rotateY(25deg);
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.card:hover .cube3dMesh {
-  transform: rotateX(-8deg) rotateY(55deg) scale(1.15);
-}
-
-.cubeFace {
-  position: absolute;
-  inset: 0;
-  border-radius: 6px;
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(var(--cube-neon-rgb), 0.35);
-  background: rgba(var(--cube-neon-rgb), 0.08);
-  box-shadow: 0 0 8px rgba(var(--cube-neon-rgb), 0.15), inset 0 0 6px rgba(var(--cube-neon-rgb), 0.1);
-  display: grid;
-  place-items: center;
-}
-
-.faceFront { transform: translateZ(18px); }
-.faceBack  { transform: rotateY(180deg) translateZ(18px); }
-.faceRight { transform: rotateY(90deg) translateZ(18px); }
-.faceLeft  { transform: rotateY(-90deg) translateZ(18px); }
-.faceTop   { transform: rotateX(90deg) translateZ(18px); }
-.faceBottom{ transform: rotateX(-90deg) translateZ(18px); }
-
-.cubeCoreOrb {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  top: 11px;
-  left: 11px;
-  border-radius: 50%;
-  background: var(--cube-core-color);
-  box-shadow: 0 0 8px 2px var(--cube-core-color);
-  opacity: 0.85;
-  animation: corePulse 2.5s ease-in-out infinite;
-}
-
-.cubeIconOverlay {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  color: var(--cube-core-color);
-  transform: translateZ(20px);
-  pointer-events: none;
-  filter: drop-shadow(0 0 4px var(--cube-core-color));
-  opacity: 0.9;
-}
-
-@keyframes corePulse {
-  0%, 100% { transform: scale(1); opacity: 0.85; }
-  50% { transform: scale(1.2); opacity: 1; }
-}
-
-.eyebrow { font-size: 11px; line-height: 14px; letter-spacing: .16em; font-weight: 700; color: rgb(var(--color-on-surface-variant)); }
 .card h2 { font: 700 22px/28px var(--font-display); }
 .card p { color: rgb(var(--color-on-surface-variant)); font-size: 13px; line-height: 19px; }
-.card ul { display: grid; align-content: start; gap: 4px; list-style: none; margin: 0 0 var(--space-xs); padding: 0; flex: 1; font-size: 12.5px; color: rgb(var(--color-on-surface-variant)); }
-.card li::before { content: '·'; color: var(--cube-neon); font-weight: 700; margin-right: var(--space-sm); }
-.card button { min-height: 44px; }
+.card button { min-height: 44px; font-size: 14px; font-weight: 600; width: 100%; }
 .card small { color: rgb(var(--color-tertiary)); font-size: 13px; }
 
 .resume {
@@ -189,11 +43,11 @@
   flex-wrap: wrap;
   gap: var(--space-md);
   padding: var(--space-lg);
-  border: 1px solid rgba(0, 240, 255, 0.4);
+  border: 1px solid rgb(var(--color-primary) / 0.4);
   border-radius: var(--radius-xl);
-  background: rgba(16, 10, 36, 0.7);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  background: rgb(var(--color-surface-container-lowest) / 0.85);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-raised);
 }
 .resume div { flex: 1; }
 .resume h2 { font-weight: 600; }
@@ -202,4 +56,3 @@
 .pulse { width: 10px; height: 10px; border-radius: 50%; background: rgb(var(--color-primary)); box-shadow: var(--shadow-glow-primary); }
 .error { color: rgb(var(--color-error)); font-size: 13px; }
 .error button { text-decoration: underline; }
-
