@@ -37,6 +37,17 @@ docker compose --profile dev up --build dev
 - After changing `package.json`, rebuild and renew the `node_modules` volume:
   `docker compose --profile dev up --build -V dev`.
 
+## Deploy (CI/CD)
+
+`.github/workflows/ci-cd.yml` runs `npm run build` on every pull request. A push to `main` also builds
+the `web` image for ARM, pushes it to `ghcr.io/mss301-project-g1/poker-fe` and runs
+`deploy/remote-deploy.sh` on the VPS over SSH.
+
+- On the VPS the container listens on `127.0.0.1:3000`; Caddy serves `https://game-fun.me` and proxies to it.
+  `deploy/compose.prod.yml` joins the Poker-BE network (`poker_default`), so deploy Poker-BE first.
+- Repository secrets: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` (same deploy key as Poker-BE).
+- On the VPS: `cd ~/poker/fe && docker compose -p poker-fe -f compose.yml -f deploy/compose.prod.yml logs -f web`.
+
 ## Screens
 
 | Route | Screen | Source component |
