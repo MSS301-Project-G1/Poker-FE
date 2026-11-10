@@ -1,4 +1,4 @@
-import { Button, Eyebrow, Icon } from '@/shared/ui'
+import { Button, Icon } from '@/shared/ui'
 import Message from './Message'
 import Panel from './Panel'
 import PublicRoomRow from './PublicRoomRow'
@@ -7,7 +7,7 @@ import styles from './PublicRooms.module.css'
 export default function PublicRooms({ result, error, page, disabled, onPage, onRefresh, onJoin }) {
   return <Panel className={styles.panel} aria-label="Public rooms">
     <header className={styles.header}>
-      <div><Eyebrow>OPEN TABLES</Eyebrow><h2 className={styles.title}>Public rooms</h2></div>
+      <div><h2 className={styles.title}>Public rooms</h2></div>
       <Button onClick={onRefresh}><Icon name="refresh" className={styles.icon} /> Refresh</Button>
     </header>
     {error && <Message tone="error">{error}</Message>}

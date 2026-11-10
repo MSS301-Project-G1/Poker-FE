@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Eyebrow } from '@/shared/ui'
+import { Button } from '@/shared/ui'
 import Field from './Field'
 import Message from './Message'
 import Panel from './Panel'
@@ -33,7 +33,7 @@ export default function CreateRoomForm({ disabled, onCreate }) {
   }
 
   return <Panel as="form" className={styles.form} aria-label="Create a room" onSubmit={submit}>
-    <div><Eyebrow>HOST A TABLE</Eyebrow><h2 className={styles.title}>Create a room</h2></div>
+    <div><h2 className={styles.title}>Create a room</h2></div>
     <fieldset className={styles.segmented}>
       <legend className={styles.legend}>Visibility</legend>
       {visibilities.map(option => <label key={option.value} className={`${styles.choice} ${visibility === option.value ? styles.selected : ''}`}>
