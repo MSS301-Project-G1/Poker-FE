@@ -15,7 +15,7 @@
 .muted { margin: 0; max-width: 68ch; color: rgb(var(--color-on-surface-variant)); font-size: 14px; line-height: 1.5; }
 .actions { display: flex; align-items: flex-end; gap: var(--space-md); flex-wrap: wrap; }
 .tier { display: grid; gap: 4px; }
-.label { color: rgb(var(--color-outline)); font: 600 9px var(--font-display); letter-spacing: 1px; text-transform: uppercase; }
+.label { color: rgb(var(--color-on-surface-variant)); font: 500 12px/16px var(--font-body); }
 .sectionTitle { margin: 0 0 6px; font: 600 20px var(--font-display); }
 .claims { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 12px; }
 

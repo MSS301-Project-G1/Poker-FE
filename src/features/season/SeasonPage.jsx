@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router'
 import { TierBadge } from '@/features/ranking'
 import { paths } from '@/shared/config/paths'
 import { devIdentity } from '@/shared/lib/devIdentity'
-import { Button, Eyebrow, Icon, useToast } from '@/shared/ui'
+import { Button, Icon, useToast } from '@/shared/ui'
 import ClaimCard from './components/ClaimCard'
 import Panel from './components/Panel'
 import RewardLadder from './components/RewardLadder'
@@ -31,9 +31,8 @@ export default function SeasonPage() {
   return <div className={styles.page}>
     <section className={styles.hero}>
       <div className={styles.intro}>
-        <Eyebrow>{season ? `SEASON · ${current.daysLeft} DAYS LEFT` : 'RANKED SEASON'}</Eyebrow>
         <h1 className={styles.title}>{season?.name || 'Season rewards'}</h1>
-        {season && <p className={styles.muted}>{formatDate(season.startAt)} – {formatDate(season.endAt)} · The next season starts
+        {season && <p className={styles.muted}>{current.daysLeft} days left · {formatDate(season.startAt)} – {formatDate(season.endAt)} · The next season starts
           with {season.resetPercent}% of your final Elo.</p>}
       </div>
       <div className={styles.actions}>

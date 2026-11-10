@@ -1,4 +1,4 @@
-import { Button, Eyebrow, Icon } from '@/shared/ui'
+import { Button, Icon } from '@/shared/ui'
 import { formatCoins, formatFee, formatTime, holdsPlace, placeLabel, timeUntil } from '../format'
 import Message from './Message'
 import Panel from './Panel'
@@ -37,7 +37,6 @@ function entryView(tournament, me, myTableId, now) {
 export default function EntryPanel({ tournament, me, myTableId, now, busy, error, onRegister, onConfirm, onOpenTable, onLeaderboard }) {
   const view = entryView(tournament, me, myTableId, now)
   return <Panel as="aside" className={styles.panel} aria-labelledby="entry-title">
-    <Eyebrow>YOUR ENTRY</Eyebrow>
     <div className={styles.status}>
       <Icon name={view.icon} className={styles.icon} />
       <div className={styles.copy}>

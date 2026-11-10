@@ -1,4 +1,4 @@
-import { Eyebrow, Icon } from '@/shared/ui'
+import { Caption, Icon } from '@/shared/ui'
 import { formatCoins, placeLabel } from '../format'
 import Panel from './Panel'
 import styles from './PrizePanel.module.css'
@@ -9,8 +9,8 @@ export default function PrizePanel({ tournament }) {
   const grows = type === 'OPEN' && entryFee > 0
   return <Panel as="aside" aria-labelledby="prize-title">
     <header className={styles.header}>
-      <Eyebrow>PRIZE POOL</Eyebrow>
       <h2 id="prize-title" className={styles.pool}>{formatCoins(prizePool)}</h2>
+      <Caption>Prize pool</Caption>
       <p className={styles.muted}>
         {grows ? `Grows by ${formatCoins(entryFee)} with every player${rewardCoins > 0 ? `, on top of a ${formatCoins(rewardCoins)} bonus` : ''}. ` : ''}
         The top three of the final share it.

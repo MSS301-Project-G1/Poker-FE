@@ -1,6 +1,6 @@
 import { useNavigate, useSearchParams } from 'react-router'
 import { paths } from '@/shared/config/paths'
-import { Button, Eyebrow, Icon } from '@/shared/ui'
+import { Button, Icon } from '@/shared/ui'
 import TournamentList from './components/TournamentList'
 import ViewTabs from './components/ViewTabs'
 import { useDevUser } from './hooks/useDevUser'
@@ -22,7 +22,6 @@ export default function TournamentsPage() {
   return <div className={styles.page}>
     <section className={styles.hero}>
       <div className={styles.intro}>
-        <Eyebrow>COMPETITIVE</Eyebrow>
         <h1 className={styles.title}>Tournaments</h1>
         <p className={styles.muted}>Elite tournaments invite the top of the leaderboard; Open tournaments take the first paid
           entries. Tables of eight play the qualifiers and the top two of each table meet in the final.</p>

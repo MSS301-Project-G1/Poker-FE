@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { paths } from '@/shared/config/paths'
 import { devIdentity } from '@/shared/lib/devIdentity'
-import { Button, Eyebrow, Icon } from '@/shared/ui'
+import { Button, Caption, Icon } from '@/shared/ui'
 import BoardTabs from './components/BoardTabs'
 import FriendsBoard from './components/FriendsBoard'
 import SeasonBoard from './components/SeasonBoard'
@@ -36,8 +36,8 @@ export default function LeaderboardPage() {
   return <div className={styles.page}>
     <section className={styles.hero}>
       <div className={styles.intro}>
-        <Eyebrow>{season ? `${season.name.toUpperCase()} · ${daysLeft} DAYS LEFT` : 'RANKED SEASON'}</Eyebrow>
         <h1 className={styles.title}>Leaderboard</h1>
+        {season && <Caption>{season.name} · {daysLeft} days left</Caption>}
         <p className={styles.muted}>Players are ranked by Elo. Finish in the top half of a ranked table to climb and extend your streak; the last places lose Elo.</p>
       </div>
       <StandingCard standing={me} signedIn={Boolean(devUser || me)} loading={state.phase === 'loading'} />
