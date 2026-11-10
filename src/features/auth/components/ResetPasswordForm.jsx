@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Icon } from '@/shared/ui'
 import { newPasswordError, otpError } from '../utils/authValidation'
 import PasswordField from './PasswordField'
 import { fieldErrorClass, inputClass, labelClass, submitClass } from './authFormStyles'
@@ -35,7 +34,7 @@ export default function ResetPasswordForm({ pending, email, resendAvailableAt, o
       Enter the recovery code for <strong className="text-on-surface break-all">{email}</strong> and choose a new password.
     </div>
     <div>
-      <label className={labelClass} htmlFor="recovery-otp">Recovery code <span className="text-primary">*</span></label>
+      <label className={labelClass} htmlFor="recovery-otp">Recovery code</label>
       <input id="recovery-otp" className={`${inputClass} px-4 text-center tracking-[0.5em] font-label-numeric-md`}
         value={values.otp} onChange={event => update('otp')(event.target.value.replace(/\D/g, '').slice(0, 6))}
         inputMode="numeric" autoComplete="one-time-code" maxLength={6} disabled={pending} aria-invalid={Boolean(errors.otp)} />
@@ -46,10 +45,10 @@ export default function ResetPasswordForm({ pending, email, resendAvailableAt, o
     <PasswordField id="recovery-confirm-password" label="Confirm new password" value={values.confirmPassword}
       onChange={update('confirmPassword')} error={errors.confirmPassword} autoComplete="new-password" disabled={pending} />
     <button className={submitClass} type="submit" disabled={pending}>
-      <span>{pending ? 'RESETTING PASSWORD…' : 'RESET PASSWORD'}</span><Icon name="password" className="text-base" />
+      <span>{pending ? 'Resetting password…' : 'Reset password'}</span>
     </button>
     <div className="flex items-center justify-between gap-3 text-xs">
-      <button type="button" className="text-on-surface-variant hover:text-white transition-colors" onClick={onBack} disabled={pending}>Back to sign in</button>
+      <button type="button" className="text-on-surface-variant hover:text-on-surface transition-colors" onClick={onBack} disabled={pending}>Back to sign in</button>
       <button type="button" className="text-primary hover:text-primary-fixed transition-colors disabled:text-outline"
         onClick={onResend} disabled={pending || remaining > 0}>{remaining > 0 ? `Resend in ${remaining}s` : 'Resend code'}</button>
     </div>

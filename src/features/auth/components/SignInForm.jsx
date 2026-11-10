@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Icon } from '@/shared/ui'
 import { emailError, loginPasswordError } from '../utils/authValidation'
 import PasswordField from './PasswordField'
 import { fieldErrorClass, inputClass, labelClass, submitClass } from './authFormStyles'
@@ -19,10 +18,9 @@ export default function SignInForm({ pending, onSubmit, onForgotPassword }) {
 
   return <form className="space-y-4" onSubmit={submit} noValidate>
     <div>
-      <label className={labelClass} htmlFor="login-email">Email address <span className="text-primary">*</span></label>
+      <label className={labelClass} htmlFor="login-email">Email address</label>
       <div className="relative">
-        <Icon name="mail" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-lg pointer-events-none" />
-        <input id="login-email" className={`${inputClass} pl-11 pr-4`} type="email" value={email}
+        <input id="login-email" className={`${inputClass} px-4`} type="email" value={email}
           onChange={event => setEmail(event.target.value)} autoComplete="email" disabled={pending} aria-invalid={Boolean(errors.email)} />
       </div>
       {errors.email && <p className={fieldErrorClass}>{errors.email}</p>}
@@ -34,7 +32,7 @@ export default function SignInForm({ pending, onSubmit, onForgotPassword }) {
         onClick={onForgotPassword} disabled={pending}>Forgot password?</button>
     </div>
     <button className={submitClass} type="submit" disabled={pending}>
-      <span>{pending ? 'SIGNING IN…' : 'ENTER ARENA'}</span><Icon name="arrow_forward" className="text-base" />
+      <span>{pending ? 'Signing in…' : 'Sign in'}</span>
     </button>
   </form>
 }
