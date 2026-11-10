@@ -13,7 +13,7 @@ export function useResource(loader, interval = 0) {
         const data = await loader(controller.signal)
         if (!controller.signal.aborted) setState({ loader, data, error: '', loading: false })
       } catch (error) {
-        if (!controller.signal.aborted) setState(current => ({ data: current.loader === loader ? current.data : null, loader, error: error.message || 'Không tải được dữ liệu.', loading: false }))
+        if (!controller.signal.aborted) setState(current => ({ data: current.loader === loader ? current.data : null, loader, error: error.message || 'Couldn’t load data.', loading: false }))
       } finally {
         if (interval && !controller.signal.aborted) timer = setTimeout(read, interval)
       }

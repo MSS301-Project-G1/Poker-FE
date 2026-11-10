@@ -9,11 +9,11 @@ export function Avatar({ id, size = 'normal' }) {
 }
 export function Name({ id }) {
   const { profiles, user } = useCommunity()
-  return <>{id === user?.accountId ? user.profile?.displayName || user.email || 'Bạn' : profiles[id]?.displayName || id?.slice(0, 8) || 'Người chơi'}</>
+  return <>{id === user?.accountId ? user.profile?.displayName || user.email || 'You' : profiles[id]?.displayName || id?.slice(0, 8) || 'Player'}</>
 }
 export function Empty({ icon = 'group', children }) {
   return <div className={styles.empty}><Icon name={icon} /><p>{children}</p></div>
 }
 export function ErrorNotice({ message, retry }) {
-  return message ? <div className={styles.error} role="alert"><span>{message}</span>{retry && <button className={styles.link} type="button" onClick={retry}>Thử lại</button>}</div> : null
+  return message ? <div className={styles.error} role="alert"><span>{message}</span>{retry && <button className={styles.link} type="button" onClick={retry}>Try again</button>}</div> : null
 }

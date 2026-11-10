@@ -9,8 +9,8 @@ import FindPlayers from './FindPlayers'
 import ui from './FriendsPanel.module.css'
 import { MessagesPanel } from './ChatPanel'
 
-const labels = { incoming: 'Lời mời kết bạn', outgoing: 'Lời mời đã gửi', blocks: 'Người đã chặn' }
-const statuses = { ACCEPTED: 'Đã kết bạn', DECLINED: 'Lời mời đã được từ chối', CANCELLED: 'Lời mời đã hủy' }
+const labels = { incoming: 'Friend requests', outgoing: 'Sent requests', blocks: 'Blocked' }
+const statuses = { ACCEPTED: 'Friends', DECLINED: 'Request declined', CANCELLED: 'Request cancelled' }
 
 function MoreMenu({ label, children }) {
   return <details className={ui.menu} onKeyDown={event => {
@@ -23,18 +23,18 @@ function MoreMenu({ label, children }) {
   </details>
 }
 const removePrompt = name => ({
-  title: 'Xóa bạn?', message: `${name} sẽ bị xóa khỏi danh sách bạn bè của bạn.`,
-  confirmLabel: 'Xóa bạn', icon: 'person_remove', danger: true,
+  title: 'Remove friend?', message: `${name} will be removed from your friends.`,
+  confirmLabel: 'Remove friend', icon: 'person_remove', danger: true,
 })
 const blockPrompt = name => ({
-  title: 'Chặn người chơi?', message: `${name} sẽ bị gỡ khỏi danh sách bạn bè. Nếu bỏ chặn sau này, quan hệ bạn bè không tự khôi phục.`,
-  confirmLabel: 'Chặn', icon: 'block', danger: true,
+  title: 'Block player?', message: `${name} will be removed from your friends. Unblocking later won’t restore the friendship.`,
+  confirmLabel: 'Block', icon: 'block', danger: true,
 })
 
 export default function FriendsPanel({ notifications = false, onChanged }) {
   const { user, loadProfiles, openChat, profiles, panel, setPanel } = useCommunity()
   const confirm = useConfirm()
-  const nameOf = accountId => profiles[accountId]?.displayName || 'Người chơi này'
+  const nameOf = accountId => profiles[accountId]?.displayName || 'This player'
   const [friendTab, setTab] = useState(notifications ? 'incoming' : 'friends')
   const tab = !notifications && panel === 'chat' ? 'chat' : friendTab
   const [page, setPage] = useState(0)
@@ -56,9 +56,9 @@ export default function FriendsPanel({ notifications = false, onChanged }) {
   }
   function selectTab(next) { if (!notifications) setPanel(next === 'chat' ? 'chat' : 'friends'); if (next !== 'chat') setTab(next); setPage(0); setError(''); setNotice('') }
   const navigation = !notifications && <div className={ui.toolbar}>
-      <MoreMenu label="Tùy chọn bạn bè">
-        <button type="button" onClick={() => selectTab('outgoing')}><Icon name="outgoing_mail" />Lời mời đã gửi</button>
-        <button type="button" onClick={() => selectTab('blocks')}><Icon name="block" />Người đã chặn</button>
+      <MoreMenu label="Friend options">
+        <button type="button" onClick={() => selectTab('outgoing')}><Icon name="outgoing_mail" />Sent requests</button>
+        <button type="button" onClick={() => selectTab('blocks')}><Icon name="block" />Blocked</button>
       </MoreMenu>
     </div>
   if (tab === 'chat') return <MessagesPanel />
@@ -67,30 +67,30 @@ export default function FriendsPanel({ notifications = false, onChanged }) {
     {navigation}
     {!notifications && tab === 'friends' && <FindPlayers busy={busy} run={run} />}
     {tab !== 'friends' && <div className={ui.heading}>
-      {['outgoing', 'blocks'].includes(tab) && <Button aria-label="Quay lại bạn bè" onClick={() => selectTab('friends')}><Icon name="arrow_back" /></Button>}
+      {['outgoing', 'blocks'].includes(tab) && <Button aria-label="Back to friends" onClick={() => selectTab('friends')}><Icon name="arrow_back" /></Button>}
       <h3>{labels[tab]}</h3>
     </div>}
     <ErrorNotice message={error || readError} retry={readError ? reload : null} />
     {notice && <p className={styles.success} role="status">{notice}</p>}
     {!notifications && tab === 'friends' && <FriendsPanel notifications onChanged={message => { setNotice(message); reload() }} />}
-    {tab === 'friends' && <h3 className={ui.sectionTitle}>Danh sách bạn bè{data ? ` · ${data.totalElements}` : ''}</h3>}
-    {loading ? <Empty>Đang tải người chơi…</Empty> : !rows.length ? <Empty>{tab === 'friends' ? 'Chưa có bạn bè. Tìm người chơi để bắt đầu kết nối.' : tab === 'blocks' ? 'Bạn chưa chặn người chơi nào.' : 'Không có lời mời trong danh sách này.'}</Empty> : <ul className={ui.list}>{rows.map(row => {
+    {tab === 'friends' && <h3 className={ui.sectionTitle}>Friends list{data ? ` · ${data.totalElements}` : ''}</h3>}
+    {loading ? <Empty>Loading players…</Empty> : !rows.length ? <Empty>{tab === 'friends' ? 'No friends yet. Find players to connect with.' : tab === 'blocks' ? 'You haven’t blocked anyone.' : 'No requests here.'}</Empty> : <ul className={ui.list}>{rows.map(row => {
       const accountId = typeof row === 'string' ? row : row.requesterId === user?.accountId ? row.addresseeId : row.requesterId
-      const subtitle = row.status ? statuses[row.status] || (tab === 'incoming' ? 'Muốn kết bạn với bạn' : 'Đang chờ phản hồi') : tab === 'blocks' ? 'Đã chặn' : 'Bạn bè'
+      const subtitle = row.status ? statuses[row.status] || (tab === 'incoming' ? 'Wants to be your friend' : 'Awaiting response') : tab === 'blocks' ? 'Blocked' : 'Friends'
       return <li className={ui.personRow} key={typeof row === 'string' ? row : row.id}>
         <Avatar id={accountId} />
         <div className={ui.person}><strong><Name id={accountId} /></strong><small>{subtitle}</small></div>
         <div className={ui.actions}>
-          {tab === 'friends' && <><Button disabled={busy} onClick={() => chat(accountId)}>Nhắn tin</Button><MoreMenu label={`Tùy chọn với ${nameOf(accountId)}`}>
-            <button type="button" disabled={busy} onClick={async () => { if (await confirm(removePrompt(nameOf(accountId)))) void run(() => api.removeFriend(accountId), 'Đã xóa bạn.') }}><Icon name="person_remove" />Xóa bạn</button>
-            <button className={ui.danger} type="button" disabled={busy} onClick={async () => { if (await confirm(blockPrompt(nameOf(accountId)))) void run(() => api.block(accountId), 'Đã chặn người chơi.') }}><Icon name="block" />Chặn</button>
+          {tab === 'friends' && <><Button disabled={busy} onClick={() => chat(accountId)}>Message</Button><MoreMenu label={`Options for ${nameOf(accountId)}`}>
+            <button type="button" disabled={busy} onClick={async () => { if (await confirm(removePrompt(nameOf(accountId)))) void run(() => api.removeFriend(accountId), 'Friend removed.') }}><Icon name="person_remove" />Remove friend</button>
+            <button className={ui.danger} type="button" disabled={busy} onClick={async () => { if (await confirm(blockPrompt(nameOf(accountId)))) void run(() => api.block(accountId), 'Player blocked.') }}><Icon name="block" />Block</button>
           </MoreMenu></>}
-          {tab === 'blocks' && <Button disabled={busy} onClick={() => run(() => api.unblock(accountId), 'Đã bỏ chặn. Quan hệ bạn bè không tự khôi phục.')}>Bỏ chặn</Button>}
-          {row.status === 'PENDING' && tab === 'incoming' && <><Button variant="primary" disabled={busy} onClick={() => run(() => api.respond(row.id, 'accept'), 'Đã chấp nhận kết bạn.')}>Chấp nhận</Button><Button disabled={busy} onClick={() => run(() => api.respond(row.id, 'decline'), 'Đã từ chối.')}>Từ chối</Button></>}
-          {row.status === 'PENDING' && tab === 'outgoing' && <Button disabled={busy} onClick={() => run(() => api.cancel(row.id), 'Đã hủy lời mời.')}>Hủy lời mời</Button>}
+          {tab === 'blocks' && <Button disabled={busy} onClick={() => run(() => api.unblock(accountId), 'Unblocked. The friendship isn’t restored automatically.')}>Unblock</Button>}
+          {row.status === 'PENDING' && tab === 'incoming' && <><Button variant="primary" disabled={busy} onClick={() => run(() => api.respond(row.id, 'accept'), 'Friend request accepted.')}>Accept</Button><Button disabled={busy} onClick={() => run(() => api.respond(row.id, 'decline'), 'Declined.')}>Decline</Button></>}
+          {row.status === 'PENDING' && tab === 'outgoing' && <Button disabled={busy} onClick={() => run(() => api.cancel(row.id), 'Request cancelled.')}>Cancel request</Button>}
         </div>
       </li>
     })}</ul>}
-    {data?.totalPages > 1 && <nav className={ui.pagination} aria-label="Phân trang"><Button disabled={page === 0} onClick={() => setPage(value => value - 1)}>Trước</Button><span>{page + 1} / {data.totalPages}</span><Button disabled={page + 1 >= data.totalPages} onClick={() => setPage(value => value + 1)}>Sau</Button></nav>}
+    {data?.totalPages > 1 && <nav className={ui.pagination} aria-label="Pagination"><Button disabled={page === 0} onClick={() => setPage(value => value - 1)}>Previous</Button><span>{page + 1} / {data.totalPages}</span><Button disabled={page + 1 >= data.totalPages} onClick={() => setPage(value => value + 1)}>Sau</Button></nav>}
   </div>
 }
