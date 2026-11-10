@@ -11,7 +11,7 @@ Target: the existing React application in `D:/Poker-FE`.
 - Chat: reusable text chat with history cursor pagination, HTTP sends, retry/idempotency and STOMP reception. The match panel resolves a MATCH conversation by `refId === matchId`; table IDs are not used as conversation IDs.
 - Notifications: deduplicated session events from `/user/queue/notifications`. These are session notifications, not persisted server read/unread state.
 
-The source project's DOM classes were adapted to React and CSS Modules using Poker-FE design tokens. Real-player routes do not use the local bot roster, simulated queue, fake coins or local game engine. The standalone source engine is available separately in the public /demo route as an explicitly labeled single-player simulation. Existing real-match gameplay remains separate.
+The source project's DOM classes were adapted to React and CSS Modules using Poker-FE design tokens. Real-player routes do not use the local bot roster, simulated queue, fake coins or local game engine. Existing real-match gameplay remains separate.
 
 ## Main locations
 
@@ -33,7 +33,6 @@ The accompanying backend fix updates the Social catalog to `/api/friends/**` and
 
 - Party invites still use the existing invite + code flow. No PARTY_INVITE push event or invitation history is fabricated.
 - Only TEXT chat is supported. No presence, typing, seen receipts, stickers or attachment endpoints are assumed.
-- The existing application's demo leaderboard/player summary/ticker are unchanged and are not presented as newly integrated backend data.
 - /lobby is the pre-game poker lounge. Real matches still open at `/table/:tableId`.
 
 ## Verification
@@ -48,13 +47,9 @@ npm run test:community
 The community test config runs both new community tests and the existing matchmaking regression suite on its own port 5297. Browser tests intercept API/STOMP contracts; they verify UI behavior, not a complete live two-account session.
 Screenshots are written to `artifacts/community-*.png`. Fixtures exist only in tests; production components call the backend.
 Backend Gateway tests include path preservation, verified identity, service-key injection and removal of spoofed/irrelevant credentials.
-## Single-player demo
+## Single-player demo (removed)
 
-Open /demo without signing in. It embeds /demo/poker.html, auto-starts a six-seat local table with exactly one human and five bots, and has a reset control. The engine is vendored under src/features/demo/engine from poker-3d. Simulated coins use the separate poker-rank:solo-demo:profile:v1 storage key. It does not call game, matchmaking or wallet APIs. The public AuthProvider can fail to reach its backend without blocking the demo route.
-
-From /lobby, choose **Test 1 người · 10 giây**. A floating card counts down against a 10-second deadline, then opens /demo. **Hủy chơi thử** or Escape cancels it. The test button is disabled during an active real queue; starting a real queue cancels the pending test. Leaving the lobby also clears the countdown. This flow uses local bots and simulated coins, without changing real matchmaking minimum-player settings. The community browser suite verifies cancellation, staying in the lobby before the deadline, navigation at ten seconds and no queue join request.
-
-Vite builds the demo HTML as a separate entry, so Three.js is not added to the main application's JS chunk. Run npm run test:solo-demo to verify an actual turn/action with the backend deliberately unavailable.
+The bot-only /demo route, its standalone poker.html entry and the local game engine that drove it were removed once real matches were playable. Only the scene modules that the lobby backdrop and the match confirmation table use remain under src/features/demo/engine.
 
 ## Lobby 3D and floating matchmaking update
 
@@ -63,15 +58,15 @@ Vite builds the demo HTML as a separate entry, so Three.js is not added to the m
 - Queue progress and Rank acceptance are displayed on the radar screen. MatchmakingCard remains only for a match already in progress, with return-to-table/forfeit controls. Queue cancellation still calls DELETE on the active queue.
 - /ranked displays Rank matchmaking; /ranked?mode=NORMAL displays Normal matchmaking. No floating queue card is shown while waiting. Legacy /lobby?match=RANK or NORMAL links also open the radar screen.
 - Queue status includes `playerIds`. Radar resolves these through `/api/profiles/batch` and updates identities/avatars on every membership change. Before a proposal, this is a bounded preview of the oldest entries in the mode's queue, not guaranteed final table seats (Rank Elo and Normal party selection still happen on the server). Proposals return the actual proposal roster. Missing profiles fall back to an ID label and default avatar; names are not invented.
-- LobbyBackdrop lazily renders the same Three.js TableScene geometry and lights as poker-3d behind the real React lounge. This adapter does not run the demo game's queue or economy.
+- LobbyBackdrop lazily renders the same Three.js TableScene geometry and lights as poker-3d behind the real React lounge.
 - WebGL resources are disposed on unmount; React Strict Mode can reuse the canvas context. Rendering is capped at 30 fps / DPR 1.25 and paused under modal panels or when the document is hidden. Reduced-motion mode renders a static scene. A CSS fallback keeps the lounge usable without WebGL.
-- Shared procedural sound effects cover clicks, queue found/ready, card/chip/turn changes, chat and notifications. The header's sound button persists a local preference. Browsers unlock audio only after a user gesture. The solo demo uses the same audio synthesizer inside its standalone document.
+- Shared procedural sound effects cover clicks, queue found/ready, card/chip/turn changes, chat and notifications. The header's sound button persists a local preference. Browsers unlock audio only after a user gesture.
 
 ## Live 3D table and camera entrance
 
-- `/table/:tableId` now renders the same procedural 3D table, characters, cards and chips as the demo, driven exclusively by the authenticated Game Service snapshot. The local demo engine does not control live games. Only card faces disclosed by the server are rendered; pooled card materials are reset before reuse.
+- `/table/:tableId` now renders the same procedural 3D table, characters, cards and chips as the lobby, driven exclusively by the authenticated Game Service snapshot. Only card faces disclosed by the server are rendered; pooled card materials are reset before reuse.
 - Rank proposals have a configurable 30-second acceptance deadline (`MATCHMAKING_RANK_ACCEPT_TIMEOUT`). The radar follows the server deadline. Once all accept and the server reports READY, navigation opens the table and the camera rises from floor height into the playing view over 3.2 seconds. Normal starts the camera entrance on READY without an acceptance phase.
-- Actions and the server turn clock continue throughout the entrance. Skip is available; reduced motion goes directly to the playing view. Completed entrances are remembered per table in sessionStorage so reconnecting does not replay them. The solo demo also uses the entrance.
+- Actions and the server turn clock continue throughout the entrance. Skip is available; reduced motion goes directly to the playing view. Completed entrances are remembered per table in sessionStorage so reconnecting does not replay them.
 - Name plates and the pot follow projected world anchors on desktop; mobile uses spaced plates around the viewport. The existing shared skin components remain the HUD/accessibility layer. If WebGL creation fails or its context is lost, the standard table stays usable with the same server actions.
 - `npm run test:live-table` checks acceptance-to-READY navigation, low-to-high camera movement, live action/snapshot updates, hidden opponent cards, reconnect, mobile/reduced motion, skipping and WebGL fallback. These tests mock transport contracts; they are not a live multi-account backend session.
 
@@ -89,4 +84,4 @@ Tests use mocked HTTP/STOMP transport for browser scenarios, and backend unit te
 
 ## Confirmed presentation correction
 
-The 3D camera/table is only the matchmaking confirmation stage. Once every player accepts and the server returns READY, `/table/:tableId` uses the original 2D table, cards, bets, actions, and chat. The real game does not initialize WebGL. The standalone `/demo` remains 3D. The 30-second fill and acceptance deadlines remain unchanged.
+The 3D camera/table is only the matchmaking confirmation stage. Once every player accepts and the server returns READY, `/table/:tableId` uses the original 2D table, cards, bets, actions, and chat. The real game does not initialize WebGL. The 30-second fill and acceptance deadlines remain unchanged.

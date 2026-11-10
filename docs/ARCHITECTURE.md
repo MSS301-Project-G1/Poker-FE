@@ -38,10 +38,10 @@ src/
 │   ├── lib/                  # Hàm tiện ích thuần (devIdentity…)
 │   ├── layout/MainLayout/    # Header + nav + footer ticker cho các màn hình đã đăng nhập
 │   ├── skin/                 # Renderer mặc định cho cosmetic: lá bài, bàn, avatar, dealer
-│   └── ui/                   # Component UI chung: Button, Icon, Eyebrow, Toast, PlaceholderScreen
+│   └── ui/                   # Component UI chung: Button, Icon, Caption, Toast, PlaceholderScreen
 │
 └── features/                 # Mỗi thư mục = 1 tính năng, do 1 người/nhóm sở hữu
-    ├── auth/  lobby/  ranked/  shop/  events/  mailbox/
+    ├── auth/  lobby/  ranked/  shop/
     ├── game-table/
     └── admin/match-settings/
 ```
@@ -167,7 +167,7 @@ Tailwind, thêm tên vào danh sách tương ứng trong `tailwind.config.js` (f
    lên component hoặc truyền `className`/prop (vd `PlayingCard size="lg"`).
 6. Inline `style={{}}` chỉ cho giá trị động (vd `backgroundImage` từ dữ liệu).
 7. Icon dùng `<Icon name="settings" filled? className="…" />`, không viết `<span className="material-symbols-outlined">`.
-8. Nút trong code mới dùng `<Button variant="primary|secondary">`; nhãn nhỏ màu vàng dùng `<Eyebrow>`;
+8. Nút trong code mới dùng `<Button variant="primary|secondary">`; dòng phụ mờ dưới tiêu đề hoặc nhãn nhỏ của panel dùng `<Caption>` (không đặt nhãn in hoa kiểu "eyebrow" phía trên tiêu đề);
    thông báo dùng `useToast()`.
 
 ### 6.4 Component dùng chung hiện có
@@ -176,7 +176,7 @@ Tailwind, thêm tên vào danh sách tương ứng trong `tailwind.config.js` (f
 |---|---|
 | `Button` từ `@/shared/ui` | Nút chuẩn (`primary`, `secondary`), mặc định `type="button"` |
 | `Icon` | Icon Material Symbols, tự ẩn với screen reader |
-| `Eyebrow` | Nhãn overline vàng phía trên tiêu đề |
+| `Caption` | Dòng phụ mờ dưới tiêu đề (vd "Mùa 3 · còn 12 ngày") hoặc nhãn nhỏ của panel |
 | `useToast()` / `ToastProvider` | Thông báo ngắn ở góc màn hình |
 | `PlaceholderScreen` | Màn hình "đang xây dựng", 404 |
 | `MainLayout` từ `@/shared/layout` | Header + nav + footer, dùng làm layout route |
