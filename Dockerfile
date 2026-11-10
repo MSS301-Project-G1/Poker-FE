@@ -31,10 +31,7 @@ RUN npm run build
 # ---- prod: nginx serves dist/ and proxies the backend on the same origin ----
 FROM nginx:1.27-alpine AS prod
 # The nginx image runs envsubst on /etc/nginx/templates/*.template at startup.
-ENV API_GATEWAY_URL=http://host.docker.internal:8080 \
-    GAME_SERVICE_URL=http://host.docker.internal:8082 \
-    SOCIAL_SERVICE_URL=http://host.docker.internal:8084 \
-    CHAT_SERVICE_URL=http://host.docker.internal:8085
+ENV API_GATEWAY_URL=http://host.docker.internal:8080
 COPY docker/nginx/default.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80
