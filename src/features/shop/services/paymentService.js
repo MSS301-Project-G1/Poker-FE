@@ -8,7 +8,7 @@ export async function getCoinBundles({ signal } = {}) {
   return gatewayRequest('/api/shop/bundles', {
     signal,
     auth: false,
-    errorMessage: 'Không thể tải danh sách gói nạp',
+    errorMessage: 'Couldn’t load coin packs',
   })
 }
 
@@ -19,41 +19,41 @@ export async function getCoinBundles({ signal } = {}) {
 export async function createBundleOrder(bundleId) {
   return gatewayRequest(`/api/payments/bundles/${bundleId}/orders`, {
     method: 'POST',
-    errorMessage: 'Không thể tạo đơn hàng mua gói nạp',
+    errorMessage: 'Couldn’t create the pack order',
   })
 }
 
 export async function getMyOrders({ signal } = {}) {
   return gatewayRequest('/api/payments/orders/me', {
     signal,
-    errorMessage: 'Không thể tải lịch sử đơn hàng',
+    errorMessage: 'Couldn’t load order history',
   })
 }
 
 export async function getPendingOrder({ signal } = {}) {
   return gatewayRequest('/api/payments/orders/pending', {
     signal,
-    errorMessage: 'Không thể kiểm tra đơn hàng đang chờ',
+    errorMessage: 'Couldn’t check pending orders',
   })
 }
 
 export async function getOrderDetail(orderId, { signal } = {}) {
   return gatewayRequest(`/api/payments/orders/${orderId}`, {
     signal,
-    errorMessage: 'Không thể tải chi tiết đơn hàng',
+    errorMessage: 'Couldn’t load order details',
   })
 }
 
 export async function cancelOrder(orderId) {
   return gatewayRequest(`/api/payments/orders/${orderId}/cancel`, {
     method: 'PUT',
-    errorMessage: 'Không thể hủy đơn hàng',
+    errorMessage: 'Couldn’t cancel the order',
   })
 }
 
 export async function syncOrder(orderId) {
   return gatewayRequest(`/api/payments/orders/${orderId}/sync`, {
     method: 'POST',
-    errorMessage: 'Không thể đồng bộ trạng thái đơn hàng',
+    errorMessage: 'Couldn’t sync the order status',
   })
 }

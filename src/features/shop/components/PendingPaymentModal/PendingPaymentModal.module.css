@@ -2,7 +2,7 @@
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background-color: rgba(6, 2, 14, 0.85);
+  background-color: rgb(var(--color-obsidian) / 0.85);
   backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
@@ -15,10 +15,10 @@
   position: relative;
   width: 100%;
   max-width: 480px;
-  background: linear-gradient(180deg, rgba(27, 15, 51, 0.95) 0%, rgba(16, 6, 32, 0.98) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgb(var(--color-background) / 0.95) 0%, rgb(var(--color-page-base) / 0.98) 100%);
+  border: 1px solid rgb(var(--color-on-surface) / 0.12);
   border-radius: 1.5rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 40px rgba(229, 196, 87, 0.08);
+  box-shadow: 0 25px 50px -12px rgb(var(--color-obsidian) / 0.7), 0 0 40px rgb(var(--color-tertiary) / 0.08);
   padding: 1.5rem;
   overflow: hidden;
   animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -33,18 +33,18 @@
 }
 
 .accentPending {
-  background: linear-gradient(90deg, #d4af37, #f6e07a, #d4af37);
-  box-shadow: 0 0 12px rgba(229, 196, 87, 0.5);
+  background: linear-gradient(90deg, rgb(var(--color-tertiary-container)), rgb(var(--color-tertiary-fixed)), rgb(var(--color-tertiary-container)));
+  box-shadow: 0 0 12px rgb(var(--color-tertiary) / 0.5);
 }
 
 .accentSuccess {
-  background: linear-gradient(90deg, #10b981, #34d399, #10b981);
-  box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+  background: linear-gradient(90deg, rgb(var(--color-success)), rgb(var(--color-success)), rgb(var(--color-success)));
+  box-shadow: 0 0 12px rgb(var(--color-success) / 0.5);
 }
 
 .accentExpired {
-  background: linear-gradient(90deg, #f43f5e, #fb7185, #f43f5e);
-  box-shadow: 0 0 12px rgba(244, 63, 94, 0.5);
+  background: linear-gradient(90deg, rgb(var(--color-raise-bright)), rgb(var(--color-primary-rim)), rgb(var(--color-raise-bright)));
+  box-shadow: 0 0 12px rgb(var(--color-raise-bright) / 0.5);
 }
 
 .header {
@@ -52,7 +52,7 @@
   align-items: center;
   justify-content: space-between;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgb(var(--color-on-surface) / 0.08);
 }
 
 @keyframes fadeIn {

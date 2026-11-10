@@ -45,7 +45,7 @@ export default function BundlePage() {
         const synced = await syncPendingOrder(order.id)
         if (disposed) return
         if (synced && synced.status === 'PAID') {
-          notify(`Giao dịch đơn hàng #${order.payosOrderCode} đã hoàn tất! Đã cộng VIP Coin vào ví.`, {
+          notify(`Order #${order.payosOrderCode} is complete. VIP Coin has been added to your wallet.`, {
             type: 'success',
           })
           refreshWallet()
@@ -74,7 +74,7 @@ export default function BundlePage() {
   // Select bundle handler: checks existing pending order before proceeding
   const handleSelectBundle = async bundle => {
     if (!isLoggedIn) {
-      notify('Vui lòng đăng nhập để nạp VIP Coin qua PayOS.', { type: 'info' })
+      notify('Sign in to top up VIP Coin with PayOS.', { type: 'info' })
       navigate(paths.auth)
       return
     }
@@ -84,7 +84,7 @@ export default function BundlePage() {
     if (currentPending && currentPending.status === 'PENDING') {
       const synced = await syncPendingOrder()
       if (synced && synced.status === 'PAID') {
-        notify(`Đơn hàng trước đó #${currentPending.payosOrderCode} đã thanh toán thành công!`, {
+        notify(`Your previous order #${currentPending.payosOrderCode} was paid.`, {
           type: 'success',
         })
         await refreshWallet()
@@ -106,7 +106,7 @@ export default function BundlePage() {
     try {
       await purchaseBundle(bundle.id)
     } catch (err) {
-      notify(err.message || 'Không thể tạo đơn hàng thanh toán PayOS', { type: 'error' })
+      notify(err.message || 'Couldn’t create the PayOS order', { type: 'error' })
     }
   }
 
@@ -116,13 +116,13 @@ export default function BundlePage() {
     setIsCancellingOldOrder(true)
     try {
       await cancelPendingOrder()
-      notify('Đã hủy đơn hàng cũ. Đang chuyển sang gói mới...', { type: 'info' })
+      notify('Previous order cancelled. Switching to the new pack…', { type: 'info' })
       setIsConflictModalOpen(false)
       const targetBundle = conflictingBundle
       setConflictingBundle(null)
       await purchaseBundle(targetBundle.id)
     } catch (err) {
-      notify(err.message || 'Không thể hủy đơn cũ để tạo gói mới', { type: 'error' })
+      notify(err.message || 'Couldn’t cancel the previous order', { type: 'error' })
     } finally {
       setIsCancellingOldOrder(false)
     }
@@ -130,13 +130,6 @@ export default function BundlePage() {
 
   return (
     <div className="relative w-full pb-space-lg overflow-hidden font-body-md min-h-screen">
-      {/* Background ambient lighting */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
-        <div className="absolute -top-32 left-1/4 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[160px]" />
-        <div className="absolute top-1/3 right-10 w-[550px] h-[550px] bg-tertiary/15 rounded-full blur-[160px]" />
-        <div className="absolute -bottom-20 left-10 w-[700px] h-[500px] bg-secondary-container/20 rounded-full blur-[160px]" />
-      </div>
-
       {/* Fluid wide container for large/wide displays */}
       <div className="w-full max-w-[1700px] mx-auto px-6 md:px-12 pt-space-lg">
         {/* Top Navigation & Balance Bar */}
@@ -148,14 +141,14 @@ export default function BundlePage() {
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container-high/80 text-on-surface hover:bg-surface-container-highest transition-all text-sm font-bold border border-outline-variant/30 shadow-sm"
             >
               <Icon name="arrow_back" className="text-base" />
-              <span>Quay Lại Cửa Hàng</span>
+              <span>Back to shop</span>
             </button>
             <div>
-              <h1 className="font-headline font-black text-3xl md:text-4xl text-on-surface tracking-tight">
-                Nạp VIP Coin
+              <h1 className="font-headline font-bold text-3xl md:text-4xl text-on-surface tracking-tight">
+                Top up VIP Coin
               </h1>
               <p className="text-sm text-on-surface-variant mt-1 font-medium">
-                Cổng thanh toán tự động PayOS • Quét mã VietQR • Nạp tức thì 24/7
+                PayOS checkout · Scan VietQR · Instant top-up, 24/7
               </p>
             </div>
           </div>
@@ -163,15 +156,15 @@ export default function BundlePage() {
           <div className="flex flex-wrap items-center gap-3">
             {isLoggedIn ? (
               /* Current Balance */
-              <div className="flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-surface-container-high/90 border border-tertiary/40 shadow-xl">
-                <span className="w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center text-slate-950 shadow-md">
+              <div className="flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-surface-container-high/90 border border-tertiary/40 shadow-raised">
+                <span className="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center text-on-tertiary shadow-md">
                   <Icon name="paid" className="text-xl" />
                 </span>
                 <div className="flex flex-col">
-                  <span className="text-[11px] uppercase font-black text-tertiary tracking-wider leading-none">
-                    Số Dư Hiện Tại
+                  <span className="text-xs font-medium text-tertiary leading-none">
+                    Current balance
                   </span>
-                  <span className="text-lg font-black text-on-surface font-mono leading-tight">
+                  <span className="text-lg font-bold text-on-surface tabular-nums leading-tight">
                     {formatVipCoin(vipCoin)} VIP Coin
                   </span>
                 </div>
@@ -183,24 +176,23 @@ export default function BundlePage() {
                 icon="login"
                 onClick={() => navigate(paths.auth)}
               >
-                Đăng nhập để nạp
+                Sign in to top up
               </Button>
             )}
           </div>
         </div>
 
         {/* Riot-Style Promotion Notice Banner */}
-        <div className="my-space-md p-5 rounded-2xl bg-gradient-to-r from-tertiary/15 via-surface-container to-primary/15 border border-tertiary/30 flex items-center gap-4 shadow-xl">
+        <div className="my-space-md p-5 rounded-2xl bg-tertiary/15 border border-tertiary/30 flex items-center gap-4 shadow-raised">
           <div className="w-12 h-12 rounded-2xl bg-tertiary/20 text-tertiary flex items-center justify-center shrink-0 border border-tertiary/30 shadow-inner">
             <Icon name="bolt" className="text-3xl" />
           </div>
           <div>
             <h4 className="font-headline font-bold text-base text-on-surface">
-              Ưu đãi nạp xu PayOS tháng này
+              This month’s PayOS top-up offer
             </h4>
             <p className="text-sm text-on-surface-variant leading-relaxed mt-0.5">
-              Tất cả các gói nạp từ 50K trở lên đều được tặng thêm tới <strong className="text-tertiary font-bold">+30% VIP Coin</strong> miễn phí. Xu
-              thưởng được cộng ngay lập tức vào ví sau khi giao dịch thành công.
+              Every pack from 50K up includes up to <strong className="text-tertiary font-bold">+30% VIP Coin</strong> as a free bonus. Bonus coins are added to your wallet as soon as payment succeeds.
             </p>
           </div>
         </div>
@@ -209,14 +201,14 @@ export default function BundlePage() {
         {!loading && !error && bundles.length > 0 && (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 px-1">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-tertiary animate-pulse" />
-              <span className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
-                Tất cả các gói nạp khả dụng ({sortedBundles.length})
+              <span className="w-2 h-2 rounded-full bg-tertiary" />
+              <span className="text-xs font-bold text-on-surface-variant">
+                All available packs ({sortedBundles.length})
               </span>
             </div>
 
             <div className="flex items-center gap-2 self-end sm:self-auto">
-              <span className="text-xs font-medium text-on-surface-variant">Sắp xếp theo giá:</span>
+              <span className="text-xs font-medium text-on-surface-variant">Sort by price:</span>
               <div className="inline-flex rounded-xl p-1 bg-surface-container-high/90 border border-outline-variant/30 shadow-inner">
                 <button
                   type="button"
@@ -226,10 +218,10 @@ export default function BundlePage() {
                       ? 'bg-tertiary text-on-tertiary shadow-md'
                       : 'text-on-surface-variant hover:text-on-surface hover:bg-white/5'
                   }`}
-                  title="Sắp xếp giá từ thấp đến cao"
+                  title="Sort by price, low to high"
                 >
                   <Icon name="arrow_upward" className="text-xs" />
-                  <span>Thấp → Cao</span>
+                  <span>Low → High</span>
                 </button>
                 <button
                   type="button"
@@ -239,10 +231,10 @@ export default function BundlePage() {
                       ? 'bg-tertiary text-on-tertiary shadow-md'
                       : 'text-on-surface-variant hover:text-on-surface hover:bg-white/5'
                   }`}
-                  title="Sắp xếp giá từ cao đến thấp"
+                  title="Sort by price, high to low"
                 >
                   <Icon name="arrow_downward" className="text-xs" />
-                  <span>Cao → Thấp</span>
+                  <span>High → Low</span>
                 </button>
               </div>
             </div>
@@ -254,11 +246,11 @@ export default function BundlePage() {
           <div className="py-24 flex flex-col items-center justify-center gap-3">
             <span className="w-12 h-12 border-4 border-tertiary border-t-transparent rounded-full animate-spin" />
             <span className="text-base text-on-surface-variant font-medium">
-              Đang tải danh sách gói nạp PayOS...
+              Loading PayOS packs…
             </span>
           </div>
         ) : error ? (
-          <div className="py-16 text-center text-rose-400 text-lg">
+          <div className="py-16 text-center text-error text-lg">
             <p>{error}</p>
           </div>
         ) : (
@@ -270,20 +262,20 @@ export default function BundlePage() {
               return (
                 <div
                   key={bundle.id}
-                  className={`group relative rounded-3xl bg-surface-container-low/95 backdrop-blur-xl border p-6 flex flex-col justify-between transition-all duration-300 hover:scale-[1.02] shadow-xl hover:shadow-2xl ${
+                  className={`group relative rounded-2xl bg-surface-container-low/95 backdrop-blur-xl border p-6 flex flex-col justify-between transition-all duration-300 hover:scale-[1.02] shadow-raised hover:shadow-2xl ${
                     hasBonus
-                      ? 'border-tertiary/50 hover:border-tertiary shadow-tertiary/5'
+                      ? 'border-tertiary/50 hover:border-tertiary '
                       : 'border-outline-variant/30 hover:border-primary/50'
                   }`}
                 >
                   {/* Top Badge */}
                   <div className="flex items-center justify-between mb-4">
-                    <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-tertiary/20 text-tertiary border border-tertiary/30">
-                      {bundle.badgeLabel || 'Gói nạp'}
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-tertiary/20 text-tertiary border border-tertiary/30">
+                      {bundle.badgeLabel || 'Coin pack'}
                     </span>
                     {hasBonus && (
-                      <span className="px-3 py-1 rounded-full text-xs font-black uppercase bg-red-500/20 text-red-300 border border-red-500/30 animate-pulse">
-                        +{bundle.bonusPercentage}% BONUS
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-error/20 text-error border border-error/30">
+                        +{bundle.bonusPercentage}% bonus
                       </span>
                     )}
                   </div>
@@ -291,26 +283,26 @@ export default function BundlePage() {
                   {/* Icon & VIP Coin Highlight */}
                   <div className="flex items-center gap-4 my-4">
                     <div className="relative w-14 h-14 shrink-0 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform duration-300">
-                      <span className="text-amber-400">
+                      <span className="text-tertiary">
                         <Icon name="paid" className="text-3xl" />
                       </span>
                     </div>
 
                     <div className="min-w-0">
-                      <h3 className="font-headline font-black text-3xl md:text-4xl text-on-surface flex items-center gap-2">
-                        <span className="font-mono text-tertiary tracking-tight">
+                      <h3 className="font-headline font-bold text-3xl md:text-4xl text-on-surface flex items-center gap-2">
+                        <span className="tabular-nums text-tertiary tracking-tight">
                           {formatVipCoin(bundle.totalVipCoin)}
                         </span>
-                        <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
-                          VIP COIN
+                        <span className="text-xs font-bold text-on-surface-variant">
+                          VIP Coin
                         </span>
                       </h3>
 
                       {hasBonus && (
                         <p className="text-xs text-on-surface-variant mt-0.5">
-                          Gốc {formatVipCoin(bundle.baseVipCoin)} +{' '}
-                          <strong className="text-emerald-400 font-bold">
-                            {formatVipCoin(bundle.bonusVipCoin)} tặng
+                          Base {formatVipCoin(bundle.baseVipCoin)} +{' '}
+                          <strong className="text-success font-bold">
+                            {formatVipCoin(bundle.bonusVipCoin)} bonus
                           </strong>
                         </p>
                       )}
@@ -320,8 +312,8 @@ export default function BundlePage() {
                   {/* Bottom Price and CTA */}
                   <div className="pt-4 border-t border-outline-variant/30 flex flex-col gap-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-on-surface-variant font-medium">Giá thanh toán:</span>
-                      <span className="font-headline font-black text-xl md:text-2xl text-on-surface font-mono">
+                      <span className="text-sm text-on-surface-variant font-medium">Price:</span>
+                      <span className="font-headline font-bold text-xl md:text-2xl text-on-surface tabular-nums">
                         {formatVnd(bundle.priceVnd)}
                       </span>
                     </div>
@@ -332,9 +324,9 @@ export default function BundlePage() {
                       icon="credit_card"
                       loading={isSelectedOrdering}
                       onClick={() => handleSelectBundle(bundle)}
-                      className="w-full text-base font-bold shadow-lg shadow-amber-500/10"
+                      className="w-full text-base font-bold shadow-lg"
                     >
-                      {isSelectedOrdering ? 'Đang Chuyển Đến PayOS...' : 'Nạp Ngay'}
+                      {isSelectedOrdering ? 'Redirecting to PayOS…' : 'Top up'}
                     </Button>
                   </div>
                 </div>
@@ -346,15 +338,15 @@ export default function BundlePage() {
         {/* Security & Support Guarantee */}
         <section className="mt-space-lg grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-5 rounded-2xl bg-surface-container/60 border border-outline-variant/20 flex items-center gap-4 shadow-md">
-            <span className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+            <span className="w-12 h-12 rounded-2xl bg-success/20 text-success flex items-center justify-center shrink-0 border border-success/30">
               <Icon name="verified_user" className="text-2xl" />
             </span>
             <div>
               <h5 className="font-headline font-bold text-sm text-on-surface">
-                Thanh Toán Chuẩn VietQR
+                VietQR payments
               </h5>
               <p className="text-xs text-on-surface-variant mt-0.5 leading-relaxed">
-                Quét mã QR từ 40+ ứng dụng ngân hàng và ví điện tử MoMo, ViettelMoney.
+                Scan the QR code from 40+ banking apps and e-wallets such as MoMo and ViettelMoney.
               </p>
             </div>
           </div>
@@ -365,10 +357,10 @@ export default function BundlePage() {
             </span>
             <div>
               <h5 className="font-headline font-bold text-sm text-on-surface">
-                Tự Động Cộng Xu Tức Thì
+                Coins credited instantly
               </h5>
               <p className="text-xs text-on-surface-variant mt-0.5 leading-relaxed">
-                Webhook PayOS xác thực và tự động cộng VIP Coin vào ví trong 1 - 3 giây.
+                A PayOS webhook verifies the payment and credits VIP Coin within 1–3 seconds.
               </p>
             </div>
           </div>
@@ -378,9 +370,9 @@ export default function BundlePage() {
               <Icon name="headset_mic" className="text-2xl" />
             </span>
             <div>
-              <h5 className="font-headline font-bold text-sm text-on-surface">Hỗ Trợ 24/7</h5>
+              <h5 className="font-headline font-bold text-sm text-on-surface">24/7 support</h5>
               <p className="text-xs text-on-surface-variant mt-0.5 leading-relaxed">
-                Hệ thống lưu vết giao dịch minh bạch, hỗ trợ đối soát mọi lúc khi gặp trục trặc.
+                Every transaction is logged, so any issue can be reconciled.
               </p>
             </div>
           </div>
@@ -390,18 +382,18 @@ export default function BundlePage() {
       {/* Floating Unfinished Order Pill (if modal was closed by user) */}
       {pendingOrder && !isPendingModalOpen && !isConflictModalOpen && (
         <aside
-          aria-label="Đơn hàng đang chờ thanh toán"
-          className="fixed bottom-16 left-6 z-40 bg-surface-container-highest/95 border-2 border-amber-400/80 rounded-2xl p-4 shadow-2xl backdrop-blur-xl flex items-center gap-4 animate-in fade-in slide-in-from-bottom duration-300 max-w-sm sm:max-w-md"
+          aria-label="Order awaiting payment"
+          className="fixed bottom-16 left-6 z-40 bg-surface-container-highest/95 border-2 border-tertiary/80 rounded-2xl p-4 shadow-raised backdrop-blur-xl flex items-center gap-4 animate-in fade-in slide-in-from-bottom duration-300 max-w-sm sm:max-w-md"
         >
-          <div className="w-10 h-10 rounded-xl bg-amber-400/20 text-amber-400 flex items-center justify-center shrink-0">
-            <Icon name="pending_actions" className="text-2xl animate-pulse" />
+          <div className="w-10 h-10 rounded-xl bg-tertiary/20 text-tertiary flex items-center justify-center shrink-0">
+            <Icon name="pending_actions" className="text-2xl" />
           </div>
           <div className="text-left min-w-0 flex-1">
-            <div className="text-xs font-bold text-amber-300 truncate">
-              Đơn hàng #{pendingOrder.payosOrderCode} đang chờ
+            <div className="text-xs font-bold text-tertiary-fixed truncate">
+              Order #{pendingOrder.payosOrderCode} pending
             </div>
             <div className="text-[11px] text-white/70 truncate">
-              {pendingOrder.bundleName || 'Gói nạp'} • {formatVnd(pendingOrder.amountVnd)}
+              {pendingOrder.bundleName || 'Coin pack'} • {formatVnd(pendingOrder.amountVnd)}
             </div>
           </div>
           <Button
@@ -411,7 +403,7 @@ export default function BundlePage() {
             onClick={() => setIsPendingModalOpen(true)}
             className="shadow-md shrink-0"
           >
-            Mở Lại QR
+            Reopen QR
           </Button>
         </aside>
       )}
@@ -434,20 +426,20 @@ export default function BundlePage() {
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/80 backdrop-blur-md animate-in fade-in duration-200"
         >
-          <div className="relative w-full max-w-xl rounded-3xl bg-surface-container border-2 border-amber-500/40 p-6 md:p-8 shadow-2xl shadow-amber-500/10 text-left">
+          <div className="relative w-full max-w-xl rounded-2xl bg-surface-container border-2 border-tertiary/40 p-6 md:p-8 shadow-raised text-left">
             {/* Header */}
             <div className="flex items-center gap-3.5 pb-4 border-b border-outline-variant/30">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30">
-                <Icon name="pending_actions" className="text-3xl animate-pulse" />
+              <div className="w-12 h-12 rounded-2xl bg-tertiary/20 text-tertiary flex items-center justify-center shrink-0 border border-tertiary/30">
+                <Icon name="pending_actions" className="text-3xl" />
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="font-headline font-black text-xl text-on-surface">
-                  Đơn Hàng Đang Chờ Thanh Toán
+                <h3 className="font-headline font-bold text-xl text-on-surface">
+                  Order awaiting payment
                 </h3>
                 <p className="text-xs text-on-surface-variant mt-0.5">
-                  Phát hiện giao dịch trước đó chưa hoàn tất
+                  You have an unfinished payment
                 </p>
               </div>
               <button
@@ -461,36 +453,36 @@ export default function BundlePage() {
 
             {/* Comparison Details */}
             <div className="my-5 flex flex-col gap-3">
-              <div className="p-4 rounded-2xl bg-surface-container-high/70 border border-amber-500/30">
-                <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider">
-                  Đơn Hàng Hiện Tại Đang Chờ
+              <div className="p-4 rounded-2xl bg-surface-container-high/70 border border-tertiary/30">
+                <span className="text-xs font-medium text-tertiary">
+                  Pending order
                 </span>
                 <div className="flex items-center justify-between mt-1">
                   <span className="font-bold text-sm text-on-surface">
-                    #{pendingOrder.payosOrderCode} • {pendingOrder.bundleName || 'Gói nạp'}
+                    #{pendingOrder.payosOrderCode} • {pendingOrder.bundleName || 'Coin pack'}
                   </span>
-                  <span className="font-mono font-black text-amber-400 text-base">
+                  <span className="tabular-nums font-bold text-tertiary text-base">
                     {formatVnd(pendingOrder.amountVnd)}
                   </span>
                 </div>
               </div>
 
               <div className="p-4 rounded-2xl bg-surface-container-high/70 border border-primary/30">
-                <span className="text-[10px] font-black uppercase text-primary tracking-wider">
-                  Gói Mới Bạn Vừa Chọn
+                <span className="text-xs font-medium text-primary">
+                  Pack you selected
                 </span>
                 <div className="flex items-center justify-between mt-1">
                   <span className="font-bold text-sm text-on-surface">
                     {conflictingBundle.name} ({formatVipCoin(conflictingBundle.totalVipCoin)} VIP Coin)
                   </span>
-                  <span className="font-mono font-black text-primary text-base">
+                  <span className="tabular-nums font-bold text-primary text-base">
                     {formatVnd(conflictingBundle.priceVnd)}
                   </span>
                 </div>
               </div>
 
               <p className="text-xs text-on-surface-variant leading-relaxed">
-                Bạn muốn tiếp tục hoàn tất thanh toán đơn hàng cũ qua VietQR, hay hủy đơn cũ để tạo phiên thanh toán mới cho gói <strong>{conflictingBundle.name}</strong>?
+                Finish paying the previous order with VietQR, or cancel it and start a new payment for <strong>{conflictingBundle.name}</strong>?
               </p>
             </div>
 
@@ -504,9 +496,9 @@ export default function BundlePage() {
                   setIsConflictModalOpen(false)
                   setIsPendingModalOpen(true)
                 }}
-                className="w-full text-sm font-bold shadow-lg shadow-amber-500/20 py-3"
+                className="w-full text-sm font-bold shadow-lg py-3"
               >
-                Tiếp Tục Thanh Toán Đơn Cũ (#{pendingOrder.payosOrderCode})
+                Continue previous order (#{pendingOrder.payosOrderCode})
               </Button>
 
               <Button
@@ -515,9 +507,9 @@ export default function BundlePage() {
                 icon="swap_horiz"
                 loading={isCancellingOldOrder}
                 onClick={handleCancelOldAndProceedNew}
-                className="w-full text-sm font-bold border border-rose-500/40 text-rose-300 hover:bg-rose-500/10 py-3"
+                className="w-full text-sm font-bold border border-error/40 text-error hover:bg-error/10 py-3"
               >
-                Hủy Đơn Cũ & Mua Gói Mới ({conflictingBundle.name})
+                Cancel it and buy the new pack ({conflictingBundle.name})
               </Button>
             </div>
           </div>

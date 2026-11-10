@@ -55,7 +55,7 @@ export default function ShopPage() {
   } = useShopCatalog({
     ownedProductIds,
     onPurchaseSuccess: async product => {
-      notify(`Chúc mừng! Bạn đã sở hữu "${product.name}".`, { type: 'success' })
+      notify(`You now own “${product.name}”.`, { type: 'success' })
       await Promise.all([refreshWallet(), refreshInventory()])
     },
   })
@@ -78,23 +78,23 @@ export default function ShopPage() {
   // Equip handler for owned items
   const handleEquipProduct = async product => {
     if (!isLoggedIn) {
-      notify('Vui lòng đăng nhập để thực hiện thao tác này.', { type: 'info' })
+      notify('Sign in to do this.', { type: 'info' })
       navigate(paths.auth)
       return
     }
     try {
       await equipItem(product.id)
       await refreshInventory()
-      notify(`Đã trang bị "${product.name}".`, { type: 'success' })
+      notify(`Equipped “${product.name}”.`, { type: 'success' })
     } catch (err) {
-      notify(err.message || 'Không thể trang bị vật phẩm', { type: 'error' })
+      notify(err.message || 'Couldn’t equip the item', { type: 'error' })
     }
   }
 
   // Buy click handler: Redirect guest to login
   const handleBuyProduct = product => {
     if (!isLoggedIn) {
-      notify('Vui lòng đăng nhập để mua vật phẩm này.', { type: 'info' })
+      notify('Sign in to buy this item.', { type: 'info' })
       navigate(paths.auth)
       return
     }
@@ -108,7 +108,7 @@ export default function ShopPage() {
       await purchaseProduct(purchaseModalProduct)
       setPurchaseModalProduct(null)
     } catch (err) {
-      notify(err.message || 'Giao dịch mua vật phẩm thất bại', { type: 'error' })
+      notify(err.message || 'Purchase failed', { type: 'error' })
     }
   }
 
@@ -127,16 +127,13 @@ export default function ShopPage() {
 
   return (
     <div className={styles.pageWrapper}>
-      {/* Background ambient lighting */}
-      <div className={styles.ambientGlowPrimary} />
-      <div className={styles.ambientGlowSecondary} />
 
       {/* Fluid Widescreen Container */}
       <div className={styles.container}>
         {/* Top Bar: VIP Coin Balance / Guest Sign-in */}
         <div className={styles.topBar}>
           <div className={styles.pageHeading}>
-            <h1 className={styles.pageTitle}>Cửa Hàng Vật Phẩm & Skin</h1>
+            <h1 className={styles.pageTitle}>Shop</h1>
           </div>
 
           <div className={styles.topBarActions}>
@@ -146,7 +143,7 @@ export default function ShopPage() {
                 <div
                   className={styles.vipCoinPill}
                   onClick={() => handleSelectCategory('MY_WALLET')}
-                  title="Nhấn để xem chi tiết ví và lịch sử biến động số dư"
+                  title="Open wallet and balance history"
                   role="button"
                   tabIndex={0}
                 >
@@ -154,7 +151,7 @@ export default function ShopPage() {
                     <Icon name="paid" />
                   </span>
                   <div className={styles.coinTextCol}>
-                    <span className={styles.coinLabel}>Số dư VIP Coin (Xem ví)</span>
+                    <span className={styles.coinLabel}>VIP Coin balance</span>
                     <span className={styles.coinValue}>{formatVipCoin(vipCoin)}</span>
                   </div>
                 </div>
@@ -166,14 +163,14 @@ export default function ShopPage() {
                   icon="add_circle"
                   onClick={() => navigate('/shop/bundles')}
                 >
-                  Nạp VIP Coin
+                  Top up VIP Coin
                 </Button>
               </>
             ) : (
               <div className="flex items-center gap-2">
                 <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-white/70">
-                  <Icon name="visibility" className="text-sm text-amber-400" />
-                  <span>Chế độ xem khách</span>
+                  <Icon name="visibility" className="text-sm text-tertiary" />
+                  <span>Guest view</span>
                 </span>
                 <Button
                   variant="gold"
@@ -181,7 +178,7 @@ export default function ShopPage() {
                   icon="login"
                   onClick={() => navigate(paths.auth)}
                 >
-                  Đăng nhập
+                  Sign in
                 </Button>
               </div>
             )}
@@ -204,14 +201,14 @@ export default function ShopPage() {
             {activeCategory === 'MY_INVENTORY' ? (
               !isLoggedIn ? (
                 <div className="flex flex-col items-center justify-center py-20 px-4 text-center rounded-3xl bg-white/[0.02] border border-white/10 shadow-2xl my-4">
-                  <div className="w-16 h-16 rounded-2xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 mb-4 shadow-lg shadow-amber-400/10">
+                  <div className="w-16 h-16 rounded-2xl bg-tertiary/10 border border-tertiary/30 flex items-center justify-center text-tertiary mb-4 shadow-lg shadow-tertiary/10">
                     <Icon name="lock" className="text-3xl" />
                   </div>
                   <h3 className="font-headline font-bold text-2xl text-white mb-2">
-                    Túi Đồ Trang Trí Cá Nhân
+                    Your inventory
                   </h3>
                   <p className="text-sm text-white/60 max-w-md mb-6 leading-relaxed">
-                    Bạn đang ở chế độ xem khách. Vui lòng đăng nhập tài khoản để quản lý, xem lịch sử và kích hoạt trang bị các mặt bài, bàn chơi và avatar của bạn.
+                    You’re browsing as a guest. Sign in to manage and equip your card skins, tables and avatars.
                   </p>
                   <Button
                     variant="gold"
@@ -219,7 +216,7 @@ export default function ShopPage() {
                     icon="login"
                     onClick={() => navigate(paths.auth)}
                   >
-                    Đăng Nhập Ngay
+                    Sign in
                   </Button>
                 </div>
               ) : (
@@ -227,10 +224,10 @@ export default function ShopPage() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                     <div>
                       <h3 className="font-headline font-bold text-xl text-white">
-                        Túi Đồ Trang Trí Của Bạn
+                        Your inventory
                       </h3>
                       <p className="text-xs text-white/60">
-                        Quản lý và kích hoạt sử dụng các skin bài tây, dealer, đồng xu và bàn chơi của bạn.
+                        Manage and equip your card skins, dealers, coins and tables.
                       </p>
                     </div>
 
@@ -239,35 +236,34 @@ export default function ShopPage() {
                       onClick={() => refreshInventory()}
                       className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 text-xs font-semibold hover:bg-white/10 transition-colors border border-white/10 self-start sm:self-auto text-white/80 hover:text-white"
                     >
-                      <Icon name="refresh" className="text-sm" /> Làm mới túi đồ
+                      <Icon name="refresh" className="text-sm" /> Refresh inventory
                     </button>
                   </div>
 
                   {/* Banner thông báo các vật phẩm trong kho đang tạm ngưng phục vụ */}
                   {inventoryItems.some(i => i.productStatus === 'MAINTAIN' || i.isDeleting) && (
-                    <div className="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-start gap-3.5 mb-6 text-amber-200 shadow-xl">
-                      <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30 shadow-md">
+                    <div className="p-4 rounded-2xl bg-tertiary/15 border border-tertiary/30 flex items-start gap-3.5 mb-6 text-tertiary-fixed shadow-xl">
+                      <div className="w-10 h-10 rounded-xl bg-tertiary/20 text-tertiary flex items-center justify-center shrink-0 border border-tertiary/30 shadow-md">
                         <Icon name="pause_circle" className="text-xl" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <h4 className="font-headline font-bold text-sm text-white">
-                            Thông Báo Vật Phẩm Tạm Ngưng Phục Vụ
+                            Suspended items
                           </h4>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-slate-950 uppercase tracking-wider">
-                            Tạm Khóa Trang Bị
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-tertiary text-on-tertiary uppercase tracking-wider">
+                            Can’t be equipped
                           </span>
                         </div>
-                        <p className="text-xs text-amber-200/90 leading-relaxed">
-                          Vật phẩm sau trong túi đồ của bạn hiện đang tạm ngưng phục vụ để cập nhật hoặc nâng cấp hệ thống:
+                        <p className="text-xs text-tertiary-fixed/90 leading-relaxed">
+                          These items in your inventory are suspended for maintenance:
                           {' '}
                           <strong className="text-white underline font-semibold">
                             {inventoryItems
                               .filter(i => i.productStatus === 'MAINTAIN' || i.isDeleting)
                               .map(i => i.productName)
                               .join(', ')}
-                          </strong>.
-                          Bạn vẫn được bảo lưu 100% quyền sở hữu trong kho đồ, nhưng tạm thời không thể kích hoạt trang bị cho đến khi mở lại!
+                          </strong>. You still own them, but they can’t be equipped until they’re back.
                         </p>
                       </div>
                     </div>
@@ -300,16 +296,16 @@ export default function ShopPage() {
                 <div className={styles.sectionHeader}>
                   <h3 className={styles.sectionTitle}>
                     <Icon name="storefront" className={styles.titleIcon} />
-                    <span>Danh Mục Sản Phẩm</span>
+                    <span>Products</span>
                   </h3>
-                  <span className={styles.itemCount}>{products.length} vật phẩm</span>
+                  <span className={styles.itemCount}>{products.length} items</span>
                 </div>
 
                 {/* Products Grid */}
                 {catalogLoading ? (
                   <div className={styles.loadingState}>
                     <span className={styles.spinner} />
-                    <span className={styles.loadingText}>Đang nạp dữ liệu từ máy chủ...</span>
+                    <span className={styles.loadingText}>Loading…</span>
                   </div>
                 ) : catalogError ? (
                   <div className={styles.errorState}>
@@ -319,12 +315,12 @@ export default function ShopPage() {
                       onClick={() => refreshCatalog()}
                       className="mt-3 px-4 py-1.5 rounded-lg bg-white/10 text-xs font-bold text-white hover:bg-white/20"
                     >
-                      Thử lại
+                      Try again
                     </button>
                   </div>
                 ) : products.length === 0 ? (
                   <div className={styles.emptyState}>
-                    <p>Không tìm thấy vật phẩm nào trong mục này.</p>
+                    <p>No items in this category.</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -351,7 +347,7 @@ export default function ShopPage() {
                           className="flex items-center gap-1 px-3.5 py-2 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xs font-bold"
                         >
                           <Icon name="chevron_left" className="text-base" />
-                          <span>Trước</span>
+                          <span>Previous</span>
                         </button>
                         <span className="text-xs text-white/60 px-3">
                           Trang <strong className="text-white font-bold">{page + 1}</strong> / {totalPages}

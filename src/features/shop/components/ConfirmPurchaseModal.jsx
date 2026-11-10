@@ -23,15 +23,11 @@ export default function ConfirmPurchaseModal({
   const tierInfo = getTierBadge(product.tier)
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/75 backdrop-blur-md animate-fade-in">
       <div
-        className="relative w-full max-w-md rounded-3xl bg-surface-container-low border border-outline-variant/40 p-6 shadow-2xl overflow-hidden"
+        className="relative w-full max-w-md rounded-2xl bg-surface-container-low border border-outline-variant/40 p-6 shadow-raised overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
-        {/* Glow ambient background */}
-        <div className="absolute -top-24 -right-24 w-60 h-60 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-tertiary/15 rounded-full blur-3xl pointer-events-none" />
-
         {/* Modal Header */}
         <div className="flex items-center justify-between pb-4 border-b border-outline-variant/30">
           <div className="flex items-center gap-2">
@@ -39,7 +35,7 @@ export default function ConfirmPurchaseModal({
               <Icon name="shopping_cart_checkout" className="text-lg" />
             </span>
             <h3 className="font-headline font-bold text-base text-on-surface">
-              Xác Nhận Mua Vật Phẩm
+              Confirm purchase
             </h3>
           </div>
           <button
@@ -66,7 +62,7 @@ export default function ConfirmPurchaseModal({
           </div>
           <div className="flex flex-col gap-1 min-w-0">
             <span
-              className={`w-fit px-2 py-0.2 rounded-full text-[9px] font-black uppercase tracking-wider ${tierInfo.className}`}
+              className={`w-fit px-2 py-0.2 rounded-full text-[11px] font-bold ${tierInfo.className}`}
             >
               {tierInfo.label}
             </span>
@@ -74,7 +70,7 @@ export default function ConfirmPurchaseModal({
               {product.name}
             </h4>
             <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-on-surface-variant">Giá:</span>
+              <span className="text-on-surface-variant">Price:</span>
               <span className="font-mono font-bold text-tertiary flex items-center gap-1">
                 <Icon name="paid" className="text-xs" /> {formatVipCoin(price)} VIP Coin
               </span>
@@ -85,40 +81,39 @@ export default function ConfirmPurchaseModal({
         {/* Balance Breakdown */}
         <div className="space-y-2.5 p-4 rounded-2xl bg-surface-container-lowest/80 border border-outline-variant/20 text-xs">
           <div className="flex justify-between items-center text-on-surface-variant">
-            <span>Số dư VIP Coin hiện tại:</span>
+            <span>Current VIP Coin balance:</span>
             <span className="font-mono font-semibold text-on-surface">
               {formatVipCoin(currentVipCoin)}
             </span>
           </div>
 
           <div className="flex justify-between items-center text-on-surface-variant">
-            <span>Chi phí thanh toán:</span>
+            <span>Cost:</span>
             <span className="font-mono font-semibold text-tertiary">
               - {formatVipCoin(price)}
             </span>
           </div>
 
           <div className="border-t border-outline-variant/30 pt-2 flex justify-between items-center font-bold">
-            <span className="text-on-surface">Số dư sau giao dịch:</span>
+            <span className="text-on-surface">Balance after purchase:</span>
             <span
               className={`font-mono text-sm ${
-                hasSufficient ? 'text-emerald-400' : 'text-rose-400'
+                hasSufficient ? 'text-success' : 'text-error'
               }`}
             >
-              {hasSufficient ? formatVipCoin(remaining) : 'Không đủ xu'}
+              {hasSufficient ? formatVipCoin(remaining) : 'Not enough coins'}
             </span>
           </div>
         </div>
 
         {/* Insufficient Balance Notice */}
         {!hasSufficient && (
-          <div className="mt-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-2.5 text-xs text-rose-300">
-            <Icon name="error" className="text-base text-rose-400 shrink-0 mt-0.5" />
+          <div className="mt-4 p-3 rounded-xl bg-error/10 border border-error/30 flex items-start gap-2.5 text-xs text-error">
+            <Icon name="error" className="text-base text-error shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold">Số dư VIP Coin không đủ</p>
-              <p className="text-rose-300/80 mt-0.5">
-                Bạn còn thiếu <strong>{formatVipCoin(deficit)} VIP Coin</strong>. Hãy nạp thêm gói xu
-                để tiếp tục mua sắm.
+              <p className="font-bold">Not enough VIP Coin</p>
+              <p className="text-error/80 mt-0.5">
+                You need <strong>{formatVipCoin(deficit)} VIP Coin</strong> more. Top up to keep shopping.
               </p>
             </div>
           </div>
@@ -132,7 +127,7 @@ export default function ConfirmPurchaseModal({
             disabled={isPurchasing}
             onClick={onClose}
           >
-            Đóng
+            Close
           </Button>
 
           {hasSufficient ? (
@@ -143,7 +138,7 @@ export default function ConfirmPurchaseModal({
               loading={isPurchasing}
               onClick={onConfirm}
             >
-              Xác Nhận Mua
+              Buy
             </Button>
           ) : (
             <Button
@@ -155,7 +150,7 @@ export default function ConfirmPurchaseModal({
                 navigate('/shop/bundles')
               }}
             >
-              Nạp VIP Coin Ngay
+              Top up VIP Coin
             </Button>
           )}
         </div>

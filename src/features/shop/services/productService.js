@@ -23,7 +23,7 @@ export async function getProducts({
   return gatewayRequest(`/api/shop/products?${params.toString()}`, {
     signal,
     auth: false,
-    errorMessage: 'Không thể tải danh sách sản phẩm',
+    errorMessage: 'Couldn’t load products',
   })
 }
 
@@ -31,7 +31,7 @@ export async function getCategories({ signal } = {}) {
   return gatewayRequest('/api/shop/categories', {
     signal,
     auth: false,
-    errorMessage: 'Không thể tải danh mục sản phẩm',
+    errorMessage: 'Couldn’t load categories',
   })
 }
 
@@ -39,7 +39,7 @@ export async function getProductDetail(productId, { signal } = {}) {
   return gatewayRequest(`/api/shop/products/${productId}`, {
     signal,
     auth: false,
-    errorMessage: 'Không thể tải thông tin sản phẩm',
+    errorMessage: 'Couldn’t load the product',
   })
 }
 
@@ -50,6 +50,6 @@ export async function getProductDetail(productId, { signal } = {}) {
 export async function purchaseProduct(productId) {
   return gatewayRequest(`/api/shop/products/${productId}/purchase`, {
     method: 'POST',
-    errorMessage: 'Giao dịch mua vật phẩm không thành công',
+    errorMessage: 'Purchase failed',
   })
 }

@@ -16,7 +16,7 @@ export default function InventoryGrid({
     return (
       <div className="w-full py-16 flex flex-col items-center justify-center gap-3">
         <span className="w-8 h-8 border-3 border-tertiary border-t-transparent rounded-full animate-spin" />
-        <span className="text-sm text-on-surface-variant font-medium">Đang tải túi đồ của bạn...</span>
+        <span className="text-sm text-on-surface-variant font-medium">Loading your inventory…</span>
       </div>
     )
   }
@@ -28,11 +28,10 @@ export default function InventoryGrid({
           <Icon name="inventory_2" className="text-3xl" />
         </div>
         <h4 className="font-headline font-bold text-lg text-on-surface mb-1">
-          Túi đồ của bạn đang trống
+          Your inventory is empty
         </h4>
         <p className="text-sm text-on-surface-variant max-w-md">
-          Bạn chưa sở hữu vật phẩm trang trí nào. Hãy duyệt qua danh mục Shop để sắm ngay những skin
-          lá bài và bàn chơi độc đáo nhất!
+          You don’t own any cosmetics yet. Browse the shop for card skins and tables.
         </p>
       </div>
     )
@@ -58,29 +57,29 @@ export default function InventoryGrid({
             <div className="flex items-center justify-between gap-2 mb-3">
               <span className="flex items-center gap-1 text-[11px] font-bold text-on-surface-variant px-2 py-0.5 rounded-lg bg-surface-container-highest">
                 <Icon name={getCategoryIcon(item.categoryCode)} className="text-xs" />
-                {item.categoryName || 'Vật phẩm'}
+                {item.categoryName || 'Item'}
               </span>
 
               <div className="flex items-center gap-1.5 flex-wrap justify-end">
                 {item.isDeleting ? (
                   <span
-                    className="flex items-center gap-1 text-rose-300 text-[10px] font-bold bg-rose-500/20 px-2 py-0.5 rounded-full border border-rose-500/30 animate-pulse"
-                    title={item.deletionNotice || 'Sản phẩm sắp bị xóa và sẽ tự động hoàn 100% xu vào ví'}
+                    className="flex items-center gap-1 text-error text-[10px] font-bold bg-error/20 px-2 py-0.5 rounded-full border border-error/30 animate-pulse"
+                    title={item.deletionNotice || 'This item is being removed; 100% of its coins will be refunded to your wallet'}
                   >
-                    <Icon name="timer" className="text-xs text-rose-400" /> Sắp xóa (Tự hoàn xu)
+                    <Icon name="timer" className="text-xs text-error" /> Being removed (auto refund)
                   </span>
                 ) : item.productStatus === 'MAINTAIN' ? (
                   <span
-                    className="flex items-center gap-1 text-amber-300 text-[10px] font-bold bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/30"
-                    title="Vật phẩm đang tạm ngưng phục vụ"
+                    className="flex items-center gap-1 text-tertiary-fixed text-[10px] font-bold bg-tertiary/20 px-2 py-0.5 rounded-full border border-tertiary/30"
+                    title="This item is suspended"
                   >
-                    <Icon name="pause_circle" className="text-xs text-amber-400" /> Tạm ngưng
+                    <Icon name="pause_circle" className="text-xs text-tertiary" /> Suspended
                   </span>
                 ) : null}
 
                 {isEquipped && (
                   <span className="flex items-center gap-1 text-tertiary text-xs font-black bg-tertiary/10 px-2 py-0.5 rounded-full border border-tertiary/30">
-                    <Icon name="check_circle" className="text-xs" /> Đang dùng
+                    <Icon name="check_circle" className="text-xs" /> In use
                   </span>
                 )}
               </div>
@@ -104,7 +103,7 @@ export default function InventoryGrid({
                 {item.productName}
               </h4>
               <span className="text-[10px] text-on-surface-variant uppercase tracking-wider font-semibold">
-                Nguồn: {item.source || 'PURCHASE'}
+                Source: {item.source || 'PURCHASE'}
               </span>
             </div>
 
@@ -121,7 +120,7 @@ export default function InventoryGrid({
                     onUnequip?.(item.productId)
                   }}
                 >
-                  Gỡ bỏ
+                  Unequip
                 </Button>
               ) : item.isDeleting ? (
                 <button
@@ -129,15 +128,15 @@ export default function InventoryGrid({
                   onClick={e => {
                     e.stopPropagation()
                     notify(
-                      `Vật phẩm "${item.productName}" đã được lên lịch xóa và đang chuẩn bị tự động hoàn tiền vào ví!`,
+                      `“${item.productName}” is scheduled for removal and will be refunded to your wallet.`,
                       { type: 'warning' }
                     )
                   }}
-                  className="px-3 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
-                  title="Sản phẩm đang được lên lịch xóa và tự động hoàn trả 100% xu vào ví"
+                  className="px-3 py-1.5 rounded-xl bg-error/15 hover:bg-error/25 border border-error/30 text-error text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
+                  title="Scheduled for removal; 100% of its coins will be refunded to your wallet"
                 >
-                  <Icon name="timer" className="text-xs text-rose-400 animate-pulse" />
-                  <span>Sắp xóa (Tự hoàn xu)</span>
+                  <Icon name="timer" className="text-xs text-error animate-pulse" />
+                  <span>Being removed (auto refund)</span>
                 </button>
               ) : item.productStatus === 'MAINTAIN' ? (
                 <button
@@ -145,15 +144,15 @@ export default function InventoryGrid({
                   onClick={e => {
                     e.stopPropagation()
                     notify(
-                      `Vật phẩm "${item.productName}" hiện đang tạm ngưng phục vụ, tạm thời không thể kích hoạt trang bị!`,
+                      `“${item.productName}” is suspended and can’t be equipped right now.`,
                       { type: 'warning' }
                     )
                   }}
-                  className="px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
-                  title="Vật phẩm đang tạm ngưng phục vụ, tạm thời không thể trang bị"
+                  className="px-3 py-1.5 rounded-xl bg-tertiary/15 hover:bg-tertiary/25 border border-tertiary/30 text-tertiary-fixed text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
+                  title="This item is suspended and can’t be equipped right now"
                 >
-                  <Icon name="pause_circle" className="text-xs text-amber-400" />
-                  <span>Tạm khóa (Tạm ngưng)</span>
+                  <Icon name="pause_circle" className="text-xs text-tertiary" />
+                  <span>Locked (suspended)</span>
                 </button>
               ) : (
                 <Button
@@ -166,7 +165,7 @@ export default function InventoryGrid({
                     onEquip?.(item.productId)
                   }}
                 >
-                  Trang bị
+                  Equip
                 </Button>
               )}
             </div>

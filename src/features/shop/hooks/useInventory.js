@@ -34,7 +34,7 @@ export function useInventory() {
       } catch (err) {
         if (!disposed) {
           setItems([])
-          setError(err.status === 401 ? 'UNAUTHORIZED' : (err.message || 'Không thể tải túi đồ'))
+          setError(err.status === 401 ? 'UNAUTHORIZED' : (err.message || 'Couldn’t load inventory'))
           setLoading(false)
         }
       }
