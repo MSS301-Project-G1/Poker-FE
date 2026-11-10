@@ -53,27 +53,27 @@ function TutorialSession({ devUser, user }) {
     setDone(null)
     setIndex(0)
   }
-  const rewardNote = status && (status.completed ? 'ĐÃ NHẬN THƯỞNG' : `THƯỞNG ${status.rewardCoins.toLocaleString()} XU`)
+  const rewardNote = status && (status.completed ? 'REWARD CLAIMED' : `REWARD ${status.rewardCoins.toLocaleString()} COINS`)
 
   return <div className={styles.page}>
     <header className={styles.header}>
       <Link to={paths.lobby} className={styles.brand}><span>♠</span> POKER<span>RANK</span></Link>
       <nav className={styles.headerNav}><HandGuide />
-        <Button className={styles.compactButton} onClick={() => navigate(paths.lobby)}>Thoát</Button></nav>
+        <Button className={styles.compactButton} onClick={() => navigate(paths.lobby)}>Exit</Button></nav>
     </header>
     <main className={styles.arena}>
       <div className={styles.infoBar}>
-        <div className={styles.tableName}><strong>BÀN TẬP</strong><span className={styles.tag}>HƯỚNG DẪN</span><span className={styles.muted}>NO LIMIT HOLD’EM</span></div>
+        <div className={styles.tableName}><strong>PRACTICE TABLE</strong><span className={styles.tag}>TUTORIAL</span><span className={styles.muted}>NO LIMIT HOLD’EM</span></div>
         <div className={styles.tableMeta}>
           {rewardNote && <span className={styles.pill}><Icon name="toll" />{rewardNote}</span>}
-          <span className={styles.pill}><Icon name="history" /> VÁN SỐ #{step.dealer === YOU ? 1 : 2}</span>
+          <span className={styles.pill}><Icon name="history" /> HAND #{step.dealer === YOU ? 1 : 2}</span>
         </div>
       </div>
       <TutorialTable step={step} accountId={accountId} profile={user?.profile} glow={Boolean(step.expect)} />
       <div className={styles.bottom}>
         <CoachPanel step={step} index={index} total={steps.length} busy={busy} error={error} onContinue={step.final ? finish : advance} />
         <div className={styles.dockSlot}>
-          <p className={styles.turnCaption} role="status">{step.expect ? 'Đến lượt bạn. Làm theo hướng dẫn.' : 'Đọc hướng dẫn rồi bấm Tiếp tục.'}</p>
+          <p className={styles.turnCaption} role="status">{step.expect ? 'Your turn. Follow the guide.' : 'Read the guide, then press Continue.'}</p>
           {/* Only the action the step teaches is legal; keyed by step so the raise slider starts fresh. */}
           <ActionDock key={index} legalActions={step.expect ? [step.expect] : []} callAmount={step.dock?.callAmount ?? 0}
             minRaiseTo={step.dock?.minRaiseTo ?? 0} maxRaiseTo={step.dock?.maxRaiseTo ?? 0} pot={step.pot}
@@ -81,7 +81,7 @@ function TutorialSession({ devUser, user }) {
         </div>
       </div>
     </main>
-    <footer className={styles.footer}><span>NO-LIMIT TEXAS HOLD’EM</span><span>Chip ở bàn tập không phải xu thật.</span></footer>
+    <footer className={styles.footer}><span>NO-LIMIT TEXAS HOLD’EM</span><span>Practice chips aren’t real coins.</span></footer>
     {done && <CompleteDialog rewarded={done.rewarded} coins={done.coins} onReplay={replay}
       onLobby={() => navigate(paths.lobby)} onRanked={() => navigate(paths.ranked)} />}
   </div>

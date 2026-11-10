@@ -8,16 +8,15 @@ export default function CompleteDialog({ rewarded, coins, onRanked, onLobby, onR
   return <div className={styles.backdrop}><section className={styles.dialog} role="dialog" aria-modal="true" aria-labelledby="complete-title">
     <VictoryEffect>
       <div className={styles.emblem} aria-hidden="true"><Icon name="school" filled /></div>
-      <p className={styles.eyebrow}>HOÀN THÀNH HƯỚNG DẪN</p>
-      <h1 id="complete-title" className={styles.title}>Bạn đã sẵn sàng ngồi bàn thật.</h1>
+      <h1 id="complete-title" className={styles.title}>You’re ready for a real table.</h1>
     </VictoryEffect>
-    <p className={styles.reward}>{rewarded === false ? 'Bạn đã nhận thưởng hướng dẫn trước đó, lần này không cộng thêm xu.'
-      : rewarded ? <><Icon name="toll" />+{coins.toLocaleString()} xu đang được cộng vào ví của bạn.</>
-        : `Thưởng hướng dẫn ${coins.toLocaleString()} xu được trả một lần cho mỗi tài khoản.`}</p>
+    <p className={styles.reward}>{rewarded === false ? 'You already claimed the tutorial reward, so no coins this time.'
+      : rewarded ? <><Icon name="toll" />+{coins.toLocaleString()} coins are being added to your wallet.</>
+        : `The ${coins.toLocaleString()}-coin tutorial reward is paid once per account.`}</p>
     <div className={styles.actions}>
-      <Button onClick={onReplay}>Chơi lại</Button>
-      <Button onClick={onLobby}>Về sảnh</Button>
-      <Button variant="primary" autoFocus onClick={onRanked}>Chơi Rank</Button>
+      <Button onClick={onReplay}>Play again</Button>
+      <Button onClick={onLobby}>Back to lobby</Button>
+      <Button variant="primary" autoFocus onClick={onRanked}>Play ranked</Button>
     </div>
   </section></div>
 }
