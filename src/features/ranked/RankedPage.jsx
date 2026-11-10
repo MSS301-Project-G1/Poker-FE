@@ -33,7 +33,7 @@ export default function RankedPage() {
     if (party) { lastParty.current = party.partyId; return }
     if (lastParty.current) {
       lastParty.current = null
-      notify('Nhóm đã giải tán hoặc bạn không còn là thành viên. Đã trở về lobby.')
+      notify('The party was disbanded or you’re no longer a member. You’re back in the lobby.')
       navigate(paths.lobby, { replace: true })
     }
   }, [mode, party, partyState.loading, partyState.error, notify, navigate])
@@ -66,32 +66,31 @@ export default function RankedPage() {
   }
   if (['PROPOSED', 'CREATING_TABLE'].includes(status) && queue?.proposalId) return <ProposalTable key={queue.proposalId} queue={queue} user={user} current={current} state={state} remaining={remaining} mode={mode} />
   return <div className={styles.page}>
-    <section className={styles.panel} aria-label="Chuẩn bị trận đấu">
+    <section className={styles.panel} aria-label="Match setup">
       <header className={styles.header}>
-        <div className={styles.heading}><span className={styles.emblem}><Icon name={isParty ? 'groups' : 'military_tech'} /></span><div><p className={styles.eyebrow}>{isParty ? 'PARTY · NORMAL' : mode === 'RANK' ? 'RANK' : 'NORMAL'} · {max}-MAX NO-LIMIT HOLD’EM</p><h1>{isParty ? 'Phòng nhóm' : mode === 'RANK' ? 'Ranked Match' : 'Normal Match'}</h1></div></div>
-        <div className={styles.mode}>{isParty ? 'PARTY · CHƠI THƯỜNG' : mode === 'RANK' ? 'RANK · SOLO' : 'NORMAL · SOLO'}</div>
+        <div className={styles.heading}><span className={styles.emblem}><Icon name={isParty ? 'groups' : 'military_tech'} /></span><div><h1>{isParty ? 'Party room' : mode === 'RANK' ? 'Ranked' : 'Casual'}</h1><p className={styles.meta}>{isParty ? 'Casual with your party' : 'Solo'} · {max} players · No-Limit Hold’em</p></div></div>
       </header>
       <div className={styles.main}>
-        <MatchRadar elapsed={clock(status === 'COUNTDOWN' && remaining != null ? remaining : elapsed)} title={status === 'COUNTDOWN' ? 'CHỜ THÊM NGƯỜI CHƠI' : preparing ? isParty ? 'CHỜ BẠN BÈ VÀO NHÓM' : 'READY TO SEARCH' : 'SEARCHING TABLE'} active={!preparing} detail={status === 'COUNTDOWN' ? 'Hết giờ sẽ chuyển sang bàn xác nhận' : preparing && isParty ? 'Chia sẻ mã và mật khẩu. Trưởng nhóm bắt đầu tìm trận khi sẵn sàng.' : queue?.position != null ? `Vị trí trong hàng: #${queue.position}` : 'Trạng thái được cập nhật từ máy chủ'} />
+        <MatchRadar elapsed={clock(status === 'COUNTDOWN' && remaining != null ? remaining : elapsed)} title={status === 'COUNTDOWN' ? 'Waiting for more players' : preparing ? isParty ? 'Waiting for friends to join' : 'Ready to search' : 'Finding a table'} active={!preparing} detail={status === 'COUNTDOWN' ? 'When time is up, the table moves to confirmation' : preparing && isParty ? 'Share the code and password. The leader starts the search when everyone’s ready.' : queue?.position != null ? `Queue position: #${queue.position}` : 'Status updates from the server'} />
         <aside className={styles.side}>
-          {!isParty && <div className={styles.performance}><div className={styles.sectionTitle}><Icon name="hotel_class" /><h2>THÔNG TIN GHÉP TRẬN</h2></div>
-            <div className={styles.stats}><div><span>{preparing && isParty ? 'Thành viên nhóm' : 'Người đang chờ'}</span><strong>{count} / {max}</strong><i /></div><div><span>Tối thiểu mở bàn</span><strong>{queue?.minPlayers ?? '—'}</strong><i /></div></div>
-            <div className={styles.player}><Icon name="person" /><div><strong>{user?.profile?.displayName || user?.email || 'Bạn'}</strong><p>{mode === 'RANK' ? 'Ghép theo Elo · Cần xác nhận trận' : 'Chơi một mình hoặc cùng nhóm'}</p></div></div>
+          {!isParty && <div className={styles.performance}><div className={styles.sectionTitle}><Icon name="hotel_class" /><h2>Matchmaking</h2></div>
+            <div className={styles.stats}><div><span>{preparing && isParty ? 'Party members' : 'Waiting'}</span><strong>{count} / {max}</strong><i /></div><div><span>Minimum to start</span><strong>{queue?.minPlayers ?? '—'}</strong><i /></div></div>
+            <div className={styles.player}><Icon name="person" /><div><strong>{user?.profile?.displayName || user?.email || 'You'}</strong><p>{mode === 'RANK' ? 'Matched by Elo · Confirmation required' : 'Play solo or with your party'}</p></div></div>
           </div>}
           {isParty && <PartyPanel room />}
         </aside>
       </div>
       <div className={styles.gathering}>
-        <div className={styles.progress}><strong>{preparing && isParty ? 'THÀNH VIÊN NHÓM' : 'TABLE GATHERING PROGRESS'} <b>{count}/{max}</b></strong><span>{preparing ? isParty ? 'Sẵn sàng cùng nhóm tìm trận Normal' : 'Sẵn sàng tham gia hàng chờ' : 'Đang cập nhật tiến trình ghép trận…'}</span></div>
+        <div className={styles.progress}><strong>{preparing && isParty ? 'Party members' : 'Table progress'} <b>{count}/{max}</b></strong><span>{preparing ? isParty ? 'Ready to search Casual with your party' : 'Ready to join the queue' : 'Updating match progress…'}</span></div>
         <QueueRoster queue={roster} user={user} max={max} count={count} />
       </div>
       {current.error && <p className={styles.error} role="alert">{current.error}</p>}
       {partyState.error && <p className={styles.error} role="alert">{partyState.error}</p>}
-      <footer className={styles.footer}><span><Icon name="lock" /><span>{isParty ? canManageParty ? 'Trưởng nhóm bắt đầu và hủy tìm trận cho cả nhóm' : 'Chờ trưởng nhóm bắt đầu tìm trận' : 'Xác nhận và tạo bàn do máy chủ xử lý'}</span></span><div className={styles.actions}>
-        {idle && <><Button disabled={leaving} onClick={backToLobby}>Về lobby</Button><Button variant="primary" disabled={state.pending || !canManageParty || (mode === 'NORMAL' && (partyState.loading || Boolean(partyState.error))) || (isParty && !party)} onClick={() => state.start(mode)}>{isParty ? 'Tìm trận cùng nhóm' : 'Tìm trận'}</Button></>}
-        {['WAITING', 'COUNTDOWN'].includes(status) && <Button disabled={state.pending || !canManageParty || state.leaderOnly} onClick={cancel}>Hủy tìm trận</Button>}
-        {proposed && <><Button disabled={state.pending || remaining === 0} onClick={state.decline}>Từ chối</Button><Button variant="primary" disabled={state.pending || current.accepted || remaining === 0} onClick={state.accept}>{current.accepted ? 'Đã xác nhận' : 'Chấp nhận trận'}</Button></>}
-        {inMatch && <Button variant="primary" onClick={() => navigate(paths.tableById(queue.tableId))}>Quay lại bàn</Button>}
+      <footer className={styles.footer}><span><Icon name="lock" /><span>{isParty ? canManageParty ? 'The leader starts and cancels the search for the whole party' : 'Waiting for the leader to start the search' : 'The server handles confirmation and table creation'}</span></span><div className={styles.actions}>
+        {idle && <><Button disabled={leaving} onClick={backToLobby}>Back to lobby</Button><Button variant="primary" disabled={state.pending || !canManageParty || (mode === 'NORMAL' && (partyState.loading || Boolean(partyState.error))) || (isParty && !party)} onClick={() => state.start(mode)}>{isParty ? 'Find match with party' : 'Find match'}</Button></>}
+        {['WAITING', 'COUNTDOWN'].includes(status) && <Button disabled={state.pending || !canManageParty || state.leaderOnly} onClick={cancel}>Cancel search</Button>}
+        {proposed && <><Button disabled={state.pending || remaining === 0} onClick={state.decline}>Decline</Button><Button variant="primary" disabled={state.pending || current.accepted || remaining === 0} onClick={state.accept}>{current.accepted ? 'Confirmed' : 'Accept match'}</Button></>}
+        {inMatch && <Button variant="primary" onClick={() => navigate(paths.tableById(queue.tableId))}>Back to table</Button>}
       </div></footer>
     </section>
   </div>

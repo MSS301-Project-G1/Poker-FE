@@ -19,22 +19,22 @@ export default function ProposalTable({ queue, user, current, state, remaining, 
     })),
   }), [queue.proposalId, user.accountId, idsKey])
   const proposed = queue.status === 'PROPOSED'
-  return <section className={styles.scene} data-live-table aria-label="Xác nhận trận trên bàn 3D">
+  return <section className={styles.scene} data-live-table aria-label="Match confirmation on the 3D table">
     <LiveTableSurface snapshot={snapshot} onStatus={setRenderStatus} />
-    <header className={styles.header}>♠ POKER RANK <span>{mode === 'RANK' ? 'ĐẤU HẠNG' : 'CHƠI THƯỜNG'}</span></header>
+    <header className={styles.header}>Poker Rank <span>{mode === 'RANK' ? 'Ranked' : 'Casual'}</span></header>
     {snapshot.seats.map(seat => <div key={seat.accountId} data-seat={seat.seatIndex} className={styles.player}>
-      {seat.accountId === user.accountId ? `${user.profile?.displayName || 'Bạn'} (Bạn)` : profiles[seat.accountId]?.displayName || `Người chơi ${seat.accountId.slice(0, 6)}`}
+      {seat.accountId === user.accountId ? `${user.profile?.displayName || 'You'} (You)` : profiles[seat.accountId]?.displayName || `Player ${seat.accountId.slice(0, 6)}`}
     </div>)}
-    <div className={styles.prompt} role="region" aria-label="Xác nhận ghép trận">
-      <p>{snapshot.seats.length} NGƯỜI · ĐÃ TÌM THẤY BÀN</p>
-      <h1>{proposed ? 'Sẵn sàng vào trận?' : 'Đang chuẩn bị ván đấu…'}</h1>
-      {proposed && <p>Xác nhận trong <strong>{remaining ?? 0}s</strong></p>}
-      {current.accepted && <p>Đã xác nhận. Đang chờ người chơi còn lại.</p>}
+    <div className={styles.prompt} role="region" aria-label="Confirm match">
+      <p>{snapshot.seats.length} PLAYERS · TABLE FOUND</p>
+      <h1>{proposed ? 'Ready to play?' : 'Preparing the match…'}</h1>
+      {proposed && <p>Confirm within <strong>{remaining ?? 0}s</strong></p>}
+      {current.accepted && <p>Confirmed. Waiting for the other players.</p>}
       {current.error && <p role="alert">{current.error}</p>}
-      {renderStatus === 'unavailable' && <p>Không tải được bàn 3D. Bạn vẫn có thể xác nhận trận.</p>}
+      {renderStatus === 'unavailable' && <p>Couldn’t load the 3D table. You can still confirm the match.</p>}
       {proposed && <div className={styles.actions}>
-        <Button disabled={state.pending || remaining === 0} onClick={state.decline}>Từ chối</Button>
-        <Button variant="primary" disabled={state.pending || current.accepted || remaining === 0} onClick={state.accept}>{current.accepted ? 'Đã xác nhận' : 'Chấp nhận trận'}</Button>
+        <Button disabled={state.pending || remaining === 0} onClick={state.decline}>Decline</Button>
+        <Button variant="primary" disabled={state.pending || current.accepted || remaining === 0} onClick={state.accept}>{current.accepted ? 'Confirmed' : 'Accept match'}</Button>
       </div>}
     </div>
     <div className={styles.blackout} aria-hidden="true" />

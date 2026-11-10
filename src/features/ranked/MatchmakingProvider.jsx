@@ -95,10 +95,10 @@ function PlayerQueue({ accountId, children }) {
   }, [queueStatus, tableId, proposalId, play])
   useEffect(() => {
     if (queueStatus === 'PROPOSED') {
-      if (location.pathname !== paths.ranked && location.pathname !== paths.demo) navigate(mode === 'NORMAL' ? `${paths.ranked}?mode=NORMAL` : paths.ranked)
+      if (location.pathname !== paths.ranked) navigate(mode === 'NORMAL' ? `${paths.ranked}?mode=NORMAL` : paths.ranked)
     }
     if (queueStatus !== 'READY') openedTable.current = null
-    if (queueStatus === 'READY' && tableId && location.pathname !== paths.demo && openedTable.current !== tableId) {
+    if (queueStatus === 'READY' && tableId && openedTable.current !== tableId) {
       openedTable.current = tableId
       navigate(paths.tableById(tableId), { replace: true })
     }
