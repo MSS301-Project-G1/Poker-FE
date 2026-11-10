@@ -2,7 +2,6 @@
 export { Button } from './Button'
 export { ConfirmProvider, useConfirm } from './Confirm'
 export { Caption } from './Caption'
-export { Eyebrow } from './Eyebrow'
 export { Icon } from './Icon'
 export { PlaceholderScreen } from './PlaceholderScreen'
 export { ToastProvider, useToast } from './Toast'
