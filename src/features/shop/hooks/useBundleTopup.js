@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import * as paymentService from '../services/paymentService'
+import { canPayOrder, rememberPaymentOrder } from '../utils/paymentStatus'
 
 let cachedBundles = null
 
@@ -66,10 +67,16 @@ export function useBundleTopup() {
 
     try {
       const res = await paymentService.createBundleOrder(bundleId)
-      const checkoutUrl = res?.data?.checkoutUrl
+      const order = res?.data
+      rememberPaymentOrder(order)
+      const checkoutUrl = order?.checkoutUrl
 
-      if (checkoutUrl) {
+      if (!canPayOrder(order)) {
+        setOrderingBundleId(null)
+        return order
+      } else if (checkoutUrl) {
         window.location.href = checkoutUrl
+        return order
       } else {
         throw new Error('PayOS didn’t return a payment link')
       }
