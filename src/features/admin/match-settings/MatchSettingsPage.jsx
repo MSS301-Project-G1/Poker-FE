@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { paths } from '@/shared/config/paths'
 import { devIdentity } from '@/shared/lib/devIdentity'
-import { Button, Eyebrow } from '@/shared/ui'
+import { Button } from '@/shared/ui'
 import { fetchMatchSettings, updateMatchSettings } from './api/matchSettingsApi'
 import SettingsForm from './components/SettingsForm'
 import styles from './MatchSettingsPage.module.css'
@@ -25,7 +25,7 @@ export default function MatchSettingsPage() {
     return () => { disposed = true; abort.abort() }
   }, [version])
 
-  return <main className={styles.page}><header className={styles.header}><div><Eyebrow as="p">GAME ADMINISTRATION</Eyebrow><h1>Match settings</h1></div><Button variant="primary" onClick={() => navigate(paths.lobby)}>Back to lobby</Button></header>
+  return <main className={styles.page}><header className={styles.header}><div><h1>Match settings</h1></div><Button variant="primary" onClick={() => navigate(paths.lobby)}>Back to lobby</Button></header>
     <p className={styles.intro}>Configure the next match. Tables already running keep their original settings.</p>
     {error && <div role="alert" className={styles.error}>{error}<Button variant="primary" onClick={() => setVersion(value => value + 1)}>Retry</Button></div>}
     {!settings && !error && <p role="status">Loading match settings…</p>}

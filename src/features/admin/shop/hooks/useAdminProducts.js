@@ -47,7 +47,7 @@ export function useAdminProducts({ initialPage = 0, initialSize = 10 } = {}) {
       } catch (err) {
         if (!disposed) {
           console.error('Failed to load admin products:', err)
-          setError(err.message || 'Không thể tải dữ liệu quản trị sản phẩm')
+          setError(err.message || 'Couldn’t load products')
           setLoading(false)
         }
       }

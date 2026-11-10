@@ -17,7 +17,7 @@ export default function AdminLayout() {
       await logout()
       navigate(paths.auth, { replace: true })
     } catch (error) {
-      notify(error.message || 'Chưa đăng xuất được. Vui lòng thử lại.')
+      notify(error.message || 'Couldn’t sign out. Please try again.')
     } finally { setPending(false) }
   }
   return <div className="min-h-screen bg-surface-container-lowest text-on-surface font-body-md text-body-md flex flex-col md:flex-row selection:bg-primary selection:text-on-primary">

@@ -95,7 +95,7 @@ export default function ProductDeletionZoneModal({
     const activeItems = items.filter(p => p.status === 'ACTIVE')
     if (activeItems.length > 0) {
       notify(
-        `Vật phẩm "${activeItems[0].name}" đang Mở Bán (ACTIVE). Bạn cần chuyển sang Tạm Ngưng (Maintain) trước khi xóa!`,
+        `“${activeItems[0].name}” is on sale (ACTIVE). Suspend it (MAINTAIN) before deleting.`,
         { type: 'error' }
       )
       return
@@ -110,7 +110,7 @@ export default function ProductDeletionZoneModal({
     const activeItems = dragQueue.filter(p => p.status === 'ACTIVE')
     if (activeItems.length > 0) {
       notify(
-        `Vật phẩm "${activeItems[0].name}" đang Mở Bán (ACTIVE). Bạn cần chuyển sang Tạm Ngưng (Maintain) trước khi xóa!`,
+        `“${activeItems[0].name}” is on sale (ACTIVE). Suspend it (MAINTAIN) before deleting.`,
         { type: 'error' }
       )
       return
@@ -141,7 +141,7 @@ export default function ProductDeletionZoneModal({
 
     if (successCount > 0) {
       notify(
-        `Đã tiêu hủy vĩnh viễn ${successCount} sản phẩm và TỰ ĐỘNG hoàn 100% VIP Coin cho người chơi thành công!`,
+        `Deleted ${successCount} products and refunded 100% of the VIP Coin to their owners.`,
         { type: 'success' }
       )
       setSelectedIds(new Set())
@@ -149,28 +149,28 @@ export default function ProductDeletionZoneModal({
       onRefresh?.()
     }
     if (failCount > 0) {
-      notify(`Không thể xóa ${failCount} sản phẩm do phát sinh lỗi`, { type: 'error' })
+      notify(`${failCount} products couldn’t be deleted`, { type: 'error' })
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-xl animate-fade-in overflow-y-auto">
-      <div className="w-full max-w-5xl rounded-3xl bg-[#130726] border border-rose-500/30 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-obsidian/85 backdrop-blur-xl animate-fade-in overflow-y-auto">
+      <div className="w-full max-w-5xl rounded-2xl bg-surface-container-lowest border border-error/30 shadow-raised flex flex-col max-h-[92vh] overflow-hidden my-auto">
         {/* Modal Top Header */}
-        <div className="p-6 border-b border-white/10 bg-gradient-to-r from-rose-950/40 via-[#180931] to-[#120726] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="p-6 border-b border-white/10 bg-error-container/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <span className="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center shadow-lg shadow-rose-950/50 shrink-0">
+            <span className="w-12 h-12 rounded-2xl bg-error/20 text-error border border-error/30 flex items-center justify-center shadow-lg shrink-0">
               <Icon name="delete_sweep" className="text-2xl" />
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-500/30 text-rose-300 border border-rose-500/40">
-                  Khu Vực Tiêu Hủy
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-error/30 text-error border border-error/40">
+                  Delete list
                 </span>
-                <span className="text-xs text-white/50">• Xóa </span>
+                <span className="text-xs text-white/50">· Delete </span>
               </div>
-              <h2 className="font-headline font-black text-xl text-white mt-0.5">
-                Quản Trị Tiêu Hủy & Xóa Sản Phẩm
+              <h2 className="font-headline font-bold text-xl text-white mt-0.5">
+                Delete products
               </h2>
             </div>
           </div>
@@ -185,15 +185,15 @@ export default function ProductDeletionZoneModal({
         </div>
 
         {/* Notice Warning Box */}
-        <div className="px-6 py-3 bg-amber-500/10 border-b border-amber-500/20 flex items-center gap-2.5 text-xs text-amber-200/90">
-          <Icon name="warning" className="text-amber-400 text-base shrink-0" />
+        <div className="px-6 py-3 bg-tertiary/10 border-b border-tertiary/20 flex items-center gap-2.5 text-xs text-tertiary-fixed/90">
+          <Icon name="warning" className="text-tertiary text-base shrink-0" />
           <span>
-            <strong>Lưu ý quan trọng:</strong> Hành động Xóa sẽ xóa vĩnh viễn sản phẩm khỏi hệ thống. Nếu sản phẩm chỉ bị lỗi texture hoặc âm thanh, vui lòng dùng chức năng <strong>Tạm Ngưng Bán</strong> ở bảng ngoài để sửa chữa thay vì xóa.
+            <strong>Important:</strong> Deleting removes products permanently. If a product only has a texture or sound problem, use <strong>Suspend</strong> in the main table to fix it instead.
           </span>
         </div>
 
         {/* Toolbar & Mode Selection Bar */}
-        <div className="p-4 sm:px-6 bg-black/40 border-b border-white/10 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+        <div className="p-4 sm:px-6 bg-obsidian/40 border-b border-white/10 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
           {/* Search Bar */}
           <div className="relative flex-1 max-w-md">
             <Icon name="search" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-base" />
@@ -201,8 +201,8 @@ export default function ProductDeletionZoneModal({
               type="text"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              placeholder="Tìm theo tên sản phẩm, danh mục, tier..."
-              className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs text-white placeholder-white/30 focus:outline-none focus:border-rose-400"
+              placeholder="Search by name, category or tier…"
+              className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs text-white placeholder-white/30 focus:outline-none focus:border-error"
             />
             {searchTerm && (
               <button
@@ -216,18 +216,18 @@ export default function ProductDeletionZoneModal({
           </div>
 
           {/* 2 Option Mode Switcher as Requested */}
-          <div className="flex items-center gap-1.5 p-1 bg-black/60 rounded-2xl border border-white/10 shrink-0 self-start md:self-center">
+          <div className="flex items-center gap-1.5 p-1 bg-obsidian/60 rounded-2xl border border-white/10 shrink-0 self-start md:self-center">
             <button
               type="button"
               onClick={() => setMode('CLICK')}
               className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                 mode === 'CLICK'
-                  ? 'bg-rose-600 text-white font-black shadow-md shadow-rose-950'
+                  ? 'bg-error-container text-white font-bold shadow-md '
                   : 'text-white/60 hover:text-white hover:bg-white/5'
               }`}
             >
               <Icon name="checklist" className="text-sm" />
-              <span>Option 1: Click Chọn Để Xóa</span>
+              <span>Option 1: select to delete</span>
             </button>
 
             <button
@@ -235,12 +235,12 @@ export default function ProductDeletionZoneModal({
               onClick={() => setMode('DRAG')}
               className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                 mode === 'DRAG'
-                  ? 'bg-rose-600 text-white font-black shadow-md shadow-rose-950'
+                  ? 'bg-error-container text-white font-bold shadow-md '
                   : 'text-white/60 hover:text-white hover:bg-white/5'
               }`}
             >
               <Icon name="drag_indicator" className="text-sm" />
-              <span>Option 2: Kéo Thả Tiêu Hủy (Drag & Drop)</span>
+              <span>Option 2: drag and drop</span>
             </button>
           </div>
         </div>
@@ -253,12 +253,12 @@ export default function ProductDeletionZoneModal({
               <div className="flex items-center justify-between text-xs text-white/60 pb-1">
                 <div className="flex items-center gap-3">
                   <span>
-                    Tìm thấy <strong className="text-white font-bold">{filteredProducts.length}</strong> sản phẩm
+                    Found <strong className="text-white font-bold">{filteredProducts.length}</strong> products
                   </span>
                   <span>•</span>
                   <span>
-                    Đã chọn:{' '}
-                    <strong className={selectedIds.size > 0 ? 'text-rose-400 font-bold' : 'text-white/50'}>
+                    Selected:{' '}
+                    <strong className={selectedIds.size > 0 ? 'text-error font-bold' : 'text-white/50'}>
                       {selectedIds.size}
                     </strong>
                   </span>
@@ -270,7 +270,7 @@ export default function ProductDeletionZoneModal({
                     onClick={selectAll}
                     className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white text-[11px] font-semibold"
                   >
-                    Chọn Tất Cả
+                    Select all
                   </button>
                   <button
                     type="button"
@@ -278,7 +278,7 @@ export default function ProductDeletionZoneModal({
                     disabled={selectedIds.size === 0}
                     className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white text-[11px] font-semibold disabled:opacity-40"
                   >
-                    Bỏ Chọn
+                    Clear
                   </button>
                 </div>
               </div>
@@ -286,7 +286,7 @@ export default function ProductDeletionZoneModal({
               {filteredProducts.length === 0 ? (
                 <div className="py-20 text-center text-white/40 flex flex-col items-center justify-center gap-2">
                   <Icon name="search_off" className="text-3xl" />
-                  <span className="text-xs">Không tìm thấy sản phẩm nào phù hợp</span>
+                  <span className="text-xs">No matching products</span>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -300,23 +300,23 @@ export default function ProductDeletionZoneModal({
                         onClick={() => toggleSelect(product.id)}
                         className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center gap-3 select-none relative group ${
                           isSelected
-                            ? 'bg-rose-500/15 border-rose-500/80 shadow-lg shadow-rose-950/40 ring-1 ring-rose-500/50'
-                            : 'bg-black/40 border-white/10 hover:border-white/25 hover:bg-white/5'
+                            ? 'bg-error/15 border-error/80 shadow-lg ring-1 ring-error/50'
+                            : 'bg-obsidian/40 border-white/10 hover:border-white/25 hover:bg-white/5'
                         }`}
                       >
                         {/* Checkbox indicator */}
                         <div
                           className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border transition-all ${
                             isSelected
-                              ? 'bg-rose-500 border-rose-400 text-white shadow-sm'
+                              ? 'bg-error-container border-error text-white shadow-sm'
                               : 'border-white/20 bg-white/5 group-hover:border-white/40'
                           }`}
                         >
-                          {isSelected && <Icon name="check" className="text-sm font-black" />}
+                          {isSelected && <Icon name="check" className="text-sm font-bold" />}
                         </div>
 
                         {/* Product Image */}
-                        <div className="w-12 h-12 rounded-xl bg-black/60 border border-white/10 p-1 flex items-center justify-center shrink-0 overflow-hidden">
+                        <div className="w-12 h-12 rounded-xl bg-obsidian/60 border border-white/10 p-1 flex items-center justify-center shrink-0 overflow-hidden">
                           {product.previewUrl || product.assetUrl ? (
                             <img
                               src={product.previewUrl || product.assetUrl}
@@ -335,20 +335,20 @@ export default function ProductDeletionZoneModal({
                         <div className="min-w-0 flex-1">
                           <h4 className="font-bold text-xs text-white truncate">{product.name}</h4>
                           <div className="flex items-center gap-1.5 mt-1">
-                            <span className="text-[10px] text-amber-400 font-mono font-bold">
+                            <span className="text-[11px] text-tertiary font-mono font-bold">
                               {formatVipCoin(product.priceVipCoin)} VIP
                             </span>
-                            <span className="text-[10px] text-white/40">•</span>
-                            <span className="text-[10px] text-white/50">{product.categoryCode}</span>
+                            <span className="text-[11px] text-white/40">•</span>
+                            <span className="text-[11px] text-white/50">{product.categoryCode}</span>
                           </div>
                           <div className="mt-1">
                             {isMaintain ? (
-                              <span className="text-[10px] text-amber-300 font-bold px-1.5 py-0.2 rounded bg-amber-500/10 border border-amber-500/20">
-                                Tạm Ngưng Bán
+                              <span className="text-[11px] text-tertiary-fixed font-bold px-1.5 py-0.2 rounded bg-tertiary/10 border border-tertiary/20">
+                                Suspend
                               </span>
                             ) : (
-                              <span className="text-[10px] text-emerald-400 font-bold px-1.5 py-0.2 rounded bg-emerald-500/10 border border-emerald-500/20">
-                                Mở Bán
+                              <span className="text-[11px] text-success font-bold px-1.5 py-0.2 rounded bg-success/10 border border-success/20">
+                                On sale
                               </span>
                             )}
                           </div>
@@ -368,10 +368,10 @@ export default function ProductDeletionZoneModal({
               <div className="lg:col-span-7 space-y-3">
                 <div className="flex items-center justify-between text-xs text-white/60">
                   <span className="font-semibold text-white/80 flex items-center gap-1.5">
-                    <Icon name="touch_app" className="text-amber-400 text-sm" />
-                    <span>Danh sách sản phẩm (Giữ và kéo thẻ sang lò tiêu hủy)</span>
+                    <Icon name="touch_app" className="text-tertiary text-sm" />
+                    <span>Products (drag a card to the delete list)</span>
                   </span>
-                  <span>{filteredProducts.length} sản phẩm</span>
+                  <span>{filteredProducts.length} products</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[340px] overflow-y-auto pr-1">
@@ -388,13 +388,13 @@ export default function ProductDeletionZoneModal({
                         className={`p-3 rounded-2xl border transition-all flex items-center gap-3 select-none ${
                           isQueued
                             ? 'opacity-40 border-dashed border-white/10 bg-white/5 cursor-not-allowed'
-                            : 'bg-black/50 border-white/10 hover:border-amber-400/50 hover:bg-white/5 cursor-grab active:cursor-grabbing hover:shadow-lg'
+                            : 'bg-obsidian/50 border-white/10 hover:border-tertiary/50 hover:bg-white/5 cursor-grab active:cursor-grabbing hover:shadow-lg'
                         }`}
                       >
                         <Icon name="drag_indicator" className="text-white/30 text-lg shrink-0" />
 
                         {/* Image */}
-                        <div className="w-10 h-10 rounded-xl bg-black/60 border border-white/10 p-0.5 flex items-center justify-center shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-obsidian/60 border border-white/10 p-0.5 flex items-center justify-center shrink-0">
                           {product.previewUrl || product.assetUrl ? (
                             <img
                               src={product.previewUrl || product.assetUrl}
@@ -412,11 +412,11 @@ export default function ProductDeletionZoneModal({
                         {/* Info */}
                         <div className="min-w-0 flex-1">
                           <h5 className="font-bold text-xs text-white truncate">{product.name}</h5>
-                          <span className="text-[10px] text-amber-400 font-mono block">
+                          <span className="text-[11px] text-tertiary font-mono block">
                             {formatVipCoin(product.priceVipCoin)} VIP
                           </span>
-                          <span className="text-[9px] text-white/40 block truncate">
-                            {isMaintain ? 'Tạm Ngưng' : 'Mở Bán'} • {product.categoryCode}
+                          <span className="text-[11px] text-white/40 block truncate">
+                            {isMaintain ? 'Suspended' : 'On sale'} • {product.categoryCode}
                           </span>
                         </div>
                       </div>
@@ -427,9 +427,9 @@ export default function ProductDeletionZoneModal({
 
               {/* Right Column: Incinerator Drop Zone (5 cols) */}
               <div className="lg:col-span-5 flex flex-col gap-3">
-                <span className="text-xs font-semibold text-rose-300 flex items-center gap-1.5">
-                  <Icon name="local_fire_department" className="text-rose-400 text-sm" />
-                  <span>Lò Tiêu Hủy / Thùng Rác (Drop Zone)</span>
+                <span className="text-xs font-semibold text-error flex items-center gap-1.5">
+                  <Icon name="local_fire_department" className="text-error text-sm" />
+                  <span>Delete list</span>
                 </span>
 
                 <div
@@ -439,43 +439,43 @@ export default function ProductDeletionZoneModal({
                   }}
                   onDragLeave={() => setIsDragOver(false)}
                   onDrop={handleDrop}
-                  className={`flex-1 rounded-3xl border-2 border-dashed transition-all p-5 flex flex-col items-center justify-center text-center relative overflow-hidden min-h-[220px] ${
+                  className={`flex-1 rounded-2xl border-2 border-dashed transition-all p-5 flex flex-col items-center justify-center text-center relative overflow-hidden min-h-[220px] ${
                     isDragOver
-                      ? 'border-rose-500 bg-rose-500/20 shadow-2xl shadow-rose-950 scale-[1.02]'
-                      : 'border-rose-500/30 bg-rose-500/5 hover:border-rose-500/50'
+                      ? 'border-error bg-error/20 shadow-raised scale-[1.02]'
+                      : 'border-error/30 bg-error/5 hover:border-error/50'
                   }`}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-b from-rose-500/5 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-error/5 pointer-events-none" />
 
                   <span
-                    className={`w-16 h-16 rounded-3xl flex items-center justify-center transition-all shadow-xl ${
+                    className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all shadow-raised ${
                       isDragOver
-                        ? 'bg-rose-500 text-white scale-110 animate-bounce'
-                        : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                        ? 'bg-error-container text-white scale-110 '
+                        : 'bg-error/20 text-error border border-error/30'
                     }`}
                   >
                     <Icon name={isDragOver ? 'local_fire_department' : 'delete_forever'} className="text-3xl" />
                   </span>
 
-                  <h4 className="font-headline font-black text-sm text-white mt-3">
-                    {isDragOver ? 'Thả Chuột Ngay Để Đưa Vào Lò Tiêu Hủy!' : 'Kéo Thả Vật Phẩm Vào Đây'}
+                  <h4 className="font-headline font-bold text-sm text-white mt-3">
+                    {isDragOver ? 'Drop to add to the delete list' : 'Drag items here'}
                   </h4>
                   <p className="text-[11px] text-white/50 max-w-xs mt-1">
-                    Thả các thẻ sản phẩm muốn xóa vào ô này để tạo danh sách tiêu hủy.
+                    Drop the products you want to delete here.
                   </p>
                 </div>
 
                 {/* Queue of items dropped into incinerator */}
                 {dragQueue.length > 0 && (
-                  <div className="space-y-2 p-3 rounded-2xl bg-black/60 border border-rose-500/20 max-h-[140px] overflow-y-auto">
-                    <div className="flex items-center justify-between text-[11px] text-rose-300 font-bold px-1">
-                      <span>Đã đưa vào lò: {dragQueue.length} sản phẩm</span>
+                  <div className="space-y-2 p-3 rounded-2xl bg-obsidian/60 border border-error/20 max-h-[140px] overflow-y-auto">
+                    <div className="flex items-center justify-between text-[11px] text-error font-bold px-1">
+                      <span>In the list: {dragQueue.length} products</span>
                       <button
                         type="button"
                         onClick={clearQueue}
-                        className="text-white/40 hover:text-white hover:underline text-[10px]"
+                        className="text-white/40 hover:text-white hover:underline text-[11px]"
                       >
-                        Làm rỗng
+                        Clear
                       </button>
                     </div>
 
@@ -483,13 +483,13 @@ export default function ProductDeletionZoneModal({
                       {dragQueue.map(item => (
                         <div
                           key={item.id}
-                          className="px-2.5 py-1.5 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-between gap-2"
+                          className="px-2.5 py-1.5 rounded-xl bg-error/10 border border-error/20 flex items-center justify-between gap-2"
                         >
                           <span className="text-xs font-bold text-white truncate">{item.name}</span>
                           <button
                             type="button"
                             onClick={() => removeFromQueue(item.id)}
-                            className="text-white/40 hover:text-rose-400 transition-colors"
+                            className="text-white/40 hover:text-error transition-colors"
                           >
                             <Icon name="close" className="text-xs" />
                           </button>
@@ -504,22 +504,22 @@ export default function ProductDeletionZoneModal({
         </div>
 
         {/* Modal Bottom Action Bar */}
-        <div className="p-4 sm:px-6 bg-black/60 border-t border-white/10 flex items-center justify-between gap-4">
+        <div className="p-4 sm:px-6 bg-obsidian/60 border-t border-white/10 flex items-center justify-between gap-4">
           <div className="text-xs text-white/50">
             {mode === 'CLICK' ? (
               <span>
-                Đang chọn: <strong className="text-rose-400 font-bold">{selectedIds.size}</strong> sản phẩm
+                Selected: <strong className="text-error font-bold">{selectedIds.size}</strong> products
               </span>
             ) : (
               <span>
-                Lò tiêu hủy: <strong className="text-rose-400 font-bold">{dragQueue.length}</strong> sản phẩm
+                Delete list: <strong className="text-error font-bold">{dragQueue.length}</strong> products
               </span>
             )}
           </div>
 
           <div className="flex items-center gap-3">
             <Button variant="secondary" size="md" onClick={onClose}>
-              Đóng
+              Close
             </Button>
 
             {mode === 'CLICK' ? (
@@ -529,9 +529,9 @@ export default function ProductDeletionZoneModal({
                 icon="delete_forever"
                 disabled={selectedIds.size === 0}
                 onClick={handleStartDeleteFromClick}
-                className="bg-rose-600 hover:bg-rose-500 text-white font-bold shadow-lg shadow-rose-950"
+                className="bg-error-container hover:bg-error-container/80 text-white font-bold shadow-lg"
               >
-                Xác Nhận Tiêu Hủy ({selectedIds.size})
+                Delete selected ({selectedIds.size})
               </Button>
             ) : (
               <Button
@@ -540,9 +540,9 @@ export default function ProductDeletionZoneModal({
                 icon="delete_forever"
                 disabled={dragQueue.length === 0}
                 onClick={handleStartDeleteFromDrag}
-                className="bg-rose-600 hover:bg-rose-500 text-white font-bold shadow-lg shadow-rose-950"
+                className="bg-error-container hover:bg-error-container/80 text-white font-bold shadow-lg"
               >
-                Tiêu Hủy Danh Sách Đã Thả ({dragQueue.length})
+                Delete list ({dragQueue.length})
               </Button>
             )}
           </div>
@@ -551,35 +551,35 @@ export default function ProductDeletionZoneModal({
 
       {/* Final Safety Confirmation Dialog */}
       {confirmDialog && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in">
-          <div className="w-full max-w-md rounded-3xl bg-[#1a0b32] border border-rose-500/40 p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-obsidian/90 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-md rounded-2xl bg-background border border-error/40 p-6 shadow-raised space-y-4">
             <div className="flex items-center gap-3">
-              <span className="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center shrink-0">
+              <span className="w-12 h-12 rounded-2xl bg-error/20 text-error border border-error/30 flex items-center justify-center shrink-0">
                 <Icon name="delete_forever" className="text-2xl" />
               </span>
               <div>
-                <h3 className="font-headline font-black text-lg text-white">
-                  Xác Nhận Xóa Vĩnh Viễn?
+                <h3 className="font-headline font-bold text-lg text-white">
+                  Delete permanently?
                 </h3>
-                <p className="text-xs text-rose-300/80">
-                  Hành động này sẽ xóa {confirmDialog.items.length} sản phẩm khỏi toàn bộ hệ thống
+                <p className="text-xs text-error/80">
+                  This will delete {confirmDialog.items.length} products permanently
                 </p>
               </div>
             </div>
 
-            <div className="p-3 rounded-2xl bg-black/50 border border-white/10 max-h-48 overflow-y-auto space-y-2">
+            <div className="p-3 rounded-2xl bg-obsidian/50 border border-white/10 max-h-48 overflow-y-auto space-y-2">
               {confirmDialog.items.map(item => (
                 <div key={item.id} className="flex items-center justify-between text-xs text-white">
                   <span className="font-bold truncate">{item.name}</span>
-                  <span className="text-amber-400 font-mono text-[11px] shrink-0 ml-2">
+                  <span className="text-tertiary font-mono text-[11px] shrink-0 ml-2">
                     {formatVipCoin(item.priceVipCoin)} VIP
                   </span>
                 </div>
               ))}
             </div>
 
-            <p className="text-xs text-rose-200/90 leading-relaxed bg-rose-500/15 p-3 rounded-xl border border-rose-500/30">
-              Cảnh báo: Hệ thống sẽ xóa vĩnh viễn sản phẩm khỏi cơ sở dữ liệu, đồng thời <strong>TỰ ĐỘNG HOÀN TRẢ 100% SỐ VIP COIN GỐC</strong> trực tiếp vào Ví của toàn bộ người chơi đang sở hữu vật phẩm này.
+            <p className="text-xs text-error/90 leading-relaxed bg-error/15 p-3 rounded-xl border border-error/30">
+              The products are removed from the database and <strong>100% of the original VIP Coin is refunded automatically</strong> to every player who owns them.
             </p>
 
             <div className="flex items-center justify-end gap-3 pt-2">
@@ -589,16 +589,16 @@ export default function ProductDeletionZoneModal({
                 disabled={isDeleting}
                 onClick={() => setConfirmDialog(null)}
               >
-                Hủy Bỏ
+                Cancel
               </Button>
               <Button
                 variant="danger"
                 size="md"
                 loading={isDeleting}
                 onClick={executeDeletion}
-                className="bg-rose-600 hover:bg-rose-500 text-white font-black"
+                className="bg-error-container hover:bg-error-container/80 text-white font-bold"
               >
-                Tôi Chắc Chắn, Xóa Ngay
+                Delete permanently
               </Button>
             </div>
           </div>

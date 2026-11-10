@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { paths } from '@/shared/config/paths'
 import { devIdentity } from '@/shared/lib/devIdentity'
-import { Button, Eyebrow, Icon, useConfirm, useToast } from '@/shared/ui'
+import { Button, Icon, useConfirm, useToast } from '@/shared/ui'
 import { cancelTournament, createTournament, startTournament } from './api/adminTournamentApi'
 import Message from './components/Message'
 import Panel from './components/Panel'
@@ -53,7 +53,6 @@ export default function AdminTournamentsPage() {
   return <div className={styles.page}>
     <header className={styles.header}>
       <div className={styles.intro}>
-        <Eyebrow>COMPETITION ADMINISTRATION</Eyebrow>
         <h1 className={styles.title}>Tournaments</h1>
         <p className={styles.muted}>Schedule Elite and Open tournaments. At the start time the players holding a place are seated
           automatically; with fewer than 4 players the tournament is cancelled and entry fees are refunded.</p>

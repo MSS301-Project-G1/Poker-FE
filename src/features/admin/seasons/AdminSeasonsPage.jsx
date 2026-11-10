@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { paths } from '@/shared/config/paths'
 import { devIdentity } from '@/shared/lib/devIdentity'
-import { Button, Eyebrow, Icon, useConfirm, useToast } from '@/shared/ui'
+import { Button, Caption, Icon, useConfirm, useToast } from '@/shared/ui'
 import { closeSeason, createSeason, updateSeasonRewards } from './api/adminSeasonApi'
 import Message from './components/Message'
 import Panel from './components/Panel'
@@ -64,7 +64,6 @@ export default function AdminSeasonsPage() {
   return <div className={styles.page}>
     <header className={styles.header}>
       <div className={styles.intro}>
-        <Eyebrow>RANKED ADMINISTRATION</Eyebrow>
         <h1 className={styles.title}>Seasons</h1>
         <p className={styles.muted}>Plan the next season and the rewards of each tier. A season closes by itself once its end date has
           passed and a next season exists: final tiers are recorded, Elo is reset and players can claim their rewards.</p>
@@ -92,8 +91,8 @@ export default function AdminSeasonsPage() {
             <SeasonForm seasons={seasons} onCreate={create} onCancel={() => setCreating(false)} /></>
           : selected
             ? <><header>
-              <Eyebrow>{statusLabels[selected.status].toUpperCase()} SEASON</Eyebrow>
               <h2 id="editor-title" className={styles.sectionTitle}>{selected.name} · tier rewards</h2>
+              <Caption>{statusLabels[selected.status]} season</Caption>
               <p className={styles.muted}>Rewards add up: a player who finishes in Diamond receives every reward up to Diamond.</p>
             </header>
             {/* The editor restarts from the server's copy whenever the stored rewards change. */}

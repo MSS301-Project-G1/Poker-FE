@@ -57,16 +57,16 @@ export default function AdminAvatarsPage() {
   return <div className="w-full px-margin pb-space-lg pt-space-md">
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-space-md">
       <header className="flex flex-wrap items-center justify-between gap-space-md">
-        <div><p className="font-label-action text-label-action uppercase tracking-widest text-primary">Administration</p><h1 className="font-headline-lg text-headline-lg">Avatar presets</h1></div>
+        <div><h1 className="font-headline-lg text-headline-lg">Avatar presets</h1></div>
         <Button onClick={() => navigate(paths.lobby)}><Icon name="arrow_back" />Back to lobby</Button>
       </header>
       {error && <div className="rounded-xl border border-error/35 bg-error-container/20 p-3 text-sm text-on-error-container" role="alert">{error}</div>}
       <section className="rounded-2xl border border-outline-variant/40 bg-surface-container-low/85 p-space-lg shadow-raised">
         <div className="mb-space-md"><h2 className="font-headline-md text-headline-md">Create preset</h2><p className="text-body-sm text-on-surface-variant">Upload a PNG or JPEG up to 2 MB. New presets are active immediately.</p></div>
         <form className="grid grid-cols-1 items-end gap-space-md md:grid-cols-[1fr_1fr_auto]" onSubmit={create}>
-          <div><label className="mb-1.5 block text-xs uppercase tracking-wider" htmlFor="preset-name">Preset name</label><input id="preset-name" value={name} onChange={event => setName(event.target.value)} maxLength={100} disabled={pendingId === 'new'}
+          <div><label className="mb-1.5 block text-xs" htmlFor="preset-name">Preset name</label><input id="preset-name" value={name} onChange={event => setName(event.target.value)} maxLength={100} disabled={pendingId === 'new'}
             className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm focus:outline-none focus:border-primary" /></div>
-          <div><label className="mb-1.5 block text-xs uppercase tracking-wider" htmlFor="preset-file">Image</label><input ref={fileRef} id="preset-file" type="file" accept="image/png,image/jpeg" onChange={event => setFile(event.target.files?.[0] || null)} disabled={pendingId === 'new'}
+          <div><label className="mb-1.5 block text-xs" htmlFor="preset-file">Image</label><input ref={fileRef} id="preset-file" type="file" accept="image/png,image/jpeg" onChange={event => setFile(event.target.files?.[0] || null)} disabled={pendingId === 'new'}
             className="block w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-primary-container file:px-3 file:py-1.5 file:text-on-primary-container" /></div>
           <Button variant="primary" type="submit" disabled={pendingId === 'new'}>{pendingId === 'new' ? 'Creating…' : 'Create preset'}</Button>
         </form>

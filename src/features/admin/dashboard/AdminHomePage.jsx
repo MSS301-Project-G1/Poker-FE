@@ -5,17 +5,16 @@ import { Icon } from '@/shared/ui'
 export default function AdminHomePage() {
   return <div className="mx-auto w-full max-w-6xl px-margin py-space-lg">
     <header className="mb-space-lg">
-      <p className="font-label-action text-label-action uppercase tracking-widest text-primary">MSS Poker · ADMIN</p>
-      <h1 className="mt-2 font-headline-lg text-headline-lg">Quản trị hệ thống</h1>
-      <p className="mt-2 text-on-surface-variant">Chọn chức năng cần quản lý.</p>
+      <h1 className="font-headline-lg text-headline-lg">Admin</h1>
+      <p className="mt-2 text-on-surface-variant">Choose what to manage.</p>
     </header>
-    <nav aria-label="Chức năng quản trị" className="grid gap-space-md md:grid-cols-2 xl:grid-cols-3">
+    <nav aria-label="Admin tools" className="grid gap-space-md md:grid-cols-2 xl:grid-cols-3">
       {adminNavigation.map(item => <Link key={item.path} to={item.path}
         className="group rounded-2xl border border-outline-variant/40 bg-surface-container-low p-space-lg transition-colors hover:border-primary/60 hover:bg-surface-container focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
         <Icon name={item.icon} className="mb-space-md text-3xl text-primary" />
         <h2 className="font-headline-md text-headline-md">{item.label}</h2>
         <p className="mt-2 text-sm text-on-surface-variant">{item.description}</p>
-        <span className="mt-space-md inline-flex items-center gap-1 text-sm text-primary">Mở quản lý<Icon name="arrow_forward" className="text-base" /></span>
+        <span className="mt-space-md inline-flex items-center gap-1 text-sm text-primary">Open<Icon name="arrow_forward" className="text-base" /></span>
       </Link>)}
     </nav>
   </div>

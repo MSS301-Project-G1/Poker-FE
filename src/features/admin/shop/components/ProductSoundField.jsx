@@ -37,13 +37,13 @@ export default function ProductSoundField({
     if (!file) return
 
     if (file.size > 2 * 1024 * 1024) {
-      setErrorMsg('Tệp âm thanh vượt quá 2MB.')
+      setErrorMsg('The sound file is larger than 2 MB.')
       return
     }
 
     const ext = file.name.split('.').pop()?.toLowerCase()
     if (!['mp3', 'ogg', 'wav'].includes(ext)) {
-      setErrorMsg('Chỉ hỗ trợ định dạng MP3, OGG, WAV.')
+      setErrorMsg('Only MP3, OGG and WAV are supported.')
       return
     }
 
@@ -72,34 +72,34 @@ export default function ProductSoundField({
   }
 
   return (
-    <div className="p-4 rounded-2xl bg-black/30 border border-white/10 space-y-3">
+    <div className="p-4 rounded-2xl bg-obsidian/30 border border-white/10 space-y-3">
       <div className="flex items-center justify-between">
-        <label className="text-xs font-bold text-amber-300 flex items-center gap-2">
+        <label className="text-xs font-bold text-tertiary-fixed flex items-center gap-2">
           <Icon name="volume_up" className="text-base" />
-          <span>Tệp Âm Thanh Hiệu Ứng (Tùy chọn)</span>
+          <span>Sound effect (optional)</span>
         </label>
         <span className="text-[11px] text-white/50">MP3, OGG, WAV ≤ 2MB</span>
       </div>
 
       {activeAudioUrl ? (
-        <div className="flex items-center justify-between p-3 rounded-xl bg-purple-950/40 border border-purple-400/30">
+        <div className="flex items-center justify-between p-3 rounded-xl bg-on-secondary-fixed/40 border border-secondary/30">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={handleTogglePlay}
-              className="w-10 h-10 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center hover:bg-amber-300 transition-colors shadow-lg"
-              title={isPlaying ? 'Dừng phát' : 'Nghe thử'}
+              className="w-10 h-10 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center hover:bg-tertiary-fixed transition-colors shadow-lg"
+              title={isPlaying ? 'Stop' : 'Preview'}
             >
               <Icon name={isPlaying ? 'pause' : 'play_arrow'} className="text-xl" />
             </button>
             <div className="text-xs">
               <div className="font-bold text-white/90 truncate max-w-[200px] sm:max-w-[280px]">
-                {soundFile ? soundFile.name : 'Tệp âm thanh hiện tại của sản phẩm'}
+                {soundFile ? soundFile.name : 'Current sound'}
               </div>
-              <div className="text-[10px] text-white/50 mt-0.5">
+              <div className="text-[11px] text-white/50 mt-0.5">
                 {audioDuration > 0
                   ? `${Math.floor(audioCurrentTime)}s / ${Math.floor(audioDuration)}s`
-                  : 'Sẵn sàng nghe thử'}
+                  : 'Ready to preview'}
               </div>
             </div>
           </div>
@@ -108,11 +108,11 @@ export default function ProductSoundField({
             type="button"
             onClick={handleClear}
             disabled={disabled}
-            className="p-2 text-rose-400 hover:bg-rose-500/20 rounded-lg transition-colors text-xs flex items-center gap-1"
-            title="Gỡ âm thanh"
+            className="p-2 text-error hover:bg-error/20 rounded-lg transition-colors text-xs flex items-center gap-1"
+            title="Remove sound"
           >
             <Icon name="delete" className="text-base" />
-            <span className="hidden sm:inline">Gỡ</span>
+            <span className="hidden sm:inline">Remove</span>
           </button>
 
           <audio
@@ -126,7 +126,7 @@ export default function ProductSoundField({
             }}
             onError={() => {
               setIsPlaying(false)
-              setErrorMsg('Không thể phát tệp âm thanh này.')
+              setErrorMsg('This sound can’t be played.')
             }}
           />
         </div>
@@ -136,10 +136,10 @@ export default function ProductSoundField({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={disabled}
-            className="w-full py-3 px-4 rounded-xl border border-dashed border-white/20 hover:border-amber-400/50 bg-white/5 hover:bg-white/10 transition-all text-xs text-white/70 flex items-center justify-center gap-2"
+            className="w-full py-3 px-4 rounded-xl border border-dashed border-white/20 hover:border-tertiary/50 bg-white/5 hover:bg-white/10 transition-all text-xs text-white/70 flex items-center justify-center gap-2"
           >
-            <Icon name="music_note" className="text-base text-amber-300" />
-            <span>Chọn tệp âm thanh trêu đùa / hiệu ứng lật bài</span>
+            <Icon name="music_note" className="text-base text-tertiary-fixed" />
+            <span>Choose a taunt or card-flip sound</span>
           </button>
           <input
             ref={fileInputRef}
@@ -151,7 +151,7 @@ export default function ProductSoundField({
         </div>
       )}
 
-      {errorMsg && <p className="text-xs text-rose-400 flex items-center gap-1">⚠️ {errorMsg}</p>}
+      {errorMsg && <p className="text-xs text-error flex items-center gap-1">⚠️ {errorMsg}</p>}
     </div>
   )
 }

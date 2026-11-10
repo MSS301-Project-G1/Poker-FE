@@ -38,7 +38,7 @@ async function fixture(page, { role = 'ADMIN', signedIn = true, activeTable = nu
 async function signIn(page) {
   await page.getByLabel('Email address').fill('account@example.test')
   await page.getByLabel(/^Password/).fill('Poker123!')
-  await page.getByRole('button', { name: 'ENTER ARENA', exact: true }).click()
+  await page.locator('form').getByRole('button', { name: 'Sign in', exact: true }).click()
 }
 
 test('ADMIN signs into the dedicated area without depending on the game, wallet or player queue', async ({ page }) => {
@@ -46,8 +46,8 @@ test('ADMIN signs into the dedicated area without depending on the game, wallet 
   await page.goto('/auth')
   await signIn(page)
   await expect(page).toHaveURL(/\/admin$/)
-  await expect(page.getByRole('heading', { name: 'Quản trị hệ thống', exact: true })).toBeVisible()
-  await expect(page.getByRole('navigation', { name: 'Điều hướng quản trị' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Admin', exact: true })).toBeVisible()
+  await expect(page.getByRole('navigation', { name: 'Admin navigation' })).toBeVisible()
   expect(state.requests.filter(path => path.startsWith('/api/game/') || path.startsWith('/api/wallet/')
     || path.startsWith('/api/matchmaking/') || path.startsWith('/api/party/') || path === '/api/auth/ws-token')).toEqual([])
 })
@@ -58,26 +58,26 @@ test('a saved lobby destination cannot send ADMIN back to the player lobby after
   await expect(page).toHaveURL(/\/auth$/)
   await signIn(page)
   await expect(page).toHaveURL(/\/admin$/)
-  await expect(page.getByRole('heading', { name: 'Quản trị hệ thống', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Admin', exact: true })).toBeVisible()
 })
 
 test('the admin home exposes the existing modules and links to user management', async ({ page }) => {
   await fixture(page)
   await page.goto('/admin')
-  const modules = page.getByRole('navigation', { name: 'Chức năng quản trị' })
+  const modules = page.getByRole('navigation', { name: 'Admin tools' })
   for (const path of adminPaths.slice(1, 7)) await expect(modules.locator(`a[href="${path}"]`)).toBeVisible()
   await page.screenshot({ path: '/tmp/poker-admin-home.png', fullPage: true })
-  await modules.getByRole('link', { name: /Người dùng/ }).click()
+  await modules.getByRole('link', { name: /Users/ }).click()
   await expect(page).toHaveURL(/\/admin\/users$/)
-  await expect(page.getByRole('heading', { name: 'Người dùng', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Users', exact: true })).toBeVisible()
 })
 
 test('USER sees 404 on every admin route, including unknown paths, and makes no admin API calls', async ({ page }) => {
   const state = await fixture(page, { role: 'USER' })
   for (const path of adminPaths) {
     await page.goto(path)
-    await expect(page.getByRole('heading', { name: '404 · Không tìm thấy trang', exact: true })).toBeVisible()
-    await expect(page.getByRole('navigation', { name: 'Điều hướng quản trị' })).toHaveCount(0)
+    await expect(page.getByRole('heading', { name: '404 · Page not found', exact: true })).toBeVisible()
+    await expect(page.getByRole('navigation', { name: 'Admin navigation' })).toHaveCount(0)
     expect(new URL(page.url()).pathname).toBe(path)
   }
   expect(state.requests.filter(path => path.startsWith('/api/admin/'))).toEqual([])
@@ -87,7 +87,7 @@ test('a guest sees 404 instead of the admin screen or an admin login redirect', 
   const state = await fixture(page, { signedIn: false })
   for (const path of ['/admin', '/admin/users', '/admin/shop/products/new']) {
     await page.goto(path)
-    await expect(page.getByRole('heading', { name: '404 · Không tìm thấy trang', exact: true })).toBeVisible()
+    await expect(page.getByRole('heading', { name: '404 · Page not found', exact: true })).toBeVisible()
     expect(new URL(page.url()).pathname).toBe(path)
   }
   expect(state.requests.filter(path => path.startsWith('/api/admin/'))).toEqual([])
@@ -106,14 +106,14 @@ test('USER still resumes an existing table before opening a player screen', asyn
   await fixture(page, { role: 'USER', activeTable: tableId })
   await page.goto('/account')
   await expect(page).toHaveURL(new RegExp(`/table/${tableId}$`))
-  await expect(page.getByRole('navigation', { name: 'Điều hướng quản trị' })).toHaveCount(0)
+  await expect(page.getByRole('navigation', { name: 'Admin navigation' })).toHaveCount(0)
 })
 
 test('ADMIN can sign out from the dedicated layout', async ({ page }) => {
   const state = await fixture(page)
   await page.goto('/admin')
-  await expect(page.getByRole('heading', { name: 'Quản trị hệ thống', exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Đăng xuất', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Admin', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Sign out', exact: true }).click()
   await expect(page).toHaveURL(/\/auth$/)
   await expect(page.getByLabel('Email address')).toBeVisible()
   expect(state.signedIn).toBe(false)
