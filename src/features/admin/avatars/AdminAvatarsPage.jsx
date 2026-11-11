@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { paths } from '@/shared/config/paths'
-import { avatarFileError } from '@/shared/api/presignedUpload'
+import { avatarFileAccept, avatarFileError } from '@/shared/api/presignedUpload'
 import { Button, Icon, useToast } from '@/shared/ui'
 import { fetchAdminAvatars, updateAdminAvatar, uploadAdminAvatar } from './api/adminAvatarApi'
 import AvatarPresetRow from './components/AvatarPresetRow'
-
-const messageOf = error => error?.requestId ? `${error.message} Reference: ${error.requestId}` : error?.message
 
 export default function AdminAvatarsPage() {
   const navigate = useNavigate()
@@ -24,7 +22,7 @@ export default function AdminAvatarsPage() {
     const controller = new AbortController()
     fetchAdminAvatars(controller.signal)
       .then(setPresets)
-      .catch(failure => { if (failure.name !== 'AbortError') setError(messageOf(failure) || 'Unable to load avatar presets.') })
+      .catch(failure => { if (failure.name !== 'AbortError') setError(failure?.message || 'Unable to load avatar presets.') })
       .finally(() => { if (!controller.signal.aborted) setLoading(false) })
     return () => controller.abort()
   }, [])
@@ -42,7 +40,7 @@ export default function AdminAvatarsPage() {
       setName(''); setFile(null)
       if (fileRef.current) fileRef.current.value = ''
       notify('Avatar preset created.')
-    } catch (failure) { setError(messageOf(failure) || 'Unable to create the avatar preset.') } finally { setPendingId('') }
+    } catch (failure) { setError(failure?.message || 'Unable to create the avatar preset.') } finally { setPendingId('') }
   }
 
   const update = avatarId => async values => {
@@ -51,7 +49,7 @@ export default function AdminAvatarsPage() {
       const updated = await updateAdminAvatar(avatarId, values)
       setPresets(current => current.map(item => item.avatarId === avatarId ? updated : item))
       notify('Avatar preset updated.')
-    } catch (failure) { setError(messageOf(failure) || 'Unable to update the avatar preset.') } finally { setPendingId('') }
+    } catch (failure) { setError(failure?.message || 'Unable to update the avatar preset.') } finally { setPendingId('') }
   }
 
   return <div className="w-full px-margin pb-space-lg pt-space-md">
@@ -62,11 +60,11 @@ export default function AdminAvatarsPage() {
       </header>
       {error && <div className="rounded-xl border border-error/35 bg-error-container/20 p-3 text-sm text-on-error-container" role="alert">{error}</div>}
       <section className="rounded-2xl border border-outline-variant/40 bg-surface-container-low/85 p-space-lg shadow-raised">
-        <div className="mb-space-md"><h2 className="font-headline-md text-headline-md">Create preset</h2><p className="text-body-sm text-on-surface-variant">Upload a PNG or JPEG up to 2 MB. New presets are active immediately.</p></div>
+        <div className="mb-space-md"><h2 className="font-headline-md text-headline-md">Create preset</h2><p className="text-body-sm text-on-surface-variant">Upload PNG/JPG up to 2 MB, max 2048 px per side. New presets are active immediately.</p></div>
         <form className="grid grid-cols-1 items-end gap-space-md md:grid-cols-[1fr_1fr_auto]" onSubmit={create}>
           <div><label className="mb-1.5 block text-xs" htmlFor="preset-name">Preset name</label><input id="preset-name" value={name} onChange={event => setName(event.target.value)} maxLength={100} disabled={pendingId === 'new'}
             className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm focus:outline-none focus:border-primary" /></div>
-          <div><label className="mb-1.5 block text-xs" htmlFor="preset-file">Image</label><input ref={fileRef} id="preset-file" type="file" accept="image/png,image/jpeg" onChange={event => setFile(event.target.files?.[0] || null)} disabled={pendingId === 'new'}
+          <div><label className="mb-1.5 block text-xs" htmlFor="preset-file">Image</label><input ref={fileRef} id="preset-file" type="file" accept={avatarFileAccept} onChange={event => setFile(event.target.files?.[0] || null)} disabled={pendingId === 'new'}
             className="block w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-primary-container file:px-3 file:py-1.5 file:text-on-primary-container" /></div>
           <Button variant="primary" type="submit" disabled={pendingId === 'new'}>{pendingId === 'new' ? 'Creating…' : 'Create preset'}</Button>
         </form>

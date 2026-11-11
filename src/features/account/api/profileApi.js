@@ -1,5 +1,5 @@
 import { gatewayRequest } from '@/shared/api/gatewayClient'
-import { uploadPresignedFile } from '@/shared/api/presignedUpload'
+import { prepareAvatarFile, uploadPresignedFile } from '@/shared/api/presignedUpload'
 
 function resultOf(payload) {
   if (payload?.result === undefined) throw new Error('The server returned an invalid response.')
@@ -45,7 +45,8 @@ export const confirmMyAvatar = key => gatewayRequest('/api/profiles/me/avatar', 
 }).then(resultOf)
 
 export async function uploadMyAvatar(file) {
-  const presign = await presignMyAvatar(file)
-  await uploadPresignedFile(file, presign)
+  const prepared = await prepareAvatarFile(file)
+  const presign = await presignMyAvatar(prepared)
+  await uploadPresignedFile(prepared, presign)
   return confirmMyAvatar(presign.key)
 }

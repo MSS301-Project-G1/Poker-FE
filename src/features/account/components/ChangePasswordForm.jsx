@@ -3,8 +3,6 @@ import { Button, Icon } from '@/shared/ui'
 import { changePassword, loginPasswordError, newPasswordError, PasswordField } from '@/features/auth'
 import { panelClass } from './accountFormStyles'
 
-const messageOf = error => error?.requestId ? `${error.message} Reference: ${error.requestId}` : error?.message
-
 export default function ChangePasswordForm({ onChanged }) {
   const [values, setValues] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
   const [errors, setErrors] = useState({})
@@ -23,7 +21,7 @@ export default function ChangePasswordForm({ onChanged }) {
     if (Object.values(nextErrors).some(Boolean)) return
     setPending(true); setRequestError('')
     try { await changePassword(values); onChanged() } catch (failure) {
-      setRequestError(messageOf(failure) || 'Unable to change the password.')
+      setRequestError(failure?.message || 'Unable to change the password.')
     } finally { setPending(false) }
   }
 

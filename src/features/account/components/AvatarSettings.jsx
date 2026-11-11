@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Button, Icon } from '@/shared/ui'
-import { avatarFileError } from '@/shared/api/presignedUpload'
+import { avatarFileAccept, avatarFileError } from '@/shared/api/presignedUpload'
 import { fetchAvatarPresets, selectAvatarPreset, uploadMyAvatar } from '../api/profileApi'
 import { panelClass } from './accountFormStyles'
-
-const messageOf = error => error?.requestId ? `${error.message} Reference: ${error.requestId}` : error?.message
 
 export default function AvatarSettings({ currentAvatarUrl, displayName, onChanged }) {
   const inputRef = useRef(null)
@@ -16,7 +14,7 @@ export default function AvatarSettings({ currentAvatarUrl, displayName, onChange
   const load = async signal => {
     setLoading(true); setError('')
     try { setPresets(await fetchAvatarPresets(signal)) } catch (failure) {
-      if (failure.name !== 'AbortError') setError(messageOf(failure) || 'Unable to load avatars.')
+      if (failure.name !== 'AbortError') setError(failure?.message || 'Unable to load avatars.')
     } finally { if (!signal?.aborted) setLoading(false) }
   }
 
@@ -24,7 +22,7 @@ export default function AvatarSettings({ currentAvatarUrl, displayName, onChange
     const controller = new AbortController()
     fetchAvatarPresets(controller.signal)
       .then(setPresets)
-      .catch(failure => { if (failure.name !== 'AbortError') setError(messageOf(failure) || 'Unable to load avatars.') })
+      .catch(failure => { if (failure.name !== 'AbortError') setError(failure?.message || 'Unable to load avatars.') })
       .finally(() => { if (!controller.signal.aborted) setLoading(false) })
     return () => controller.abort()
   }, [])
@@ -32,7 +30,7 @@ export default function AvatarSettings({ currentAvatarUrl, displayName, onChange
   const choose = async avatarId => {
     setPending(true); setError('')
     try { await selectAvatarPreset(avatarId); await onChanged('Avatar updated.') } catch (failure) {
-      setError(messageOf(failure) || 'Unable to select this avatar.')
+      setError(failure?.message || 'Unable to select this avatar.')
       if (failure.code === 'AUTH_AVATAR_INVALID') void load()
     } finally { setPending(false) }
   }
@@ -44,7 +42,7 @@ export default function AvatarSettings({ currentAvatarUrl, displayName, onChange
     if (validationError) { setError(validationError); return }
     setPending(true); setError('')
     try { await uploadMyAvatar(file); await onChanged('Avatar uploaded.') } catch (failure) {
-      setError(messageOf(failure) || 'Unable to upload the avatar.')
+      setError(failure?.message || 'Unable to upload the avatar.')
     } finally { setPending(false) }
   }
 
@@ -53,10 +51,10 @@ export default function AvatarSettings({ currentAvatarUrl, displayName, onChange
       <div className="flex min-w-0 flex-1 items-center gap-space-md">
         <img className="h-12 w-12 rounded-xl object-cover ring-2 ring-primary/40" src={currentAvatarUrl || '/stitch-assets/avatar.svg'} alt={displayName || 'Player'}
           onError={event => { event.currentTarget.src = '/stitch-assets/avatar.svg' }} />
-        <div><h2 className="font-headline-md text-headline-md">Avatar</h2><p className="text-body-sm text-on-surface-variant">Choose a preset or upload PNG/JPEG up to 2 MB.</p></div>
+        <div><h2 className="font-headline-md text-headline-md">Avatar</h2><p className="text-body-sm text-on-surface-variant">Choose a preset or upload PNG/JPG up to 2 MB, max 2048 px per side.</p></div>
       </div>
       <Button onClick={() => inputRef.current?.click()} disabled={pending}><Icon name="upload" />Upload image</Button>
-      <input ref={inputRef} className="hidden" type="file" accept="image/png,image/jpeg" onChange={upload} disabled={pending} />
+      <input ref={inputRef} className="hidden" type="file" accept={avatarFileAccept} onChange={upload} disabled={pending} />
     </div>
     {error && <div className="mb-space-md rounded-xl border border-error/35 bg-error-container/20 p-3 text-sm text-on-error-container" role="alert">{error}</div>}
     {loading && <p className="text-sm text-on-surface-variant" role="status">Loading avatar presets…</p>}
