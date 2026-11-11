@@ -8,8 +8,6 @@ import AvatarSettings from './components/AvatarSettings'
 import ChangePasswordForm from './components/ChangePasswordForm'
 import ProfileForm from './components/ProfileForm'
 
-const messageOf = error => error?.requestId ? `${error.message} Reference: ${error.requestId}` : error?.message
-
 export default function AccountPage() {
   const auth = useAuth()
   const navigate = useNavigate()
@@ -22,7 +20,7 @@ export default function AccountPage() {
   const load = async signal => {
     setLoading(true); setError('')
     try { setProfile(await fetchMyProfile(signal)) } catch (failure) {
-      if (failure.name !== 'AbortError') setError(messageOf(failure) || 'Unable to load your profile.')
+      if (failure.name !== 'AbortError') setError(failure?.message || 'Unable to load your profile.')
     } finally { if (!signal?.aborted) setLoading(false) }
   }
 
@@ -30,7 +28,7 @@ export default function AccountPage() {
     const controller = new AbortController()
     fetchMyProfile(controller.signal)
       .then(setProfile)
-      .catch(failure => { if (failure.name !== 'AbortError') setError(messageOf(failure) || 'Unable to load your profile.') })
+      .catch(failure => { if (failure.name !== 'AbortError') setError(failure?.message || 'Unable to load your profile.') })
       .finally(() => { if (!controller.signal.aborted) setLoading(false) })
     return () => controller.abort()
   }, [])
@@ -42,7 +40,7 @@ export default function AccountPage() {
       setProfile(updated)
       await auth.refreshUser()
       notify('Profile updated.')
-    } catch (failure) { setError(messageOf(failure) || 'Unable to update your profile.') } finally { setSaving(false) }
+    } catch (failure) { setError(failure?.message || 'Unable to update your profile.') } finally { setSaving(false) }
   }
 
   const avatarChanged = async message => {

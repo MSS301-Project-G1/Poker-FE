@@ -11,8 +11,6 @@ function currentMonthInVietnam() {
 }
 
 const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-const messageOf = error => error?.requestId ? `${error.message} Reference: ${error.requestId}` : error?.message
-
 function shiftMonth(value, offset) {
   const [year, month] = value.split('-').map(Number)
   const date = new Date(Date.UTC(year, month - 1 + offset, 1))
@@ -72,7 +70,7 @@ export default function DailyCheckInModal({ onClose }) {
       setCalendar(result)
       return result
     } catch (failure) {
-      if (failure.name !== 'AbortError') setError(messageOf(failure) || 'Unable to load the check-in calendar.')
+      if (failure.name !== 'AbortError') setError(failure?.message || 'Unable to load the check-in calendar.')
       return null
     } finally { if (!signal?.aborted) setLoading(false) }
   }, [])
@@ -81,7 +79,7 @@ export default function DailyCheckInModal({ onClose }) {
     const controller = new AbortController()
     fetchCheckInCalendar(month, controller.signal)
       .then(setCalendar)
-      .catch(failure => { if (failure.name !== 'AbortError') setError(messageOf(failure) || 'Unable to load the check-in calendar.') })
+      .catch(failure => { if (failure.name !== 'AbortError') setError(failure?.message || 'Unable to load the check-in calendar.') })
       .finally(() => { if (!controller.signal.aborted) setLoading(false) })
     return () => controller.abort()
   }, [month])
@@ -107,7 +105,7 @@ export default function DailyCheckInModal({ onClose }) {
       const refreshed = await load(month)
       if (failure.code === 'AUTH_CHECKIN_ALREADY_EXISTS' || refreshed?.checkedInToday) {
         notify('Today’s check-in was already recorded.')
-      } else setError(messageOf(failure) || 'Unable to check in today.')
+      } else setError(failure?.message || 'Unable to check in today.')
     } finally { setClaiming(false) }
   }
 

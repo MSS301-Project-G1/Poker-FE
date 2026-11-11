@@ -28,8 +28,7 @@ export default function AuthenticatedLayout() {
     if (logoutPending) return
     setLogoutPending(true)
     try { await auth.logout() } catch (error) {
-      const suffix = error.requestId ? ` Reference: ${error.requestId}` : ''
-      notify(`${error.message || 'Unable to sign out.'}${suffix}`)
+      notify(error.message || 'Unable to sign out.')
     } finally { setLogoutPending(false) }
   }
 
