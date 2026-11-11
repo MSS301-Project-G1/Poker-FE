@@ -1,10 +1,11 @@
 # Edge config of the VPS; deploy/remote-deploy.sh installs it as /etc/caddy/Caddyfile when it changes.
-# Caddy terminates HTTPS and serves the built SPA. Everything under /api and /ws goes to the API gateway,
+# Caddy terminates HTTPS and serves the built SPA. Everything under /api and /ws, plus the gateway's
+# Swagger UI (/swagger-ui*) and its OpenAPI documents (/v3/api-docs*), goes to the API gateway,
 # which finds the services through Eureka, so this file never lists service hosts or ports.
 game-fun.me {
 	encode zstd gzip
 
-	@backend path /api/* /ws/*
+	@backend path /api/* /ws/* /swagger-ui.html /swagger-ui/* /v3/api-docs /v3/api-docs/*
 	handle @backend {
 		reverse_proxy 127.0.0.1:8080
 	}
