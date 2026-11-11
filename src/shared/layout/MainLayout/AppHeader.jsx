@@ -5,7 +5,8 @@ import { useSound } from '@/shared/audio'
 
 const navItems = [
   { to: paths.lobby, label: 'Lobby' },
-  { to: paths.ranked, label: 'Ranked' },
+  // One page hosts Ranked, Casual and the party room, so the item names the activity rather than one mode.
+  { to: paths.ranked, label: 'Matching' },
   // Wide screens only: narrower ones reach these from the lobby (Leaderboard and the other-modes panel).
   { to: paths.rooms, label: 'Rooms', wide: true },
   { to: paths.tournaments, label: 'Tournaments', wide: true },
