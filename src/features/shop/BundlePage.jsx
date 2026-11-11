@@ -8,13 +8,14 @@ import { useWallet } from './hooks/useWallet'
 import { usePendingOrder } from './hooks/usePendingOrder'
 import { formatVipCoin, formatVnd } from './utils/shopFormatters'
 import PendingPaymentModal from './components/PendingPaymentModal/PendingPaymentModal'
+import { canPayOrder, isPaymentComplete, needsOrderAttention, paymentPresentation } from './utils/paymentStatus'
 
 export default function BundlePage() {
   const navigate = useNavigate()
   const notify = useToast()
   const { bundles, loading, error, orderingBundleId, purchaseBundle, clearOrderingState } = useBundleTopup()
   const { vipCoin, isLoggedIn, refreshWallet } = useWallet()
-  const { pendingOrder, cancelPendingOrder, syncPendingOrder, checkPendingOrder } = usePendingOrder()
+  const { pendingOrder, error: orderError, cancelPendingOrder, syncPendingOrder, checkPendingOrder, setPendingOrder } = usePendingOrder()
 
   const [isPendingModalOpen, setIsPendingModalOpen] = useState(false)
   const [isConflictModalOpen, setIsConflictModalOpen] = useState(false)
@@ -38,22 +39,16 @@ export default function BundlePage() {
 
     const checkAndPrompt = async () => {
       clearOrderingState?.()
-      const order = await checkPendingOrder()
-      if (disposed) return
-      if (order && order.status === 'PENDING') {
-        // Sync with PayOS to verify if user completed payment before coming back
-        const synced = await syncPendingOrder(order.id)
+      try {
+        const order = await checkPendingOrder()
         if (disposed) return
-        if (synced && synced.status === 'PAID') {
-          notify(`Order #${order.payosOrderCode} is complete. VIP Coin has been added to your wallet.`, {
-            type: 'success',
-          })
+        if (isPaymentComplete(order)) {
           refreshWallet()
-        } else if (!hasAutoPromptedRef.current) {
+        } else if (needsOrderAttention(order) && !hasAutoPromptedRef.current) {
           hasAutoPromptedRef.current = true
           setIsPendingModalOpen(true)
         }
-      }
+      } catch { /* Keep the existing order visible; its hook exposes the error for retry. */ }
     }
 
     void checkAndPrompt()
@@ -79,32 +74,24 @@ export default function BundlePage() {
       return
     }
 
-    // 1. Verify if user has an active pending order
-    const currentPending = await checkPendingOrder()
-    if (currentPending && currentPending.status === 'PENDING') {
-      const synced = await syncPendingOrder()
-      if (synced && synced.status === 'PAID') {
-        notify(`Your previous order #${currentPending.payosOrderCode} was paid.`, {
-          type: 'success',
-        })
-        await refreshWallet()
-      } else {
-        // Still pending: check if it's the exact same bundle
-        if (currentPending.bundleId === bundle.id) {
+    try {
+      // Verify outstanding payment/delivery before starting another checkout.
+      const currentPending = await checkPendingOrder()
+      if (needsOrderAttention(currentPending)) {
+        if (currentPending.status === 'PAID' || !canPayOrder(currentPending) || currentPending.bundleId === bundle.id) {
           setIsPendingModalOpen(true)
           return
         }
-
         // Different bundle: pop up Conflict Confirmation Modal!
         setConflictingBundle(bundle)
         setIsConflictModalOpen(true)
         return
       }
-    }
-
-    // 2. No pending order conflict, proceed with direct checkout
-    try {
-      await purchaseBundle(bundle.id)
+      const created = await purchaseBundle(bundle.id)
+      if (created && !canPayOrder(created)) {
+        setPendingOrder(created)
+        setIsPendingModalOpen(true)
+      }
     } catch (err) {
       notify(err.message || 'Couldn’t create the PayOS order', { type: 'error' })
     }
@@ -115,12 +102,22 @@ export default function BundlePage() {
     if (!conflictingBundle) return
     setIsCancellingOldOrder(true)
     try {
-      await cancelPendingOrder()
-      notify('Previous order cancelled. Switching to the new pack…', { type: 'info' })
+      const updated = await cancelPendingOrder(pendingOrder?.id)
       setIsConflictModalOpen(false)
+      if (!['CANCELLED', 'EXPIRED'].includes(updated?.status)) {
+        notify(paymentPresentation(updated).title, { type: 'info' })
+        setConflictingBundle(null)
+        setIsPendingModalOpen(true)
+        return
+      }
+      notify('Previous order cancelled. Switching to the new pack…', { type: 'info' })
       const targetBundle = conflictingBundle
       setConflictingBundle(null)
-      await purchaseBundle(targetBundle.id)
+      const created = await purchaseBundle(targetBundle.id)
+      if (created && !canPayOrder(created)) {
+        setPendingOrder(created)
+        setIsPendingModalOpen(true)
+      }
     } catch (err) {
       notify(err.message || 'Couldn’t cancel the previous order', { type: 'error' })
     } finally {
@@ -240,6 +237,8 @@ export default function BundlePage() {
             </div>
           </div>
         )}
+
+        {orderError && <p role="alert" className="text-error mb-4">{orderError} Select a pack to check again before paying.</p>}
 
         {/* Content State: Loading, Error, or Bundles Grid */}
         {loading ? (
@@ -380,7 +379,7 @@ export default function BundlePage() {
       </div>
 
       {/* Floating Unfinished Order Pill (if modal was closed by user) */}
-      {pendingOrder && !isPendingModalOpen && !isConflictModalOpen && (
+      {needsOrderAttention(pendingOrder) && !isPendingModalOpen && !isConflictModalOpen && (
         <aside
           aria-label="Order awaiting payment"
           className="fixed bottom-16 left-6 z-40 bg-surface-container-highest/95 border-2 border-tertiary/80 rounded-2xl p-4 shadow-raised backdrop-blur-xl flex items-center gap-4 animate-in fade-in slide-in-from-bottom duration-300 max-w-sm sm:max-w-md"
@@ -390,7 +389,7 @@ export default function BundlePage() {
           </div>
           <div className="text-left min-w-0 flex-1">
             <div className="text-xs font-bold text-tertiary-fixed truncate">
-              Order #{pendingOrder.payosOrderCode} pending
+              Order #{pendingOrder.payosOrderCode} · {paymentPresentation(pendingOrder).title}
             </div>
             <div className="text-[11px] text-on-surface/70 truncate">
               {pendingOrder.bundleName || 'Coin pack'} • {formatVnd(pendingOrder.amountVnd)}
@@ -403,22 +402,20 @@ export default function BundlePage() {
             onClick={() => setIsPendingModalOpen(true)}
             className="shadow-md shrink-0"
           >
-            Reopen QR
+            View order
           </Button>
         </aside>
       )}
 
       {/* Modal 1: Chi Tiết / Quét Mã Thanh Toán VietQR / PayOS */}
       <PendingPaymentModal
+        key={pendingOrder?.id}
         order={pendingOrder}
         isOpen={isPendingModalOpen}
         onClose={() => setIsPendingModalOpen(false)}
         onCancelOrder={cancelPendingOrder}
         onSyncOrder={syncPendingOrder}
-        onSuccess={async () => {
-          await refreshWallet()
-          await checkPendingOrder()
-        }}
+        onSuccess={refreshWallet}
       />
 
       {/* Modal 2: Conflict Switch Modal (Khi user chọn gói mới trong khi đơn cũ chưa thanh toán) */}

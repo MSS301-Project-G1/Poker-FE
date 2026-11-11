@@ -174,17 +174,17 @@
   font-weight: 600;
 }
 
-/* Fluid responsive grid: capped at exactly 5 items per row on desktop/wide screens */
+/* Fluid responsive grid: capped at exactly 5 items per row on ultra-wide / 2K desktop screens */
 .productsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
   gap: 1.25rem;
   width: 100%;
   min-height: 420px;
   align-content: start;
 }
 
-@media (min-width: 1400px) {
+@media (min-width: 1720px) {
   .productsGrid {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }

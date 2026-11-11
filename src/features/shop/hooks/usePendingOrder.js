@@ -1,96 +1,89 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import * as paymentService from '../services/paymentService'
 import { useAuth } from '@/features/auth'
+import { needsOrderAttention, rememberPaymentOrder, recalledPaymentOrderId } from '../utils/paymentStatus'
 
-export function usePendingOrder({ pollInterval = 0 } = {}) {
-  const { status } = useAuth()
-  const isAuth = status === 'authenticated'
-
-  const [pendingOrder, setPendingOrder] = useState(null)
-  const [loading, setLoading] = useState(isAuth)
+export function usePendingOrder() {
+  const { status, user } = useAuth()
+  const accountId = status === 'authenticated' ? user?.accountId : null
+  const [pendingOrder, setOrder] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [actionInProgress, setActionInProgress] = useState(false)
+  const orderRef = useRef(null)
+  const checkRef = useRef(null)
 
-  const pendingOrderRef = useRef(null)
-  pendingOrderRef.current = pendingOrder
+  const setPendingOrder = useCallback(order => {
+    orderRef.current = order
+    setOrder(order)
+    rememberPaymentOrder(order)
+    setError(null)
+    return order
+  }, [])
 
   const checkPendingOrder = useCallback(async () => {
-    if (!isAuth) {
-      setPendingOrder(null)
-      setLoading(false)
-      return null
-    }
-    try {
-      const res = await paymentService.getPendingOrder()
-      const order = res?.data
-      if (order && order.status === 'PENDING') {
-        const expiresAt = new Date(order.expiresAt).getTime()
-        if (expiresAt > Date.now()) {
-          setPendingOrder(order)
-          return order
+    if (!accountId) return null
+    if (checkRef.current?.accountId === accountId) return checkRef.current.promise
+    const promise = (async () => {
+      try {
+        // Keep following the original order after PAID; /pending no longer returns it.
+        const trackedId = orderRef.current?.accountId === accountId && needsOrderAttention(orderRef.current)
+          ? orderRef.current.id : recalledPaymentOrderId(accountId)
+        if (trackedId) {
+          try {
+            const tracked = (await paymentService.getOrderDetail(trackedId))?.data
+            if (needsOrderAttention(tracked)) return setPendingOrder(tracked)
+          } catch (err) {
+            if (err.status !== 404) throw err
+          }
         }
-      }
-      setPendingOrder(null)
-      return null
-    } catch {
-      setPendingOrder(null)
-      return null
-    } finally {
-      setLoading(false)
+        const active = (await paymentService.getPendingOrder())?.data
+        if (active) return setPendingOrder(active)
+        // /pending can confirm payment itself. Recover outstanding delivery from history.
+        const history = (await paymentService.getMyOrders())?.data
+        if (!Array.isArray(history)) throw new Error('The server did not confirm your order history. Try again before paying.')
+        const outstanding = history.find(needsOrderAttention)
+        return setPendingOrder(outstanding || null)
+      } catch (err) {
+        setError(err.message || 'Couldn’t confirm the order status. Try again.')
+        throw err
+      } finally { setLoading(false) }
+    })()
+    checkRef.current = { accountId, promise }
+    try { return await promise } finally {
+      if (checkRef.current?.promise === promise) checkRef.current = null
     }
-  }, [isAuth])
+  }, [accountId, setPendingOrder])
 
   useEffect(() => {
-    void checkPendingOrder()
-  }, [checkPendingOrder])
+    if (accountId) void checkPendingOrder().catch(() => {})
+  }, [accountId, checkPendingOrder])
 
-  // Optional background polling if enabled
-  useEffect(() => {
-    if (!pollInterval || !pendingOrder || !isAuth) return
-    const intervalId = setInterval(() => {
-      void checkPendingOrder()
-    }, pollInterval)
-    return () => clearInterval(intervalId)
-  }, [pollInterval, pendingOrder, isAuth, checkPendingOrder])
-
-  const cancelPendingOrder = useCallback(async (explicitOrderId) => {
-    const targetId = explicitOrderId || pendingOrderRef.current?.id
-    if (!targetId) return null
+  const cancelPendingOrder = useCallback(async explicitOrderId => {
+    const targetId = explicitOrderId || orderRef.current?.id
+    if (!targetId) throw new Error('Select an order before cancelling.')
     setActionInProgress(true)
     try {
-      const res = await paymentService.cancelOrder(targetId)
-      setPendingOrder(null)
-      return res?.data
-    } finally {
-      setActionInProgress(false)
-    }
-  }, [])
+      const updated = (await paymentService.cancelOrder(targetId))?.data
+      if (!updated?.id) throw new Error('The server did not confirm the order status.')
+      return setPendingOrder(updated)
+    } finally { setActionInProgress(false) }
+  }, [setPendingOrder])
 
-  const syncPendingOrder = useCallback(async (explicitOrderId) => {
-    const targetId = explicitOrderId || pendingOrderRef.current?.id
-    if (!targetId) return null
+  const syncPendingOrder = useCallback(async explicitOrderId => {
+    const targetId = explicitOrderId || orderRef.current?.id
+    if (!targetId) throw new Error('Select an order before checking payment.')
     setActionInProgress(true)
     try {
-      const res = await paymentService.syncOrder(targetId)
-      const updated = res?.data
-      if (updated?.status !== 'PENDING') {
-        setPendingOrder(null)
-      } else {
-        setPendingOrder(updated)
-      }
-      return updated
-    } finally {
-      setActionInProgress(false)
-    }
-  }, [])
-
+      const updated = (await paymentService.syncOrder(targetId))?.data
+      if (!updated?.id) throw new Error('The server did not confirm the order status.')
+      return setPendingOrder(updated)
+    } finally { setActionInProgress(false) }
+  }, [setPendingOrder])
 
   return {
-    pendingOrder,
-    loading,
-    actionInProgress,
-    checkPendingOrder,
-    cancelPendingOrder,
-    syncPendingOrder,
-    setPendingOrder,
+    pendingOrder: pendingOrder?.accountId === accountId ? pendingOrder : null,
+    loading: Boolean(accountId) && loading, error, actionInProgress,
+    checkPendingOrder, cancelPendingOrder, syncPendingOrder, setPendingOrder,
   }
 }
