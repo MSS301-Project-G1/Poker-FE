@@ -5,8 +5,10 @@ const tableId = '00000000-0000-0000-0000-000000000020'
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => sessionStorage.setItem('poker.lobby.checkInDismissed', 'true'))
   await page.route('**/api/party/me', route => route.fulfill({ json: null }))
+  await page.route('**/api/game/me/active-table', route => route.fulfill({ json: null }))
   await page.route('**/api/matchmaking/*/status', route => route.fulfill({ json: { status: 'NONE' } }))
   await page.route('**/api/auth/csrf', route => route.fulfill({ json: { result: { token: 'test-csrf' } } }))
+  await page.route(/\/api\/auth\/session(\/claim)?$/, route => route.fulfill({ json: { result: { accountId: 'player' } } }))
   await page.route('**/api/auth/me', route => route.fulfill({ json: { result: { accountId: 'player', email: 'test@example.com', role: 'USER' } } }))
 })
 
@@ -58,6 +60,18 @@ test('Normal queue cancels through DELETE before returning to the lobby', async 
   await page.getByRole('button', { name: 'Cancel search' }).click()
   await expect(page).toHaveURL(/\/lobby$/)
   expect(cancelled).toBe(true)
+})
+
+test('a party member opening Matching from the navbar lands in the party room, never Ranked', async ({ page }) => {
+  await page.route('**/api/party/me', route => route.fulfill({ json: {
+    partyId: 'party', leaderId: 'player', memberIds: ['player'], partyCode: 'B0162AAA', password: '421413',
+  } }))
+  await page.goto('/lobby')
+  await page.getByRole('link', { name: 'Matching', exact: true }).click()
+  await expect(page).toHaveURL(/\/ranked\?mode=PARTY$/)
+  await expect(page.getByRole('heading', { name: 'Party room' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Ranked', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Find match', exact: true })).toHaveCount(0)
 })
 
 test('Expired proposal disables accept using the server deadline', async ({ page }) => {
