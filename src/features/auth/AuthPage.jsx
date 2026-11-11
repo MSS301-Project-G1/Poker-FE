@@ -8,11 +8,6 @@ import AuthPanel from './components/AuthPanel'
 import AuthStatusScreen from './components/AuthStatusScreen'
 import WelcomePanel from './components/WelcomePanel'
 
-function messageOf(error) {
-  const message = error?.message || 'Something went wrong. Please try again.'
-  return error?.requestId ? `${message} Reference: ${error.requestId}` : message
-}
-
 export default function AuthPage() {
   const auth = useAuth()
   const location = useLocation()
@@ -43,7 +38,7 @@ export default function AuthPage() {
   const run = async action => {
     setPending(true)
     setError('')
-    try { await action() } catch (failure) { setError(messageOf(failure)); throw failure } finally { setPending(false) }
+    try { await action() } catch (failure) { setError(failure?.message || 'Something went wrong. Please try again.'); throw failure } finally { setPending(false) }
   }
 
   // On success the provider opens a running table itself; otherwise the authenticated redirect above applies.

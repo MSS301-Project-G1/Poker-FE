@@ -8,7 +8,6 @@ export default function AuthStatusScreen({ error, onRetry }) {
       <p className="mt-2 text-sm text-on-surface-variant">
         {error ? error.message || 'The server is not reachable right now.' : 'This only takes a moment.'}
       </p>
-      {error?.requestId && <p className="mt-2 text-xs text-outline">Reference: {error.requestId}</p>}
       {error && <Button variant="primary" className="mt-5" onClick={onRetry}>Try again</Button>}
     </section>
   </main>
