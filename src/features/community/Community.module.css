@@ -190,6 +190,8 @@
 .bubble { padding: 9px 13px; border-radius: 16px 16px 16px 5px; background: rgb(var(--color-surface-container-highest)); font-size: 14px; line-height: 21px; white-space: pre-wrap; overflow-wrap: anywhere; box-shadow: 0 4px 12px rgb(var(--color-obsidian) / .12); }
 .own .bubble { border-radius: 16px 16px 5px 16px; }
 .own .bubble { background: rgb(var(--color-primary-container)); color: rgb(var(--color-on-primary-container)); }
+.inviteAction { display: grid; justify-items: start; gap: 6px; margin-top: 8px; white-space: normal; }
+.inviteError { color: rgb(var(--color-error)); font-size: 12px; line-height: 16px; }
 .messageMeta { display: block; color: rgb(var(--color-on-surface-variant)); font-size: 11px; padding-top: var(--space-xs); }
 .own .messageMeta { text-align: right; }
 .composer { flex: none; padding: 12px 14px 14px; border-top: 1px solid rgb(var(--color-outline-variant)); background: rgb(var(--color-surface-container-lowest) / .55); }

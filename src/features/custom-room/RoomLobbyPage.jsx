@@ -85,7 +85,7 @@ function RoomLobby({ roomCode, retry }) {
       <RoomControls room={room} me={me} isOwner={isOwner} busy={busy} error={actionError}
         onStart={() => quietly(act(rooms.startRoom))}
         onReady={ready => quietly(act(rooms.setReady, ready))}
-        onInvite={target => act(rooms.inviteFriend, target)}
+        onInvite={target => rooms.inviteFriend(roomCode, target, { devUser })}
         onLeave={() => quietly(act(rooms.leaveRoom).then(() => navigate(paths.rooms)))} />
     </div>
   </div>

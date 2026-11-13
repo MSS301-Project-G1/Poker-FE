@@ -16,6 +16,21 @@
 .youTag { color: rgb(var(--color-primary)); }
 .number { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
 .unranked { color: rgb(var(--color-outline)); font-size: 12px; }
+.addFriend {
+  display: inline-grid;
+  place-items: center;
+  margin-left: 8px;
+  padding: 2px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: rgb(var(--color-primary));
+  vertical-align: middle;
+  cursor: pointer;
+}
+.addFriend:hover:not(:disabled) { background: rgb(var(--color-primary) / 0.15); }
+.addFriend:disabled { color: rgb(var(--color-outline)); cursor: default; }
+.addFriend span { font-size: 18px; }
 
 .place {
   display: inline-grid;

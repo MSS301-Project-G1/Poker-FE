@@ -14,6 +14,8 @@ export const communityApi = {
   kick: accountId => call('/api/party/kick', { method: 'POST', body: { accountId } }),
   leaveParty: () => call('/api/party/leave', { method: 'DELETE' }),
   friends: (page, signal) => call(`/api/friends?page=${page}&size=20`, { signal }),
+  friendsAmong: (ids, signal) => call(`/api/friends/check?ids=${ids.join(',')}`, { signal }),
+  playersInMatch: (ids, signal) => call(`/api/game/players/in-match?ids=${ids.join(',')}`, { signal }),
   requests: (direction, page, signal) => call(`/api/friends/requests?direction=${direction}&page=${page}&size=20`, { signal }),
   blocks: (page, signal) => call(`/api/blocks?page=${page}&size=20`, { signal }),
   addFriend: addresseeId => call('/api/friends/requests', { method: 'POST', body: { addresseeId } }),

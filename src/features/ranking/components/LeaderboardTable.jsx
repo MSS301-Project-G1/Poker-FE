@@ -1,6 +1,6 @@
 import TierBadge from './TierBadge'
 import styles from './LeaderboardTable.module.css'
-import { useCommunity } from '@/features/community'
+import { AddFriendButton, useFriendIds } from '@/features/community'
 
 const placeClass = { 1: styles.place1, 2: styles.place2, 3: styles.place3 }
 
@@ -9,7 +9,8 @@ const placeClass = { 1: styles.place1, 2: styles.place2, 3: styles.place3 }
  * (null before a ranked match) and `you`.
  */
 export default function LeaderboardTable({ players, profiles, accountId, friends = false }) {
-  const { sendFriendRequest } = useCommunity()
+  // Friends rows are friends by definition; season rows ask the server once for the whole page.
+  const friendIds = useFriendIds(friends ? [] : players.map(player => player.accountId).filter(id => id !== accountId))
   const columns = [['Rank'], ['Player'], ['Tier'], ['Elo'], ...(friends ? [['Server rank']] : []),
     ['Win streak', true], ['Matches', true]]
   return <table className={styles.table}>
@@ -20,7 +21,8 @@ export default function LeaderboardTable({ players, profiles, accountId, friends
       const place = friends ? player.rank : player.position
       return <tr key={player.accountId} className={`${styles.row} ${you ? styles.you : ''}`}>
         <td className={styles.cell}><span className={`${styles.place} ${placeClass[place] || ''}`}>{place}</span></td>
-        <td className={styles.cell}>{profiles[player.accountId]?.displayName || `Player ${player.accountId.slice(-6)}`}{!you && <button type="button" aria-label={`Add player as friend`} onClick={() => void sendFriendRequest(player.accountId)}>＋</button>}
+        <td className={styles.cell}>{profiles[player.accountId]?.displayName || `Player ${player.accountId.slice(-6)}`}{!you && !friends && <AddFriendButton compact accountId={player.accountId} className={styles.addFriend}
+            isFriend={friendIds && friendIds.has(player.accountId)} />}
           {you && <small className={styles.youTag}> · You</small>}</td>
         <td className={styles.cell}><TierBadge tier={player.tier} /></td>
         <td className={`${styles.cell} ${styles.number}`}>{player.elo.toLocaleString()}</td>
