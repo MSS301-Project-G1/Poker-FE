@@ -13,7 +13,7 @@ export default function AccountSection({ user, adminId }) {
       <DetailField label="Email">{user.email} · {user.emailVerified ? 'verified' : 'not verified'}</DetailField>
       <DetailField label="Player code">{user.playerCode}</DetailField>
       <DetailField label="Account ID"><span className="break-all text-sm">{user.accountId}</span></DetailField>
-      <DetailField label="First login reward">{user.firstLoginRewarded ? 'Received' : 'Not yet'}</DetailField>
+      <DetailField label="New player bonus">{user.firstLoginRewarded ? 'Received' : 'Not received'}</DetailField>
       <DetailField label="Created">{dateTime(user.createdAt)}</DetailField>
       <DetailField label="Last updated">{dateTime(user.updatedAt)}</DetailField>
       <DetailField label="Chat / Rank restriction">{restrictions.length ? restrictions.join(' · ') : 'None'}</DetailField>
