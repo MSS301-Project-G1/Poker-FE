@@ -4,7 +4,6 @@ import { useAuth } from '@/features/auth'
 import { paths } from '@/shared/config/paths'
 import { Button, Icon, useToast } from '@/shared/ui'
 import BanUserDialog from './components/BanUserDialog'
-import UserBanDetails from './components/UserBanDetails'
 import { useAdminUsers } from './hooks/useAdminUsers'
 import { dateTime, errorMessage, inputClass } from './format'
 
@@ -15,7 +14,6 @@ export default function AdminUsersPage() {
   const [keyword, setKeyword] = useState('')
   const [filters, setFilters] = useState({ keyword: '', banned: '', page: 0 })
   const [attempt, setAttempt] = useState(0)
-  const [selectedId, setSelectedId] = useState(null)
   const [editing, setEditing] = useState(null)
   const state = useAdminUsers({ ...filters, attempt })
   const reload = () => setAttempt(value => value + 1)
@@ -46,14 +44,13 @@ export default function AdminUsersPage() {
               <td className="p-4"><p className="font-semibold">{user.displayName || 'No name'}</p><p className="break-all text-on-surface-variant">{user.email}</p><p className="text-xs text-outline">{user.playerCode || user.accountId}</p></td>
               <td className="p-4"><p>{user.role}{user.accountId === admin.accountId ? ' (you)' : ''}</p><p className="text-xs text-on-surface-variant">{user.emailVerified ? 'Email verified' : 'Email not verified'}</p></td>
               <td className="p-4"><p className={user.banned ? 'font-semibold text-error' : 'text-success'}>{user.banned ? 'Banned' : 'Not banned'}</p>{user.banned && <><p className="text-xs text-on-surface-variant">{user.bannedUntil ? `Until ${dateTime(user.bannedUntil)}` : 'Until an admin lifts it'}</p><p className="mt-1 max-w-xs break-words text-xs">{user.banReason}</p></>}</td>
-              <td className="p-4"><div className="flex flex-wrap gap-2"><Button onClick={() => setSelectedId(user.accountId)}>Details</Button><Button variant={user.banned ? 'primary' : 'danger'} disabled={user.role === 'ADMIN' || user.accountId === admin.accountId} onClick={() => setEditing(user)}>{user.banned ? 'Unban' : 'Ban'}</Button></div></td>
+              <td className="p-4"><div className="flex flex-wrap gap-2"><Button onClick={() => navigate(paths.adminUserById(user.accountId))}>Details</Button><Button variant={user.banned ? 'primary' : 'danger'} disabled={user.role === 'ADMIN' || user.accountId === admin.accountId} onClick={() => setEditing(user)}>{user.banned ? 'Unban' : 'Ban'}</Button></div></td>
             </tr>)}</tbody>
           </table></div>
           {state.data.content.length === 0 && <p className="p-space-lg text-center text-on-surface-variant">No matching accounts.</p>}
           <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-outline-variant/30 p-4"><span className="text-sm">{state.data.totalElements} accounts · Page {filters.page + 1}/{Math.max(state.data.totalPages, 1)}</span><div className="flex gap-3"><Button disabled={filters.page === 0} onClick={() => setFilters(current => ({ ...current, page: current.page - 1 }))}>Previous</Button><Button disabled={filters.page + 1 >= state.data.totalPages} onClick={() => setFilters(current => ({ ...current, page: current.page + 1 }))}>Next</Button></div></footer>
         </>}
       </section>
-      {selectedId && <UserBanDetails key={selectedId} accountId={selectedId} attempt={attempt} onClose={() => setSelectedId(null)} />}
       {editing && <BanUserDialog key={editing.accountId} user={editing} onClose={() => setEditing(null)} onSaved={saved} onReload={() => { setEditing(null); reload() }} />}
     </div>
   </div>

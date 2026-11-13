@@ -15,7 +15,7 @@ export default function UserBanDetails({ accountId, attempt, onClose }) {
     return () => controller.abort()
   }, [accountId, page, key])
   return <section className="rounded-2xl border border-outline-variant/40 bg-surface-container-low p-space-lg" aria-label="Account history">
-    <div className="mb-4 flex items-center justify-between gap-3"><h2 className="font-headline-md text-headline-md">Ban history</h2><Button onClick={onClose}>Close details</Button></div>
+    <div className="mb-4 flex items-center justify-between gap-3"><h2 className="font-headline-md text-headline-md">Ban history</h2>{onClose && <Button onClick={onClose}>Close details</Button>}</div>
     {result.key !== key ? <p role="status">Loading history…</p> : result.error ? <p role="alert">{errorMessage(result.error)}</p> : <>
       <p className="mb-1 break-words font-semibold">{result.user.email}</p>
       <p className="mb-4 text-sm text-on-surface-variant">{result.user.banned ? `Banned — ${result.user.bannedUntil ? `until ${dateTime(result.user.bannedUntil)}` : 'until an admin lifts it'}` : 'Not banned'}</p>
