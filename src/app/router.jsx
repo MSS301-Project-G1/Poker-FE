@@ -2,7 +2,7 @@ import { Route, Routes } from 'react-router'
 import { paths } from '@/shared/config/paths'
 import { AccountPage } from '@/features/account'
 import { AdminHomePage } from '@/features/admin/dashboard'
-import { AdminUsersPage } from '@/features/admin/users'
+import { AdminUserDetailPage, AdminUsersPage } from '@/features/admin/users'
 import { AdminAvatarsPage } from '@/features/admin/avatars'
 import { MatchSettingsPage } from '@/features/admin/match-settings'
 import { AdminShopPage, AdminEditProductPage } from '@/features/admin/shop'
@@ -48,6 +48,7 @@ export default function AppRoutes() {
       <Route element={<AdminLayout />}>
         <Route index element={<AdminHomePage />} />
         <Route path={paths.adminUsers} element={<AdminUsersPage />} />
+        <Route path={paths.adminUserById(':accountId')} element={<AdminUserDetailPage />} />
         <Route path={paths.adminAvatars} element={<AdminAvatarsPage />} />
         <Route path={paths.adminShop} element={<AdminShopPage />} />
         <Route path={paths.adminShopEditProduct(':id')} element={<AdminEditProductPage />} />
