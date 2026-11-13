@@ -7,6 +7,7 @@ import { useCommunity } from '../CommunityContext'
 import { communityApi as api } from '../api/communityApi'
 import { useResource } from '../hooks/useResource'
 import { useLeaveParty } from '../hooks/useLeaveParty'
+import { partyInviteText } from '../partyInvite'
 import { usePopover } from '../hooks/usePopover'
 import { FriendCheckButton } from './AddFriendButton'
 import { Avatar, Empty, ErrorNotice, Name } from './CommunityUI'
@@ -19,7 +20,6 @@ const kickPrompt = name => ({
   title: 'Remove from party?', message: `${name} will leave the party. The party password will change so they can’t rejoin with the old one.`,
   confirmLabel: 'Remove from party', icon: 'person_remove', danger: true,
 })
-const partyInvite = party => `Join my party! Room code: ${party.partyCode} · Password: ${party.password}`
 
 export default function PartyPanel({ room = false }) {
   const navigate = useNavigate()
@@ -64,7 +64,7 @@ export default function PartyPanel({ room = false }) {
   // Chat is the invite channel: the friend gets the code and password in a direct message.
   async function invite(accountId) {
     const conversation = await api.direct(accountId)
-    await api.send(conversation.id, { content: partyInvite(party), messageType: 'TEXT', clientMessageId: crypto.randomUUID() })
+    await api.send(conversation.id, { content: partyInviteText(party), messageType: 'TEXT', clientMessageId: crypto.randomUUID() })
   }
   return <section className={`${room ? styles.partyRoom : styles.card} ${locked ? styles.locked : ''}`} aria-labelledby="party-title">
     <header className={styles.cardHead}>

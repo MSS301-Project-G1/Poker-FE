@@ -423,3 +423,31 @@ test('leaderboard offers add friend only to non-friends and never on the friends
   await expect(page.getByRole('table').getByRole('row')).toHaveCount(3)
   await expect(page.getByRole('table').getByRole('button')).toHaveCount(0)
 })
+
+test('a party invite in direct chat joins in one click and shows why when it cannot', async ({ page }) => {
+  const joins = []
+  let joined = false
+  let accept = false
+  const party = { partyId: 'party', partyCode: 'EE9B8864', password: '260619', leaderId: friend, memberIds: [friend, self] }
+  const invite = (id, senderId) => ({ id, conversationId, senderId, messageType: 'TEXT', content: 'Join my party! Room code: EE9B8864 · Password: 260619', createdAt: '2026-11-13T16:51:00Z' })
+  await page.route(isPath(`/api/chat/conversations/${conversationId}/messages`), route => route.fulfill({ json: { items: [invite('m1', friend), invite('m2', self)], nextCursor: null } }))
+  await page.route(isPath('/api/party/me'), route => route.fulfill({ json: joined ? party : null }))
+  await page.route(isPath('/api/party/join'), route => {
+    joins.push(route.request().postDataJSON())
+    if (!accept) return route.fulfill({ status: 403, json: { code: 'MM_PARTY_WRONG_PASSWORD', message: 'Mật khẩu party không đúng.' } })
+    joined = true
+    return route.fulfill({ json: party })
+  })
+  await page.goto('/lobby')
+  await page.getByRole('button', { name: 'Friends & party', exact: true }).click()
+  await page.getByRole('button', { name: 'Message', exact: true }).click()
+  const join = page.getByRole('button', { name: 'Join party', exact: true })
+  await expect(join).toHaveCount(1)
+  await join.click()
+  await expect(page.getByText('Mật khẩu party không đúng.', { exact: true })).toBeVisible()
+  accept = true
+  await join.click()
+  await expect(page).toHaveURL(/\/ranked\?mode=PARTY$/)
+  await expect(page.getByRole('heading', { name: 'Party room' })).toBeVisible()
+  expect(joins).toEqual([{ partyCode: 'EE9B8864', password: '260619' }, { partyCode: 'EE9B8864', password: '260619' }])
+})

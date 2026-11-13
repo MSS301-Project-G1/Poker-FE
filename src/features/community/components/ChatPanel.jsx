@@ -1,10 +1,38 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router'
+import { paths } from '@/shared/config/paths'
 import { Button, Icon } from '@/shared/ui'
 import { useCommunity } from '../CommunityContext'
 import { communityApi as api } from '../api/communityApi'
 import { useResource } from '../hooks/useResource'
+import { ALREADY_IN_PARTY, readPartyInvite } from '../partyInvite'
 import { Avatar, Empty, ErrorNotice, Name } from './CommunityUI'
 import styles from '../Community.module.css'
+
+// One click joins with the invite's code and password; the server's reason is shown when it refuses
+// (wrong password after a kick, party full or already searching). Being in that same party just opens it.
+function PartyInviteJoin({ invite }) {
+  const navigate = useNavigate()
+  const { setPanel } = useCommunity()
+  const [busy, setBusy] = useState(false)
+  const [failure, setFailure] = useState('')
+  const openRoom = () => { setPanel(null); navigate(`${paths.ranked}?mode=PARTY`) }
+  async function join() {
+    setBusy(true); setFailure('')
+    try {
+      await api.joinParty(invite.partyCode, invite.password)
+      openRoom()
+    } catch (error) {
+      const current = error.code === ALREADY_IN_PARTY ? await api.party().catch(() => null) : null
+      if (current?.partyCode === invite.partyCode) openRoom()
+      else setFailure(error.message)
+    } finally { setBusy(false) }
+  }
+  return <div className={styles.inviteAction}>
+    <Button size="sm" variant="primary" icon="group_add" loading={busy} onClick={() => void join()}>Join party</Button>
+    {failure && <small className={styles.inviteError} role="alert">{failure}</small>}
+  </div>
+}
 
 const sortedMessages = rows => [...new Map(rows.map(row => [row.id || row.clientMessageId, row])).values()].sort((a, b) => a.createdAt.localeCompare(b.createdAt) || (a.id || '').localeCompare(b.id || ''))
 const emotes = ['😀', '😂', '🤣', '😊', '😍', '😎', '🤔', '😅', '😭', '😡', '🤝', '👏', '🔥', '💯', '🎉', '❤️', '💔', '👋', '👍', '👎', '🎲', '🃏', '♠️', '♥️', '♦️', '♣️']
@@ -82,10 +110,10 @@ function ConversationChat({ conversation, readOnly, showBack }) {
     <div ref={log} className={styles.chatLog} onScroll={() => { if (log.current) atBottom.current = log.current.scrollHeight - log.current.scrollTop - log.current.clientHeight < 60 }}>
       {cursor && <button className={styles.loadMore} type="button" disabled={historyBusy} onClick={more}>{historyBusy ? 'Loading…' : 'Load older messages'}</button>}
       {loading ? <Empty icon="chat_bubble">Loading conversations…</Empty> : !messages.length && !pending.length ? <Empty icon="waving_hand">Say hello to start the conversation.</Empty> : null}
-      {[...messages, ...pending].map(row => <div key={row.id || row.clientMessageId} className={`${styles.message} ${row.senderId === user?.accountId ? styles.own : ''}`}>
+      {[...messages, ...pending].map(row => { const invite = conversation.type === 'DIRECT' && row.senderId !== user?.accountId ? readPartyInvite(row.content) : null; return <div key={row.id || row.clientMessageId} className={`${styles.message} ${row.senderId === user?.accountId ? styles.own : ''}`}>
         {row.senderId !== user?.accountId && <Avatar id={row.senderId} size="small" />}
-        <div><div className={styles.bubble}>{row.content}</div><small className={styles.messageMeta}>{new Date(row.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}{row.status === 'pending' ? ' · Sending…' : ''}{row.status === 'failed' && <button type="button" disabled={busy || closed} className={styles.dangerLink} onClick={() => send(row)}> · Retry</button>}</small></div>
-      </div>)}
+        <div><div className={styles.bubble}>{row.content}{invite && <PartyInviteJoin invite={invite} />}</div><small className={styles.messageMeta}>{new Date(row.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}{row.status === 'pending' ? ' · Sending…' : ''}{row.status === 'failed' && <button type="button" disabled={busy || closed} className={styles.dangerLink} onClick={() => send(row)}> · Retry</button>}</small></div>
+      </div> })}
     </div>
     <form className={styles.composer} onSubmit={event => { event.preventDefault(); void send() }}>
       <div className={styles.inputWrap}>
