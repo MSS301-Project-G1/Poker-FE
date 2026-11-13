@@ -21,6 +21,7 @@ export const paths = {
   tournamentById: tournamentId => `/tournaments/${tournamentId}`,
   admin: '/admin',
   adminUsers: '/admin/users',
+  adminUserById: accountId => `/admin/users/${accountId}`,
   adminAvatars: '/admin/avatars',
   adminMatchSettings: '/admin/match-settings',
   adminShop: '/admin/shop',
