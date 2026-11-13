@@ -50,8 +50,14 @@ function ConversationChat({ conversation, readOnly }) {
       setOutgoing(rows => rows.map(row => row.clientMessageId === entry.clientMessageId ? { ...sent, status: 'sent' } : row))
       reload()
     } catch (error) {
-      setOutgoing(rows => rows.map(row => row.clientMessageId === entry.clientMessageId ? { ...row, status: 'failed' } : row))
-      setFailure(error.message)
+      if (error.code === 'CHAT_CONTENT_NOT_ALLOWED') {
+        setOutgoing(rows => rows.filter(row => row.clientMessageId !== entry.clientMessageId))
+        setDraft(current => current || entry.content)
+        setFailure('Your message contains inappropriate language. Please edit it before sending.')
+      } else {
+        setOutgoing(rows => rows.map(row => row.clientMessageId === entry.clientMessageId ? { ...row, status: 'failed' } : row))
+        setFailure(error.message)
+      }
     } finally { setBusy(false) }
   }
 

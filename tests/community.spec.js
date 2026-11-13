@@ -27,6 +27,40 @@ test.beforeEach(async ({ page }) => {
   })
 })
 
+test('chat restores a moderated message for editing without offering retry', async ({ page }) => {
+  const sends = []
+  await page.route('**/api/auth/session/claim', route => route.fulfill({ json: { result: {} } }))
+  await page.route('**/api/auth/session', route => route.fulfill({ json: { result: {} } }))
+  await page.route('**/api/game/me/active-table', route => route.fulfill({ json: null }))
+  await page.route(`**/api/chat/conversations/${conversationId}/messages`, route => {
+    const body = route.request().postDataJSON()
+    sends.push(body)
+    if (body.content === 'dcm') return route.fulfill({
+      status: 400,
+      json: { code: 'CHAT_CONTENT_NOT_ALLOWED', message: 'Tin nhắn có từ ngữ không phù hợp.' },
+    })
+    return route.fulfill({ status: 201, json: {
+      ...body, id: 'message-test', conversationId, senderId: self,
+      createdAt: '2026-10-22T10:00:00Z',
+    } })
+  })
+  await page.goto('/lobby')
+  await page.getByRole('button', { name: 'Friends & party', exact: true }).click()
+  await page.getByRole('button', { name: 'Message', exact: true }).click()
+  const input = page.getByRole('textbox', { name: 'Message' })
+  await expect(input).toBeEnabled()
+  await input.fill('dcm')
+  await page.getByRole('button', { name: 'Send', exact: true }).click()
+  await expect(page.getByText('Your message contains inappropriate language. Please edit it before sending.')).toBeVisible()
+  await expect(input).toHaveValue('dcm')
+  await expect(page.getByRole('button', { name: /Retry/ })).toHaveCount(0)
+  await input.fill('Xin chào')
+  await page.getByRole('button', { name: 'Send', exact: true }).click()
+  await expect(input).toHaveValue('')
+  await expect(page.getByText('Xin chào', { exact: true })).toBeVisible()
+  expect(sends.map(row => row.content)).toEqual(['dcm', 'Xin chào'])
+})
+
 test('lobby ports the lounge controls and party membership from the server', async ({ page }) => {
   let party = null
   await page.route('**/api/party/me', route => route.fulfill({ json: party }))
