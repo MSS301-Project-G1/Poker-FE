@@ -20,7 +20,7 @@ export default function RoomControls({ room, me, isOwner, busy, error, onStart, 
     </>}
     {waiting && me && !isOwner && <Button variant={me.ready ? 'secondary' : 'primary'} className={styles.wide} disabled={busy}
       onClick={() => onReady(!me.ready)}>{me.ready ? 'Not ready' : "I'm ready"}</Button>}
-    <InviteForm disabled={busy} onInvite={onInvite} />
+    <InviteForm memberIds={room.members.map(member => member.accountId)} disabled={busy} onInvite={onInvite} />
     <Button className={styles.leave} disabled={busy || !waiting} onClick={onLeave}>Leave room</Button>
   </Panel>
 }

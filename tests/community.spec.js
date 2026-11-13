@@ -12,6 +12,8 @@ test.beforeEach(async ({ page }) => {
   await page.route('**/api/**', async route => {
     const path = new URL(route.request().url()).pathname
     if (!path.startsWith('/api/')) return route.fallback()
+    if (path === '/api/auth/session/claim' || path === '/api/auth/session') return route.fulfill({ json: { result: {} } })
+    if (path === '/api/game/me/active-table') return route.fulfill({ json: null })
     if (path === '/api/auth/csrf') return route.fulfill({ json: { result: { token: 'csrf-test' } } })
     if (path === '/api/auth/me') return route.fulfill({ json: { result: { accountId: self, email: 'player@example.test', role: 'USER', profile: { displayName: 'Minh Poker' } } } })
     if (path === '/api/profiles/batch') return route.fulfill({ json: { result: [{ accountId: friend, displayName: 'Linh Ace' }] } })
@@ -343,4 +345,81 @@ test('table resolves MATCH chat by matchId across pages and keeps a closed conve
   await expect(page.getByRole('heading', { name: 'Match chat' })).toBeVisible()
   await expect(page.getByRole('textbox', { name: 'Message' })).toBeDisabled()
   expect(historyRead).toBe(true)
+})
+
+const stranger = '00000000-0000-0000-0000-000000000005'
+const busyFriend = '00000000-0000-0000-0000-000000000006'
+const isPath = path => url => url.pathname === path
+
+test('party room friend popover rechecks friendship on every open and closes on outside click or Escape', async ({ page }) => {
+  let friendIds = []
+  const checks = []
+  await page.route(isPath('/api/party/me'), route => route.fulfill({ json: { partyId: 'party', leaderId: self, memberIds: [self, friend], partyCode: 'AB12CD34', password: '482913' } }))
+  await page.route(isPath('/api/friends/check'), route => {
+    checks.push(new URL(route.request().url()).searchParams.get('ids'))
+    return route.fulfill({ json: friendIds })
+  })
+  await page.goto('/ranked?mode=PARTY')
+  const avatar = page.getByRole('button', { name: 'View Linh Ace', exact: true })
+  await avatar.click()
+  await expect(page.getByRole('button', { name: 'Add friend', exact: true })).toBeEnabled()
+  await page.getByRole('heading', { name: 'Party room' }).click()
+  await expect(page.getByRole('button', { name: 'Add friend', exact: true })).toHaveCount(0)
+  // The friendship is accepted elsewhere; reopening must ask again instead of trusting the first answer.
+  friendIds = [friend]
+  await avatar.click()
+  await expect(page.getByRole('button', { name: 'Friends', exact: true })).toBeDisabled()
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('button', { name: 'Friends', exact: true })).toHaveCount(0)
+  await avatar.click()
+  await expect(page.getByRole('button', { name: 'Friends', exact: true })).toBeVisible()
+  await avatar.click()
+  await expect(page.getByRole('button', { name: 'Friends', exact: true })).toHaveCount(0)
+  // Dev StrictMode mounts twice, so count only that every open asked about exactly this player.
+  expect(checks.length).toBeGreaterThanOrEqual(3)
+  expect(new Set(checks)).toEqual(new Set([friend]))
+})
+
+test('party invite sends the code by chat and friends in a match cannot be invited', async ({ page }) => {
+  const sends = []
+  await page.route(isPath('/api/party/me'), route => route.fulfill({ json: { partyId: 'party', leaderId: self, memberIds: [self], partyCode: 'AB12CD34', password: '482913' } }))
+  await page.route(isPath('/api/friends'), route => route.fulfill({ json: pageOf([friend, busyFriend]) }))
+  await page.route(isPath('/api/profiles/batch'), route => route.fulfill({ json: { result: [{ accountId: friend, displayName: 'Linh Ace' }, { accountId: busyFriend, displayName: 'Bao Busy' }] } }))
+  await page.route(isPath('/api/game/players/in-match'), route => route.fulfill({ json: [busyFriend] }))
+  await page.route(isPath(`/api/chat/conversations/${conversationId}/messages`), route => {
+    sends.push(route.request().postDataJSON())
+    return route.fulfill({ status: 201, json: { id: 'message-test', conversationId, senderId: self } })
+  })
+  await page.goto('/ranked?mode=PARTY')
+  await page.getByText('Invite friends', { exact: true }).click()
+  const busy = page.getByRole('listitem').filter({ hasText: 'Bao Busy' })
+  await expect(busy.getByText('In a match', { exact: true })).toBeVisible()
+  await expect(busy.getByRole('button', { name: 'In match', exact: true })).toBeDisabled()
+  const free = page.getByRole('listitem').filter({ hasText: 'Linh Ace' })
+  await free.getByRole('button', { name: 'Invite', exact: true }).click()
+  await expect(free.getByRole('button', { name: 'Invited', exact: true })).toBeDisabled()
+  expect(sends).toHaveLength(1)
+  expect(sends[0].content).toContain('AB12CD34')
+  expect(sends[0].content).toContain('482913')
+})
+
+test('leaderboard offers add friend only to non-friends and never on the friends tab', async ({ page }) => {
+  const row = (accountId, position) => ({ position, rank: position, accountId, elo: 100 - position, tier: 'NEWBIE', winStreak: 0, matchesPlayed: 0 })
+  await page.route(isPath('/api/seasons/current'), route => route.fulfill({ json: { id: 'season', name: 'Season 1', endAt: '2099-01-01T00:00:00Z' } }))
+  await page.route(isPath('/api/ranking/leaderboard'), route => route.fulfill({ json: { content: [row(friend, 1), row(stranger, 2), row(self, 3)], totalElements: 3, totalPages: 1 } }))
+  await page.route(isPath('/api/ranking/me'), route => route.fulfill({ json: { ...row(self, 3), peakElo: 97 } }))
+  await page.route(isPath('/api/ranking/friends'), route => route.fulfill({ json: [{ ...row(friend, 1), you: false }, { ...row(self, 2), you: true }] }))
+  await page.route(isPath('/api/friends/check'), route => route.fulfill({ json: [friend] }))
+  await page.route(isPath('/api/friends/requests'), route => route.request().method() === 'POST'
+    ? route.fulfill({ status: 201, json: { id: requestId, requesterId: self, addresseeId: stranger, status: 'PENDING' } })
+    : route.fallback())
+  await page.goto('/ranking')
+  const table = page.getByRole('table')
+  await expect(table.getByRole('button', { name: 'Add friend', exact: true })).toHaveCount(1)
+  const strangerRow = table.getByRole('row').filter({ hasText: 'Player 000005' })
+  await strangerRow.getByRole('button', { name: 'Add friend', exact: true }).click()
+  await expect(strangerRow.getByRole('button', { name: 'Request sent', exact: true })).toBeDisabled()
+  await page.goto('/ranking?view=friends')
+  await expect(page.getByRole('table').getByRole('row')).toHaveCount(3)
+  await expect(page.getByRole('table').getByRole('button')).toHaveCount(0)
 })
