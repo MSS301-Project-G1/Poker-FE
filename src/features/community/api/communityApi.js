@@ -13,10 +13,6 @@ export const communityApi = {
   joinParty: (partyCode, password) => call('/api/party/join', { method: 'POST', body: { partyCode, password } }),
   kick: accountId => call('/api/party/kick', { method: 'POST', body: { accountId } }),
   leaveParty: () => call('/api/party/leave', { method: 'DELETE' }),
-  inviteParty: accountId => call('/api/party/invitations', { method: 'POST', body: { accountId } }),
-  partyInvitations: (direction = 'INCOMING', signal) => call(`/api/party/invitations?direction=${direction}`, { signal }),
-  acceptPartyInvite: id => call(`/api/party/invitations/${id}/accept`, { method: 'POST' }),
-  declinePartyInvite: id => call(`/api/party/invitations/${id}/decline`, { method: 'POST' }),
   friends: (page, signal) => call(`/api/friends?page=${page}&size=20`, { signal }),
   requests: (direction, page, signal) => call(`/api/friends/requests?direction=${direction}&page=${page}&size=20`, { signal }),
   blocks: (page, signal) => call(`/api/blocks?page=${page}&size=20`, { signal }),
@@ -30,7 +26,6 @@ export const communityApi = {
   directConversations: (page, signal) => call(`/api/chat/conversations?type=DIRECT&page=${page}&size=20`, { signal }),
   conversation: (id, signal) => call(`/api/chat/conversations/${id}`, { signal }),
   direct: accountId => call('/api/chat/conversations/direct', { method: 'POST', body: { accountId } }),
-  world: () => call('/api/chat/conversations/world', { method: 'POST' }),
   history: (id, cursor, signal) => call(`/api/chat/conversations/${id}/messages?limit=20${cursor ? `&before=${encodeURIComponent(cursor)}` : ''}`, { signal }),
   send: (id, body) => call(`/api/chat/conversations/${id}/messages`, { method: 'POST', body }),
 }

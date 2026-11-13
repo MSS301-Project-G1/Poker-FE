@@ -156,8 +156,7 @@ function AccountCommunity({ user, children }) {
   useEffect(() => { if (messageAlert?.senderId) void loadProfiles([messageAlert.senderId]) }, [messageAlert, loadProfiles])
   const openChat = useCallback(row => { setConversation(row); setPanel('chat'); markChatRead(row.id) }, [markChatRead])
   const clearChat = useCallback(() => setConversation(null), [])
-  const sendFriendRequest = useCallback(accountId => communityApi.addFriend(accountId), [])
   const unreadCount = Object.values(unreadMessages).reduce((total, count) => total + count, 0)
-  const value = useMemo(() => ({ user, panel, setPanel, conversation, openChat, clearChat, sendFriendRequest, profiles, loadProfiles, notifications, chatMessages, connection, unreadMessages, unreadCount, messageAlert, dismissMessageAlert, registerVisibleChat }), [user, panel, conversation, openChat, clearChat, sendFriendRequest, profiles, loadProfiles, notifications, chatMessages, connection, unreadMessages, unreadCount, messageAlert, dismissMessageAlert, registerVisibleChat])
+  const value = useMemo(() => ({ user, panel, setPanel, conversation, openChat, clearChat, profiles, loadProfiles, notifications, chatMessages, connection, unreadMessages, unreadCount, messageAlert, dismissMessageAlert, registerVisibleChat }), [user, panel, conversation, openChat, clearChat, profiles, loadProfiles, notifications, chatMessages, connection, unreadMessages, unreadCount, messageAlert, dismissMessageAlert, registerVisibleChat])
   return <CommunityContext.Provider value={value}>{children}</CommunityContext.Provider>
 }

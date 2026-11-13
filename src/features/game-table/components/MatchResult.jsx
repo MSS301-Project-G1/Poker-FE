@@ -2,13 +2,11 @@ import { AvatarFrame, VictoryEffect } from '@/shared/skin'
 import { Button, Icon } from '@/shared/ui'
 import { playerName } from '../labels'
 import styles from './MatchResult.module.css'
-import { useCommunity } from '@/features/community'
 
 // The podium places get their own medal colours; everyone below shares the plain one.
 const medals = { 1: styles.gold, 2: styles.silver, 3: styles.bronze }
 
 export default function MatchResult({ mode, placements, accountId, profiles, rewards, onExit }) {
-  const { sendFriendRequest } = useCommunity()
   const sorted = [...placements].sort((a, b) => a.place - b.place)
   const own = sorted.find(player => player.accountId === accountId)
   const won = own?.place === 1
@@ -26,7 +24,6 @@ export default function MatchResult({ mode, placements, accountId, profiles, rew
         <span className={`${styles.medal} ${medals[player.place] ?? ''}`}>{player.place}</span>
         <AvatarFrame avatarUrl={profiles[player.accountId]?.avatarUrl} name={name} />
         <span className={styles.name}><strong title={name}>{name}</strong>{you && <small>YOU</small>}</span>
-        {!you && <button type="button" className={styles.friendButton} aria-label={`Add ${name} as friend`} onClick={() => void sendFriendRequest(player.accountId)}><Icon name="person_add" /></button>}
         <span className={styles.chips}><Icon name="toll" />{player.finalChips.toLocaleString()}</span>
       </li>
     })}</ol>

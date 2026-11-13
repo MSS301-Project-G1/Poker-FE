@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { Button, Icon } from '@/shared/ui'
+import { Button } from '@/shared/ui'
 import { communityApi as api } from '../api/communityApi'
 import { useResource } from '../hooks/useResource'
 import { ErrorNotice } from './CommunityUI'
@@ -44,7 +44,6 @@ export default function FindPlayers({ busy, run }) {
     }}>
       <label htmlFor="find-player">Find a player</label>
       <div className={ui.searchControls}>
-        <Icon name="search" />
         <input id="find-player" placeholder="Enter a name or player code" minLength={2} maxLength={100} required value={query} onChange={event => setQuery(event.target.value)} />
         <Button type="submit" disabled={query.trim().length < 2}>Search</Button>
       </div>
