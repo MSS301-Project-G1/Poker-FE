@@ -20,7 +20,7 @@ const kickPrompt = name => ({
 export default function PartyPanel({ room = false }) {
   const navigate = useNavigate()
   const openRoom = () => navigate(`${paths.ranked}?mode=PARTY`)
-  const { user, loadProfiles, profiles } = useCommunity()
+  const { user, loadProfiles, profiles, sendFriendRequest } = useCommunity()
   const confirm = useConfirm()
   const notify = useToast()
   const leaveParty = useLeaveParty()
@@ -32,6 +32,7 @@ export default function PartyPanel({ room = false }) {
   const [busy, setBusy] = useState(false)
   const [failure, setFailure] = useState('')
   const [message, setMessage] = useState('')
+  const [selectedMember, setSelectedMember] = useState(null)
   const [code, setCode] = useState('')
   const [password, setPassword] = useState('')
   const canJoin = partyCodePattern.test(code) && partyPasswordPattern.test(password)
@@ -56,7 +57,11 @@ export default function PartyPanel({ room = false }) {
     } catch (failure) { setFailure(failure.message) }
     finally { setBusy(false) }
   }
-  return <section className={room ? styles.partyRoom : styles.card} aria-labelledby="party-title">
+  async function openMember(id) {
+    if (!id || id === user?.accountId) return
+    setSelectedMember(id)
+  }
+  return <section className={`${room ? styles.partyRoom : styles.card} ${locked ? styles.locked : ''}`} aria-labelledby="party-title">
     <header className={styles.cardHead}>
       <div className="flex items-center gap-space-sm min-w-0">
         <span className={styles.modeIcon} aria-hidden="true"><Icon name={room ? 'groups' : 'casino'} /></span>
@@ -119,7 +124,7 @@ export default function PartyPanel({ room = false }) {
       {party.password && <div className={styles.partyCode}><span className={styles.muted}>Password</span><code>{party.password}</code><button type="button" className={styles.iconButton} aria-label="Copy party password" onClick={() => run(() => navigator.clipboard.writeText(party.password), 'Party password copied.')}><Icon name="content_copy" /></button></div>}
       <p className={`${styles.hint} short:!hidden`}><Icon name="share" />Send the code and password to friends so they can join.</p>
       {locked && <p className={styles.hint}><Icon name="lock" />Party is searching — members are locked.</p>}
-      <details className={styles.partyMembers}><summary>Manage members · {party.memberIds.length}</summary><ul className={styles.list}>{party.memberIds.map(id => <li className={styles.row} key={id}><Avatar id={id} /><span className={styles.person}><strong><Name id={id} /></strong>{id === user?.accountId && <small className={styles.muted}>You</small>}</span>{id === party.leaderId && <span className={styles.leader} title="Leader"><Icon name="crown" /></span>}{leader && id !== user?.accountId && <button className={styles.iconButton} type="button" aria-label="Remove member" disabled={busy || locked} onClick={async () => { if (await confirm(kickPrompt(profiles[id]?.displayName || 'This player'))) void run(() => api.kick(id), 'Player removed. The party password has changed.') }}><Icon name="person_remove" /></button>}</li>)}</ul></details>
+      <details className={styles.partyMembers}><summary>Manage members · {party.memberIds.length}</summary><ul className={styles.list}>{party.memberIds.map(id => <li className={styles.row} key={id}><button type="button" className={styles.memberAvatarButton} onClick={() => openMember(id)} aria-label={`View ${profiles[id]?.displayName || 'player'} profile`}><Avatar id={id} /></button><span className={styles.person}><strong><Name id={id} /></strong>{id === user?.accountId && <small className={styles.muted}>You</small>}</span>{id === party.leaderId && <span className={styles.leader} title="Leader"><Icon name="crown" /></span>}{leader && id !== user?.accountId && <button className={styles.iconButton} type="button" aria-label="Remove member" disabled={busy || locked} onClick={async () => { if (await confirm(kickPrompt(profiles[id]?.displayName || 'This player'))) void run(() => api.kick(id), 'Player removed. The party password has changed.') }}><Icon name="person_remove" /></button>}{selectedMember === id && <div className={styles.memberPopover}><strong><Name id={id} /></strong>{id !== user?.accountId && <Button type="button" onClick={() => void sendFriendRequest(id)}><Icon name="person_add" />Add friend</Button>}</div>}</li>)}</ul></details>
       <Button className={styles.full} disabled={busy || locked} onClick={leaveGroup}>Leave party</Button>
     </div>}
   </section>

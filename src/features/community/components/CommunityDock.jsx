@@ -5,6 +5,7 @@ import { Icon } from '@/shared/ui'
 import { useCommunity } from '../CommunityContext'
 import FriendsPanel from './FriendsPanel'
 import NotificationsPanel from './NotificationsPanel'
+import { WorldChat } from './ChatPanel'
 import styles from '../Community.module.css'
 import ui from './FriendsPanel.module.css'
 import { communityApi } from '../api/communityApi'
@@ -12,9 +13,9 @@ import { Avatar, Name } from './CommunityUI'
 
 export default function CommunityDock() {
   const { pathname } = useLocation()
-  const { user, panel, setPanel, unreadCount, clearChat } = useCommunity()
+  const { user, panel, setPanel, unreadCount, clearChat, conversation } = useCommunity()
   if (!user || pathname.startsWith('/admin')) return null
-  return user ? <>{createPortal(<nav className={styles.dock} aria-label="Quick connect"><button className={styles.dockButton} type="button" aria-label="Friends & party" onClick={() => { if (unreadCount) { clearChat(); setPanel('chat') } else setPanel('friends') }}><Icon name="forum" /><span>Friends & party</span>{unreadCount > 0 && <span className={styles.unreadBadge} aria-label={`${unreadCount} unread message${unreadCount === 1 ? '' : 's'}`}>{unreadCount > 99 ? '99+' : unreadCount}</span>}</button></nav>, document.body)}<MessageAlert />{panel && <CommunityDialog key={panel === 'notifications' ? 'notifications' : 'community'} />}</> : null
+  return user ? <>{createPortal(<nav className={styles.dock} aria-label="Quick connect"><button className={styles.dockButton} type="button" aria-label="Friends & party" onClick={() => { if (unreadCount) { clearChat(); setPanel('chat') } else setPanel('friends') }}><Icon name="forum" /><span>Friends & party</span>{unreadCount > 0 && <span className={styles.unreadBadge} aria-label={`${unreadCount} unread message${unreadCount === 1 ? '' : 's'}`}>{unreadCount > 99 ? '99+' : unreadCount}</span>}</button>{pathname === '/lobby' && <button className={styles.dockButton} type="button" aria-label="World chat" onClick={() => setPanel('world')}><Icon name="public" /><span>World chat</span></button>}</nav>, document.body)}<MessageAlert />{panel && <CommunityDialog key={panel === 'notifications' ? 'notifications' : panel === 'world' ? 'world' : 'community'} />}</> : null
 }
 
 function MessageAlert() {
@@ -39,9 +40,9 @@ function MessageAlert() {
 }
 
 function CommunityDialog() {
-  const { panel, setPanel, unreadCount } = useCommunity()
+  const { user, panel, setPanel, unreadCount, conversation } = useCommunity()
   const dialog = useRef(null)
-  const title = panel === 'notifications' ? 'Notifications' : 'Friends & messages'
+  const title = panel === 'notifications' ? 'Notifications' : panel === 'world' ? 'World chat' : 'Friends & messages'
   useEffect(() => {
     const previous = document.activeElement
     const overflow = document.body.style.overflow
@@ -61,14 +62,14 @@ function CommunityDialog() {
   }, [setPanel])
   return createPortal(<div className={styles.scrim} onClick={event => { if (event.target === event.currentTarget) setPanel(null) }}>
     <section className={styles.dialog} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1} ref={dialog}>
-      <header className={panel === 'notifications' ? styles.dialogHead : ui.compactHeader}>
-        {panel === 'notifications' ? <h2>Notifications</h2> : <div className={ui.tabs} role="tablist" aria-label="Chat and friends">
+      <header className={panel === 'world' ? `${styles.dialogHead} ${styles.worldHeader}` : panel === 'notifications' ? styles.dialogHead : ui.compactHeader}>
+        {panel === 'notifications' ? <h2>Notifications</h2> : panel === 'world' ? <div className={styles.worldTitle}><Icon name="public" /><div><strong>World chat</strong><small>Connected · Live chat</small></div></div> : panel === 'chat' && conversation ? <div className={styles.worldTitle}><Icon name="forum" /><div><strong><Name id={Array.isArray(conversation.memberIds) ? conversation.memberIds.find(id => id !== user?.accountId) : conversation.peerId} /></strong><small>Connected · Live chat</small></div></div> : <div className={ui.tabs} role="tablist" aria-label="Chat and friends">
           <button type="button" role="tab" aria-label="Chat" aria-selected={panel === 'chat'} onClick={() => setPanel('chat')}>Chat{unreadCount > 0 && <span className={styles.unreadBadge} aria-label={`${unreadCount} unread message${unreadCount === 1 ? '' : 's'}`}>{unreadCount > 99 ? '99+' : unreadCount}</span>}</button>
           <button type="button" role="tab" aria-selected={panel === 'friends'} onClick={() => setPanel('friends')}>Friends</button>
         </div>}
         <button className={styles.iconButton} type="button" aria-label="Close panel" onClick={() => setPanel(null)}><Icon name="close" /></button>
       </header>
-      <div className={styles.dialogBody}>{panel === 'notifications' ? <NotificationsPanel /> : <FriendsPanel />}</div>
+      <div className={styles.dialogBody}>{panel === 'notifications' ? <NotificationsPanel /> : panel === 'world' ? <WorldChat /> : <FriendsPanel />}</div>
     </section>
   </div>, document.body)
 }

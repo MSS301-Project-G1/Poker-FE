@@ -26,6 +26,7 @@ export const communityApi = {
   directConversations: (page, signal) => call(`/api/chat/conversations?type=DIRECT&page=${page}&size=20`, { signal }),
   conversation: (id, signal) => call(`/api/chat/conversations/${id}`, { signal }),
   direct: accountId => call('/api/chat/conversations/direct', { method: 'POST', body: { accountId } }),
+  world: () => call('/api/chat/conversations/world', { method: 'POST' }),
   history: (id, cursor, signal) => call(`/api/chat/conversations/${id}/messages?limit=20${cursor ? `&before=${encodeURIComponent(cursor)}` : ''}`, { signal }),
   send: (id, body) => call(`/api/chat/conversations/${id}/messages`, { method: 'POST', body }),
 }

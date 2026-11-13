@@ -28,9 +28,15 @@
 .progress b { background: rgb(var(--color-primary-container)); padding: 3px 8px; border-radius: 20px; margin-left: 8px; }
 .progress > span { color: rgb(var(--color-on-surface-variant)); }
 .seats { display: grid; grid-template-columns: repeat(var(--seats), minmax(0, 1fr)); gap: 12px; }
-.seat { min-width: 0; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 16px 8px; border-radius: 12px; background: rgb(var(--color-surface-container-low) / .6); gap: 5px; }
+.seat { position: relative; min-width: 0; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 16px 8px; border-radius: 12px; background: rgb(var(--color-surface-container-low) / .6); gap: 5px; }
 .seat.filled { background: rgb(var(--color-surface-container)); }
 .seat img, .avatar { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; margin-bottom: 8px; background: rgb(var(--color-surface-container-high)); }
+.seatAvatarButton { padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; }
+.seatAvatarButton:hover { outline: 2px solid rgb(var(--color-primary) / .65); outline-offset: 2px; }
+.seatPopover { position: absolute; z-index: 5; top: 76px; left: 50%; display: grid; gap: 4px; min-width: 140px; padding: 10px; transform: translateX(-50%); border: 1px solid rgb(var(--color-primary) / .55); border-radius: 12px; background: rgb(var(--color-surface-container-high)); box-shadow: var(--shadow-popover); text-align: left; }
+.seatPopover strong { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.seatPopover span, .seatPopover small { color: rgb(var(--color-on-surface-variant)); font-size: 11px; }
+.seatPopover button { min-height: 28px; padding: 4px 8px; border-radius: 8px; background: rgb(var(--color-primary-container)); color: rgb(var(--color-on-primary-container)); font-size: 11px; }
 .avatar { display: grid; place-items: center; color: rgb(var(--color-primary)); }
 .seat strong { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
 .seat > span:not(.avatar), .seat small { font-size: 10px; color: rgb(var(--color-on-surface-variant)); }
