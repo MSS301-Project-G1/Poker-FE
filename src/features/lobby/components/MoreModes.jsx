@@ -1,11 +1,19 @@
 import { Link } from 'react-router'
 import { paths } from '@/shared/config/paths'
 import { Icon } from '@/shared/ui'
+import { useAuth } from '@/features/auth'
 
 /** tutorial: useTutorialStatus() status from the tutorial feature; null while unknown, which hides the reward. */
 export default function MoreModes({ tutorial, collapsed = false }) {
+  const { user } = useAuth()
   const reward = tutorial && !tutorial.completed ? `+${tutorial.rewardCoins.toLocaleString()} coins` : null
   const modes = [
+    ...(user?.role === 'ADMIN' ? [{
+      to: paths.admin,
+      icon: 'admin_panel_settings',
+      title: 'Admin dashboard',
+      text: 'Manage users, shop & game settings',
+    }] : []),
     { to: paths.rooms, icon: 'meeting_room', title: 'Private rooms', text: 'Play with friends · no Elo' },
     { to: paths.tournaments, icon: 'emoji_events', title: 'Tournaments', text: 'Open and Masters events with prizes' },
     { to: paths.tutorial, icon: 'school', title: 'Tutorial', text: 'Learn the rules in 2 sample hands', badge: reward },
