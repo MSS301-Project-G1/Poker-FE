@@ -38,6 +38,15 @@ export default function AppHeader({ user, coins, onLogout, logoutPending, onOpen
         <nav className="hidden lg:flex items-center gap-space-xs">
           {navItems.map(item => <NavLink key={item.to} to={item.to}
             className={state => `${navClass(state)}${item.wide ? ' hidden xl:block' : ''}`}>{item.label}</NavLink>)}
+          {user?.role === 'ADMIN' && (
+            <NavLink
+              to={paths.admin}
+              className={state => `${navClass(state)} flex items-center gap-1.5 text-primary hover:text-primary font-semibold`}
+            >
+              <Icon name="admin_panel_settings" className="text-lg text-primary" />
+              <span>Dashboard</span>
+            </NavLink>
+          )}
         </nav>
       </div>
       <div className="flex items-center gap-space-xs sm:gap-space-md">
@@ -54,8 +63,14 @@ export default function AppHeader({ user, coins, onLogout, logoutPending, onOpen
           {onOpenNotifications && <button className={iconButton} title="Notifications" aria-label="Notifications" onClick={onOpenNotifications} type="button"><Icon name="notifications" className="text-lg" /></button>}
           <button className={iconButton} title={soundEnabled ? 'Mute sound' : 'Unmute sound'} aria-label={soundEnabled ? 'Mute sound' : 'Unmute sound'} aria-pressed={soundEnabled} onClick={toggleSound} type="button"><Icon name={soundEnabled ? 'volume_up' : 'volume_off'} className="text-lg" /></button>
           {user?.role === 'ADMIN' && (
-            <NavLink className={iconButton} title="Admin" aria-label="Admin" to={paths.admin}>
+            <NavLink
+              to={paths.admin}
+              title="Admin dashboard"
+              aria-label="Admin dashboard"
+              className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-primary/15 hover:bg-primary/25 border border-primary/40 text-primary font-label-action text-sm font-semibold transition-all active:scale-95 shadow-sm"
+            >
               <Icon name="admin_panel_settings" className="text-lg text-primary" />
+              <span className="hidden sm:inline">Admin</span>
             </NavLink>
           )}
           <NavLink className={iconButton} title="Account settings" aria-label="Account settings" to={paths.account}><Icon name="settings" className="text-lg" /></NavLink>
