@@ -3,6 +3,7 @@ import { Icon } from '@/shared/ui'
 import { actionLabels, handLabels, label, playerName } from '../labels'
 import ChipStack from './ChipStack'
 import styles from './PlayerSeat.module.css'
+import { useCommunity } from '@/features/community'
 
 const actionTones = { FOLD: 'muted', CHECK: 'calm', CALL: 'calm', RAISE: 'hot', ALL_IN: 'hot' }
 
@@ -15,6 +16,7 @@ const actionTones = { FOLD: 'muted', CHECK: 'calm', CALL: 'calm', RAISE: 'hot', 
 export default function PlayerSeat({ player, profile, slot, isYou, active, dealer, smallBlind, bigBlind, winner,
   chips, bet, revealDelays, turnMillis, turnKey, showHand, paid, taunting = false, spatial = false }) {
   const name = playerName(profile, player.accountId)
+  const { sendFriendRequest } = useCommunity()
   const state = [styles[slot], isYou && styles.hero, active && styles.active, player.folded && styles.folded, winner && styles.winner].filter(Boolean).join(' ')
   const status = player.eliminated ? `Place #${player.place}` : player.leftEarly ? 'Left table'
     : label(actionLabels, player.lastAction) || (active ? 'Thinking…' : 'Waiting')
@@ -24,6 +26,7 @@ export default function PlayerSeat({ player, profile, slot, isYou, active, deale
         <AvatarFrame avatarUrl={profile?.avatarUrl} name={name} size={isYou ? 'lg' : 'md'} />
         {taunting && <span className={styles.taunt} role="img" aria-label={`${name} is playing a sound`}><Icon name="volume_up" /></span>}
         <div className={styles.badges}>{dealer && <Dealer />}{smallBlind && <span className={styles.badge}>SB</span>}{bigBlind && <span className={styles.badge}>BB</span>}</div>
+        {!isYou && <button type="button" className={styles.friendButton} aria-label={`Add ${name} as friend`} onClick={event => { event.stopPropagation(); void sendFriendRequest(player.accountId) }}><Icon name="person_add" /></button>}
       </div>
       <div className={styles.identity}>
         <strong>{name}{isYou && <small>YOU</small>}</strong>

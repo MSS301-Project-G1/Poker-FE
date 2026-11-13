@@ -7,13 +7,14 @@ import { Avatar, Empty, ErrorNotice, Name } from './CommunityUI'
 import styles from '../Community.module.css'
 
 const sortedMessages = rows => [...new Map(rows.map(row => [row.id || row.clientMessageId, row])).values()].sort((a, b) => a.createdAt.localeCompare(b.createdAt) || (a.id || '').localeCompare(b.id || ''))
+const emotes = ['😀', '😂', '🤣', '😊', '😍', '😎', '🤔', '😅', '😭', '😡', '🤝', '👏', '🔥', '💯', '🎉', '❤️', '💔', '👋', '👍', '👎', '🎲', '🃏', '♠️', '♥️', '♦️', '♣️']
 
-export default function ChatPanel({ conversation, readOnly = false }) {
-  return <ConversationChat key={conversation.id} conversation={conversation} readOnly={readOnly} />
+export default function ChatPanel({ conversation, readOnly = false, showBack = false }) {
+  return <ConversationChat key={conversation.id} conversation={conversation} readOnly={readOnly} showBack={showBack} />
 }
 
-function ConversationChat({ conversation, readOnly }) {
-  const { user, loadProfiles, chatMessages, connection, registerVisibleChat } = useCommunity()
+function ConversationChat({ conversation, readOnly, showBack }) {
+  const { user, loadProfiles, chatMessages, connection, registerVisibleChat, clearChat } = useCommunity()
   useEffect(() => registerVisibleChat(conversation.id), [conversation.id, registerVisibleChat])
   const loader = useCallback(async signal => {
     const [room, history] = await Promise.all([api.conversation(conversation.id, signal), api.history(conversation.id, null, signal)])
@@ -25,6 +26,7 @@ function ConversationChat({ conversation, readOnly }) {
   const [outgoing, setOutgoing] = useState([])
   const [busy, setBusy] = useState(false)
   const [failure, setFailure] = useState('')
+  const [showEmotes, setShowEmotes] = useState(false)
   const [historyBusy, setHistoryBusy] = useState(false)
   const log = useRef(null)
   const atBottom = useRef(true)
@@ -50,8 +52,14 @@ function ConversationChat({ conversation, readOnly }) {
       setOutgoing(rows => rows.map(row => row.clientMessageId === entry.clientMessageId ? { ...sent, status: 'sent' } : row))
       reload()
     } catch (error) {
-      setOutgoing(rows => rows.map(row => row.clientMessageId === entry.clientMessageId ? { ...row, status: 'failed' } : row))
-      setFailure(error.message)
+      if (error.code === 'CHAT_CONTENT_NOT_ALLOWED') {
+        setOutgoing(rows => rows.filter(row => row.clientMessageId !== entry.clientMessageId))
+        setDraft(current => current || entry.content)
+        setFailure('Your message contains inappropriate language. Please edit it before sending.')
+      } else {
+        setOutgoing(rows => rows.map(row => row.clientMessageId === entry.clientMessageId ? { ...row, status: 'failed' } : row))
+        setFailure(error.message)
+      }
     } finally { setBusy(false) }
   }
 
@@ -69,7 +77,7 @@ function ConversationChat({ conversation, readOnly }) {
 
   const target = ids?.find(id => id !== user?.accountId)
   return <section className={styles.chat} aria-label="Conversation">
-    <header className={styles.chatHead}><Icon name={conversation.type === 'MATCH' ? 'casino' : 'forum'} /><div className={styles.person}><h3>{conversation.type === 'MATCH' ? 'Match chat' : <Name id={target} />}</h3><small className={styles.muted}>{closed ? 'Match ended · Read only' : connection.chat === 'connected' ? 'Connected · Live chat' : 'Reconnecting · Refreshing periodically'}</small></div></header>
+    <header className={styles.chatHead}><div className={styles.chatIdentity}>{showBack && <button type="button" className={styles.chatBack} onClick={() => clearChat()}>← All conversations</button>}<Icon name={conversation.type === 'MATCH' ? 'casino' : conversation.type === 'WORLD' ? 'public' : 'forum'} /><div className={styles.person}><h3>{conversation.type === 'MATCH' ? 'Match chat' : conversation.type === 'WORLD' ? 'World chat' : <Name id={target} />}</h3><small className={styles.muted}>{closed ? 'Match ended · Read only' : connection.chat === 'connected' ? 'Connected · Live chat' : 'Reconnecting · Refreshing periodically'}</small></div></div></header>
     <ErrorNotice message={failure || error} retry={reload} />
     <div ref={log} className={styles.chatLog} onScroll={() => { if (log.current) atBottom.current = log.current.scrollHeight - log.current.scrollTop - log.current.clientHeight < 60 }}>
       {cursor && <button className={styles.loadMore} type="button" disabled={historyBusy} onClick={more}>{historyBusy ? 'Loading…' : 'Load older messages'}</button>}
@@ -80,15 +88,26 @@ function ConversationChat({ conversation, readOnly }) {
       </div>)}
     </div>
     <form className={styles.composer} onSubmit={event => { event.preventDefault(); void send() }}>
-      <textarea className={styles.input} aria-label="Message" value={draft} maxLength={2000} placeholder={closed ? 'Read-only conversation' : 'Type a message…'} disabled={closed || !data} rows={2} onChange={event => setDraft(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); void send() } }} />
+      <div className={styles.inputWrap}>
+        <textarea className={styles.input} aria-label="Message" value={draft} maxLength={2000} placeholder={closed ? 'Read-only conversation' : 'Type a message…'} disabled={closed || !data} rows={2} onChange={event => setDraft(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); void send() } }} />
+        <button type="button" className={styles.emoteButton} aria-label="Add emoji" aria-expanded={showEmotes} disabled={closed || !data} onClick={() => setShowEmotes(value => !value)}>☺</button>
+        {showEmotes && <div className={styles.emotePicker} role="listbox" aria-label="Emoji picker">{emotes.map(emote => <button key={emote} type="button" role="option" aria-label={`Insert ${emote}`} onClick={() => { setDraft(value => `${value}${emote}`); setShowEmotes(false) }}>{emote}</button>)}</div>}
+      </div>
       <div className={styles.composerActions}><small className={styles.muted}>{draft.length}/2000 · Shift+Enter for a new line</small><Button variant="primary" type="submit" disabled={busy || closed || !data || !draft.trim()}>Send</Button></div>
     </form>
   </section>
 }
 
 export function MessagesPanel() {
-  const { conversation, clearChat } = useCommunity()
-  return conversation ? <><button className={styles.link} type="button" onClick={clearChat}>← All conversations</button><ChatPanel conversation={conversation} /></> : <ConversationList />
+  const { conversation } = useCommunity()
+  return conversation ? <ChatPanel conversation={conversation} showBack /> : <ConversationList />
+}
+
+export function WorldChat() {
+  const [room, setRoom] = useState(null)
+  const [error, setError] = useState('')
+  useEffect(() => { let alive = true; api.world().then(value => { if (alive) setRoom(value) }).catch(value => { if (alive) setError(value.message) }); return () => { alive = false } }, [])
+  return room ? <ChatPanel conversation={room} /> : <ErrorNotice message={error || 'Opening world chat…'} />
 }
 
 function ConversationList() {

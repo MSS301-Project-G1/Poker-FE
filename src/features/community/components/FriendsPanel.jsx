@@ -12,11 +12,11 @@ import { MessagesPanel } from './ChatPanel'
 const labels = { incoming: 'Friend requests', outgoing: 'Sent requests', blocks: 'Blocked' }
 const statuses = { ACCEPTED: 'Friends', DECLINED: 'Request declined', CANCELLED: 'Request cancelled' }
 
-function MoreMenu({ label, children }) {
+function MoreMenu({ label, text, children }) {
   return <details className={ui.menu} onKeyDown={event => {
     if (event.key === 'Escape') { event.stopPropagation(); event.currentTarget.open = false; event.currentTarget.querySelector('summary').focus() }
   }}>
-    <summary aria-label={label}><Icon name="more_horiz" /></summary>
+    <summary aria-label={label}>{text ? <><span>{text}</span><Icon name="more_horiz" /></> : <Icon name="more_horiz" />}</summary>
     <div className={ui.menuBody} onClick={event => {
       if (event.target.closest('button')) event.currentTarget.closest('details').open = false
     }}>{children}</div>
@@ -56,10 +56,8 @@ export default function FriendsPanel({ notifications = false, onChanged }) {
   }
   function selectTab(next) { if (!notifications) setPanel(next === 'chat' ? 'chat' : 'friends'); if (next !== 'chat') setTab(next); setPage(0); setError(''); setNotice('') }
   const navigation = !notifications && <div className={ui.toolbar}>
-      <MoreMenu label="Friend options">
-        <button type="button" onClick={() => selectTab('outgoing')}><Icon name="outgoing_mail" />Sent requests</button>
-        <button type="button" onClick={() => selectTab('blocks')}><Icon name="block" />Blocked</button>
-      </MoreMenu>
+      <button type="button" className={ui.toolbarButton} onClick={() => selectTab('outgoing')}><Icon name="outgoing_mail" />Sent requests</button>
+      <button type="button" className={ui.toolbarButton} onClick={() => selectTab('blocks')}><Icon name="block" />Blocked</button>
     </div>
   if (tab === 'chat') return <MessagesPanel />
   if (notifications && !loading && !readError && !rows.length) return null

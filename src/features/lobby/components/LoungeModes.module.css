@@ -45,10 +45,14 @@
   padding: var(--space-lg);
   border: 1px solid rgb(var(--color-primary) / 0.4);
   border-radius: var(--radius-xl);
-  background: rgb(var(--color-surface-container-lowest) / 0.85);
+  background: linear-gradient(135deg, rgb(var(--color-secondary-container) / .92), rgb(var(--color-surface-container-lowest) / .98));
+  border-color: rgb(var(--color-primary) / .72);
+  box-shadow: 0 12px 30px rgb(var(--color-obsidian) / .42), 0 0 0 2px rgb(var(--color-primary) / .12);
   backdrop-filter: blur(10px);
   box-shadow: var(--shadow-raised);
 }
+.resume h2 { color: rgb(var(--color-on-surface)); }
+.resume .pulse { background: rgb(var(--color-primary-fixed)); box-shadow: 0 0 0 5px rgb(var(--color-primary) / .18), var(--shadow-glow-primary); }
 .resume div { flex: 1; }
 .resume h2 { font-weight: 600; }
 .resume p { font-size: 13px; color: rgb(var(--color-on-surface-variant)); }
