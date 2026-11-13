@@ -80,6 +80,7 @@
 }
 .won .title { color: rgb(var(--color-tertiary)); }
 .muted { margin: 8px 0 0; color: rgb(var(--color-on-surface-variant)); font-size: 13px; }
+.friendButton { margin-left: auto; width: 28px; height: 28px; border: 1px solid rgb(var(--color-border)); border-radius: 50%; background: rgb(var(--color-surface-container)); color: rgb(var(--color-primary)); cursor: pointer; }
 
 /* Standings: one glass pod per player, in the style of the seat plates. */
 /* The inline padding leaves room for your row's glow inside the scroll box. */

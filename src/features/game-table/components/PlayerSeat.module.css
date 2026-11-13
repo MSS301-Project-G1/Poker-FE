@@ -54,6 +54,7 @@
 }
 
 .avatar { position: relative; flex: none; }
+.friendButton { position: absolute; right: -8px; bottom: -8px; z-index: 2; width: 24px; height: 24px; border: 1px solid rgb(var(--color-border)); border-radius: 50%; background: rgb(var(--color-surface-container)); color: rgb(var(--color-primary)); display: grid; place-items: center; cursor: pointer; }
 /* Speaker over the avatar while this player's taunt sound plays. */
 .taunt {
   position: absolute;
